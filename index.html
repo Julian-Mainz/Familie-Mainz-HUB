@@ -537,7 +537,7 @@
             }
         }
 
-        // --- ADMIN ---
+        // --- ADMIN LOGIK ---
         function loadAdminUserList() {
             const listEl = document.getElementById('users-admin-list');
             if (!listEl) return;
@@ -555,7 +555,9 @@
                         <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${user.role === 'admin' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-slate-700 text-slate-300'}">
                             ${user.role.toUpperCase()}
                         </span>
-                        <button onclick="toggleUserRole('${user.email}')" class="text-indigo-400 hover:underline ml-2">Rolle ändern</button>
+                        <button onclick="toggleUserRole('${user.email}')" class="text-slate-400 hover:text-indigo-400 p-1" title="Rolle wechseln">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>
                     </div>
                 `;
                 listEl.appendChild(item);
