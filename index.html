@@ -10,9 +10,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background-color: #0f172a;
+            background-color: #0b0f19;
             color: #f8fafc;
             font-family: system-ui, -apple-system, sans-serif;
+        }
+        .bg-card {
+            background-color: #111827;
+        }
+        .border-card {
+            border-color: #1f293d;
         }
     </style>
 </head>
@@ -46,20 +52,24 @@
         </div>
     </div>
 
-    <!-- Hauptanwendung (nach Login sichtbar) -->
+    <!-- Hauptanwendung (nach Login) -->
     <div id="app" class="hidden flex-1 flex flex-col h-full">
         
         <!-- Header -->
-        <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+        <header class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <i class="fa-solid fa-house-user text-indigo-500 text-xl"></i>
-                <span class="font-bold text-lg tracking-wide">Zentrale</span>
+                <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold">
+                    <i class="fa-solid fa-house"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-base tracking-wide">J.Mainz Datenbank</span>
+                </div>
             </div>
             <div class="flex items-center space-x-6">
                 <span id="current-user-display" class="text-xs bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-full text-slate-300"></span>
-                <span class="text-xl font-bold tracking-wider text-indigo-400">Familien-Mainz HUB</span>
-                <button onclick="handleLogout()" class="text-slate-400 hover:text-red-400 transition-colors ml-4" title="Abmelden">
-                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                <span class="text-lg font-bold tracking-wider text-indigo-400">Familien-Mainz HUB</span>
+                <button onclick="handleLogout()" class="text-slate-400 hover:text-red-400 transition-colors ml-2" title="Abmelden">
+                    <i class="fa-solid fa-right-from-bracket text-base"></i>
                 </button>
             </div>
         </header>
@@ -67,7 +77,7 @@
         <div class="flex flex-1 overflow-hidden">
             
             <!-- Linke Navigationsleiste -->
-            <aside class="w-64 bg-slate-900/60 border-r border-slate-800 p-4 flex flex-col justify-between">
+            <aside class="w-60 bg-slate-900/60 border-r border-slate-800 p-4 flex flex-col justify-between">
                 <nav class="space-y-1">
                     <button onclick="switchTab('start')" id="nav-start" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-300 hover:bg-slate-800/60">
                         <i class="fa-solid fa-border-all w-5"></i>
@@ -79,14 +89,14 @@
                         <span class="font-medium text-sm">Finanzen</span>
                     </button>
 
-                    <!-- Admin Bereich (nur für Admins) -->
+                    <!-- Admin Bereich -->
                     <button onclick="switchTab('admin')" id="nav-admin" class="nav-btn hidden w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-300 hover:bg-slate-800/60 text-amber-400">
                         <i class="fa-solid fa-user-shield w-5"></i>
                         <span class="font-medium text-sm">Berechtigungen</span>
                     </button>
                 </nav>
 
-                <div class="text-xs text-slate-500 text-center py-2">
+                <div class="text-[11px] text-slate-500 text-center py-2">
                     Familien-Mainz HUB v1.0
                 </div>
             </aside>
@@ -96,13 +106,13 @@
                 
                 <!-- REITER 1: START MENÜ -->
                 <section id="tab-start" class="tab-content space-y-6">
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <div class="bg-card border border-card rounded-2xl p-6">
                         <h2 class="text-2xl font-bold mb-2 text-indigo-400">Willkommen im Familien-Mainz HUB</h2>
-                        <p class="text-slate-400 text-sm">Dies ist der zentrale Anlaufpunkt für alle Familienmitglieder. Nutze das Menü auf der linken Seite, um zu deinen Bereichen zu gelangen.</p>
+                        <p class="text-slate-400 text-sm">Dies ist der zentrale Anlaufpunkt für alle Familienmitglieder.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+                        <div class="bg-card border border-card p-6 rounded-2xl">
                             <i class="fa-solid fa-wallet text-2xl text-emerald-400 mb-3"></i>
                             <h3 class="font-semibold text-lg text-slate-200">Persönliche Finanzen</h3>
                             <p class="text-xs text-slate-400 mt-1 mb-4">Verwalte deine eigenen Einnahmen & Ausgaben in einem geschützten Bereich.</p>
@@ -111,57 +121,168 @@
                     </div>
                 </section>
 
-                <!-- REITER 2: FINANZEN (ISOLIERT PRO NUTZER) -->
+                <!-- REITER 2: FINANZEN -->
                 <section id="tab-finanzen" class="tab-content hidden space-y-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h2 class="text-2xl font-bold text-slate-100">Eigene Finanzen</h2>
-                            <p class="text-xs text-slate-400">Geschützter Bereich – Nur für dich sichtbar</p>
+                    
+                    <!-- Top Action Bar -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 bg-card border border-card p-4 rounded-2xl">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-regular fa-calendar text-indigo-400"></i>
+                            <span class="text-xs text-slate-400 font-medium">Abrechnungsmonat auswählen:</span>
+                            <input type="month" id="finance-month-filter" onchange="loadFinanceData()" value="2026-10" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500">
                         </div>
-                        <button onclick="addTransaction()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-indigo-600/30">
-                            + Eintrag hinzufügen
-                        </button>
-                    </div>
-
-                    <!-- Finanz-Übersichtssortierung -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                            <span class="text-xs text-slate-400 uppercase tracking-wider">Gesamtsaldo</span>
-                            <div id="finance-balance" class="text-2xl font-bold text-slate-100 mt-1">0,00 €</div>
-                        </div>
-                        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                            <span class="text-xs text-slate-400 uppercase tracking-wider">Einnahmen</span>
-                            <div id="finance-income" class="text-2xl font-bold text-emerald-400 mt-1">+0,00 €</div>
-                        </div>
-                        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                            <span class="text-xs text-slate-400 uppercase tracking-wider">Ausgaben</span>
-                            <div id="finance-expenses" class="text-2xl font-bold text-rose-400 mt-1">-0,00 €</div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="addTransactionPrompt()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Buchung eintragen</span>
+                            </button>
+                            <button onclick="uploadPaySlipPrompt()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-emerald-600/30 flex items-center space-x-2">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <span>Lohnabrechnung hochladen</span>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Transaktionsliste -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-                        <div class="p-4 border-b border-slate-800 font-semibold text-sm text-slate-300">
-                            Meine Buchungen
+                    <!-- Finanz KPI Karten -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <!-- Einnahmen -->
+                        <div class="bg-card border border-card p-5 rounded-2xl relative overflow-hidden">
+                            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                                <span>Einnahmen gesamt</span>
+                                <div class="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                                    <i class="fa-solid fa-arrow-down text-[10px]"></i>
+                                </div>
+                            </div>
+                            <div id="kpi-income" class="text-2xl font-bold text-emerald-400">0,00 €</div>
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 mt-3">
+                                <span id="kpi-income-count">0 Buchungen</span>
+                                <span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded text-[10px] font-medium">Zuflüsse</span>
+                            </div>
                         </div>
-                        <div id="transactions-list" class="divide-y divide-slate-800 text-sm">
-                            <div class="p-4 text-center text-slate-500 text-xs">Noch keine Buchungen vorhanden.</div>
+
+                        <!-- Ausgaben -->
+                        <div class="bg-card border border-card p-5 rounded-2xl relative overflow-hidden">
+                            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                                <span>Ausgaben gesamt</span>
+                                <div class="w-6 h-6 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-400">
+                                    <i class="fa-solid fa-arrow-up text-[10px]"></i>
+                                </div>
+                            </div>
+                            <div id="kpi-expenses" class="text-2xl font-bold text-rose-400">0,00 €</div>
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 mt-3">
+                                <span id="kpi-expenses-count">0 Buchungen</span>
+                                <span class="text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded text-[10px] font-medium">Abflüsse</span>
+                            </div>
+                        </div>
+
+                        <!-- Netto-Cashflow -->
+                        <div class="bg-card border border-card p-5 rounded-2xl relative overflow-hidden">
+                            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                                <span>Netto-Cashflow</span>
+                                <div class="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                                    <i class="fa-solid fa-scale-balanced text-[10px]"></i>
+                                </div>
+                            </div>
+                            <div id="kpi-cashflow" class="text-2xl font-bold text-emerald-400">0,00 €</div>
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 mt-3">
+                                <span>Differenz E - A</span>
+                                <span class="text-emerald-400 font-medium">Überschuss / Sparpotenzial</span>
+                            </div>
+                        </div>
+
+                        <!-- Sparquote -->
+                        <div class="bg-card border border-card p-5 rounded-2xl relative overflow-hidden">
+                            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                                <span>Sparquote</span>
+                                <div class="w-6 h-6 rounded-full bg-sky-500/10 flex items-center justify-center text-sky-400">
+                                    <i class="fa-solid fa-percent text-[10px]"></i>
+                                </div>
+                            </div>
+                            <div id="kpi-savings-rate" class="text-2xl font-bold text-sky-400">0.0 %</div>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full mt-4 overflow-hidden">
+                                <div id="kpi-savings-bar" class="bg-sky-400 h-full w-0 transition-all duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lohnabrechnungen & Gehaltsnachweise Card -->
+                    <div class="bg-card border border-card rounded-2xl p-5">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-file-lines text-slate-300"></i>
+                                <h3 class="font-semibold text-sm text-slate-200">Lohnabrechnungen & Gehaltsnachweise</h3>
+                            </div>
+                            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">Verschlüsselt/Lokal auf deinem Gerät</span>
+                        </div>
+
+                        <div id="payslip-container" class="border border-dashed border-slate-800 rounded-xl p-8 text-center text-slate-500 text-xs">
+                            <i class="fa-regular fa-file-pdf text-3xl mb-2 text-slate-600 block"></i>
+                            <span id="payslip-text">Keine Lohnabrechnung für den ausgewählten Monat hinterlegt.</span>
+                            <br>
+                            <button onclick="uploadPaySlipPrompt()" class="mt-2 text-indigo-400 hover:underline font-medium">Jetzt hochladen &rarr;</button>
+                        </div>
+                    </div>
+
+                    <!-- Buchungen im gewählten Zeitraum -->
+                    <div class="bg-card border border-card rounded-2xl overflow-hidden">
+                        <div class="p-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fa-solid fa-credit-card text-sky-400 text-xs"></i>
+                                    <h3 class="font-semibold text-sm text-slate-200">Buchungen im gewählten Zeitraum</h3>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Alle Einnahmen und Ausgaben für diesen Monat im Überblick.</p>
+                            </div>
+
+                            <!-- Filter Controls -->
+                            <div class="flex items-center space-x-3">
+                                <input type="text" id="filter-search" oninput="renderTransactions()" placeholder="Suchen..." class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 w-36">
+                                <select id="filter-type" onchange="renderTransactions()" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                                    <option value="all">Alle Typen</option>
+                                    <option value="income">Einnahme</option>
+                                    <option value="expense">Ausgabe</option>
+                                </select>
+                                <select id="filter-category" onchange="renderTransactions()" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                                    <option value="all">Alle Kategorien</option>
+                                    <option value="Gehalt">Gehalt</option>
+                                    <option value="Miete / Wohnen">Miete / Wohnen</option>
+                                    <option value="Lebensmittel & Haushalt">Lebensmittel & Haushalt</option>
+                                    <option value="Sonstiges">Sonstiges</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Tabelle -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-900/80 text-slate-400 border-b border-slate-800 font-semibold uppercase tracking-wider">
+                                    <tr>
+                                        <th class="p-4">Datum</th>
+                                        <th class="p-4">Typ</th>
+                                        <th class="p-4">Kategorie</th>
+                                        <th class="p-4">Beschreibung</th>
+                                        <th class="p-4 text-right">Betrag</th>
+                                        <th class="p-4 text-center">Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactions-table-body" class="divide-y divide-slate-800/60">
+                                    <!-- Dynamisch befüllt -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
 
-                <!-- REITER 3: ADMIN BERECHTIGUNGEN -->
+                <!-- REITER 3: ADMIN -->
                 <section id="tab-admin" class="tab-content hidden space-y-6">
                     <div>
                         <h2 class="text-2xl font-bold text-amber-400">Berechtigungsverwaltung (Admin)</h2>
-                        <p class="text-xs text-slate-400">Hier kannst du als Administrator festlegen, wer welche Rechte und Zugriff auf das System hat.</p>
+                        <p class="text-xs text-slate-400">Nutzer- & Rechteverwaltung</p>
                     </div>
 
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <div class="bg-card border border-card rounded-2xl p-6">
                         <h3 class="text-sm font-semibold mb-4 text-slate-200">Registrierte Benutzer & Rollen</h3>
-                        <div id="users-admin-list" class="space-y-3">
-                            <!-- Wird dynamisch befüllt -->
-                        </div>
+                        <div id="users-admin-list" class="space-y-3"></div>
                     </div>
                 </section>
 
@@ -172,14 +293,23 @@
     <!-- JavaScript Logik -->
     <script>
         let currentUser = null;
-        let isSignUp = false;
 
-        // Lokaler Speicher-Mock für Demo/Prototyp
-        let usersData = JSON.parse(localStorage.getItem('hub_users')) || [
-            { email: 'admin@mainz.de', role: 'admin' }
-        ];
-
+        // Speicher-Struktur (Isoliert nach E-Mail)
+        let usersData = JSON.parse(localStorage.getItem('hub_users')) || [];
         let transactionsData = JSON.parse(localStorage.getItem('hub_transactions')) || {};
+        let payslipsData = JSON.parse(localStorage.getItem('hub_payslips')) || {};
+
+        // Startbeispieldaten für julian-mainz if empty
+        function seedInitialDemoData(email) {
+            if (!transactionsData[email]) {
+                transactionsData[email] = [
+                    { id: 1, date: '01.10.2026', month: '2026-10', type: 'income', category: 'Gehalt', title: 'Gehaltseingang Arbeitgeber', amount: 2850.00 },
+                    { id: 2, date: '02.10.2026', month: '2026-10', type: 'expense', category: 'Miete / Wohnen', title: 'Warmmiete', amount: 780.00 },
+                    { id: 3, date: '04.10.2026', month: '2026-10', type: 'expense', category: 'Lebensmittel & Haushalt', title: 'Wocheneinkauf Supermarkt', amount: 85.50 }
+                ];
+                localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
+            }
+        }
 
         function handleLogin(e) {
             e.preventDefault();
@@ -190,17 +320,17 @@
                 role: (email.toLowerCase().includes('admin') || email.toLowerCase().includes('julian')) ? 'admin' : 'user'
             };
 
-            // Falls Nutzer neu, hinzufügen
             if (!usersData.find(u => u.email === email)) {
                 usersData.push(currentUser);
                 localStorage.setItem('hub_users', JSON.stringify(usersData));
             }
 
+            seedInitialDemoData(email);
+
             document.getElementById('auth-overlay').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
             document.getElementById('current-user-display').innerText = currentUser.email;
 
-            // Admin-Reiter anzeigen, falls Admin
             if (currentUser.role === 'admin') {
                 document.getElementById('nav-admin').classList.remove('hidden');
             } else {
@@ -213,8 +343,7 @@
         }
 
         function toggleAuthMode() {
-            isSignUp = !isSignUp;
-            document.getElementById('toggle-auth-btn').innerText = isSignUp ? 'Bereits ein Konto? Anmelden' : 'Neues Konto erstellen';
+            alert("Sicherheitshinweis: Die Registrierung erfolgt automatisch bei Ersteingabe der E-Mail-Adresse.");
         }
 
         function handleLogout() {
@@ -236,73 +365,182 @@
                 activeNav.classList.add('bg-indigo-600', 'text-white');
                 activeNav.classList.remove('text-slate-300');
             }
+
+            if (tabId === 'finanzen') {
+                loadFinanceData();
+            }
         }
 
-        // --- FINANZ-FUNKTIONEN (NUTZERISOLIERT) ---
+        // --- FINANZ LOGIK ---
         function loadFinanceData() {
             if (!currentUser) return;
-            const userTx = transactionsData[currentUser.email] || [];
-            
-            let income = 0;
-            let expenses = 0;
-            const listEl = document.getElementById('transactions-list');
-            listEl.innerHTML = '';
-
-            if (userTx.length === 0) {
-                listEl.innerHTML = '<div class="p-4 text-center text-slate-500 text-xs">Noch keine Buchungen vorhanden.</div>';
-            } else {
-                userTx.forEach(tx => {
-                    if (tx.type === 'income') income += tx.amount;
-                    else expenses += tx.amount;
-
-                    const row = document.createElement('div');
-                    row.className = 'p-4 flex items-center justify-between';
-                    row.innerHTML = `
-                        <div>
-                            <div class="font-medium text-slate-200">${tx.title}</div>
-                            <div class="text-xs text-slate-500">${tx.date}</div>
-                        </div>
-                        <div class="font-bold ${tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}">
-                            ${tx.type === 'income' ? '+' : '-'}${tx.amount.toFixed(2)} €
-                        </div>
-                    `;
-                    listEl.appendChild(row);
-                });
-            }
-
-            document.getElementById('finance-income').innerText = `+${income.toFixed(2)} €`;
-            document.getElementById('finance-expenses').innerText = `-${expenses.toFixed(2)} €`;
-            document.getElementById('finance-balance').innerText = `${(income - expenses).toFixed(2)} €`;
+            renderTransactions();
+            loadPayslipStatus();
         }
 
-        function addTransaction() {
-            const title = prompt('Beschreibung/Titel der Buchung:');
-            if (!title) return;
-            const amountStr = prompt('Betrag in € (z.B. 15.50):');
-            if (!amountStr) return;
-            const amount = parseFloat(amountStr.replace(',', '.'));
-            if (isNaN(amount)) return alert('Ungültiger Betrag');
+        function renderTransactions() {
+            const selectedMonth = document.getElementById('finance-month-filter').value;
+            const search = document.getElementById('filter-search').value.toLowerCase();
+            const typeFilter = document.getElementById('filter-type').value;
+            const catFilter = document.getElementById('filter-category').value;
 
-            const isIncome = confirm('Ist dies eine Einnahme? (Abbrechen für Ausgabe)');
+            const userTx = transactionsData[currentUser.email] || [];
+            
+            // Nach Monat filtern
+            const monthTx = userTx.filter(t => t.month === selectedMonth);
+
+            let totalIncome = 0;
+            let totalExpense = 0;
+            let incomeCount = 0;
+            let expenseCount = 0;
+
+            monthTx.forEach(t => {
+                if (t.type === 'income') {
+                    totalIncome += t.amount;
+                    incomeCount++;
+                } else {
+                    totalExpense += t.amount;
+                    expenseCount++;
+                }
+            });
+
+            // KPIs berechnen
+            const netCashflow = totalIncome - totalExpense;
+            const savingsRate = totalIncome > 0 ? ((netCashflow / totalIncome) * 100).toFixed(1) : 0;
+
+            document.getElementById('kpi-income').innerText = totalIncome.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+            document.getElementById('kpi-income-count').innerText = incomeCount + ' Buchung' + (incomeCount !== 1 ? 'en' : '');
+
+            document.getElementById('kpi-expenses').innerText = totalExpense.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+            document.getElementById('kpi-expenses-count').innerText = expenseCount + ' Buchung' + (expenseCount !== 1 ? 'en' : '');
+
+            document.getElementById('kpi-cashflow').innerText = netCashflow.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+            document.getElementById('kpi-savings-rate').innerText = (savingsRate > 0 ? savingsRate : 0) + ' %';
+            document.getElementById('kpi-savings-bar').style.width = Math.min(Math.max(savingsRate, 0), 100) + '%';
+
+            // Tabelle filtern und rendern
+            const tbody = document.getElementById('transactions-table-body');
+            tbody.innerHTML = '';
+
+            const filtered = monthTx.filter(t => {
+                const matchesSearch = t.title.toLowerCase().includes(search) || t.category.toLowerCase().includes(search);
+                const matchesType = typeFilter === 'all' || t.type === typeFilter;
+                const matchesCat = catFilter === 'all' || t.category === catFilter;
+                return matchesSearch && matchesType && matchesCat;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 text-xs">Keine Buchungen im gewählten Zeitraum vorhanden.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-900/50 transition-colors';
+                tr.innerHTML = `
+                    <td class="p-4 text-slate-300 font-mono text-[11px]">${t.date}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${t.type === 'income' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
+                            ${t.type === 'income' ? '+ Einnahme' : '- Ausgabe'}
+                        </span>
+                    </td>
+                    <td class="p-4 text-slate-300 font-medium">${t.category}</td>
+                    <td class="p-4 text-slate-400">${t.title}</td>
+                    <td class="p-4 text-right font-bold font-mono ${t.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}">
+                        ${t.type === 'income' ? '+' : '-'}${t.amount.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                    </td>
+                    <td class="p-4 text-center space-x-2">
+                        <button onclick="deleteTransaction(${t.id})" class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-regular fa-trash-can"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addTransactionPrompt() {
+            const selectedMonth = document.getElementById('finance-month-filter').value;
+            const title = prompt('Beschreibung / Empfänger:');
+            if (!title) return;
+
+            const category = prompt('Kategorie (z.B. Gehalt, Miete / Wohnen, Lebensmittel & Haushalt, Sonstiges):', 'Sonstiges');
+            const amountStr = prompt('Betrag in € (z.B. 85.50):');
+            if (!amountStr) return;
+
+            const amount = parseFloat(amountStr.replace(',', '.'));
+            if (isNaN(amount)) return alert('Ungültiger Betrag!');
+
+            const isIncome = confirm('Ist dies eine Einnahme?\n[OK] = Einnahme (+)\n[Abbrechen] = Ausgabe (-)');
+
+            const today = new Date();
+            const formattedDate = String(today.getDate()).padStart(2, '0') + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + today.getFullYear();
 
             if (!transactionsData[currentUser.email]) {
                 transactionsData[currentUser.email] = [];
             }
 
             transactionsData[currentUser.email].push({
-                title: title,
-                amount: amount,
+                id: Date.now(),
+                date: formattedDate,
+                month: selectedMonth,
                 type: isIncome ? 'income' : 'expense',
-                date: new Date().toLocaleDateString('de-DE')
+                category: category || 'Sonstiges',
+                title: title,
+                amount: amount
             });
 
             localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
             loadFinanceData();
         }
 
-        // --- ADMIN FUNKTIONEN ---
+        function deleteTransaction(id) {
+            if (confirm('Möchtest du diese Buchung wirklich löschen?')) {
+                transactionsData[currentUser.email] = transactionsData[currentUser.email].filter(t => t.id !== id);
+                localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
+                loadFinanceData();
+            }
+        }
+
+        function uploadPaySlipPrompt() {
+            const selectedMonth = document.getElementById('finance-month-filter').value;
+            const fileName = prompt('Name des Gehaltsnachweises / PDF-Datei:');
+            if (!fileName) return;
+
+            if (!payslipsData[currentUser.email]) payslipsData[currentUser.email] = {};
+            payslipsData[currentUser.email][selectedMonth] = fileName;
+
+            localStorage.setItem('hub_payslips', JSON.stringify(payslipsData));
+            loadPayslipStatus();
+        }
+
+        function loadPayslipStatus() {
+            const selectedMonth = document.getElementById('finance-month-filter').value;
+            const container = document.getElementById('payslip-container');
+
+            const slip = payslipsData[currentUser.email] ? payslipsData[currentUser.email][selectedMonth] : null;
+
+            if (slip) {
+                container.innerHTML = `
+                    <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-regular fa-file-pdf text-rose-400 text-xl"></i>
+                            <span class="font-medium text-slate-200">${slip}</span>
+                        </div>
+                        <span class="text-emerald-400 text-[11px] font-semibold"><i class="fa-solid fa-circle-check mr-1"></i>Hinterlegt</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <i class="fa-regular fa-file-pdf text-3xl mb-2 text-slate-600 block"></i>
+                    <span>Keine Lohnabrechnung für ${selectedMonth} hinterlegt.</span><br>
+                    <button onclick="uploadPaySlipPrompt()" class="mt-2 text-indigo-400 hover:underline font-medium">Jetzt hochladen &rarr;</button>
+                `;
+            }
+        }
+
+        // --- ADMIN ---
         function loadAdminUserList() {
             const listEl = document.getElementById('users-admin-list');
+            if (!listEl) return;
             listEl.innerHTML = '';
 
             usersData.forEach(user => {
