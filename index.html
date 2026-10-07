@@ -74,6 +74,19 @@
             </div>
         </header>
 
+<!-- Admin- & Import-Bereich -->
+<div style="margin: 15px 0; display: flex; gap: 10px;">
+  <!-- Sparkassen CSV Import -->
+  <label for="sparkassenCsvInput" class="btn" style="background-color: #2b7fff; color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+    Sparkassen-CSV importieren
+  </label>
+  <input type="file" id="sparkassenCsvInput" accept=".csv" style="display: none;" onchange="importSparkasseCSV(event)" />
+
+  <!-- Admin / Datenbank leeren -->
+  <button onclick="clearDatabase()" style="background-color: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+    ⚠️ Admin: Datenbank leeren
+  </button>
+</div>
         <div class="flex flex-1 overflow-hidden">
             
             <!-- Linke Navigationsleiste -->
@@ -101,6 +114,105 @@
                 </div>
             </aside>
 
+// ==========================================
+// 1. Sparkassen CSV-Export importieren
+// ==========================================
+function importSparkasseCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  // Sparkassen-CSVs sind meist ISO-8859-1 (ANSI) codiert
+  reader.readAsText(file, "ISO-8859-1");
+
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const lines = text.split("\n");
+    let importedCount = 0;
+
+    // Gespeicherte Buchungen laden (oder leeres Array initialisieren)
+    let buchungen = JSON.parse(localStorage.getItem("buchungen")) || [];
+
+    // Header-Zeile analysieren und Trennzeichen (Semikolon) verarbeiten
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+
+      // Anpassen an Standard-Sparkassen CSV Spalten (getrennt durch ;)
+      // Typischer Aufbau: "Auftragskonto";"Buchungstag";"Valutadatum";"Buchungstext";"Verwendungszweck";...;"Betrag";"Währung"
+      const columns = line.split(";").map(col => col.replace(/^"|"$/g, ''));
+
+      if (columns.length < 8) continue; // Ungültige Zeile überspringen
+
+      const rawDatum = columns[1];        // Buchungstag (z.B. 02.10.26)
+      const empfaenger = columns[11] || columns[4] || "Sparkasse-Import"; // Empfänger/Verwendungszweck
+      const rawBetrag = columns[14] || columns[8]; // Betrag (z.B. -780,00 oder 2850,00)
+
+      if (!rawDatum || !rawBetrag) continue;
+
+      // Datum formatieren (DD.MM.YYYY oder DD.MM.YY -> YYYY-MM-DD)
+      const dateParts = rawDatum.split(".");
+      let formattedDate = rawDatum;
+      if (dateParts.length === 3) {
+        let year = dateParts[2].length === 2 ? "20" + dateParts[2] : dateParts[2];
+        formattedDate = `${year}-${dateParts[1].padStart(2, '0')}-${dateParts[0].padStart(2, '0')}`;
+      }
+
+      // Betrag in Zahl umwandeln (Komma durch Punkt ersetzen)
+      const betragNum = parseFloat(rawBetrag.replace(".", "").replace(",", "."));
+      if (isNaN(betragNum)) continue;
+
+      const typ = betragNum >= 0 ? "Einnahme" : "Ausgabe";
+      const absBetrag = Math.abs(betragNum);
+
+      // Automatische Kategorie-Erkennung (Beispielhaft)
+      let kategorie = "Sonstiges";
+      const descLower = empfaenger.toLowerCase();
+      if (descLower.includes("gehalt") || descLower.includes("lohn")) kategorie = "Gehalt";
+      else if (descLower.includes("miete") || descLower.includes("wohnen")) kategorie = "Miete / Wohnen";
+      else if (descLower.includes("supermarkt") || descLower.includes("rewe") || descLower.includes("aldi")) kategorie = "Lebensmittel & Haushalt";
+
+      // Neue Buchung aufbauen
+      const neueBuchung = {
+        id: Date.now() + Math.random(),
+        datum: formattedDate,
+        typ: typ,
+        kategorie: kategorie,
+        beschreibung: empfaenger,
+        betrag: absBetrag
+      };
+
+      buchungen.push(neueBuchung);
+      importedCount++;
+    }
+
+    // In LocalStorage speichern
+    localStorage.setItem("buchungen", JSON.stringify(buchungen));
+
+    alert(`${importedCount} Buchungen erfolgreich aus der Sparkassen-CSV importiert!`);
+    
+    // UI neu laden (Funktionsname an deine App anpassen, z. B. renderTable())
+    if (typeof loadData === "function") loadData();
+    else location.reload();
+  };
+}
+
+
+// ==========================================
+// 2. Admin: Datenbank / Speicher leeren
+// ==========================================
+function clearDatabase() {
+  const confirmFirst = confirm("Möchtest du wirklich ALLE Daten aus der Datenbank löschen?");
+  if (!confirmFirst) return;
+
+  const confirmSecond = confirm("ACHTUNG: Dieser Vorgang kann nicht rückgängig gemacht werden! Wirklich alles leeren?");
+  if (confirmSecond) {
+    localStorage.clear(); // Löscht alle lokalen Daten der Anwendung
+    alert("Die Datenbank wurde erfolgreich geleert.");
+    location.reload(); // Seite neu laden
+  }
+}
             <!-- Hauptinhalt -->
             <main class="flex-1 p-6 overflow-y-auto bg-slate-950">
                 
