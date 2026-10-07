@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Familie Mainz - Hub & Finanzen</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col">
+
+  <!-- AUTH CONTAINER (Login / Registrierung) -->
+  <div id="auth-screen" class="flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-md bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-700">
+      <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-indigo-400">J.Mainz Datenbank</h1>
+        <p class="text-slate-400 text-sm mt-1">Zentrale Alltags- & Arbeitsorganisation</p>
+      </div>
+
+      <div id="auth-error" class="hidden mb-4 p-3 bg-red-900/50 border border-red-500/50 text-red-200 text-sm rounded-lg"></div>
+
+      <form id="auth-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">E-Mail</label>
+          <input type="email" id="auth-email" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Passwort</label>
+          <input type="password" id="auth-password" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 rounded-lg transition">Anmelden</button>
+        <button type="button" id="btn-register" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2 rounded-lg transition">Neues Konto erstellen</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app-screen" class="hidden flex-1 flex flex-col">
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center px-6">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl">M</div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">J.Mainz Datenbank <span class="text-xs bg-indigo-900/80 text-indigo-300 px-2 py-0.5 rounded-full ml-2">Nexus Hub</span></h1>
+          <p id="user-display" class="text-xs text-slate-400"></p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <!-- Abrechnungsmonat Filter -->
+        <div class="flex items-center space-x-2 bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg">
+          <span class="text-xs text-slate-400">Abrechnungsmonat:</span>
+          <input type="month" id="selected-month" onchange="loadFinanceData()" class="bg-transparent text-sm text-white focus:outline-none">
+        </div>
+        <button id="btn-logout" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-sm text-slate-300">Abmelden</button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-slate-800/50 border-b border-slate-700 flex justify-center space-x-2 p-2">
+      <button onclick="switchTab('finance')" id="tab-finance" class="px-4 py-2 rounded-lg font-medium text-sm transition bg-indigo-600 text-white">💰 Finanzen</button>
+      <button onclick="switchTab('time')" id="tab-time" class="px-4 py-2 rounded-lg font-medium text-sm transition text-slate-400 hover:bg-slate-700">⏰ Arbeitszeit</button>
+      <button onclick="switchTab('todos')" id="tab-todos" class="px-4 py-2 rounded-lg font-medium text-sm transition text-slate-400 hover:bg-slate-700">📋 Aufgaben</button>
+      <button onclick="switchTab('shopping')" id="tab-shopping" class="px-4 py-2 rounded-lg font-medium text-sm transition text-slate-400 hover:bg-slate-700">🛒 Einkaufsliste</button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-6 space-y-6">
+
+      <!-- TAB: FINANZEN -->
+      <section id="section-finance" class="space-y-6">
+        
+        <!-- Top Cards (Übersicht) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <!-- Einnahmen -->
+          <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 shadow-sm relative">
+            <p class="text-xs text-slate-400 mb-1">Einnahmen gesamt</p>
+            <p id="total-income" class="text-2xl font-bold text-emerald-400">0,00 €</p>
+            <span class="absolute top-5 right-5 text-emerald-400 text-xs bg-emerald-900/30 px-2 py-0.5 rounded-full">↓ Zuflüsse</span>
+          </div>
+
+          <!-- Ausgaben -->
+          <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 shadow-sm relative">
+            <p class="text-xs text-slate-400 mb-1">Ausgaben gesamt</p>
+            <p id="total-expenses" class="text-2xl font-bold text-rose-400">0,00 €</p>
+            <span class="absolute top-5 right-5 text-rose-400 text-xs bg-rose-900/30 px-2 py-0.5 rounded-full">↑ Abflüsse</span>
+          </div>
+
+          <!-- Netto-Cashflow -->
+          <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 shadow-sm relative">
+            <p class="text-xs text-slate-400 mb-1">Netto-Cashflow</p>
+            <p id="net-cashflow" class="text-2xl font-bold text-emerald-400">0,00 €</p>
+            <span class="absolute top-5 right-5 text-indigo-400 text-xs bg-indigo-900/30 px-2 py-0.5 rounded-full">Differenz E - A</span>
+          </div>
+
+          <!-- Sparquote -->
+          <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 shadow-sm relative">
+            <p class="text-xs text-slate-400 mb-1">Sparquote</p>
+            <p id="savings-rate" class="text-2xl font-bold text-cyan-400">0.0 %</p>
+            <div class="w-full bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
+              <div id="savings-rate-bar" class="bg-cyan-400 h-full w-0 transition-all"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CSV-Export / Manuelle Buchung Card -->
+        <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h3 class="text-lg font-semibold text-white">Sparkassen CSV Export hochladen</h3>
+            <p class="text-xs text-slate-400 mt-1">Lade deinen Umsattexport (CSV-Datei) direkt aus dem Online-Banking deiner Sparkasse hoch.</p>
+          </div>
+          <div class="flex items-center space-x-3 w-full md:w-auto">
+            <input type="file" id="sparkasse-csv" accept=".csv" class="hidden" onchange="handleSparkasseCSV(event)">
+            <button onclick="document.getElementById('sparkasse-csv').click()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-4 py-2 rounded-lg text-sm transition">
+              📂 Sparkasse CSV importieren
+            </button>
+            <button onclick="document.getElementById('manual-entry-modal').classList.remove('hidden')" class="bg-slate-700 hover:bg-slate-600 text-white font-medium px-4 py-2 rounded-lg text-sm transition">
+              + Manuell eintragen
+            </button>
+          </div>
+        </div>
+
+        <!-- Buchungen Tabelle -->
+        <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 shadow-sm">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+            <h3 class="text-lg font-semibold text-white">Buchungen im gewählten Zeitraum</h3>
+            <div class="flex gap-2 w-full md:w-auto">
+              <input type="text" id="search-finance" onkeyup="filterTransactions()" placeholder="Suchen..." class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none">
+              <select id="filter-type" onchange="filterTransactions()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none">
+                <option value="all">Alle Typen</option>
+                <option value="Einnahme">Einnahme</option>
+                <option value="Ausgabe">Ausgabe</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-300">
+              <thead class="bg-slate-900/60 text-slate-400 uppercase text-xs">
+                <tr>
+                  <th class="p-3">Datum</th>
+                  <th class="p-3">Typ</th>
+                  <th class="p-3">Kategorie</th>
+                  <th class="p-3">Beschreibung</th>
+                  <th class="p-3 text-right">Betrag</th>
+                  <th class="p-3 text-center">Aktionen</th>
+                </tr>
+              </thead>
+              <tbody id="finance-list" class="divide-y divide-slate-700">
+                <!-- Dynamische Einträge -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: ZEITERFASSUNG -->
+      <section id="section-time" class="hidden space-y-6">
+        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+          <h2 class="text-xl font-semibold mb-4 text-indigo-300">Arbeitszeiterfassung</h2>
+          <form id="time-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Datum</label>
+              <input type="date" id="time-date" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Projekt / Beschreibung</label>
+              <input type="text" id="time-project" placeholder="z. B. Büro, Homeoffice..." required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Startzeit</label>
+              <input type="time" id="time-start" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Endzeit</label>
+              <input type="time" id="time-end" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2">
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-xs text-slate-400 mb-1">Pause (Minuten)</label>
+              <input type="number" id="time-break" value="30" min="0" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2">
+            </div>
+            <div class="md:col-span-2">
+              <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 font-medium py-2 rounded-lg transition">Eintrag Speichern</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+          <h3 class="text-lg font-semibold mb-3">Erfasste Zeiten</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-300">
+              <thead class="bg-slate-900/60 text-slate-400 uppercase text-xs">
+                <tr>
+                  <th class="p-3">Datum</th>
+                  <th class="p-3">Projekt</th>
+                  <th class="p-3">Zeitraum</th>
+                  <th class="p-3">Dauer</th>
+                  <th class="p-3">Aktion</th>
+                </tr>
+              </thead>
+              <tbody id="time-list" class="divide-y divide-slate-700"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: AUFGABEN -->
+      <section id="section-todos" class="hidden space-y-6">
+        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+          <h2 class="text-xl font-semibold mb-4 text-indigo-300">Aufgaben</h2>
+          <form id="todo-form" class="flex gap-2 mb-6">
+            <input type="text" id="todo-input" placeholder="Neue Aufgabe..." required class="flex-1 bg-slate-900 border border-slate-700 rounded-lg p-2">
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg font-medium">Hinzufügen</button>
+          </form>
+          <ul id="todo-list" class="space-y-2"></ul>
+        </div>
+      </section>
+
+      <!-- TAB: EINKAUFSLISTE -->
+      <section id="section-shopping" class="hidden space-y-6">
+        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+          <h2 class="text-xl font-semibold mb-4 text-indigo-300">Einkaufsliste</h2>
+          <form id="shopping-form" class="flex gap-2 mb-6">
+            <input type="text" id="shopping-input" placeholder="Artikel..." required class="flex-1 bg-slate-900 border border-slate-700 rounded-lg p-2">
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg font-medium">Hinzufügen</button>
+          </form>
+          <ul id="shopping-list" class="space-y-2"></ul>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MANUELLE BUCHUNG MODAL -->
+  <div id="manual-entry-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 max-w-md w-full space-y-4">
+      <h3 class="text-lg font-bold text-white">Neue Buchung eintragen</h3>
+      <form id="manual-finance-form" class="space-y-3">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Datum</label>
+          <input type="date" id="fin-date" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Typ</label>
+          <select id="fin-type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm">
+            <option value="Ausgabe">Ausgabe</option>
+            <option value="Einnahme">Einnahme</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Kategorie</label>
+          <input type="text" id="fin-category" placeholder="z. B. Lebensmittel, Miete, Gehalt" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Beschreibung</label>
+          <input type="text" id="fin-desc" placeholder="z. B. Wocheneinkauf" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Betrag (€)</label>
+          <input type="number" step="0.01" id="fin-amount" placeholder="0.00" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm">
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="document.getElementById('manual-entry-modal').classList.add('hidden')" class="px-4 py-2 bg-slate-700 rounded-lg text-sm">Abbrechen</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-semibold">Speichern</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FIREBASE & CORE LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } 
+      from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, where, orderBy } 
+      from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCfKWWHQ17-ujYGJcHw6efFBESArA8uY0Q",
+      authDomain: "familie-mainz-netzwerk.firebaseapp.com",
+      projectId: "familie-mainz-netzwerk",
+      storageBucket: "familie-mainz-netzwerk.firebasestorage.app",
+      messagingSenderId: "361922663455",
+      appId: "1:361922663455:web:ed3eb8d34103ce89be312a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let transactionsData = [];
+
+    // STANDARD-MONAT AUF AKTUELLEN MONAT SETZEN
+    const today = new Date();
+    document.getElementById('selected-month').value = today.toISOString().slice(0, 7);
+
+    // AUTH
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('app-screen').classList.remove('hidden');
+        document.getElementById('user-display').innerText = user.email;
+        loadFinanceData();
+        loadOtherData();
+      } else {
+        currentUser = null;
+        document.getElementById('app-screen').classList.add('hidden');
+        document.getElementById('auth-screen').classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('auth-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      signInWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-password').value)
+        .catch(err => showAuthError(err.message));
+    });
+
+    document.getElementById('btn-register').addEventListener('click', () => {
+      createUserWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-password').value)
+        .catch(err => showAuthError(err.message));
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+
+    function showAuthError(msg) {
+      const errBox = document.getElementById('auth-error');
+      errBox.innerText = msg;
+      errBox.classList.remove('hidden');
+    }
+
+    // FINANZEN DATEN LADEN
+    window.loadFinanceData = () => {
+      if (!currentUser) return;
+      const month = document.getElementById('selected-month').value; // YYYY-MM
+
+      const q = query(
+        collection(db, "finances"), 
+        where("userId", "==", currentUser.uid)
+      );
+
+      onSnapshot(q, (snapshot) => {
+        transactionsData = [];
+        snapshot.forEach((docSnap) => {
+          const item = docSnap.data();
+          if (item.date.startsWith(month)) {
+            transactionsData.push({ id: docSnap.id, ...item });
+          }
+        });
+        renderFinanceUI();
+      });
+    };
+
+    function renderFinanceUI() {
+      let income = 0;
+      let expenses = 0;
+      const listEl = document.getElementById('finance-list');
+      listEl.innerHTML = '';
+
+      transactionsData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      transactionsData.forEach((item) => {
+        const val = parseFloat(item.amount);
+        if (item.type === 'Einnahme') income += val;
+        else expenses += val;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-700/30 transition";
+        tr.innerHTML = `
+          <td class="p-3">${item.date}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded text-xs ${item.type === 'Einnahme' ? 'bg-emerald-900/50 text-emerald-300' : 'bg-rose-900/50 text-rose-300'}">${item.type}</span></td>
+          <td class="p-3">${item.category}</td>
+          <td class="p-3">${item.description}</td>
+          <td class="p-3 text-right font-bold ${item.type === 'Einnahme' ? 'text-emerald-400' : 'text-rose-400'}">
+            ${item.type === 'Einnahme' ? '+' : '-'}${val.toFixed(2)} €
+          </td>
+          <td class="p-3 text-center">
+            <button onclick="deleteDocItem('finances', '${item.id}')" class="text-slate-400 hover:text-rose-400">🗑️</button>
+          </td>
+        `;
+        listEl.appendChild(tr);
+      });
+
+      const net = income - expenses;
+      const savingsRate = income > 0 ? ((net / income) * 100) : 0;
+
+      document.getElementById('total-income').innerText = income.toFixed(2) + ' €';
+      document.getElementById('total-expenses').innerText = expenses.toFixed(2) + ' €';
+      document.getElementById('net-cashflow').innerText = net.toFixed(2) + ' €';
+      document.getElementById('savings-rate').innerText = (savingsRate > 0 ? savingsRate.toFixed(1) : '0.0') + ' %';
+      document.getElementById('savings-rate-bar').style.width = Math.max(0, Math.min(100, savingsRate)) + '%';
+    }
+
+    // SPARKASSE CSV PARSER
+    window.handleSparkasseCSV = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const text = e.target.result;
+        const lines = text.split('\n');
+        
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          // Trennung nach Semikolon (Sparkasse Standard)
+          const cols = line.split(';').map(c => c.replace(/"/g, ''));
+          if (cols.length < 5) continue;
+
+          // Sparkasse Format: Datum oft in Spalte 1, Begünstigter in Spalte 3, Betrag in Spalte 8/14
+          let rawDate = cols[0] || '';
+          let description = cols[3] || cols[2] || 'Sparkasse Import';
+          let rawAmount = cols[cols.length - 1] || '0';
+
+          // Anpassen an YYYY-MM-DD
+          let dateStr = new Date().toISOString().slice(0, 10);
+          if (rawDate.includes('.')) {
+            const parts = rawDate.split('.');
+            if(parts.length === 3) dateStr = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+          }
+
+          rawAmount = rawAmount.replace('.', '').replace(',', '.');
+          let amountNum = parseFloat(rawAmount);
+
+          if (!isNaN(amountNum) && amountNum !== 0) {
+            const type = amountNum > 0 ? 'Einnahme' : 'Ausgabe';
+            await addDoc(collection(db, "finances"), {
+              userId: currentUser.uid,
+              date: dateStr,
+              type: type,
+              category: 'Import Sparkasse',
+              description: description,
+              amount: Math.abs(amountNum),
+              createdAt: new Date()
+            });
+          }
+        }
+        alert('CSV Export erfolgreich importiert!');
+        loadFinanceData();
+      };
+      reader.readAsText(file, 'ISO-8859-1'); // Standard Sparkasse Encoding
+    };
+
+    // MANUELLE BUCHUNG SPEICHERN
+    document.getElementById('manual-finance-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await addDoc(collection(db, "finances"), {
+        userId: currentUser.uid,
+        date: document.getElementById('fin-date').value,
+        type: document.getElementById('fin-type').value,
+        category: document.getElementById('fin-category').value,
+        description: document.getElementById('fin-desc').value,
+        amount: parseFloat(document.getElementById('fin-amount').value),
+        createdAt: new Date()
+      });
+      document.getElementById('manual-entry-modal').classList.add('hidden');
+      document.getElementById('manual-finance-form').reset();
+      loadFinanceData();
+    });
+
+    // ANDERE DATEN LADEN (Zeiterfassung, Todos)
+    function loadOtherData() {
+      // Zeiterfassung
+      onSnapshot(query(collection(db, "work_logs"), where("userId", "==", currentUser.uid)), (snapshot) => {
+        const timeList = document.getElementById('time-list');
+        timeList.innerHTML = '';
+        snapshot.forEach((docSnap) => {
+          const item = docSnap.data();
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="p-3">${item.date}</td>
+            <td class="p-3 font-medium">${item.project}</td>
+            <td class="p-3">${item.start} - ${item.end} (${item.breakTime}m Pause)</td>
+            <td class="p-3 text-emerald-400 font-bold">${item.durationHours}h</td>
+            <td class="p-3"><button onclick="deleteDocItem('work_logs', '${docSnap.id}')" class="text-rose-400">Löschen</button></td>
+          `;
+          timeList.appendChild(tr);
+        });
+      });
+    }
+
+    // HELPER
+    window.deleteDocItem = async (coll, id) => {
+      await deleteDoc(doc(db, coll, id));
+      if (coll === 'finances') loadFinanceData();
+    };
+
+    window.switchTab = (tabName) => {
+      ['finance', 'time', 'todos', 'shopping'].forEach(t => {
+        document.getElementById(`section-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).className = "px-4 py-2 rounded-lg font-medium text-sm transition text-slate-400 hover:bg-slate-700";
+      });
+      document.getElementById(`section-${tabName}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabName}`).className = "px-4 py-2 rounded-lg font-medium text-sm transition bg-indigo-600 text-white";
+    };
+  </script>
+</body>
+</html>
