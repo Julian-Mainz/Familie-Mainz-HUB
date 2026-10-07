@@ -50,7 +50,7 @@
                 </button>
             </form>
             <div class="mt-4 text-center">
-                <p class="text-xs text-slate-500">Unbekannte E-Mails werden beim ersten Anmelden automatisch mit dem eingegebenen Passwort registriert.</p>
+                <p class="text-xs text-slate-500">Neue Benutzer werden automatisch angelegt und erhalten Standardrechte.</p>
             </div>
         </div>
     </div>
@@ -158,7 +158,7 @@
                         <span class="font-medium text-sm">Start Menü</span>
                     </button>
                     
-                    <button onclick="switchTab('finanzen')" id="nav-finanzen" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-300 hover:bg-slate-800/60">
+                    <button onclick="switchTab('finanzen')" id="nav-finanzen" class="nav-btn hidden w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-300 hover:bg-slate-800/60">
                         <i class="fa-solid fa-wallet w-5"></i>
                         <span class="font-medium text-sm">Finanzen</span>
                     </button>
@@ -166,12 +166,12 @@
                     <!-- Admin Bereich -->
                     <button onclick="switchTab('admin')" id="nav-admin" class="nav-btn hidden w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-300 hover:bg-slate-800/60 text-amber-400">
                         <i class="fa-solid fa-user-shield w-5"></i>
-                        <span class="font-medium text-sm">Admin & DB</span>
+                        <span class="font-medium text-sm">Admin & Rechtesystem</span>
                     </button>
                 </nav>
 
                 <div class="text-[11px] text-slate-500 text-center py-2">
-                    Familien-Mainz HUB v1.4
+                    Familien-Mainz HUB v1.5
                 </div>
             </aside>
 
@@ -189,7 +189,7 @@
                                 <p class="text-slate-400 text-sm">Zentraler Anlaufpunkt für Terminplanung, Dokumente und Finanzen.</p>
                             </div>
                             <div class="mt-6 flex items-center space-x-4">
-                                <button onclick="switchTab('finanzen')" class="text-xs bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 px-4 py-2 rounded-xl font-medium hover:bg-indigo-600/30 transition-all">
+                                <button id="btn-quick-finance" onclick="switchTab('finanzen')" class="hidden text-xs bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 px-4 py-2 rounded-xl font-medium hover:bg-indigo-600/30 transition-all">
                                     <i class="fa-solid fa-wallet mr-2"></i>Zu den Finanzen
                                 </button>
                             </div>
@@ -206,7 +206,7 @@
                     </div>
 
                     <!-- Kalender Karte -->
-                    <div class="bg-card border border-card rounded-2xl p-6 space-y-4">
+                    <div id="calendar-wrapper" class="bg-card border border-card rounded-2xl p-6 space-y-4">
                         <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
                             <div class="flex items-center space-x-3">
                                 <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
@@ -393,13 +393,23 @@
                     </div>
                 </section>
 
-                <!-- REITER 3: ADMIN -->
+                <!-- REITER 3: ADMIN & RECHTESYSTEM -->
                 <section id="tab-admin" class="tab-content hidden space-y-6">
                     <div>
-                        <h2 class="text-2xl font-bold text-amber-400">Berechtigungs- & Datenbankverwaltung (Admin)</h2>
-                        <p class="text-xs text-slate-400">Nutzerverwaltung & Zurücksetzen der Datenbank</p>
+                        <h2 class="text-2xl font-bold text-amber-400">Berechtigungs- & Rechtesystem (Admin)</h2>
+                        <p class="text-xs text-slate-400">Verwalte hier granular, welche Module und Funktionen für einzelne Familienmitglieder freigeschaltet sind.</p>
                     </div>
 
+                    <!-- Rechte-Verwaltung der Benutzer -->
+                    <div class="bg-card border border-card rounded-2xl p-6">
+                        <h3 class="text-sm font-semibold mb-4 text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-users-gear text-indigo-400"></i>
+                            Benutzerrechte verwalten
+                        </h3>
+                        <div id="users-admin-list" class="space-y-4"></div>
+                    </div>
+
+                    <!-- Datenbankverwaltung -->
                     <div class="bg-card border border-rose-900/40 rounded-2xl p-6 space-y-4">
                         <h3 class="text-sm font-semibold text-rose-400 flex items-center gap-2">
                             <i class="fa-solid fa-triangle-exclamation"></i>
@@ -419,11 +429,6 @@
                             </button>
                         </div>
                     </div>
-
-                    <div class="bg-card border border-card rounded-2xl p-6">
-                        <h3 class="text-sm font-semibold mb-4 text-slate-200">Registrierte Benutzer & Rollen</h3>
-                        <div id="users-admin-list" class="space-y-3"></div>
-                    </div>
                 </section>
 
             </main>
@@ -441,6 +446,14 @@
         let calendarEvents = JSON.parse(localStorage.getItem('hub_events')) || [];
 
         let currentCalendarDate = new Date();
+
+        // Standardrechte für neue Nutzer definieren
+        function getDefaultPermissions(role) {
+            if (role === 'admin') {
+                return { finanzen: true, kalender: true, admin: true };
+            }
+            return { finanzen: true, kalender: true, admin: false };
+        }
 
         // --- UHR UND KALENDER INITIALISIEREN ---
         function updateClock() {
@@ -470,7 +483,7 @@
             errorEl.classList.add('hidden');
             errorEl.innerText = '';
 
-            const existingUser = usersData.find(u => u.email.toLowerCase() === email.toLowerCase());
+            let existingUser = usersData.find(u => u.email.toLowerCase() === email.toLowerCase());
 
             if (existingUser) {
                 if (existingUser.password !== password) {
@@ -478,12 +491,18 @@
                     errorEl.classList.remove('hidden');
                     return;
                 }
+                // Migration: Falls bestehender Nutzer noch keine Permissions-Struktur hat
+                if (!existingUser.permissions) {
+                    existingUser.permissions = getDefaultPermissions(existingUser.role);
+                }
                 currentUser = existingUser;
             } else {
+                const role = (email.toLowerCase().includes('admin') || email.toLowerCase().includes('julian')) ? 'admin' : 'user';
                 currentUser = {
                     email: email,
                     password: password,
-                    role: (email.toLowerCase().includes('admin') || email.toLowerCase().includes('julian')) ? 'admin' : 'user'
+                    role: role,
+                    permissions: getDefaultPermissions(role)
                 };
                 usersData.push(currentUser);
                 localStorage.setItem('hub_users', JSON.stringify(usersData));
@@ -494,17 +513,45 @@
             document.getElementById('app').classList.remove('hidden');
             document.getElementById('current-user-display').innerText = currentUser.email;
 
-            if (currentUser.role === 'admin') {
-                document.getElementById('nav-admin').classList.remove('hidden');
-            } else {
-                document.getElementById('nav-admin').classList.add('hidden');
-            }
+            applyUserPermissions();
 
             switchTab('start');
             renderCalendar();
             populateMonthDropdown();
             loadFinanceData();
             loadAdminUserList();
+        }
+
+        function applyUserPermissions() {
+            if (!currentUser) return;
+
+            const p = currentUser.permissions || getDefaultPermissions(currentUser.role);
+
+            // Navigationsleiste anpassen
+            const navFinanzen = document.getElementById('nav-finanzen');
+            const navAdmin = document.getElementById('nav-admin');
+            const quickFinance = document.getElementById('btn-quick-finance');
+            const calWrapper = document.getElementById('calendar-wrapper');
+
+            if (p.finanzen) {
+                navFinanzen.classList.remove('hidden');
+                quickFinance.classList.remove('hidden');
+            } else {
+                navFinanzen.classList.add('hidden');
+                quickFinance.classList.add('hidden');
+            }
+
+            if (p.admin || currentUser.role === 'admin') {
+                navAdmin.classList.remove('hidden');
+            } else {
+                navAdmin.classList.add('hidden');
+            }
+
+            if (p.kalender) {
+                calWrapper.classList.remove('hidden');
+            } else {
+                calWrapper.classList.add('hidden');
+            }
         }
 
         function handleLogout() {
@@ -514,6 +561,11 @@
         }
 
         function switchTab(tabId) {
+            // Rechteprüfung vor dem Tab-Wechsel
+            const p = currentUser.permissions || {};
+            if (tabId === 'finanzen' && !p.finanzen) return;
+            if (tabId === 'admin' && !p.admin && currentUser.role !== 'admin') return;
+
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(el => {
                 el.classList.remove('bg-indigo-600', 'text-white');
@@ -546,7 +598,7 @@
 
         // --- KALENDER LOGIK ---
         function renderCalendar() {
-            if (!currentUser) return;
+            if (!currentUser || !currentUser.permissions.kalender) return;
 
             const grid = document.getElementById('calendar-days-grid');
             const title = document.getElementById('calendar-month-year');
@@ -931,26 +983,72 @@
             }
         }
 
-        // --- ADMIN LOGIK ---
+        // --- ADMIN & RECHTESYSTEM LOGIK ---
         function loadAdminUserList() {
             const listEl = document.getElementById('users-admin-list');
             if (!listEl) return;
 
             listEl.innerHTML = '';
-            usersData.forEach(u => {
+            usersData.forEach((u, index) => {
                 const item = document.createElement('div');
-                item.className = "flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs";
+                item.className = "bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3";
+
+                if (!u.permissions) {
+                    u.permissions = getDefaultPermissions(u.role);
+                }
+
                 item.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <i class="fa-solid fa-user text-slate-400"></i>
-                        <span class="font-medium text-slate-200">${u.email}</span>
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-user text-slate-400"></i>
+                            <span class="font-medium text-slate-200 text-xs">${u.email}</span>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${u.role === 'admin' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-slate-800 text-slate-400'}">
+                            ${u.role.toUpperCase()}
+                        </span>
                     </div>
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${u.role === 'admin' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-slate-800 text-slate-400'}">
-                        ${u.role.toUpperCase()}
-                    </span>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                        <label class="flex items-center justify-between bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60 text-xs cursor-pointer">
+                            <span class="text-slate-300"><i class="fa-solid fa-wallet text-indigo-400 mr-2"></i>Finanzen</span>
+                            <input type="checkbox" onchange="toggleUserPermission(${index}, 'finanzen')" ${u.permissions.finanzen ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-4 h-4">
+                        </label>
+                        <label class="flex items-center justify-between bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60 text-xs cursor-pointer">
+                            <span class="text-slate-300"><i class="fa-regular fa-calendar-days text-indigo-400 mr-2"></i>Kalender</span>
+                            <input type="checkbox" onchange="toggleUserPermission(${index}, 'kalender')" ${u.permissions.kalender ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-4 h-4">
+                        </label>
+                        <label class="flex items-center justify-between bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60 text-xs cursor-pointer">
+                            <span class="text-slate-300"><i class="fa-solid fa-user-shield text-amber-400 mr-2"></i>Admin-Rechte</span>
+                            <input type="checkbox" onchange="toggleUserPermission(${index}, 'admin')" ${u.permissions.admin ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-4 h-4">
+                        </label>
+                    </div>
                 `;
                 listEl.appendChild(item);
             });
+        }
+
+        function toggleUserPermission(userIndex, permKey) {
+            if (!usersData[userIndex]) return;
+
+            if (!usersData[userIndex].permissions) {
+                usersData[userIndex].permissions = getDefaultPermissions(usersData[userIndex].role);
+            }
+
+            usersData[userIndex].permissions[permKey] = !usersData[userIndex].permissions[permKey];
+
+            // Synchronisiere `role`, falls Admin-Recht verändert wird
+            if (permKey === 'admin') {
+                usersData[userIndex].role = usersData[userIndex].permissions.admin ? 'admin' : 'user';
+            }
+
+            localStorage.setItem('hub_users', JSON.stringify(usersData));
+
+            // Falls sich der angemeldete Admin selbst Rechte angepasst hat, aktualisieren
+            if (currentUser && currentUser.email.toLowerCase() === usersData[userIndex].email.toLowerCase()) {
+                currentUser = usersData[userIndex];
+                applyUserPermissions();
+            }
+
+            loadAdminUserList();
         }
 
         function clearMyTransactions() {
