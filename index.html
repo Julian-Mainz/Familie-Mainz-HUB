@@ -44,14 +44,13 @@
                     <label class="block text-xs text-slate-400 uppercase tracking-wider mb-1">Passwort</label>
                     <input type="password" id="login-password" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500">
                 </div>
+                <div id="login-error" class="text-rose-400 text-xs hidden text-center"></div>
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-lg transition-colors shadow-lg shadow-indigo-600/30">
-                    Anmelden
+                    Anmelden / Registrieren
                 </button>
             </form>
             <div class="mt-4 text-center">
-                <button onclick="toggleAuthMode()" id="toggle-auth-btn" class="text-xs text-slate-400 hover:text-indigo-400 underline">
-                    Neues Konto erstellen
-                </button>
+                <p class="text-xs text-slate-500">Unbekannte E-Mails werden beim ersten Anmelden automatisch mit dem eingegebenen Passwort registriert.</p>
             </div>
         </div>
     </div>
@@ -324,25 +323,43 @@
     <script>
         let currentUser = null;
 
-        // Speicher-Struktur (Isoliert nach E-Mail)
+        // Speicher-Struktur
         let usersData = JSON.parse(localStorage.getItem('hub_users')) || [];
         let transactionsData = JSON.parse(localStorage.getItem('hub_transactions')) || {};
         let payslipsData = JSON.parse(localStorage.getItem('hub_payslips')) || {};
 
         function handleLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            
-            currentUser = {
-                email: email,
-                role: (email.toLowerCase().includes('admin') || email.toLowerCase().includes('julian')) ? 'admin' : 'user'
-            };
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorEl = document.getElementById('login-error');
 
-            if (!usersData.find(u => u.email === email)) {
+            errorEl.classList.add('hidden');
+            errorEl.innerText = '';
+
+            const existingUser = usersData.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+            if (existingUser) {
+                // Passwort überprüfen
+                if (existingUser.password !== password) {
+                    errorEl.innerText = 'Falsches Passwort!';
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+                currentUser = existingUser;
+            } else {
+                // Neuen Benutzer mit Passwort anlegen
+                currentUser = {
+                    email: email,
+                    password: password,
+                    role: (email.toLowerCase().includes('admin') || email.toLowerCase().includes('julian')) ? 'admin' : 'user'
+                };
                 usersData.push(currentUser);
                 localStorage.setItem('hub_users', JSON.stringify(usersData));
             }
 
+            // Formular zurücksetzen & App anzeigen
+            document.getElementById('login-form').reset();
             document.getElementById('auth-overlay').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
             document.getElementById('current-user-display').innerText = currentUser.email;
@@ -356,10 +373,6 @@
             switchTab('start');
             loadFinanceData();
             loadAdminUserList();
-        }
-
-        function toggleAuthMode() {
-            alert("Sicherheitshinweis: Die Registrierung erfolgt automatisch bei Ersteingabe der E-Mail-Adresse.");
         }
 
         function handleLogout() {
@@ -529,9 +542,9 @@
             reader.onload = function(e) {
                 const text = e.target.result;
                 parseSparkasseCSV(text);
-                event.target.value = ''; // Reset input
+                event.target.value = '';
             };
-            reader.readAsText(file, 'ISO-8859-1'); // Sparkasse verwendet oft ISO-8859-1 / Windows-1252
+            reader.readAsText(file, 'ISO-8859-1');
         }
 
         function parseSparkasseCSV(csvText) {
@@ -541,20 +554,16 @@
                 return;
             }
 
-            // Trennzeichen ermitteln (normalerweise Semikolon bei deutscher Sparkasse)
             const delimiter = lines[0].includes(';') ? ';' : ',';
-            
-            // Header parsen
             const headers = lines[0].replace(/"/g, '').split(delimiter).map(h => h.trim());
             
-            // Index-Suche für typische Sparkassen-Spalten
             let dateIdx = headers.findIndex(h => h.includes('Buchungstag') || h.includes('Valutadatum') || h.includes('Datum'));
             let nameIdx = headers.findIndex(h => h.includes('Begünstigter') || h.includes('Zahlungspflichtige') || h.includes('Name'));
             let purposeIdx = headers.findIndex(h => h.includes('Verwendungszweck'));
             let amountIdx = headers.findIndex(h => h.includes('Betrag'));
 
             if (dateIdx === -1 || amountIdx === -1) {
-                alert("Konnte das Sparkassen-Format nicht automatisch erkennen. Bitte stellen Sie sicher, dass es sich um eine ungeänderte Sparkassen-CSV handelt.");
+                alert("Konnte das Sparkassen-Format nicht automatisch erkennen.");
                 return;
             }
 
@@ -567,7 +576,6 @@
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
 
-                // RegEx für Trennung mit Berücksichtigung von Anführungszeichen
                 const row = lines[i].split(new RegExp(`${delimiter}(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)`)).map(cell => cell.replace(/^"|"$/g, '').trim());
 
                 if (row.length <= amountIdx) continue;
@@ -579,13 +587,11 @@
 
                 if (!rawDate || !rawAmount) continue;
 
-                // Betrag parsen (Sparkasse Format: 1.234,56 oder -12,34)
                 rawAmount = rawAmount.replace(/\./g, '').replace(',', '.');
                 const parsedAmount = parseFloat(rawAmount);
 
                 if (isNaN(parsedAmount)) continue;
 
-                // Datum parsen (DD.MM.YY oder DD.MM.YYYY)
                 const dateParts = rawDate.split('.');
                 if (dateParts.length < 3) continue;
 
@@ -600,10 +606,8 @@
                 const type = parsedAmount >= 0 ? 'income' : 'expense';
                 const absAmount = Math.abs(parsedAmount);
 
-                // Beschreibung zusammensetzen
                 const title = (rawName ? rawName + (rawPurpose ? ' - ' : '') : '') + rawPurpose || 'Sparkassen Buchung';
 
-                // Automatische Kategorie-Erkennung
                 let category = 'Sonstiges';
                 const titleLower = title.toLowerCase();
                 if (titleLower.includes('gehalt') || titleLower.includes('lohn') || titleLower.includes('bezüge')) {
