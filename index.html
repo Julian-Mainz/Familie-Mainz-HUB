@@ -100,7 +100,7 @@
                 </nav>
 
                 <div class="text-[11px] text-slate-500 text-center py-2">
-                    Familien-Mainz HUB v1.2
+                    Familien-Mainz HUB v1.3
                 </div>
             </aside>
 
@@ -109,17 +109,65 @@
                 
                 <!-- REITER 1: START MENÜ -->
                 <section id="tab-start" class="tab-content space-y-6">
-                    <div class="bg-card border border-card rounded-2xl p-6">
-                        <h2 class="text-2xl font-bold mb-2 text-indigo-400">Willkommen im Familien-Mainz HUB</h2>
-                        <p class="text-slate-400 text-sm">Dies ist der zentrale Anlaufpunkt für alle Familienmitglieder.</p>
+                    
+                    <!-- Willkommen & Uhr Karte -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-card border border-card rounded-2xl p-6 md:col-span-2 flex flex-col justify-between">
+                            <div>
+                                <h2 class="text-2xl font-bold mb-2 text-indigo-400">Willkommen im Familien-Mainz HUB</h2>
+                                <p class="text-slate-400 text-sm">Zentraler Anlaufpunkt für Terminplanung, Dokumente und Finanzen.</p>
+                            </div>
+                            <div class="mt-6 flex items-center space-x-4">
+                                <button onclick="switchTab('finanzen')" class="text-xs bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 px-4 py-2 rounded-xl font-medium hover:bg-indigo-600/30 transition-all">
+                                    <i class="fa-solid fa-wallet mr-2"></i>Zu den Finanzen
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Live Digitaluhr -->
+                        <div class="bg-card border border-card rounded-2xl p-6 flex flex-col justify-center items-center text-center">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl mb-3">
+                                <i class="fa-regular fa-clock"></i>
+                            </div>
+                            <div id="clock-time" class="text-3xl font-mono font-bold text-slate-100 tracking-wider">00:00:00</div>
+                            <div id="clock-date" class="text-xs text-indigo-400 font-medium mt-1 uppercase tracking-wide">--</div>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="bg-card border border-card p-6 rounded-2xl">
-                            <i class="fa-solid fa-wallet text-2xl text-emerald-400 mb-3"></i>
-                            <h3 class="font-semibold text-lg text-slate-200">Persönliche Finanzen</h3>
-                            <p class="text-xs text-slate-400 mt-1 mb-4">Verwalte deine eigenen Einnahmen & Ausgaben in einem geschützten Bereich.</p>
-                            <button onclick="switchTab('finanzen')" class="text-xs font-semibold text-indigo-400 hover:text-indigo-300">Zu meinen Finanzen &rarr;</button>
+                    <!-- Kalender Karte -->
+                    <div class="bg-card border border-card rounded-2xl p-6 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
+                                <div>
+                                    <h3 class="font-bold text-slate-200">Familien-Kalender</h3>
+                                    <p class="text-xs text-slate-400">Termine teilen oder als privat markieren</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
+                                    <button onclick="changeCalendarMonth(-1)" class="p-1 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
+                                    <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-32 text-center"></span>
+                                    <button onclick="changeCalendarMonth(1)" class="p-1 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                                </div>
+                                <button onclick="addCalendarEventPrompt()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>Termin hinzufügen</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Kalender Grid -->
+                        <div class="overflow-x-auto">
+                            <div class="min-w-[600px]">
+                                <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
+                                    <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+                                </div>
+                                <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 pt-2">
+                                    <!-- Dynamisch befüllt -->
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -132,9 +180,7 @@
                         <div class="flex items-center space-x-3">
                             <i class="fa-regular fa-calendar text-indigo-400"></i>
                             <span class="text-xs text-slate-400 font-medium">Abrechnungsmonat auswählen:</span>
-                            <!-- Dynamisches Dropdown für verfügbare Monate -->
                             <select id="finance-month-filter" onchange="loadFinanceData()" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500 cursor-pointer">
-                                <!-- Dynamisch befüllt -->
                             </select>
                         </div>
                         <div class="flex items-center space-x-3">
@@ -155,7 +201,6 @@
 
                     <!-- Finanz KPI Karten -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <!-- Einnahmen -->
                         <div class="bg-card border border-card p-5 rounded-2xl relative overflow-hidden">
                             <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
                                 <span>Einnahmen gesamt</span>
@@ -170,7 +215,6 @@
                             </div>
                         </div>
 
-                        <!-- Ausgaben -->
                         <div class="bg-card border border-card p-5 rounded-2xl relative overflow-hidden">
                             <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
                                 <span>Ausgaben gesamt</span>
@@ -185,7 +229,6 @@
                             </div>
                         </div>
 
-                        <!-- Netto-Cashflow -->
                         <div class="bg-card border border-card p-5 rounded-2xl relative overflow-hidden">
                             <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
                                 <span>Netto-Cashflow</span>
@@ -200,7 +243,6 @@
                             </div>
                         </div>
 
-                        <!-- Sparquote -->
                         <div class="bg-card border border-card p-5 rounded-2xl relative overflow-hidden">
                             <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
                                 <span>Sparquote</span>
@@ -244,7 +286,6 @@
                                 <p class="text-[11px] text-slate-400 mt-0.5">Alle Einnahmen und Ausgaben für diesen Monat im Überblick.</p>
                             </div>
 
-                            <!-- Filter Controls -->
                             <div class="flex items-center space-x-3">
                                 <input type="text" id="filter-search" oninput="renderTransactions()" placeholder="Suchen..." class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 w-36">
                                 <select id="filter-type" onchange="renderTransactions()" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
@@ -262,7 +303,6 @@
                             </div>
                         </div>
 
-                        <!-- Tabelle -->
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs">
                                 <thead class="bg-slate-900/80 text-slate-400 border-b border-slate-800 font-semibold uppercase tracking-wider">
@@ -276,7 +316,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="transactions-table-body" class="divide-y divide-slate-800/60">
-                                    <!-- Dynamisch befüllt -->
                                 </tbody>
                             </table>
                         </div>
@@ -290,7 +329,6 @@
                         <p class="text-xs text-slate-400">Nutzerverwaltung & Zurücksetzen der Datenbank</p>
                     </div>
 
-                    <!-- Datenbank Verwaltung -->
                     <div class="bg-card border border-rose-900/40 rounded-2xl p-6 space-y-4">
                         <h3 class="text-sm font-semibold text-rose-400 flex items-center gap-2">
                             <i class="fa-solid fa-triangle-exclamation"></i>
@@ -311,7 +349,6 @@
                         </div>
                     </div>
 
-                    <!-- Nutzerliste -->
                     <div class="bg-card border border-card rounded-2xl p-6">
                         <h3 class="text-sm font-semibold mb-4 text-slate-200">Registrierte Benutzer & Rollen</h3>
                         <div id="users-admin-list" class="space-y-3"></div>
@@ -330,6 +367,28 @@
         let usersData = JSON.parse(localStorage.getItem('hub_users')) || [];
         let transactionsData = JSON.parse(localStorage.getItem('hub_transactions')) || {};
         let payslipsData = JSON.parse(localStorage.getItem('hub_payslips')) || {};
+        let calendarEvents = JSON.parse(localStorage.getItem('hub_events')) || [];
+
+        let currentCalendarDate = new Date();
+
+        // --- UHR UND KALENDER INITIALISIEREN ---
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            const clockEl = document.getElementById('clock-time');
+            if (clockEl) clockEl.innerText = `${hours}:${minutes}:${seconds}`;
+
+            const dateEl = document.getElementById('clock-date');
+            if (dateEl) {
+                const options = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
+                dateEl.innerText = now.toLocaleDateString('de-DE', options);
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
 
         function handleLogin(e) {
             e.preventDefault();
@@ -371,6 +430,7 @@
             }
 
             switchTab('start');
+            renderCalendar();
             populateMonthDropdown();
             loadFinanceData();
             loadAdminUserList();
@@ -396,9 +456,112 @@
                 activeNav.classList.remove('text-slate-300');
             }
 
-            if (tabId === 'finanzen') {
+            if (tabId === 'start') {
+                renderCalendar();
+            } else if (tabId === 'finanzen') {
                 populateMonthDropdown();
                 loadFinanceData();
+            }
+        }
+
+        // --- KALENDER LOGIK ---
+        function renderCalendar() {
+            if (!currentUser) return;
+
+            const grid = document.getElementById('calendar-days-grid');
+            const title = document.getElementById('calendar-month-year');
+            if (!grid || !title) return;
+
+            grid.innerHTML = '';
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+
+            title.innerText = new Date(year, month, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+
+            const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Offsets vom Vormonat
+            for (let i = 0; i < firstDayIndex; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'h-24 bg-slate-900/20 border border-slate-800/40 rounded-xl opacity-30';
+                grid.appendChild(emptyCell);
+            }
+
+            const today = new Date();
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+
+                const dayCell = document.createElement('div');
+                dayCell.className = `h-24 p-2 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/5' : 'border-slate-800'} rounded-xl flex flex-col justify-between overflow-hidden`;
+
+                let dayHeader = `
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                        <span class="${isToday ? 'font-bold text-indigo-400 bg-indigo-500/20 px-1.5 py-0.5 rounded-md' : 'text-slate-400'}">${day}</span>
+                        <button onclick="addCalendarEventPrompt('${dayDateStr}')" class="text-slate-500 hover:text-indigo-400 text-[10px]" title="Termin hinzufügen"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                `;
+
+                // Termine filtern (Nur Öffentliche ODER eigene Private)
+                const dayEvents = calendarEvents.filter(ev => {
+                    if (ev.date !== dayDateStr) return false;
+                    return ev.isPublic || ev.owner === currentUser.email;
+                });
+
+                let eventsHtml = `<div class="space-y-1 overflow-y-auto max-h-16 pr-0.5">`;
+                dayEvents.forEach(ev => {
+                    const isOwner = ev.owner === currentUser.email;
+                    eventsHtml += `
+                        <div class="text-[10px] px-1.5 py-0.5 rounded flex items-center justify-between ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}" title="${ev.title} (${ev.isPublic ? 'Öffentlich' : 'Privat von ' + ev.owner})">
+                            <span class="truncate">${ev.isPublic ? '' : '<i class="fa-solid fa-lock text-[8px] mr-1 text-amber-400"></i>'}${ev.title}</span>
+                            ${(isOwner || currentUser.role === 'admin') ? `<button onclick="deleteCalendarEvent(${ev.id})" class="text-slate-400 hover:text-rose-400 ml-1 text-[9px]"><i class="fa-solid fa-xmark"></i></button>` : ''}
+                        </div>
+                    `;
+                });
+                eventsHtml += `</div>`;
+
+                dayCell.innerHTML = dayHeader + eventsHtml;
+                grid.appendChild(dayCell);
+            }
+        }
+
+        function changeCalendarMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function addCalendarEventPrompt(presetDate = null) {
+            let date = presetDate;
+            if (!date) {
+                date = prompt('Datum im Format JJJJ-MM-TT (z.B. 2026-10-15):');
+                if (!date) return;
+            }
+
+            const title = prompt('Termin-Beschreibung:');
+            if (!title) return;
+
+            const isPublic = confirm('Soll dieser Termin für JEDEN sichtbar sein?\n\n[OK] = Öffentlich (Für alle sichtbar)\n[Abbrechen] = Privat (Nur für dich sichtbar)');
+
+            calendarEvents.push({
+                id: Date.now(),
+                date: date,
+                title: title,
+                isPublic: isPublic,
+                owner: currentUser.email
+            });
+
+            localStorage.setItem('hub_events', JSON.stringify(calendarEvents));
+            renderCalendar();
+        }
+
+        function deleteCalendarEvent(id) {
+            if (confirm('Möchtest du diesen Termin wirklich löschen?')) {
+                calendarEvents = calendarEvents.filter(e => e.id !== id);
+                localStorage.setItem('hub_events', JSON.stringify(calendarEvents));
+                renderCalendar();
             }
         }
 
@@ -409,25 +572,19 @@
             const select = document.getElementById('finance-month-filter');
             const previousValue = select.value;
 
-            // Alle verfuegbaren Monate des Nutzers ermitteln (Buchungen + Payslips)
             const availableMonths = new Set();
-
-            // Aktueller Monat standardmaessig hinzufügen
             const now = new Date();
             const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
             availableMonths.add(currentMonthStr);
 
-            // Monate aus Buchungen auslesen
             const userTx = transactionsData[currentUser.email] || [];
             userTx.forEach(t => {
                 if (t.month) availableMonths.add(t.month);
             });
 
-            // Monate aus Lohnabrechnungen auslesen
             const userSlips = payslipsData[currentUser.email] || {};
             Object.keys(userSlips).forEach(m => availableMonths.add(m));
 
-            // Sortieren (neueste Monate zuerst)
             const sortedMonths = Array.from(availableMonths).sort().reverse();
 
             select.innerHTML = '';
@@ -435,7 +592,6 @@
                 const opt = document.createElement('option');
                 opt.value = m;
 
-                // Formatierung in lesbaren Monatsnamen (z.B. Oktober 2026)
                 const [year, month] = m.split('-');
                 const monthDate = new Date(parseInt(year), parseInt(month) - 1, 1);
                 const monthName = monthDate.toLocaleString('de-DE', { month: 'long', year: 'numeric' });
@@ -444,7 +600,6 @@
                 select.appendChild(opt);
             });
 
-            // Vorherige Auswahl beibehalten falls noch vorhanden
             if (previousValue && sortedMonths.includes(previousValue)) {
                 select.value = previousValue;
             } else if (sortedMonths.includes(currentMonthStr)) {
@@ -466,7 +621,6 @@
             const catFilter = document.getElementById('filter-category').value;
 
             const userTx = transactionsData[currentUser.email] || [];
-            
             const monthTx = userTx.filter(t => t.month === selectedMonth);
 
             let totalIncome = 0;
@@ -742,15 +896,12 @@
             }
 
             if (confirm(`Möchtest du den Benutzer "${email}" und alle seine Daten wirklich löschen?`)) {
-                // Benutzer entfernen
                 usersData = usersData.filter(u => u.email.toLowerCase() !== email.toLowerCase());
                 localStorage.setItem('hub_users', JSON.stringify(usersData));
 
-                // Buchungen des Benutzers löschen
                 delete transactionsData[email];
                 localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
 
-                // Lohnabrechnungen des Benutzers löschen
                 delete payslipsData[email];
                 localStorage.setItem('hub_payslips', JSON.stringify(payslipsData));
 
@@ -770,7 +921,7 @@
         }
 
         function clearAllData() {
-            if (confirm("WARNUNG: Dadurch werden ALLE Benutzer, Buchungen und Daten im System gelöscht! Fortfahren?")) {
+            if (confirm("WARNUNG: Dadurch werden ALLE Benutzer, Buchungen und Kalendertermine im System gelöscht! Fortfahren?")) {
                 localStorage.clear();
                 alert("Datenbank wurde vollständig geleert. Die Seite wird neu geladen.");
                 location.reload();
