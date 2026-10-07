@@ -24,6 +24,10 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
 
+    <!-- Versteckte File Inputs -->
+    <input type="file" id="sparkasse-file-input" accept=".csv" class="hidden" onchange="handleSparkasseCSV(event)">
+    <input type="file" id="payslip-file-input" accept=".pdf,image/*" class="hidden" onchange="handlePayslipUpload(event)">
+
     <!-- Auth / Login Overlay -->
     <div id="auth-overlay" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md">
@@ -74,19 +78,6 @@
             </div>
         </header>
 
-<!-- Admin- & Import-Bereich -->
-<div style="margin: 15px 0; display: flex; gap: 10px;">
-  <!-- Sparkassen CSV Import -->
-  <label for="sparkassenCsvInput" class="btn" style="background-color: #2b7fff; color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
-    Sparkassen-CSV importieren
-  </label>
-  <input type="file" id="sparkassenCsvInput" accept=".csv" style="display: none;" onchange="importSparkasseCSV(event)" />
-
-  <!-- Admin / Datenbank leeren -->
-  <button onclick="clearDatabase()" style="background-color: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
-    ⚠️ Admin: Datenbank leeren
-  </button>
-</div>
         <div class="flex flex-1 overflow-hidden">
             
             <!-- Linke Navigationsleiste -->
@@ -105,114 +96,15 @@
                     <!-- Admin Bereich -->
                     <button onclick="switchTab('admin')" id="nav-admin" class="nav-btn hidden w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all text-slate-300 hover:bg-slate-800/60 text-amber-400">
                         <i class="fa-solid fa-user-shield w-5"></i>
-                        <span class="font-medium text-sm">Berechtigungen</span>
+                        <span class="font-medium text-sm">Admin & DB</span>
                     </button>
                 </nav>
 
                 <div class="text-[11px] text-slate-500 text-center py-2">
-                    Familien-Mainz HUB v1.0
+                    Familien-Mainz HUB v1.1
                 </div>
             </aside>
 
-// ==========================================
-// 1. Sparkassen CSV-Export importieren
-// ==========================================
-function importSparkasseCSV(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-
-  // Sparkassen-CSVs sind meist ISO-8859-1 (ANSI) codiert
-  reader.readAsText(file, "ISO-8859-1");
-
-  reader.onload = function(e) {
-    const text = e.target.result;
-    const lines = text.split("\n");
-    let importedCount = 0;
-
-    // Gespeicherte Buchungen laden (oder leeres Array initialisieren)
-    let buchungen = JSON.parse(localStorage.getItem("buchungen")) || [];
-
-    // Header-Zeile analysieren und Trennzeichen (Semikolon) verarbeiten
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-
-      // Anpassen an Standard-Sparkassen CSV Spalten (getrennt durch ;)
-      // Typischer Aufbau: "Auftragskonto";"Buchungstag";"Valutadatum";"Buchungstext";"Verwendungszweck";...;"Betrag";"Währung"
-      const columns = line.split(";").map(col => col.replace(/^"|"$/g, ''));
-
-      if (columns.length < 8) continue; // Ungültige Zeile überspringen
-
-      const rawDatum = columns[1];        // Buchungstag (z.B. 02.10.26)
-      const empfaenger = columns[11] || columns[4] || "Sparkasse-Import"; // Empfänger/Verwendungszweck
-      const rawBetrag = columns[14] || columns[8]; // Betrag (z.B. -780,00 oder 2850,00)
-
-      if (!rawDatum || !rawBetrag) continue;
-
-      // Datum formatieren (DD.MM.YYYY oder DD.MM.YY -> YYYY-MM-DD)
-      const dateParts = rawDatum.split(".");
-      let formattedDate = rawDatum;
-      if (dateParts.length === 3) {
-        let year = dateParts[2].length === 2 ? "20" + dateParts[2] : dateParts[2];
-        formattedDate = `${year}-${dateParts[1].padStart(2, '0')}-${dateParts[0].padStart(2, '0')}`;
-      }
-
-      // Betrag in Zahl umwandeln (Komma durch Punkt ersetzen)
-      const betragNum = parseFloat(rawBetrag.replace(".", "").replace(",", "."));
-      if (isNaN(betragNum)) continue;
-
-      const typ = betragNum >= 0 ? "Einnahme" : "Ausgabe";
-      const absBetrag = Math.abs(betragNum);
-
-      // Automatische Kategorie-Erkennung (Beispielhaft)
-      let kategorie = "Sonstiges";
-      const descLower = empfaenger.toLowerCase();
-      if (descLower.includes("gehalt") || descLower.includes("lohn")) kategorie = "Gehalt";
-      else if (descLower.includes("miete") || descLower.includes("wohnen")) kategorie = "Miete / Wohnen";
-      else if (descLower.includes("supermarkt") || descLower.includes("rewe") || descLower.includes("aldi")) kategorie = "Lebensmittel & Haushalt";
-
-      // Neue Buchung aufbauen
-      const neueBuchung = {
-        id: Date.now() + Math.random(),
-        datum: formattedDate,
-        typ: typ,
-        kategorie: kategorie,
-        beschreibung: empfaenger,
-        betrag: absBetrag
-      };
-
-      buchungen.push(neueBuchung);
-      importedCount++;
-    }
-
-    // In LocalStorage speichern
-    localStorage.setItem("buchungen", JSON.stringify(buchungen));
-
-    alert(`${importedCount} Buchungen erfolgreich aus der Sparkassen-CSV importiert!`);
-    
-    // UI neu laden (Funktionsname an deine App anpassen, z. B. renderTable())
-    if (typeof loadData === "function") loadData();
-    else location.reload();
-  };
-}
-
-
-// ==========================================
-// 2. Admin: Datenbank / Speicher leeren
-// ==========================================
-function clearDatabase() {
-  const confirmFirst = confirm("Möchtest du wirklich ALLE Daten aus der Datenbank löschen?");
-  if (!confirmFirst) return;
-
-  const confirmSecond = confirm("ACHTUNG: Dieser Vorgang kann nicht rückgängig gemacht werden! Wirklich alles leeren?");
-  if (confirmSecond) {
-    localStorage.clear(); // Löscht alle lokalen Daten der Anwendung
-    alert("Die Datenbank wurde erfolgreich geleert.");
-    location.reload(); // Seite neu laden
-  }
-}
             <!-- Hauptinhalt -->
             <main class="flex-1 p-6 overflow-y-auto bg-slate-950">
                 
@@ -248,7 +140,11 @@ function clearDatabase() {
                                 <i class="fa-solid fa-plus"></i>
                                 <span>Buchung eintragen</span>
                             </button>
-                            <button onclick="uploadPaySlipPrompt()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-emerald-600/30 flex items-center space-x-2">
+                            <button onclick="triggerSparkasseUpload()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-red-600/30 flex items-center space-x-2" title="Sparkasse CSV Export importieren">
+                                <i class="fa-solid fa-file-csv"></i>
+                                <span>Sparkasse Export hochladen</span>
+                            </button>
+                            <button onclick="triggerPayslipUpload()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-emerald-600/30 flex items-center space-x-2">
                                 <i class="fa-solid fa-cloud-arrow-up"></i>
                                 <span>Lohnabrechnung hochladen</span>
                             </button>
@@ -331,7 +227,7 @@ function clearDatabase() {
                             <i class="fa-regular fa-file-pdf text-3xl mb-2 text-slate-600 block"></i>
                             <span id="payslip-text">Keine Lohnabrechnung für den ausgewählten Monat hinterlegt.</span>
                             <br>
-                            <button onclick="uploadPaySlipPrompt()" class="mt-2 text-indigo-400 hover:underline font-medium">Jetzt hochladen &rarr;</button>
+                            <button onclick="triggerPayslipUpload()" class="mt-2 text-indigo-400 hover:underline font-medium">Jetzt hochladen &rarr;</button>
                         </div>
                     </div>
 
@@ -388,10 +284,32 @@ function clearDatabase() {
                 <!-- REITER 3: ADMIN -->
                 <section id="tab-admin" class="tab-content hidden space-y-6">
                     <div>
-                        <h2 class="text-2xl font-bold text-amber-400">Berechtigungsverwaltung (Admin)</h2>
-                        <p class="text-xs text-slate-400">Nutzer- & Rechteverwaltung</p>
+                        <h2 class="text-2xl font-bold text-amber-400">Berechtigungs- & Datenbankverwaltung (Admin)</h2>
+                        <p class="text-xs text-slate-400">Nutzerverwaltung & Zurücksetzen der Datenbank</p>
                     </div>
 
+                    <!-- Datenbank Verwaltung -->
+                    <div class="bg-card border border-rose-900/40 rounded-2xl p-6 space-y-4">
+                        <h3 class="text-sm font-semibold text-rose-400 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            Datenbank verwalten & leeren
+                        </h3>
+                        <p class="text-xs text-slate-400">Hier kannst du eingetragene Buchungen und gespeicherte Daten zur Bereinigung aus dem lokalen Speicher löschen.</p>
+
+                        <div class="flex flex-wrap gap-3 pt-2">
+                            <button onclick="clearMyTransactions()" class="bg-rose-900/40 hover:bg-rose-800/60 border border-rose-700/50 text-rose-200 text-xs px-4 py-2 rounded-xl transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-trash"></i>
+                                <span>Meine Buchungen löschen</span>
+                            </button>
+
+                            <button onclick="clearAllData()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-red-600/30 flex items-center space-x-2">
+                                <i class="fa-solid fa-dumpster-fire"></i>
+                                <span>Gesamte Datenbank komplett zurücksetzen</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Nutzerliste -->
                     <div class="bg-card border border-card rounded-2xl p-6">
                         <h3 class="text-sm font-semibold mb-4 text-slate-200">Registrierte Benutzer & Rollen</h3>
                         <div id="users-admin-list" class="space-y-3"></div>
@@ -411,18 +329,6 @@ function clearDatabase() {
         let transactionsData = JSON.parse(localStorage.getItem('hub_transactions')) || {};
         let payslipsData = JSON.parse(localStorage.getItem('hub_payslips')) || {};
 
-        // Startbeispieldaten für julian-mainz if empty
-        function seedInitialDemoData(email) {
-            if (!transactionsData[email]) {
-                transactionsData[email] = [
-                    { id: 1, date: '01.10.2026', month: '2026-10', type: 'income', category: 'Gehalt', title: 'Gehaltseingang Arbeitgeber', amount: 2850.00 },
-                    { id: 2, date: '02.10.2026', month: '2026-10', type: 'expense', category: 'Miete / Wohnen', title: 'Warmmiete', amount: 780.00 },
-                    { id: 3, date: '04.10.2026', month: '2026-10', type: 'expense', category: 'Lebensmittel & Haushalt', title: 'Wocheneinkauf Supermarkt', amount: 85.50 }
-                ];
-                localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
-            }
-        }
-
         function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
@@ -436,8 +342,6 @@ function clearDatabase() {
                 usersData.push(currentUser);
                 localStorage.setItem('hub_users', JSON.stringify(usersData));
             }
-
-            seedInitialDemoData(email);
 
             document.getElementById('auth-overlay').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
@@ -612,16 +516,140 @@ function clearDatabase() {
             }
         }
 
-        function uploadPaySlipPrompt() {
-            const selectedMonth = document.getElementById('finance-month-filter').value;
-            const fileName = prompt('Name des Gehaltsnachweises / PDF-Datei:');
-            if (!fileName) return;
+        // --- SPARKASSE CSV EXPORT IMPORT ---
+        function triggerSparkasseUpload() {
+            document.getElementById('sparkasse-file-input').click();
+        }
 
+        function handleSparkasseCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                parseSparkasseCSV(text);
+                event.target.value = ''; // Reset input
+            };
+            reader.readAsText(file, 'ISO-8859-1'); // Sparkasse verwendet oft ISO-8859-1 / Windows-1252
+        }
+
+        function parseSparkasseCSV(csvText) {
+            const lines = csvText.split(/\r\n|\n/);
+            if (lines.length < 2) {
+                alert("Die CSV-Datei scheint leer oder ungültig zu sein.");
+                return;
+            }
+
+            // Trennzeichen ermitteln (normalerweise Semikolon bei deutscher Sparkasse)
+            const delimiter = lines[0].includes(';') ? ';' : ',';
+            
+            // Header parsen
+            const headers = lines[0].replace(/"/g, '').split(delimiter).map(h => h.trim());
+            
+            // Index-Suche für typische Sparkassen-Spalten
+            let dateIdx = headers.findIndex(h => h.includes('Buchungstag') || h.includes('Valutadatum') || h.includes('Datum'));
+            let nameIdx = headers.findIndex(h => h.includes('Begünstigter') || h.includes('Zahlungspflichtige') || h.includes('Name'));
+            let purposeIdx = headers.findIndex(h => h.includes('Verwendungszweck'));
+            let amountIdx = headers.findIndex(h => h.includes('Betrag'));
+
+            if (dateIdx === -1 || amountIdx === -1) {
+                alert("Konnte das Sparkassen-Format nicht automatisch erkennen. Bitte stellen Sie sicher, dass es sich um eine ungeänderte Sparkassen-CSV handelt.");
+                return;
+            }
+
+            if (!transactionsData[currentUser.email]) {
+                transactionsData[currentUser.email] = [];
+            }
+
+            let importedCount = 0;
+
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+
+                // RegEx für Trennung mit Berücksichtigung von Anführungszeichen
+                const row = lines[i].split(new RegExp(`${delimiter}(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)`)).map(cell => cell.replace(/^"|"$/g, '').trim());
+
+                if (row.length <= amountIdx) continue;
+
+                const rawDate = row[dateIdx];
+                const rawName = nameIdx !== -1 ? row[nameIdx] : '';
+                const rawPurpose = purposeIdx !== -1 ? row[purposeIdx] : '';
+                let rawAmount = row[amountIdx];
+
+                if (!rawDate || !rawAmount) continue;
+
+                // Betrag parsen (Sparkasse Format: 1.234,56 oder -12,34)
+                rawAmount = rawAmount.replace(/\./g, '').replace(',', '.');
+                const parsedAmount = parseFloat(rawAmount);
+
+                if (isNaN(parsedAmount)) continue;
+
+                // Datum parsen (DD.MM.YY oder DD.MM.YYYY)
+                const dateParts = rawDate.split('.');
+                if (dateParts.length < 3) continue;
+
+                let year = dateParts[2];
+                if (year.length === 2) year = '20' + year;
+                const month = dateParts[1].padStart(2, '0');
+                const day = dateParts[0].padStart(2, '0');
+
+                const formattedDate = `${day}.${month}.${year}`;
+                const monthKey = `${year}-${month}`;
+
+                const type = parsedAmount >= 0 ? 'income' : 'expense';
+                const absAmount = Math.abs(parsedAmount);
+
+                // Beschreibung zusammensetzen
+                const title = (rawName ? rawName + (rawPurpose ? ' - ' : '') : '') + rawPurpose || 'Sparkassen Buchung';
+
+                // Automatische Kategorie-Erkennung
+                let category = 'Sonstiges';
+                const titleLower = title.toLowerCase();
+                if (titleLower.includes('gehalt') || titleLower.includes('lohn') || titleLower.includes('bezüge')) {
+                    category = 'Gehalt';
+                } else if (titleLower.includes('miete') || titleLower.includes('nebenkosten') || titleLower.includes('strom')) {
+                    category = 'Miete / Wohnen';
+                } else if (titleLower.includes('rewe') || titleLower.includes('aldi') || titleLower.includes('lidl') || titleLower.includes('edeka') || titleLower.includes('kaufland')) {
+                    category = 'Lebensmittel & Haushalt';
+                }
+
+                transactionsData[currentUser.email].push({
+                    id: Date.now() + Math.random(),
+                    date: formattedDate,
+                    month: monthKey,
+                    type: type,
+                    category: category,
+                    title: title,
+                    amount: absAmount
+                });
+
+                importedCount++;
+            }
+
+            localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
+            loadFinanceData();
+            alert(`Erfolg! Es wurden ${importedCount} Buchungen aus dem Sparkassen-Export importiert.`);
+        }
+
+        // --- LOHNABRECHNUNG UPLOAD LOGIK ---
+        function triggerPayslipUpload() {
+            document.getElementById('payslip-file-input').click();
+        }
+
+        function handlePayslipUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const selectedMonth = document.getElementById('finance-month-filter').value;
             if (!payslipsData[currentUser.email]) payslipsData[currentUser.email] = {};
-            payslipsData[currentUser.email][selectedMonth] = fileName;
+
+            payslipsData[currentUser.email][selectedMonth] = file.name;
 
             localStorage.setItem('hub_payslips', JSON.stringify(payslipsData));
             loadPayslipStatus();
+            alert(`Lohnabrechnung "${file.name}" für ${selectedMonth} erfolgreich hinterlegt.`);
+            event.target.value = '';
         }
 
         function loadPayslipStatus() {
@@ -644,12 +672,29 @@ function clearDatabase() {
                 container.innerHTML = `
                     <i class="fa-regular fa-file-pdf text-3xl mb-2 text-slate-600 block"></i>
                     <span>Keine Lohnabrechnung für ${selectedMonth} hinterlegt.</span><br>
-                    <button onclick="uploadPaySlipPrompt()" class="mt-2 text-indigo-400 hover:underline font-medium">Jetzt hochladen &rarr;</button>
+                    <button onclick="triggerPayslipUpload()" class="mt-2 text-indigo-400 hover:underline font-medium">Jetzt hochladen &rarr;</button>
                 `;
             }
         }
 
-        // --- ADMIN LOGIK ---
+        // --- ADMIN & DATENBANK REINIGUNG ---
+        function clearMyTransactions() {
+            if (confirm("Möchtest du wirklich alle deine Buchungen löschen?")) {
+                transactionsData[currentUser.email] = [];
+                localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
+                loadFinanceData();
+                alert("Alle deine Buchungen wurden gelöscht.");
+            }
+        }
+
+        function clearAllData() {
+            if (confirm("WARNUNG: Dadurch werden ALLE Benutzer, Buchungen und Daten im System gelöscht! Fortfahren?")) {
+                localStorage.clear();
+                alert("Datenbank wurde vollständig geleert. Die Seite wird neu geladen.");
+                location.reload();
+            }
+        }
+
         function loadAdminUserList() {
             const listEl = document.getElementById('users-admin-list');
             if (!listEl) return;
@@ -664,25 +709,13 @@ function clearDatabase() {
                         <span class="font-medium text-slate-200">${user.email}</span>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${user.role === 'admin' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-slate-700 text-slate-300'}">
-                            ${user.role.toUpperCase()}
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${user.role === 'admin' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-slate-700 text-slate-300'}">
+                            ${user.role}
                         </span>
-                        <button onclick="toggleUserRole('${user.email}')" class="text-slate-400 hover:text-indigo-400 p-1" title="Rolle wechseln">
-                            <i class="fa-solid fa-arrows-rotate"></i>
-                        </button>
                     </div>
                 `;
                 listEl.appendChild(item);
             });
-        }
-
-        function toggleUserRole(email) {
-            const user = usersData.find(u => u.email === email);
-            if (user) {
-                user.role = user.role === 'admin' ? 'user' : 'admin';
-                localStorage.setItem('hub_users', JSON.stringify(usersData));
-                loadAdminUserList();
-            }
         }
     </script>
 </body>
