@@ -9,7 +9,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK (Compat Version für einfache Einbindung ohne Build-Tools) -->
+    <!-- Firebase SDK Compat -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -56,7 +56,7 @@
                 </button>
             </form>
             <div class="mt-4 text-center">
-                <p class="text-xs text-slate-500">Neue Konten werden bei Ersteingabe automatisch in Firebase angelegt (Mindestlänge Passwort: 6 Zeichen).</p>
+                <p class="text-xs text-slate-500">Daten werden live und geräteübergreifend synchronisiert.</p>
             </div>
         </div>
     </div>
@@ -176,8 +176,9 @@
                     </button>
                 </nav>
 
-                <div class="text-[11px] text-slate-500 text-center py-2">
-                    Familien-Mainz HUB v1.5 (Cloud Sync)
+                <div class="text-[11px] text-slate-500 text-center py-2 flex items-center justify-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Cloud Firestore Live</span>
                 </div>
             </aside>
 
@@ -257,7 +258,7 @@
                         <div class="flex items-center space-x-3">
                             <i class="fa-regular fa-calendar text-indigo-400"></i>
                             <span class="text-xs text-slate-400 font-medium">Abrechnungsmonat auswählen:</span>
-                            <select id="finance-month-filter" onchange="loadFinanceData()" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500 cursor-pointer">
+                            <select id="finance-month-filter" onchange="renderTransactions()" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500 cursor-pointer">
                             </select>
                         </div>
                         <div class="flex items-center space-x-3">
@@ -341,7 +342,7 @@
                                 <i class="fa-solid fa-file-lines text-slate-300"></i>
                                 <h3 class="font-semibold text-sm text-slate-200">Lohnabrechnungen & Gehaltsnachweise</h3>
                             </div>
-                            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">Verschlüsselt/Lokal auf deinem Gerät</span>
+                            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">Lokal gespeichert</span>
                         </div>
 
                         <div id="payslip-container" class="border border-dashed border-slate-800 rounded-xl p-8 text-center text-slate-500 text-xs">
@@ -403,7 +404,7 @@
                 <section id="tab-admin" class="tab-content hidden space-y-6">
                     <div>
                         <h2 class="text-2xl font-bold text-amber-400">Berechtigungs- & Rechtesystem (Admin)</h2>
-                        <p class="text-xs text-slate-400">Verwalte hier granular, welche Module und Funktionen für einzelne Familienmitglieder freigeschaltet sind.</p>
+                        <p class="text-xs text-slate-400">Verwalte hier granular, welche Module für einzelne Familienmitglieder freigeschaltet sind (gespeichert in Firestore).</p>
                     </div>
 
                     <!-- Rechte-Verwaltung der Benutzer -->
@@ -419,19 +420,14 @@
                     <div class="bg-card border border-rose-900/40 rounded-2xl p-6 space-y-4">
                         <h3 class="text-sm font-semibold text-rose-400 flex items-center gap-2">
                             <i class="fa-solid fa-triangle-exclamation"></i>
-                            Datenbank verwalten & leeren
+                            Datenbank verwalten
                         </h3>
-                        <p class="text-xs text-slate-400">Hier kannst du eingetragene Buchungen und gespeicherte Daten zur Bereinigung aus dem lokalen Speicher löschen.</p>
+                        <p class="text-xs text-slate-400">Löscht deine eigenen Buchungen aus der Cloud-Datenbank.</p>
 
                         <div class="flex flex-wrap gap-3 pt-2">
                             <button onclick="clearMyTransactions()" class="bg-rose-900/40 hover:bg-rose-800/60 border border-rose-700/50 text-rose-200 text-xs px-4 py-2 rounded-xl transition-all flex items-center space-x-2">
                                 <i class="fa-solid fa-trash"></i>
-                                <span>Meine Buchungen löschen</span>
-                            </button>
-
-                            <button onclick="clearAllData()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-red-600/30 flex items-center space-x-2">
-                                <i class="fa-solid fa-dumpster-fire"></i>
-                                <span>Gesamte Datenbank komplett zurücksetzen</span>
+                                <span>Meine Cloud-Buchungen löschen</span>
                             </button>
                         </div>
                     </div>
@@ -441,9 +437,9 @@
         </div>
     </div>
 
-    <!-- JavaScript Logik -->
+    <!-- JavaScript Logik mit Firestore -->
     <script>
-        // --- 1. FIREBASE INITIALISIERUNG ---
+        // --- 1. FIREBASE & FIRESTORE INITIALISIERUNG ---
         const firebaseConfig = {
             apiKey: "AIzaSyCfKWWHQ17-ujYGJcHw6efFBESArA8uY0Q",
             authDomain: "familie-mainz-netzwerk.firebaseapp.com",
@@ -455,14 +451,13 @@
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
         let currentUser = null;
-
-        // Lokaler Speicher (Transaktionen, Kalender, Abrechnungen)
-        let usersData = JSON.parse(localStorage.getItem('hub_users')) || [];
-        let transactionsData = JSON.parse(localStorage.getItem('hub_transactions')) || {};
+        let allUsers = [];
+        let allTransactions = [];
+        let calendarEvents = [];
         let payslipsData = JSON.parse(localStorage.getItem('hub_payslips')) || {};
-        let calendarEvents = JSON.parse(localStorage.getItem('hub_events')) || [];
 
         let currentCalendarDate = new Date();
 
@@ -492,7 +487,7 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // --- 3. AUTHENTIFIZIERUNG (FIREBASE) ---
+        // --- 3. AUTHENTIFIZIERUNG ---
         async function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('login-email').value.trim();
@@ -506,13 +501,19 @@
             submitBtn.innerText = 'Verarbeite...';
 
             try {
-                // Schritt 1: Login versuchen
                 await auth.signInWithEmailAndPassword(email, password);
             } catch (err) {
-                // Schritt 2: Wenn User nicht existiert, registrieren
                 if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
                     try {
-                        await auth.createUserWithEmailAndPassword(email, password);
+                        const userCred = await auth.createUserWithEmailAndPassword(email, password);
+                        // Neues Profil in Firestore anlegen
+                        const role = (email.toLowerCase().includes('admin') || email.toLowerCase().includes('julian')) ? 'admin' : 'user';
+                        await db.collection('users').doc(userCred.user.uid).set({
+                            email: email,
+                            role: role,
+                            permissions: getDefaultPermissions(role),
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
                     } catch (createErr) {
                         showLoginError(createErr);
                     }
@@ -539,24 +540,25 @@
             }
         }
 
-        // Reagiert auf Firebase Login / Logout
-        auth.onAuthStateChanged(user => {
+        // Firebase Auth Listener
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
-                const role = (user.email.toLowerCase().includes('admin') || user.email.toLowerCase().includes('julian')) ? 'admin' : 'user';
-                
-                // Lokalen User-Eintrag prüfen/nachziehen
-                let existing = usersData.find(u => u.email.toLowerCase() === user.email.toLowerCase());
-                if (!existing) {
-                    existing = {
+                // User-Profil aus Firestore laden oder erstellen
+                const userDocRef = db.collection('users').doc(user.uid);
+                const userDoc = await userDocRef.get();
+
+                if (userDoc.exists) {
+                    currentUser = { uid: user.uid, ...userDoc.data() };
+                } else {
+                    const role = (user.email.toLowerCase().includes('admin') || user.email.toLowerCase().includes('julian')) ? 'admin' : 'user';
+                    currentUser = {
+                        uid: user.uid,
                         email: user.email,
                         role: role,
                         permissions: getDefaultPermissions(role)
                     };
-                    usersData.push(existing);
-                    localStorage.setItem('hub_users', JSON.stringify(usersData));
+                    await userDocRef.set(currentUser);
                 }
-
-                currentUser = existing;
 
                 document.getElementById('login-form').reset();
                 document.getElementById('auth-overlay').classList.add('hidden');
@@ -564,11 +566,9 @@
                 document.getElementById('current-user-display').innerText = currentUser.email;
 
                 applyUserPermissions();
-                switchTab('start');
-                renderCalendar();
                 populateMonthDropdown();
-                loadFinanceData();
-                loadAdminUserList();
+                initFirestoreListeners();
+                switchTab('start');
             } else {
                 currentUser = null;
                 document.getElementById('app').classList.add('hidden');
@@ -578,6 +578,31 @@
 
         function handleLogout() {
             auth.signOut();
+        }
+
+        // --- 4. ECHTZEIT-SYNCHRONISIERUNG VIA FIRESTORE ---
+        function initFirestoreListeners() {
+            // 1. Kalendertermine synchronisieren
+            db.collection('events').onSnapshot(snapshot => {
+                calendarEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderCalendar();
+            });
+
+            // 2. Buchungen synchronisieren (eigene Buchungen)
+            db.collection('transactions')
+              .where('owner', '==', currentUser.email)
+              .onSnapshot(snapshot => {
+                  allTransactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                  renderTransactions();
+              });
+
+            // 3. Wenn Admin: Alle Benutzer laden für Rechteverwaltung
+            if (currentUser.role === 'admin' || currentUser.permissions.admin) {
+                db.collection('users').onSnapshot(snapshot => {
+                    allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    loadAdminUserList();
+                });
+            }
         }
 
         function applyUserPermissions() {
@@ -631,21 +656,15 @@
             if (tabId === 'start') {
                 renderCalendar();
             } else if (tabId === 'finanzen') {
-                populateMonthDropdown();
-                loadFinanceData();
+                renderTransactions();
+                renderPayslip();
             }
         }
 
-        // --- 4. MODALS ---
-        function openModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-        }
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        // --- 5. KALENDER LOGIK ---
+        // --- 5. KALENDER ---
         function renderCalendar() {
             if (!currentUser || !currentUser.permissions?.kalender) return;
 
@@ -719,7 +738,7 @@
             openModal('modal-event');
         }
 
-        function saveEventForm(e) {
+        async function saveEventForm(e) {
             e.preventDefault();
             const title = document.getElementById('ev-title').value.trim();
             const date = document.getElementById('ev-date').value;
@@ -727,26 +746,22 @@
 
             if (!title || !date) return;
 
-            calendarEvents.push({
-                id: 'ev_' + Date.now(),
+            await db.collection('events').add({
                 title: title,
                 date: date,
                 isPublic: isPublic,
-                owner: currentUser.email
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            localStorage.setItem('hub_events', JSON.stringify(calendarEvents));
             closeModal('modal-event');
-            renderCalendar();
         }
 
-        function deleteCalendarEvent(id) {
-            calendarEvents = calendarEvents.filter(ev => ev.id !== id);
-            localStorage.setItem('hub_events', JSON.stringify(calendarEvents));
-            renderCalendar();
+        async function deleteCalendarEvent(id) {
+            await db.collection('events').doc(id).delete();
         }
 
-        // --- 6. FINANZEN LOGIK ---
+        // --- 6. FINANZEN (FIRESTORE) ---
         function populateMonthDropdown() {
             const select = document.getElementById('finance-month-filter');
             if (!select) return;
@@ -766,11 +781,6 @@
             }
         }
 
-        function loadFinanceData() {
-            renderTransactions();
-            renderPayslip();
-        }
-
         function getSelectedMonth() {
             const select = document.getElementById('finance-month-filter');
             return select ? select.value : new Date().toISOString().slice(0, 7);
@@ -780,14 +790,14 @@
             if (!currentUser) return;
 
             const selectedMonth = getSelectedMonth();
-            const userTx = (transactionsData[currentUser.email] || []).filter(t => t.date.startsWith(selectedMonth));
+            const userTx = allTransactions.filter(t => t.date && t.date.startsWith(selectedMonth));
 
             const searchVal = document.getElementById('filter-search')?.value.toLowerCase() || '';
             const typeVal = document.getElementById('filter-type')?.value || 'all';
             const catVal = document.getElementById('filter-category')?.value || 'all';
 
             const filtered = userTx.filter(t => {
-                const matchesSearch = t.description.toLowerCase().includes(searchVal) || t.category.toLowerCase().includes(searchVal);
+                const matchesSearch = (t.description || '').toLowerCase().includes(searchVal) || (t.category || '').toLowerCase().includes(searchVal);
                 const matchesType = typeVal === 'all' || t.type === typeVal;
                 const matchesCat = catVal === 'all' || t.category === catVal;
                 return matchesSearch && matchesType && matchesCat;
@@ -867,7 +877,7 @@
             openModal('modal-transaction');
         }
 
-        function saveTransactionForm(e) {
+        async function saveTransactionForm(e) {
             e.preventDefault();
             const desc = document.getElementById('tx-desc').value.trim();
             const amount = parseFloat(document.getElementById('tx-amount').value);
@@ -879,28 +889,21 @@
             const selectedMonth = getSelectedMonth();
             const date = `${selectedMonth}-${String(new Date().getDate()).padStart(2, '0')}`;
 
-            if (!transactionsData[currentUser.email]) {
-                transactionsData[currentUser.email] = [];
-            }
-
-            transactionsData[currentUser.email].push({
-                id: 'tx_' + Date.now(),
+            await db.collection('transactions').add({
                 date: date,
                 type: type,
                 category: category,
                 description: desc,
-                amount: amount
+                amount: amount,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
             closeModal('modal-transaction');
-            renderTransactions();
         }
 
-        function deleteTransaction(id) {
-            transactionsData[currentUser.email] = transactionsData[currentUser.email].filter(t => t.id !== id);
-            localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
-            renderTransactions();
+        async function deleteTransaction(id) {
+            await db.collection('transactions').doc(id).delete();
         }
 
         function triggerSparkasseUpload() {
@@ -912,13 +915,10 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 const text = e.target.result;
                 const lines = text.split('\n');
-
-                if (!transactionsData[currentUser.email]) {
-                    transactionsData[currentUser.email] = [];
-                }
+                const batch = db.batch();
 
                 lines.forEach(line => {
                     const cols = line.split(';').map(c => c.replace(/"/g, '').trim());
@@ -940,29 +940,27 @@
                                 }
                             }
 
-                            transactionsData[currentUser.email].push({
-                                id: 'tx_spk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                            const newDocRef = db.collection('transactions').doc();
+                            batch.set(newDocRef, {
                                 date: formattedDate,
                                 type: type,
                                 category: 'Sparkasse Import',
                                 description: desc,
-                                amount: Math.abs(amount)
+                                amount: Math.abs(amount),
+                                owner: currentUser.email,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
                             });
                         }
                     }
                 });
 
-                localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
-                renderTransactions();
+                await batch.commit();
             };
             reader.readAsText(file, 'ISO-8859-1');
         }
 
-        // --- 7. LOHNABRECHNUNG LOGIK ---
-        function triggerPayslipUpload() {
-            document.getElementById('payslip-file-input').click();
-        }
-
+        // --- 7. LOHNABRECHNUNG LOGIK (Lokal) ---
+        function triggerPayslipUpload() { document.getElementById('payslip-file-input').click(); }
         function handlePayslipUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -970,16 +968,12 @@
             const selectedMonth = getSelectedMonth();
             const reader = new FileReader();
             reader.onload = function(e) {
-                if (!payslipsData[currentUser.email]) {
-                    payslipsData[currentUser.email] = {};
-                }
-                
+                if (!payslipsData[currentUser.email]) payslipsData[currentUser.email] = {};
                 payslipsData[currentUser.email][selectedMonth] = {
                     fileName: file.name,
                     fileData: e.target.result,
                     uploadDate: new Date().toLocaleDateString('de-DE')
                 };
-
                 localStorage.setItem('hub_payslips', JSON.stringify(payslipsData));
                 renderPayslip();
             };
@@ -989,7 +983,7 @@
         function renderPayslip() {
             const selectedMonth = getSelectedMonth();
             const container = document.getElementById('payslip-container');
-            const userPayslips = payslipsData[currentUser.email] || {};
+            const userPayslips = payslipsData[currentUser?.email] || {};
             const payslip = userPayslips[selectedMonth];
 
             if (payslip) {
@@ -1031,19 +1025,17 @@
             }
         }
 
-        // --- 8. ADMIN & RECHTESYSTEM LOGIK ---
+        // --- 8. ADMIN & RECHTE (FIRESTORE) ---
         function loadAdminUserList() {
             const listEl = document.getElementById('users-admin-list');
             if (!listEl) return;
 
             listEl.innerHTML = '';
-            usersData.forEach((u, index) => {
+            allUsers.forEach(u => {
                 const item = document.createElement('div');
                 item.className = "bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3";
 
-                if (!u.permissions) {
-                    u.permissions = getDefaultPermissions(u.role);
-                }
+                const perms = u.permissions || getDefaultPermissions(u.role);
 
                 item.innerHTML = `
                     <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
@@ -1052,21 +1044,21 @@
                             <span class="font-medium text-slate-200 text-xs">${u.email}</span>
                         </div>
                         <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${u.role === 'admin' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-slate-800 text-slate-400'}">
-                            ${u.role.toUpperCase()}
+                            ${(u.role || 'user').toUpperCase()}
                         </span>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
                         <label class="flex items-center justify-between bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60 text-xs cursor-pointer">
                             <span class="text-slate-300"><i class="fa-solid fa-wallet text-indigo-400 mr-2"></i>Finanzen</span>
-                            <input type="checkbox" onchange="toggleUserPermission(${index}, 'finanzen')" ${u.permissions.finanzen ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-4 h-4">
+                            <input type="checkbox" onchange="toggleUserPermission('${u.id}', 'finanzen', ${!perms.finanzen})" ${perms.finanzen ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-4 h-4">
                         </label>
                         <label class="flex items-center justify-between bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60 text-xs cursor-pointer">
                             <span class="text-slate-300"><i class="fa-regular fa-calendar-days text-indigo-400 mr-2"></i>Kalender</span>
-                            <input type="checkbox" onchange="toggleUserPermission(${index}, 'kalender')" ${u.permissions.kalender ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-4 h-4">
+                            <input type="checkbox" onchange="toggleUserPermission('${u.id}', 'kalender', ${!perms.kalender})" ${perms.kalender ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-4 h-4">
                         </label>
                         <label class="flex items-center justify-between bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60 text-xs cursor-pointer">
                             <span class="text-slate-300"><i class="fa-solid fa-user-shield text-amber-400 mr-2"></i>Admin-Rechte</span>
-                            <input type="checkbox" onchange="toggleUserPermission(${index}, 'admin')" ${u.permissions.admin ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-4 h-4">
+                            <input type="checkbox" onchange="toggleUserPermission('${u.id}', 'admin', ${!perms.admin})" ${perms.admin ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-4 h-4">
                         </label>
                     </div>
                 `;
@@ -1074,38 +1066,29 @@
             });
         }
 
-        function toggleUserPermission(userIndex, permKey) {
-            if (!usersData[userIndex]) return;
+        async function toggleUserPermission(userId, permKey, newValue) {
+            const userTarget = allUsers.find(u => u.id === userId);
+            if (!userTarget) return;
 
-            if (!usersData[userIndex].permissions) {
-                usersData[userIndex].permissions = getDefaultPermissions(usersData[userIndex].role);
-            }
+            const updatedPerms = { ...(userTarget.permissions || getDefaultPermissions(userTarget.role)) };
+            updatedPerms[permKey] = newValue;
 
-            usersData[userIndex].permissions[permKey] = !usersData[userIndex].permissions[permKey];
-
+            const updateData = { permissions: updatedPerms };
             if (permKey === 'admin') {
-                usersData[userIndex].role = usersData[userIndex].permissions.admin ? 'admin' : 'user';
+                updateData.role = newValue ? 'admin' : 'user';
             }
 
-            localStorage.setItem('hub_users', JSON.stringify(usersData));
-
-            if (currentUser && currentUser.email.toLowerCase() === usersData[userIndex].email.toLowerCase()) {
-                currentUser = usersData[userIndex];
-                applyUserPermissions();
-            }
-
-            loadAdminUserList();
+            await db.collection('users').doc(userId).update(updateData);
         }
 
-        function clearMyTransactions() {
-            delete transactionsData[currentUser.email];
-            localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
-            renderTransactions();
-        }
-
-        function clearAllData() {
-            localStorage.clear();
-            location.reload();
+        async function clearMyTransactions() {
+            if (!confirm('Möchtest du wirklich alle deine Buchungen in der Cloud löschen?')) return;
+            const batch = db.batch();
+            allTransactions.forEach(t => {
+                const docRef = db.collection('transactions').doc(t.id);
+                batch.delete(docRef);
+            });
+            await batch.commit();
         }
     </script>
 </body>
