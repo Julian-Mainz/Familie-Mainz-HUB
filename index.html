@@ -100,7 +100,7 @@
                 </nav>
 
                 <div class="text-[11px] text-slate-500 text-center py-2">
-                    Familien-Mainz HUB v1.1
+                    Familien-Mainz HUB v1.2
                 </div>
             </aside>
 
@@ -132,7 +132,10 @@
                         <div class="flex items-center space-x-3">
                             <i class="fa-regular fa-calendar text-indigo-400"></i>
                             <span class="text-xs text-slate-400 font-medium">Abrechnungsmonat auswählen:</span>
-                            <input type="month" id="finance-month-filter" onchange="loadFinanceData()" value="2026-10" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500">
+                            <!-- Dynamisches Dropdown für verfügbare Monate -->
+                            <select id="finance-month-filter" onchange="loadFinanceData()" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500 cursor-pointer">
+                                <!-- Dynamisch befüllt -->
+                            </select>
                         </div>
                         <div class="flex items-center space-x-3">
                             <button onclick="addTransactionPrompt()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
@@ -212,7 +215,7 @@
                         </div>
                     </div>
 
-                    <!-- Lohnabrechnungen & Gehaltsnachweise Card -->
+                    <!-- Lohnabrechnungen Card -->
                     <div class="bg-card border border-card rounded-2xl p-5">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
                             <div class="flex items-center space-x-2">
@@ -230,7 +233,7 @@
                         </div>
                     </div>
 
-                    <!-- Buchungen im gewählten Zeitraum -->
+                    <!-- Buchungen Tabelle -->
                     <div class="bg-card border border-card rounded-2xl overflow-hidden">
                         <div class="p-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
                             <div>
@@ -340,7 +343,6 @@
             const existingUser = usersData.find(u => u.email.toLowerCase() === email.toLowerCase());
 
             if (existingUser) {
-                // Passwort überprüfen
                 if (existingUser.password !== password) {
                     errorEl.innerText = 'Falsches Passwort!';
                     errorEl.classList.remove('hidden');
@@ -348,7 +350,6 @@
                 }
                 currentUser = existingUser;
             } else {
-                // Neuen Benutzer mit Passwort anlegen
                 currentUser = {
                     email: email,
                     password: password,
@@ -358,7 +359,6 @@
                 localStorage.setItem('hub_users', JSON.stringify(usersData));
             }
 
-            // Formular zurücksetzen & App anzeigen
             document.getElementById('login-form').reset();
             document.getElementById('auth-overlay').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
@@ -371,6 +371,7 @@
             }
 
             switchTab('start');
+            populateMonthDropdown();
             loadFinanceData();
             loadAdminUserList();
         }
@@ -396,7 +397,58 @@
             }
 
             if (tabId === 'finanzen') {
+                populateMonthDropdown();
                 loadFinanceData();
+            }
+        }
+
+        // --- MONATSDROP-DOWN DYNAMISCH ERSTELLEN ---
+        function populateMonthDropdown() {
+            if (!currentUser) return;
+
+            const select = document.getElementById('finance-month-filter');
+            const previousValue = select.value;
+
+            // Alle verfuegbaren Monate des Nutzers ermitteln (Buchungen + Payslips)
+            const availableMonths = new Set();
+
+            // Aktueller Monat standardmaessig hinzufügen
+            const now = new Date();
+            const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            availableMonths.add(currentMonthStr);
+
+            // Monate aus Buchungen auslesen
+            const userTx = transactionsData[currentUser.email] || [];
+            userTx.forEach(t => {
+                if (t.month) availableMonths.add(t.month);
+            });
+
+            // Monate aus Lohnabrechnungen auslesen
+            const userSlips = payslipsData[currentUser.email] || {};
+            Object.keys(userSlips).forEach(m => availableMonths.add(m));
+
+            // Sortieren (neueste Monate zuerst)
+            const sortedMonths = Array.from(availableMonths).sort().reverse();
+
+            select.innerHTML = '';
+            sortedMonths.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+
+                // Formatierung in lesbaren Monatsnamen (z.B. Oktober 2026)
+                const [year, month] = m.split('-');
+                const monthDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+                const monthName = monthDate.toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+
+                opt.innerText = monthName;
+                select.appendChild(opt);
+            });
+
+            // Vorherige Auswahl beibehalten falls noch vorhanden
+            if (previousValue && sortedMonths.includes(previousValue)) {
+                select.value = previousValue;
+            } else if (sortedMonths.includes(currentMonthStr)) {
+                select.value = currentMonthStr;
             }
         }
 
@@ -415,7 +467,6 @@
 
             const userTx = transactionsData[currentUser.email] || [];
             
-            // Nach Monat filtern
             const monthTx = userTx.filter(t => t.month === selectedMonth);
 
             let totalIncome = 0;
@@ -433,7 +484,6 @@
                 }
             });
 
-            // KPIs berechnen
             const netCashflow = totalIncome - totalExpense;
             const savingsRate = totalIncome > 0 ? ((netCashflow / totalIncome) * 100).toFixed(1) : 0;
 
@@ -447,7 +497,6 @@
             document.getElementById('kpi-savings-rate').innerText = (savingsRate > 0 ? savingsRate : 0) + ' %';
             document.getElementById('kpi-savings-bar').style.width = Math.min(Math.max(savingsRate, 0), 100) + '%';
 
-            // Tabelle filtern und rendern
             const tbody = document.getElementById('transactions-table-body');
             tbody.innerHTML = '';
 
@@ -518,6 +567,7 @@
             });
 
             localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
+            populateMonthDropdown();
             loadFinanceData();
         }
 
@@ -525,6 +575,7 @@
             if (confirm('Möchtest du diese Buchung wirklich löschen?')) {
                 transactionsData[currentUser.email] = transactionsData[currentUser.email].filter(t => t.id !== id);
                 localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
+                populateMonthDropdown();
                 loadFinanceData();
             }
         }
@@ -632,6 +683,7 @@
             }
 
             localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
+            populateMonthDropdown();
             loadFinanceData();
             alert(`Erfolg! Es wurden ${importedCount} Buchungen aus dem Sparkassen-Export importiert.`);
         }
@@ -651,6 +703,7 @@
             payslipsData[currentUser.email][selectedMonth] = file.name;
 
             localStorage.setItem('hub_payslips', JSON.stringify(payslipsData));
+            populateMonthDropdown();
             loadPayslipStatus();
             alert(`Lohnabrechnung "${file.name}" für ${selectedMonth} erfolgreich hinterlegt.`);
             event.target.value = '';
@@ -675,17 +728,42 @@
             } else {
                 container.innerHTML = `
                     <i class="fa-regular fa-file-pdf text-3xl mb-2 text-slate-600 block"></i>
-                    <span>Keine Lohnabrechnung für ${selectedMonth} hinterlegt.</span><br>
+                    <span>Keine Lohnabrechnung für den ausgewählten Monat hinterlegt.</span><br>
                     <button onclick="triggerPayslipUpload()" class="mt-2 text-indigo-400 hover:underline font-medium">Jetzt hochladen &rarr;</button>
                 `;
             }
         }
 
-        // --- ADMIN & DATENBANK REINIGUNG ---
+        // --- ADMIN & BENUTZER LÖSCHEN ---
+        function deleteUser(email) {
+            if (currentUser && currentUser.email.toLowerCase() === email.toLowerCase()) {
+                alert("Du kannst deinen eigenen Benutzer-Account nicht löschen!");
+                return;
+            }
+
+            if (confirm(`Möchtest du den Benutzer "${email}" und alle seine Daten wirklich löschen?`)) {
+                // Benutzer entfernen
+                usersData = usersData.filter(u => u.email.toLowerCase() !== email.toLowerCase());
+                localStorage.setItem('hub_users', JSON.stringify(usersData));
+
+                // Buchungen des Benutzers löschen
+                delete transactionsData[email];
+                localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
+
+                // Lohnabrechnungen des Benutzers löschen
+                delete payslipsData[email];
+                localStorage.setItem('hub_payslips', JSON.stringify(payslipsData));
+
+                loadAdminUserList();
+                alert(`Benutzer ${email} wurde erfolgreich gelöscht.`);
+            }
+        }
+
         function clearMyTransactions() {
             if (confirm("Möchtest du wirklich alle deine Buchungen löschen?")) {
                 transactionsData[currentUser.email] = [];
                 localStorage.setItem('hub_transactions', JSON.stringify(transactionsData));
+                populateMonthDropdown();
                 loadFinanceData();
                 alert("Alle deine Buchungen wurden gelöscht.");
             }
@@ -705,17 +783,23 @@
             listEl.innerHTML = '';
 
             usersData.forEach(user => {
+                const isSelf = currentUser && currentUser.email.toLowerCase() === user.email.toLowerCase();
                 const item = document.createElement('div');
                 item.className = 'flex items-center justify-between p-3 bg-slate-800/60 border border-slate-700/50 rounded-xl text-xs';
                 item.innerHTML = `
                     <div class="flex items-center space-x-3">
                         <i class="fa-solid fa-user text-slate-400"></i>
-                        <span class="font-medium text-slate-200">${user.email}</span>
+                        <span class="font-medium text-slate-200">${user.email} ${isSelf ? '<span class="text-indigo-400 font-normal">(Du)</span>' : ''}</span>
                     </div>
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center space-x-3">
                         <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${user.role === 'admin' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-slate-700 text-slate-300'}">
                             ${user.role}
                         </span>
+                        ${!isSelf ? `
+                            <button onclick="deleteUser('${user.email}')" class="text-slate-400 hover:text-rose-400 transition-colors p-1" title="Benutzer löschen">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        ` : ''}
                     </div>
                 `;
                 listEl.appendChild(item);
