@@ -12,11 +12,10 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Benachrichtigung anzeigen, wenn Tab geschlossen ist
 messaging.onBackgroundMessage((payload) => {
-  const notificationTitle = payload.notification.title || 'Familie Mainz Hub';
+  const notificationTitle = payload.notification?.title || 'Familie Mainz Hub';
   const notificationOptions = {
-    body: payload.notification.body,
+    body: payload.notification?.body || '',
     icon: '/favicon.ico'
   };
 
