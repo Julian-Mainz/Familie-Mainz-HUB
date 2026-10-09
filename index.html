@@ -20,9 +20,6 @@
             color: #f8fafc;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-        .bg-card {
-            background-color: #0f172a;
-        }
         .border-panel {
             border-color: #1e293b;
         }
@@ -139,8 +136,8 @@
     <!-- ========================================== -->
     <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full p-4 md:p-6 gap-4">
         
-    <!-- HEADER: Exakt zentriertes Willkommen & Ausloggen rechts -->
-        <header class="relative flex items-center justify-center w-full px-2 py-2">
+        <!-- HEADER: Exakt zentriertes Willkommen & Ausloggen rechts -->
+        <header class="relative flex items-center justify-center w-full px-2 py-2 min-h-[44px]">
             <h1 class="text-xl md:text-2xl font-bold text-slate-100 tracking-wide text-center">
                 Willkommen im System <span id="user-display-name" class="text-indigo-400"></span>
             </h1>
@@ -160,9 +157,15 @@
                         Menü
                     </div>
                     <nav class="space-y-2">
-                        <button class="w-full flex items-center gap-3 bg-indigo-600 text-white px-4 py-3 rounded-2xl text-sm font-medium shadow-lg shadow-indigo-600/20 transition-all">
-                            <i class="fa-solid fa-border-all"></i>
+                        <button onclick="switchTab('start')" id="nav-btn-start" class="nav-btn w-full flex items-center gap-3 bg-indigo-600 text-white px-4 py-3 rounded-2xl text-sm font-medium shadow-lg shadow-indigo-600/20 transition-all">
+                            <i class="fa-solid fa-border-all w-5"></i>
                             <span>Start Menü</span>
+                        </button>
+
+                        <!-- Admin Menüpunkt: standardmäßig ausgeblendet, nur für Admins sichtbar -->
+                        <button onclick="switchTab('admin')" id="nav-btn-admin" class="nav-btn hidden w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/60 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+                            <i class="fa-solid fa-user-shield w-5 text-amber-400"></i>
+                            <span class="text-amber-300">Admin & Rechte</span>
                         </button>
                     </nav>
                 </div>
@@ -175,51 +178,77 @@
             <!-- RECHTER HAUPTBEREICH -->
             <main class="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
                 
-                <!-- OBERE BOX: UHRZEIT & DATUM -->
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col items-center justify-center text-center shadow-lg">
-                    <div id="dash-time" class="text-4xl md:text-5xl font-mono font-bold tracking-wider text-slate-100">
-                        00:00:00
+                <!-- TAB 1: START MENÜ (UHR & KALENDER) -->
+                <div id="tab-start" class="tab-pane flex-1 flex flex-col gap-4">
+                    <!-- OBERE BOX: UHRZEIT & DATUM -->
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col items-center justify-center text-center shadow-lg">
+                        <div id="dash-time" class="text-4xl md:text-5xl font-mono font-bold tracking-wider text-slate-100">
+                            00:00:00
+                        </div>
+                        <div id="dash-date" class="text-xs md:text-sm font-medium text-indigo-400 uppercase tracking-widest mt-2">
+                            Lade Datum...
+                        </div>
                     </div>
-                    <div id="dash-date" class="text-xs md:text-sm font-medium text-indigo-400 uppercase tracking-widest mt-2">
-                        Lade Datum...
+
+                    <!-- UNTERE BOX: KALENDER -->
+                    <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col shadow-lg">
+                        
+                        <!-- Kalender Toolbar -->
+                        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-4">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
+                                <h2 class="text-base font-bold text-slate-200">Familien-Kalender</h2>
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
+                                    <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
+                                    <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-32 text-center"></span>
+                                    <button onclick="changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                                </div>
+                                <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>Termin hinzufügen</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Kalender Tage Raster -->
+                        <div class="flex-1 overflow-x-auto">
+                            <div class="min-w-[650px]">
+                                <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
+                                    <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+                                </div>
+                                <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2">
+                                    <!-- Wird via JS dynamisch gerendert -->
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
-                <!-- UNTERE BOX: KALENDER -->
-                <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col shadow-lg">
-                    
-                    <!-- Kalender Toolbar -->
-                    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-4">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
-                            <h2 class="text-base font-bold text-slate-200">Familien-Kalender</h2>
+                <!-- TAB 2: ADMIN & RECHTESYSTEM -->
+                <div id="tab-admin" class="tab-pane hidden flex-1 flex flex-col gap-4">
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 shadow-lg">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+                            <div>
+                                <h2 class="text-xl font-bold text-amber-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-user-shield"></i>
+                                    Admin- & Rechtesystem
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-1">Verwalte die Zugriffsrechte aller registrierten Familienmitglieder live in der Cloud.</p>
+                            </div>
+                            <span id="user-count-badge" class="text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1.5 rounded-xl">
+                                0 Benutzer
+                            </span>
                         </div>
 
-                        <div class="flex items-center space-x-3">
-                            <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
-                                <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
-                                <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-32 text-center"></span>
-                                <button onclick="changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
-                            </div>
-                            <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
-                                <i class="fa-solid fa-plus"></i>
-                                <span>Termin hinzufügen</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Kalender Tage Raster -->
-                    <div class="flex-1 overflow-x-auto">
-                        <div class="min-w-[650px]">
-                            <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
-                                <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
-                            </div>
-                            <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2">
-                                <!-- Wird via JS dynamisch gerendert -->
-                            </div>
+                        <!-- Dynamische Liste aller registrierten Benutzer -->
+                        <div id="admin-user-list" class="space-y-3">
+                            <!-- Kärtchen werden via JS geladen -->
                         </div>
                     </div>
-
                 </div>
 
             </main>
@@ -260,7 +289,7 @@
 
 
     <!-- ========================================== -->
-    <!-- LOGIK (FIREBASE & FIRESTORE)              -->
+    <!-- LOGIK (FIREBASE, FIRESTORE & ADMIN)        -->
     <!-- ========================================== -->
     <script>
         // 1. Firebase Initialisierung
@@ -278,8 +307,16 @@
         const db = firebase.firestore();
 
         let currentUser = null;
+        let allUsers = [];
         let calendarEvents = [];
         let currentCalendarDate = new Date();
+
+        function getDefaultPermissions(role) {
+            if (role === 'admin') {
+                return { finanzen: true, kalender: true, admin: true };
+            }
+            return { finanzen: true, kalender: true, admin: false };
+        }
 
         // 2. Uhr & Datum Aktualisierung
         function updateClock() {
@@ -304,7 +341,29 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // 3. UI Umschalten Login / Registrieren
+        // 3. Tab Umschaltung (Start vs Admin)
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/20');
+                btn.classList.add('text-slate-300');
+            });
+
+            const activeTab = document.getElementById('tab-' + tabId);
+            const activeBtn = document.getElementById('nav-btn-' + tabId);
+
+            if (activeTab) activeTab.classList.remove('hidden');
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-300');
+                activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/20');
+            }
+
+            if (tabId === 'start') {
+                renderCalendar();
+            }
+        }
+
+        // 4. UI Umschalten Login / Registrieren
         function showRegisterView(show) {
             hideAlert();
             if (show) {
@@ -327,7 +386,7 @@
             document.getElementById('auth-alert').classList.add('hidden');
         }
 
-        // 4. Anmelden
+        // 5. Anmelden
         async function handleSignIn(e) {
             e.preventDefault();
             hideAlert();
@@ -351,7 +410,7 @@
             }
         }
 
-        // 5. Registrieren
+        // 6. Registrieren
         async function handleSignUp(e) {
             e.preventDefault();
             hideAlert();
@@ -367,11 +426,16 @@
             try {
                 const userCred = await auth.createUserWithEmailAndPassword(email, password);
                 
+                const isAdmin = email.toLowerCase().includes('admin') || email.toLowerCase().includes('julian');
+                const role = isAdmin ? 'admin' : 'user';
+
                 await db.collection('users').doc(userCred.user.uid).set({
                     firstName: firstName,
                     lastName: lastName,
                     displayName: `${firstName} ${lastName}`,
                     email: email,
+                    role: role,
+                    permissions: getDefaultPermissions(role),
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
             } catch (err) {
@@ -381,25 +445,55 @@
             }
         }
 
-        // 6. Auth State Listener & Profil laden
+        // 7. Auth State Listener & Profil laden
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Benutzerdaten aus Firestore holen
                 const doc = await db.collection('users').doc(user.uid).get();
                 let displayName = user.email.split('@')[0];
+                let userRole = 'user';
+                let permissions = getDefaultPermissions('user');
 
-                if (doc.exists && doc.data().firstName) {
-                    displayName = doc.data().firstName;
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.firstName) displayName = data.firstName;
+                    if (data.role) userRole = data.role;
+                    if (data.permissions) permissions = data.permissions;
+                } else {
+                    const isAdmin = user.email.toLowerCase().includes('admin') || user.email.toLowerCase().includes('julian');
+                    userRole = isAdmin ? 'admin' : 'user';
+                    permissions = getDefaultPermissions(userRole);
+                    await db.collection('users').doc(user.uid).set({
+                        displayName: displayName,
+                        email: user.email,
+                        role: userRole,
+                        permissions: permissions
+                    });
                 }
 
-                currentUser = { uid: user.uid, email: user.email, name: displayName };
+                currentUser = { 
+                    uid: user.uid, 
+                    email: user.email, 
+                    name: displayName, 
+                    role: userRole,
+                    permissions: permissions 
+                };
+
                 document.getElementById('user-display-name').innerText = `[${displayName}]`;
 
-                // View umschalten
+                // Admin-Menüpunkt freischalten falls berechtigt
+                const navAdmin = document.getElementById('nav-btn-admin');
+                if (currentUser.role === 'admin' || (currentUser.permissions && currentUser.permissions.admin)) {
+                    navAdmin.classList.remove('hidden');
+                    initAdminUsersListener();
+                } else {
+                    navAdmin.classList.add('hidden');
+                }
+
+                // UI umschalten
                 document.getElementById('view-auth').classList.add('hidden');
                 document.getElementById('view-dashboard').classList.remove('hidden');
 
-                // Kalender Echtzeit-Sync starten
+                switchTab('start');
                 initCalendarListener();
                 renderCalendar();
             } else {
@@ -416,7 +510,7 @@
             auth.signOut();
         }
 
-        // 7. Kalender Logik (Firestore Live Sync)
+        // 8. Kalender Logik (Firestore Live Sync)
         function initCalendarListener() {
             db.collection('events').onSnapshot(snapshot => {
                 calendarEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -519,6 +613,87 @@
 
         async function deleteCalendarEvent(id) {
             await db.collection('events').doc(id).delete();
+        }
+
+        // 9. ADMIN & RECHTESYSTEM (FIRESTORE LIVE-SYNC)
+        function initAdminUsersListener() {
+            db.collection('users').onSnapshot(snapshot => {
+                allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAdminUserList();
+            });
+        }
+
+        function renderAdminUserList() {
+            const listEl = document.getElementById('admin-user-list');
+            const badgeEl = document.getElementById('user-count-badge');
+            if (!listEl) return;
+
+            badgeEl.innerText = `${allUsers.length} Benutzer`;
+            listEl.innerHTML = '';
+
+            if (allUsers.length === 0) {
+                listEl.innerHTML = '<div class="text-center text-xs text-slate-500 py-6">Keine Benutzer in Firestore gefunden.</div>';
+                return;
+            }
+
+            allUsers.forEach(u => {
+                const perms = u.permissions || getDefaultPermissions(u.role || 'user');
+                const isAdmin = u.role === 'admin' || perms.admin;
+                const nameDisplay = u.displayName || (u.firstName ? `${u.firstName} ${u.lastName || ''}` : u.email.split('@')[0]);
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-950/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4";
+
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-2xl ${isAdmin ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400'} flex items-center justify-center font-bold text-sm">
+                            <i class="${isAdmin ? 'fa-solid fa-shield-halved' : 'fa-solid fa-user'}"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-slate-200 text-sm flex items-center gap-2">
+                                <span>${nameDisplay}</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${isAdmin ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-400'}">
+                                    ${(u.role || 'user').toUpperCase()}
+                                </span>
+                            </div>
+                            <div class="text-xs text-slate-500">${u.email}</div>
+                        </div>
+                    </div>
+
+                    <!-- Rechte-Schalter -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs cursor-pointer hover:border-slate-700 transition-colors">
+                            <input type="checkbox" onchange="toggleUserPerm('${u.id}', 'finanzen', this.checked)" ${perms.finanzen ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-0 w-3.5 h-3.5">
+                            <span class="text-slate-300">Finanzen</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs cursor-pointer hover:border-slate-700 transition-colors">
+                            <input type="checkbox" onchange="toggleUserPerm('${u.id}', 'kalender', this.checked)" ${perms.kalender ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-0 w-3.5 h-3.5">
+                            <span class="text-slate-300">Kalender</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs cursor-pointer hover:border-slate-700 transition-colors">
+                            <input type="checkbox" onchange="toggleUserPerm('${u.id}', 'admin', this.checked)" ${isAdmin ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-amber-500 focus:ring-0 w-3.5 h-3.5">
+                            <span class="text-amber-300 font-medium">Admin</span>
+                        </label>
+                    </div>
+                `;
+
+                listEl.appendChild(card);
+            });
+        }
+
+        async function toggleUserPerm(userId, permKey, isChecked) {
+            const target = allUsers.find(u => u.id === userId);
+            if (!target) return;
+
+            const updatedPerms = { ...(target.permissions || getDefaultPermissions(target.role || 'user')) };
+            updatedPerms[permKey] = isChecked;
+
+            const updateData = { permissions: updatedPerms };
+            if (permKey === 'admin') {
+                updateData.role = isChecked ? 'admin' : 'user';
+            }
+
+            await db.collection('users').doc(userId).update(updateData);
         }
     </script>
 </body>
