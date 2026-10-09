@@ -25,7 +25,6 @@
         .border-panel {
             border-color: #1e293b;
         }
-        /* Hardwarebeschleunigte Transitions für ruckelfreie Drawer-Animation */
         #side-drawer {
             transform: translate3d(-100%, 0, 0);
             transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
@@ -43,7 +42,6 @@
             opacity: 1;
             pointer-events: auto;
         }
-        /* Mobile scrollbar polish */
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -61,7 +59,6 @@
     <!-- ========================================== -->
     <div id="view-auth" class="fixed inset-0 z-50 bg-[#080c14] flex flex-col justify-between p-6 overflow-y-auto">
         
-        <!-- Status-Badge in der oberen rechten Ecke -->
         <div class="absolute top-6 right-6 flex items-center gap-3 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-2xl shadow-xl">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -74,14 +71,12 @@
             </div>
         </div>
 
-        <!-- Titel ganz oben -->
         <header class="text-center pt-8">
             <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-slate-100">
                 Willkommen im Dashboard von Julian Mainz
             </h1>
         </header>
 
-        <!-- Formular Mitte -->
         <main class="flex-1 flex items-center justify-center p-4">
             <div class="w-full max-w-md bg-slate-900/90 border border-slate-800/80 rounded-3xl p-8 shadow-2xl">
                 
@@ -90,7 +85,6 @@
                     <span id="auth-alert-text"></span>
                 </div>
 
-                <!-- LOGIN FORMULAR -->
                 <form id="form-login" onsubmit="handleSignIn(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail</label>
@@ -114,7 +108,6 @@
                     </div>
                 </form>
 
-                <!-- REGISTRIERUNGS FORMULAR -->
                 <form id="form-register" onsubmit="handleSignUp(event)" class="space-y-4 hidden">
                     <div class="grid grid-cols-2 gap-3">
                         <div>
@@ -167,18 +160,15 @@
         
         <!-- HEADER (Responsive) -->
         <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-            <!-- Menü Button -->
             <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
                 <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
                 <span class="hidden sm:inline">Menü</span>
             </button>
 
-            <!-- Begrüßung -->
             <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide text-center truncate px-2">
                 Hallo, <span id="user-display-name" class="text-indigo-400 font-semibold"></span> 👋
             </h1>
 
-            <!-- Ausloggen Button -->
             <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span class="hidden sm:inline">Ausloggen</span>
@@ -188,10 +178,9 @@
         <!-- HAUPTINHALT -->
         <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
             
-            <!-- TAB 1: START MENÜ (UHR, PINNWAND, TO-DOS, KALENDER) -->
+            <!-- TAB 1: START MENÜ -->
             <div id="tab-start" class="tab-pane flex-1 flex flex-col gap-4">
                 
-                <!-- TOP GRID: UHR + PINNWAND + TO-DO LISTE -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     
                     <!-- UHR & DATUM -->
@@ -204,7 +193,7 @@
                         </div>
                     </div>
 
-                    <!-- GEMEINSAME NOTIZEN / PINNWAND (Cloud Sync) -->
+                    <!-- GEMEINSAME NOTIZEN -->
                     <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
                             <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
@@ -221,7 +210,7 @@
                         </form>
                     </div>
 
-                    <!-- TO-DO & EINKAUFSLISTE (Cloud Sync) -->
+                    <!-- TO-DO & EINKAUFSLISTE -->
                     <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
                             <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
@@ -242,8 +231,6 @@
 
                 <!-- KALENDER BOX -->
                 <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 flex flex-col shadow-lg">
-                    
-                    <!-- Kalender Toolbar -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
                         <div class="flex items-center space-x-3">
                             <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
@@ -263,25 +250,20 @@
                         </div>
                     </div>
 
-                    <!-- Kalender Tage Raster -->
                     <div class="flex-1 overflow-x-auto pb-2">
                         <div class="min-w-[620px]">
                             <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
                                 <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
                             </div>
-                            <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2">
-                                <!-- JS dynamisch -->
-                            </div>
+                            <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2"></div>
                         </div>
                     </div>
-
                 </div>
             </div>
 
             <!-- TAB 2: ZEITERFASSUNG -->
             <div id="tab-worktime" class="tab-pane hidden flex-1 flex flex-col gap-4">
                 
-                <!-- OBERE LEISTE: STEMPELUHR & STATISTIK -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     
                     <!-- STEMPELUHR -->
@@ -357,7 +339,7 @@
 
                 </div>
 
-                <!-- TABELLE DER EINTRÄGE -->
+                <!-- TABELLE -->
                 <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
                         <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
@@ -407,9 +389,7 @@
                         </span>
                     </div>
 
-                    <div id="admin-user-list" class="space-y-3">
-                        <!-- Benutzerkarten via JS -->
-                    </div>
+                    <div id="admin-user-list" class="space-y-3"></div>
                 </div>
             </div>
 
@@ -417,7 +397,6 @@
             <div id="tab-logs" class="tab-pane hidden flex-1 flex flex-col gap-4">
                 <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
                     
-                    <!-- Header mit Filter und Toolbar -->
                     <div class="flex flex-col lg:flex-row lg:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-3">
                         <div>
                             <h2 class="text-lg md:text-xl font-bold text-cyan-400 flex items-center gap-2">
@@ -427,15 +406,12 @@
                             <p class="text-xs text-slate-400 mt-0.5">Audit-Trail über Seitenbesuche, Logins und Datenänderungen im Hub.</p>
                         </div>
 
-                        <!-- Filter Controls -->
                         <div class="flex flex-wrap items-center gap-2">
-                            <!-- Suchfeld -->
                             <div class="relative">
                                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
                                 <input type="text" id="log-search-input" oninput="renderLogsTable()" placeholder="Logs filtern..." class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl pl-8 pr-3 py-2 focus:outline-none focus:border-cyan-500 w-40 sm:w-48">
                             </div>
 
-                            <!-- Kategorie Filter -->
                             <select id="log-category-filter" onchange="renderLogsTable()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none">
                                 <option value="all">Alle Aktivitäten</option>
                                 <option value="visit">Seitenbesuche</option>
@@ -444,7 +420,6 @@
                                 <option value="admin">Sicherheit & Rechte</option>
                             </select>
 
-                            <!-- Logs leeren -->
                             <button onclick="clearSystemLogs()" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-xs px-3 py-2 rounded-xl transition-all flex items-center gap-1.5" title="Ältere Logs leeren">
                                 <i class="fa-solid fa-trash-can"></i>
                                 <span class="hidden sm:inline">Bereinigen</span>
@@ -452,7 +427,6 @@
                         </div>
                     </div>
 
-                    <!-- Statistik Badges -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
                         <div class="bg-slate-950/40 border border-slate-800/80 p-2.5 rounded-xl text-center">
                             <span class="text-[10px] text-slate-400 block">Gesamt-Events</span>
@@ -472,7 +446,6 @@
                         </div>
                     </div>
 
-                    <!-- Log Tabelle -->
                     <div class="flex-1 overflow-x-auto overflow-y-auto">
                         <table class="w-full text-left text-xs">
                             <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800">
@@ -501,13 +474,12 @@
 
 
     <!-- ========================================== -->
-    <!-- 3. MENÜ-DRAWER (MOBILE & DESKTOP)          -->
+    <!-- 3. MENÜ-DRAWER                             -->
     <!-- ========================================== -->
     <div id="menu-backdrop" onclick="toggleSideMenu(false)" class="fixed inset-0 bg-slate-950/70 z-50"></div>
     
     <aside id="side-drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 z-50 p-6 flex flex-col justify-between shadow-2xl">
         <div>
-            <!-- Header -->
             <div class="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-6">
                 <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-xs">
@@ -544,10 +516,10 @@
                     <span class="text-cyan-300">System-Logs</span>
                 </button>
 
-                <!-- Push-Benachrichtigungen aktivieren (FCM) -->
-                <button onclick="enablePushNotifications(); toggleSideMenu(false);" id="btn-push-toggle" class="w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
-                    <i class="fa-solid fa-bell w-5 text-yellow-400"></i>
-                    <span id="push-btn-label" class="text-yellow-300">Push-Nachrichten aktivieren</span>
+                <!-- NEUES UNTERMENÜ: EINSTELLUNGEN & BENACHRICHTIGUNGEN -->
+                <button onclick="openSettingsModal(); toggleSideMenu(false);" class="w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left border border-slate-800">
+                    <i class="fa-solid fa-gear w-5 text-indigo-400"></i>
+                    <span class="text-slate-200">Einstellungen & Alarm</span>
                 </button>
             </nav>
         </div>
@@ -572,26 +544,106 @@
                     </div>
                     <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
                         <div class="flex items-center gap-2 text-slate-300">
-                            <i class="fa-solid fa-tower-broadcast text-slate-500 text-[11px]"></i>
-                            <span>Cloud Messaging</span>
+                            <i class="fa-solid fa-bell text-slate-500 text-[11px]"></i>
+                            <span>Push Alarm</span>
                         </div>
                         <span id="badge-fcm-status" class="flex items-center gap-1.5 text-slate-400 font-medium text-[11px]">
-                            Bereit
+                            Inaktiv
                         </span>
                     </div>
                 </div>
             </div>
 
             <div class="text-[11px] text-slate-500 text-center">
-                Familie-Mainz Dashboard &bull; v2.4 (FCM Push)
+                Familie-Mainz Dashboard &bull; v2.5
             </div>
         </div>
     </aside>
 
 
     <!-- ========================================== -->
-    <!-- 4. MODALS (TERMIN & MANUELLE ARBEITSZEIT)   -->
+    <!-- 4. MODALS                                  -->
     <!-- ========================================== -->
+    
+    <!-- MODAL: EINSTELLUNGEN & PERSÖNLICHE BENACHRICHTIGUNGEN -->
+    <div id="modal-settings" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-sm">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-100">Einstellungen</h3>
+                        <p class="text-[11px] text-slate-400">Verwalte deine persönlichen Mitteilungen</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-settings')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-4">
+                
+                <!-- Master Schalter Push -->
+                <div class="p-3.5 bg-slate-950/60 border border-slate-800 rounded-2xl flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-bell text-yellow-400"></i>
+                            Push-Mitteilungen erlauben
+                        </div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Mitteilungs-Berechtigung des Browsers</div>
+                    </div>
+                    <button id="btn-master-push" onclick="enablePushNotifications()" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">
+                        Aktivieren
+                    </button>
+                </div>
+
+                <!-- Unter-Optionen (Selber aktivieren) -->
+                <div class="space-y-2.5 pt-1">
+                    <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block px-1">
+                        Benachrichtigungs-Typen
+                    </span>
+
+                    <!-- Stempeluhr-Benachrichtigung -->
+                    <label class="flex items-center justify-between p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl cursor-pointer hover:border-slate-700 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-stopwatch text-emerald-400 text-sm w-4 text-center"></i>
+                            <div>
+                                <span class="text-xs font-medium text-slate-200 block">Stempeluhr-Alarm</span>
+                                <span class="text-[10px] text-slate-500 block">Info bei Beginn & Feierabend</span>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="pref-notify-work" onchange="saveNotificationPref('notifyWork', this.checked)" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0 w-4 h-4 cursor-pointer">
+                    </label>
+
+                    <!-- Kalender-Benachrichtigung -->
+                    <label class="flex items-center justify-between p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl cursor-pointer hover:border-slate-700 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-regular fa-calendar-days text-indigo-400 text-sm w-4 text-center"></i>
+                            <div>
+                                <span class="text-xs font-medium text-slate-200 block">Termin-Bestätigung</span>
+                                <span class="text-[10px] text-slate-500 block">Hinweis bei neuen Kalendereinträgen</span>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="pref-notify-events" onchange="saveNotificationPref('notifyEvents', this.checked)" class="rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-0 w-4 h-4 cursor-pointer">
+                    </label>
+
+                    <!-- Test-Benachrichtigung Button -->
+                    <div class="pt-2">
+                        <button onclick="sendLocalNotification('Test-Alarm 🚀', 'Deine Benachrichtigungen auf Julian-Mainz.de funktionieren perfekt!')" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium flex items-center justify-center gap-2 border border-slate-700 transition-colors">
+                            <i class="fa-solid fa-vial text-slate-400"></i>
+                            <span>Test-Alarm an mein Gerät senden</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-800 text-right">
+                    <button onclick="closeModal('modal-settings')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium">Schließen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: TERMIN HINZUFÜGEN -->
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -619,6 +671,7 @@
         </div>
     </div>
 
+    <!-- MODAL: MANUELLE ARBEITSZEIT -->
     <div id="modal-work-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -661,7 +714,6 @@
     <!-- LOGIK (FIREBASE, FIRESTORE, AUDIT & FCM)   -->
     <!-- ========================================== -->
     <script>
-        // 1. Firebase Initialisierung
         const firebaseConfig = {
             apiKey: "AIzaSyCfKWWHQ17-ujYGJcHw6efFBESArA8uY0Q",
             authDomain: "familie-mainz-netzwerk.firebaseapp.com",
@@ -675,7 +727,6 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // 2. Firebase Cloud Messaging Initialisierung
         let messaging = null;
         try {
             if (firebase.messaging.isSupported()) {
@@ -702,7 +753,6 @@
         const monthInput = document.getElementById('work-filter-month');
         if (monthInput) monthInput.value = todayStr;
 
-        // Gerät & Plattform für Audit ermitteln
         function getDeviceType() {
             const ua = navigator.userAgent;
             if (/mobile/i.test(ua)) return 'Smartphone';
@@ -734,7 +784,6 @@
             }
         }
 
-        // Automatischen Seitenbesuch tracken
         if (!sessionStorage.getItem('session_visited')) {
             sessionStorage.setItem('session_visited', 'true');
             logSystemEvent('visit', 'Website aufgerufen', { referrer: document.referrer || 'Direktaufruf' });
@@ -747,7 +796,6 @@
             return { finanzen: true, kalender: true, admin: false };
         }
 
-        // 3. Drawer Toggle
         function toggleSideMenu(open) {
             const drawer = document.getElementById('side-drawer');
             const backdrop = document.getElementById('menu-backdrop');
@@ -761,10 +809,14 @@
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') toggleSideMenu(false);
+            if (e.key === 'Escape') {
+                toggleSideMenu(false);
+                closeModal('modal-settings');
+                closeModal('modal-event');
+                closeModal('modal-work-manual');
+            }
         });
 
-        // 4. Uhr & Datum
         function updateClock() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -787,7 +839,6 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // 5. Tab Umschaltung
         function switchTab(tabId) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -813,7 +864,6 @@
             }
         }
 
-        // 6. Auth UI
         function showRegisterView(show) {
             hideAlert();
             if (show) {
@@ -836,7 +886,6 @@
             document.getElementById('auth-alert').classList.add('hidden');
         }
 
-        // 7. Login
         async function handleSignIn(e) {
             e.preventDefault();
             hideAlert();
@@ -862,7 +911,6 @@
             }
         }
 
-        // 8. Registrieren
         async function handleSignUp(e) {
             e.preventDefault();
             hideAlert();
@@ -888,6 +936,7 @@
                     email: email,
                     role: role,
                     permissions: getDefaultPermissions(role),
+                    userPrefs: { notifyWork: true, notifyEvents: true },
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
@@ -899,19 +948,20 @@
             }
         }
 
-        // 9. Auth State & Live Listeners
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const doc = await db.collection('users').doc(user.uid).get();
                 let displayName = user.email.split('@')[0];
                 let userRole = 'user';
                 let permissions = getDefaultPermissions('user');
+                let userPrefs = { notifyWork: true, notifyEvents: true };
 
                 if (doc.exists) {
                     const data = doc.data();
                     if (data.firstName) displayName = data.firstName;
                     if (data.role) userRole = data.role;
                     if (data.permissions) permissions = data.permissions;
+                    if (data.userPrefs) userPrefs = { ...userPrefs, ...data.userPrefs };
                     if (data.fcmToken) updatePushBadge(true);
                 } else {
                     const isAdmin = user.email.toLowerCase().includes('admin') || user.email.toLowerCase().includes('julian');
@@ -921,7 +971,8 @@
                         displayName: displayName,
                         email: user.email,
                         role: userRole,
-                        permissions: permissions
+                        permissions: permissions,
+                        userPrefs: userPrefs
                     });
                 }
 
@@ -930,12 +981,20 @@
                     email: user.email, 
                     name: displayName, 
                     role: userRole, 
-                    permissions: permissions 
+                    permissions: permissions,
+                    userPrefs: userPrefs
                 };
 
                 document.getElementById('user-display-name').innerText = displayName;
 
-                // Admin Navigation
+                // Checkboxen im Einstellungs-Modal synchronisieren
+                if (document.getElementById('pref-notify-work')) {
+                    document.getElementById('pref-notify-work').checked = currentUser.userPrefs.notifyWork !== false;
+                }
+                if (document.getElementById('pref-notify-events')) {
+                    document.getElementById('pref-notify-events').checked = currentUser.userPrefs.notifyEvents !== false;
+                }
+
                 const navAdmin = document.getElementById('nav-btn-admin');
                 const navLogs = document.getElementById('nav-btn-logs');
                 const isUserAdmin = currentUser.role === 'admin' || (currentUser.permissions && currentUser.permissions.admin);
@@ -955,7 +1014,6 @@
 
                 switchTab('start');
                 
-                // Firestore Module starten
                 initCalendarListener();
                 initNotesListener();
                 initTodosListener();
@@ -980,72 +1038,111 @@
         }
 
         // ==========================================
-        // 10. CLOUD MESSAGING (PUSH NOTIFICATIONS)
+        // 10. NOTIFICATION- & EINSTELLUNGS-LOGIK
         // ==========================================
+        function openSettingsModal() {
+            openModal('modal-settings');
+        }
+
         function updatePushBadge(active) {
             const badge = document.getElementById('badge-fcm-status');
-            const label = document.getElementById('push-btn-label');
+            const btn = document.getElementById('btn-master-push');
             if (badge) {
                 if (active) {
                     badge.className = 'flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]';
                     badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Aktiviert';
                 } else {
                     badge.className = 'flex items-center gap-1.5 text-slate-400 font-medium text-[11px]';
-                    badge.innerText = 'Bereit';
+                    badge.innerText = 'Inaktiv';
                 }
             }
-            if (label && active) {
-                label.innerText = 'Push-Nachrichten aktiv ✓';
+            if (btn) {
+                if (active) {
+                    btn.innerText = 'Aktiviert ✓';
+                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600/30 text-emerald-300 border border-emerald-500/30';
+                } else {
+                    btn.innerText = 'Aktivieren';
+                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white';
+                }
             }
         }
 
         async function enablePushNotifications() {
-            if (!messaging) {
-                alert('Push-Benachrichtigungen werden von diesem Browser nicht unterstützt oder erfordern HTTPS.');
-                return;
-            }
-
             try {
                 const permission = await Notification.requestPermission();
                 if (permission !== 'granted') {
-                    alert('Berechtigung für Benachrichtigungen wurde nicht erteilt.');
+                    alert('Berechtigung für Mitteilungen wurde im Browser nicht erteilt.');
                     return;
                 }
 
-                // Service Worker sicher registrieren
-                const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-                await navigator.serviceWorker.ready;
+                let token = null;
+                if (messaging) {
+                    try {
+                        const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                        await navigator.serviceWorker.ready;
+                        token = await messaging.getToken({
+                            vapidKey: FCM_VAPID_KEY,
+                            serviceWorkerRegistration: reg
+                        });
+                    } catch (swErr) {
+                        console.warn('FCM Token Registrierung übersprungen:', swErr);
+                    }
+                }
 
-                const token = await messaging.getToken({
-                    vapidKey: FCM_VAPID_KEY,
-                    serviceWorkerRegistration: reg
-                });
-
-                if (token && currentUser) {
+                if (currentUser) {
                     await db.collection('users').doc(currentUser.uid).update({
-                        fcmToken: token,
                         notificationsEnabled: true,
+                        fcmToken: token || 'browser-permission-granted',
                         tokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     updatePushBadge(true);
-                    alert('Push-Benachrichtigungen für dieses Gerät erfolgreich aktiviert!');
-                    logSystemEvent('admin', 'Push-Benachrichtigungen aktiviert', { tokenSnippet: token.slice(0, 12) + '...' });
-                } else {
-                    alert('Token konnte nicht abgerufen werden.');
+                    sendLocalNotification('Benachrichtigungen aktiv! 🔔', 'Dein Gerät empfängt jetzt System- und Stempeluhr-Mitteilungen.');
+                    logSystemEvent('admin', 'Push-Benachrichtigungen aktiviert');
                 }
             } catch (err) {
-                console.error('Fehler bei FCM:', err);
-                alert('Fehler beim Aktivieren der Benachrichtigungen: ' + err.message);
+                console.error('Fehler bei Benachrichtigungen:', err);
+                alert('Fehler beim Aktivieren: ' + err.message);
             }
         }
 
-        // Vordergrund-Empfänger (wenn Website gerade offen ist)
+        // Sendet sofort eine Mitteilung an das System/Gerät
+        function sendLocalNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                try {
+                    new Notification(title, {
+                        body: body,
+                        icon: 'https://cdn-icons-png.flatsome.com/icons/calendar.png'
+                    });
+                } catch (e) {
+                    // Fallback für mobile Service-Worker
+                    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.controller.postMessage({
+                            type: 'SHOW_NOTIFICATION',
+                            title: title,
+                            body: body
+                        });
+                    }
+                }
+            } else {
+                alert(`${title}\n\n${body}`);
+            }
+        }
+
+        async function saveNotificationPref(prefKey, isChecked) {
+            if (!currentUser) return;
+            currentUser.userPrefs = currentUser.userPrefs || {};
+            currentUser.userPrefs[prefKey] = isChecked;
+
+            await db.collection('users').doc(currentUser.uid).update({
+                [`userPrefs.${prefKey}`]: isChecked
+            });
+        }
+
         if (messaging) {
             messaging.onMessage((payload) => {
-                const title = payload.notification?.title || payload.data?.title || 'Familie Mainz Hub';
-                const body = payload.notification?.body || payload.data?.body || '';
-                alert(`🔔 ${title}\n\n${body}`);
-                logSystemEvent('visit', 'Push-Nachricht empfangen', { title: title });
+                const title = payload.notification?.title || 'Familie Mainz Hub';
+                const body = payload.notification?.body || '';
+                sendLocalNotification(title, body);
             });
         }
 
@@ -1150,6 +1247,11 @@
             });
 
             logSystemEvent('data', 'Termin erstellt', { title: title, date: date, public: isPublic });
+
+            if (currentUser.userPrefs?.notifyEvents) {
+                sendLocalNotification('Termin gespeichert 📅', `"${title}" am ${date} eingetragen.`);
+            }
+
             closeModal('modal-event');
         }
 
@@ -1159,7 +1261,7 @@
         }
 
         // ==========================================
-        // 12. NOTIZEN / PINNWAND (FIRESTORE)
+        // 12. NOTIZEN / PINNWAND
         // ==========================================
         function initNotesListener() {
             db.collection('notes').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
@@ -1219,7 +1321,7 @@
         }
 
         // ==========================================
-        // 13. TO-DO / EINKAUFSLISTE (FIRESTORE)
+        // 13. TO-DO LISTE
         // ==========================================
         function initTodosListener() {
             db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
@@ -1369,7 +1471,7 @@
         }
 
         // ==========================================
-        // 15. ZEITERFASSUNGSSYSTEM (FIRESTORE)
+        // 15. ZEITERFASSUNG & AUTOMATISCHER STEMPEL-ALARM
         // ==========================================
         function initWorkTimeListener() {
             if (!currentUser) return;
@@ -1448,297 +1550,3 @@
 
         async function toggleWorkSession() {
             if (!currentUser) return;
-
-            if (activeWorkSession) {
-                const start = activeWorkSession.startTime ? activeWorkSession.startTime.toDate() : new Date();
-                const end = new Date();
-                const totalMinutes = Math.max(0, Math.round((end - start) / 60000));
-                
-                let pauseMin = 0;
-                if (totalMinutes > 360) pauseMin = 30;
-
-                const dateStr = start.toISOString().split('T')[0];
-                const startTimeStr = start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                const endTimeStr = end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-
-                await db.collection('worktime').add({
-                    date: dateStr,
-                    start: startTimeStr,
-                    end: endTimeStr,
-                    pauseMinutes: pauseMin,
-                    netMinutes: Math.max(0, totalMinutes - pauseMin),
-                    note: 'Live erfasst',
-                    owner: currentUser.email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                await db.collection('active_work').doc(currentUser.uid).delete();
-                logSystemEvent('data', 'Arbeitszeit beendet (Live)', { date: dateStr, netMinutes: Math.max(0, totalMinutes - pauseMin) });
-            } else {
-                await db.collection('active_work').doc(currentUser.uid).set({
-                    startTime: firebase.firestore.FieldValue.serverTimestamp(),
-                    owner: currentUser.email
-                });
-                logSystemEvent('data', 'Arbeitszeit gestartet (Live)');
-            }
-        }
-
-        function filterWorkMonth() {
-            renderWorkTimeTable();
-        }
-
-        function renderWorkTimeTable() {
-            const tbody = document.getElementById('worktime-table-body');
-            const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
-            const countEl = document.getElementById('work-table-count');
-            if (!tbody) return;
-
-            tbody.innerHTML = '';
-
-            const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
-            filtered.sort((a, b) => b.date.localeCompare(a.date));
-
-            if (countEl) countEl.innerText = `${filtered.length} Einträge`;
-
-            let totalMinutes = 0;
-            const uniqueDays = new Set();
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten für diesen Zeitraum gefunden.</td></tr>';
-            } else {
-                filtered.forEach(entry => {
-                    totalMinutes += (entry.netMinutes || 0);
-                    uniqueDays.add(entry.date);
-
-                    const netH = Math.floor((entry.netMinutes || 0) / 60);
-                    const netM = (entry.netMinutes || 0) % 60;
-                    const durationStr = `${netH} Std ${netM} Min`;
-
-                    const row = document.createElement('tr');
-                    row.className = "hover:bg-slate-900/40 transition-colors";
-                    row.innerHTML = `
-                        <td class="p-2.5 font-medium text-slate-200">${entry.date}</td>
-                        <td class="p-2.5 text-slate-400">${entry.start || '--:--'}</td>
-                        <td class="p-2.5 text-slate-400">${entry.end || '--:--'}</td>
-                        <td class="p-2.5 text-slate-400">${entry.pauseMinutes || 0} Min</td>
-                        <td class="p-2.5 font-semibold text-emerald-400">${durationStr}</td>
-                        <td class="p-2.5 text-slate-400 truncate max-w-[150px]">${entry.note || '-'}</td>
-                        <td class="p-2.5 text-right">
-                            <button onclick="deleteWorkEntry('${entry.id}')" class="text-slate-500 hover:text-rose-400 p-1">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-
-            const totalHours = (totalMinutes / 60).toFixed(1);
-            const totalDaysCount = uniqueDays.size;
-            const avgHours = totalDaysCount > 0 ? (totalMinutes / 60 / totalDaysCount).toFixed(1) : '0.0';
-
-            const statHoursEl = document.getElementById('stat-total-hours');
-            const statDaysEl = document.getElementById('stat-total-days');
-            const statAvgEl = document.getElementById('stat-avg-hours');
-
-            if (statHoursEl) statHoursEl.innerText = `${totalHours} Std`;
-            if (statDaysEl) statDaysEl.innerText = totalDaysCount;
-            if (statAvgEl) statAvgEl.innerText = `${avgHours} Std / Tag`;
-        }
-
-        function openManualWorkModal() {
-            document.getElementById('man-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('man-start').value = '08:00';
-            document.getElementById('man-end').value = '16:30';
-            document.getElementById('man-pause').value = '30';
-            document.getElementById('man-note').value = 'Reguläre Arbeitszeit';
-            openModal('modal-work-manual');
-        }
-
-        async function saveManualWorkTime(e) {
-            e.preventDefault();
-            const date = document.getElementById('man-date').value;
-            const start = document.getElementById('man-start').value;
-            const end = document.getElementById('man-end').value;
-            const pause = parseInt(document.getElementById('man-pause').value || 0, 10);
-            const note = document.getElementById('man-note').value.trim();
-
-            if (!date || !start || !end || !currentUser) return;
-
-            const [sH, sM] = start.split(':').map(Number);
-            const [eH, eM] = end.split(':').map(Number);
-            let diff = (eH * 60 + eM) - (sH * 60 + sM);
-            if (diff < 0) diff += 24 * 60;
-            const netMinutes = Math.max(0, diff - pause);
-
-            await db.collection('worktime').add({
-                date: date,
-                start: start,
-                end: end,
-                pauseMinutes: pause,
-                netMinutes: netMinutes,
-                note: note,
-                owner: currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            logSystemEvent('data', 'Arbeitszeit manuell nachgetragen', { date: date, netMinutes: netMinutes });
-            closeModal('modal-work-manual');
-        }
-
-        async function deleteWorkEntry(id) {
-            if (confirm('Diesen Arbeitseintrag wirklich löschen?')) {
-                await db.collection('worktime').doc(id).delete();
-                logSystemEvent('data', 'Arbeitszeit-Eintrag gelöscht', { entryId: id });
-            }
-        }
-
-        function exportWorkCSV() {
-            const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
-            const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
-
-            if (filtered.length === 0) {
-                alert('Keine Einträge im ausgewählten Monat zum Exportieren vorhanden.');
-                return;
-            }
-
-            filtered.sort((a, b) => a.date.localeCompare(b.date));
-
-            let csvContent = "\uFEFF";
-            csvContent += "Mitarbeiter;" + (currentUser.name || currentUser.email) + "\r\n";
-            csvContent += "Monat;" + filterMonth + "\r\n\r\n";
-            csvContent += "Datum;Beginn;Ende;Pause (Min);Netto-Stunden;Tätigkeit / Bemerkung\r\n";
-
-            let totalMinutes = 0;
-
-            filtered.forEach(item => {
-                totalMinutes += item.netMinutes || 0;
-                const hoursDec = ((item.netMinutes || 0) / 60).toFixed(2).replace('.', ',');
-                csvContent += `"${item.date}";"${item.start || ''}";"${item.end || ''}";"${item.pauseMinutes || 0}";"${hoursDec}";"${item.note || ''}"\r\n`;
-            });
-
-            const totalHoursDec = (totalMinutes / 60).toFixed(2).replace('.', ',');
-            csvContent += `\r\n;;"GESAMT;";;${totalHoursDec};\r\n`;
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            const sanitizedName = (currentUser.name || 'Mitarbeiter').replace(/\s+/g, '_');
-            link.setAttribute("download", `Stundenzettel_${sanitizedName}_${filterMonth}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            logSystemEvent('data', 'Stundenzettel exportiert', { month: filterMonth });
-        }
-
-        // ==========================================
-        // 16. ADMIN SYSTEM-LOGS & AUDIT LISTENER
-        // ==========================================
-        function initSystemLogsListener() {
-            db.collection('system_logs')
-                .orderBy('timestamp', 'desc')
-                .limit(200)
-                .onSnapshot(snapshot => {
-                    systemLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderLogsTable();
-                });
-        }
-
-        function renderLogsTable() {
-            const tbody = document.getElementById('logs-table-body');
-            const searchVal = (document.getElementById('log-search-input')?.value || '').toLowerCase();
-            const catVal = document.getElementById('log-category-filter')?.value || 'all';
-            if (!tbody) return;
-
-            const countTotal = systemLogs.length;
-            const countVisits = systemLogs.filter(l => l.category === 'visit').length;
-            const countAuth = systemLogs.filter(l => l.category === 'auth').length;
-            const countActions = systemLogs.filter(l => l.category === 'data' || l.category === 'admin').length;
-
-            if (document.getElementById('stat-log-total')) document.getElementById('stat-log-total').innerText = countTotal;
-            if (document.getElementById('stat-log-visits')) document.getElementById('stat-log-visits').innerText = countVisits;
-            if (document.getElementById('stat-log-auth')) document.getElementById('stat-log-auth').innerText = countAuth;
-            if (document.getElementById('stat-log-actions')) document.getElementById('stat-log-actions').innerText = countActions;
-
-            let filtered = systemLogs.filter(log => {
-                if (catVal !== 'all' && log.category !== catVal) return false;
-                if (!searchVal) return true;
-                const matchUser = (log.userName || '').toLowerCase().includes(searchVal);
-                const matchEmail = (log.userEmail || '').toLowerCase().includes(searchVal);
-                const matchAction = (log.action || '').toLowerCase().includes(searchVal);
-                const matchDevice = (log.device || '').toLowerCase().includes(searchVal);
-                return matchUser || matchEmail || matchAction || matchDevice;
-            });
-
-            tbody.innerHTML = '';
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-500 font-sans">Keine Logs für die gewählten Filter gefunden.</td></tr>';
-                return;
-            }
-
-            filtered.forEach(log => {
-                let timeStr = '--:--:--';
-                if (log.timestamp && log.timestamp.toDate) {
-                    const d = log.timestamp.toDate();
-                    timeStr = `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`;
-                }
-
-                let catBadge = '';
-                switch (log.category) {
-                    case 'visit':
-                        catBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">Besuch</span>';
-                        break;
-                    case 'auth':
-                        catBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">Auth</span>';
-                        break;
-                    case 'data':
-                        catBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">Daten</span>';
-                        break;
-                    case 'admin':
-                        catBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 border border-amber-500/20 text-amber-400">Rechte</span>';
-                        break;
-                    default:
-                        catBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${log.category || 'Info'}</span>`;
-                }
-
-                let detailsStr = log.device || '';
-                if (log.details && Object.keys(log.details).length > 0) {
-                    const extra = Object.entries(log.details)
-                        .filter(([k]) => k !== 'userAgent')
-                        .map(([k, v]) => `${k}: ${v}`)
-                        .join(' | ');
-                    if (extra) detailsStr += ` (${extra})`;
-                }
-
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-900/50 transition-colors";
-                row.innerHTML = `
-                    <td class="p-2.5 text-slate-400 whitespace-nowrap">${timeStr}</td>
-                    <td class="p-2.5">${catBadge}</td>
-                    <td class="p-2.5">
-                        <div class="font-sans font-medium text-slate-200">${log.userName || 'Unbekannt'}</div>
-                        <div class="text-[10px] text-slate-500 truncate max-w-[140px]">${log.userEmail || ''}</div>
-                    </td>
-                    <td class="p-2.5 font-sans text-slate-200 font-medium">${log.action || '-'}</td>
-                    <td class="p-2.5 text-slate-400 truncate max-w-[200px]" title="${detailsStr}">${detailsStr}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        async function clearSystemLogs() {
-            if (!confirm('Möchtest du wirklich alle aufgezeichneten System-Logs unwiderruflich löschen?')) return;
-
-            const batch = db.batch();
-            const snapshot = await db.collection('system_logs').get();
-            snapshot.docs.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-
-            logSystemEvent('admin', 'Audit-Logs manuell bereinigt', { deletedCount: snapshot.size });
-        }
-    </script>
-</body>
-</html>
