@@ -13,6 +13,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 
     <style>
         body {
@@ -412,7 +413,7 @@
                 </div>
             </div>
 
-            <!-- TAB 4: NEU: ADMIN SYSTEM-LOGS & AUDIT -->
+            <!-- TAB 4: ADMIN SYSTEM-LOGS & AUDIT -->
             <div id="tab-logs" class="tab-pane hidden flex-1 flex flex-col gap-4">
                 <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
                     
@@ -537,10 +538,16 @@
                     <span class="text-amber-300">Admin & Rechte</span>
                 </button>
 
-                <!-- Admin: System Logs (Neu) -->
+                <!-- Admin: System Logs -->
                 <button onclick="switchTab('logs'); toggleSideMenu(false);" id="nav-btn-logs" class="nav-btn hidden w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
                     <i class="fa-solid fa-timeline w-5 text-cyan-400"></i>
                     <span class="text-cyan-300">System-Logs</span>
+                </button>
+
+                <!-- Push-Benachrichtigungen aktivieren (FCM) -->
+                <button onclick="enablePushNotifications(); toggleSideMenu(false);" id="btn-push-toggle" class="w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
+                    <i class="fa-solid fa-bell w-5 text-yellow-400"></i>
+                    <span id="push-btn-label" class="text-yellow-300">Push-Nachrichten aktivieren</span>
                 </button>
             </nav>
         </div>
@@ -565,19 +572,18 @@
                     </div>
                     <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
                         <div class="flex items-center gap-2 text-slate-300">
-                            <i class="fa-solid fa-shield-halved text-slate-500 text-[11px]"></i>
-                            <span>Audit & Security</span>
+                            <i class="fa-solid fa-tower-broadcast text-slate-500 text-[11px]"></i>
+                            <span>Cloud Messaging</span>
                         </div>
-                        <span class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Aktiv
+                        <span id="badge-fcm-status" class="flex items-center gap-1.5 text-slate-400 font-medium text-[11px]">
+                            Bereit
                         </span>
                     </div>
                 </div>
             </div>
 
             <div class="text-[11px] text-slate-500 text-center">
-                Familie-Mainz Dashboard &bull; v2.3
+                Familie-Mainz Dashboard &bull; v2.4 (FCM Push)
             </div>
         </div>
     </aside>
@@ -652,7 +658,7 @@
 
 
     <!-- ========================================== -->
-    <!-- LOGIK (FIREBASE, FIRESTORE, AUDIT & DRAWER) -->
+    <!-- LOGIK (FIREBASE, FIRESTORE, AUDIT & FCM)   -->
     <!-- ========================================== -->
     <script>
         // 1. Firebase Initialisierung
@@ -668,6 +674,18 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+
+        // 2. Firebase Cloud Messaging Initialisierung
+        let messaging = null;
+        try {
+            if (firebase.messaging.isSupported()) {
+                messaging = firebase.messaging();
+            }
+        } catch (e) {
+            console.warn('FCM wird in diesem Browser-Kontext nicht unterstützt:', e);
+        }
+
+        const FCM_VAPID_KEY = 'BPEpGDjLNQG4JpIwPgr2_WtdKDE5G8GE5S33LKLJmxfNPrAfxBXW6wpeHj0dQOhENsmYbUWOh669HoSJ18w18Lk';
 
         let currentUser = null;
         let allUsers = [];
@@ -701,7 +719,7 @@
                 const userName = currentUser ? currentUser.name : (details.name || 'Nicht eingeloggt');
 
                 await db.collection('system_logs').add({
-                    category: category, // 'visit', 'auth', 'data', 'admin'
+                    category: category,
                     action: action,
                     userEmail: userEmail,
                     userName: userName,
@@ -716,7 +734,7 @@
             }
         }
 
-        // Automatischen Seitenbesuch tracken (einmal pro Session)
+        // Automatischen Seitenbesuch tracken
         if (!sessionStorage.getItem('session_visited')) {
             sessionStorage.setItem('session_visited', 'true');
             logSystemEvent('visit', 'Website aufgerufen', { referrer: document.referrer || 'Direktaufruf' });
@@ -729,7 +747,7 @@
             return { finanzen: true, kalender: true, admin: false };
         }
 
-        // 2. Drawer Toggle
+        // 3. Drawer Toggle
         function toggleSideMenu(open) {
             const drawer = document.getElementById('side-drawer');
             const backdrop = document.getElementById('menu-backdrop');
@@ -746,7 +764,7 @@
             if (e.key === 'Escape') toggleSideMenu(false);
         });
 
-        // 3. Uhr & Datum
+        // 4. Uhr & Datum
         function updateClock() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -769,7 +787,7 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // 4. Tab Umschaltung
+        // 5. Tab Umschaltung
         function switchTab(tabId) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -795,7 +813,7 @@
             }
         }
 
-        // 5. Auth UI
+        // 6. Auth UI
         function showRegisterView(show) {
             hideAlert();
             if (show) {
@@ -818,7 +836,7 @@
             document.getElementById('auth-alert').classList.add('hidden');
         }
 
-        // 6. Login
+        // 7. Login
         async function handleSignIn(e) {
             e.preventDefault();
             hideAlert();
@@ -844,7 +862,7 @@
             }
         }
 
-        // 7. Registrieren
+        // 8. Registrieren
         async function handleSignUp(e) {
             e.preventDefault();
             hideAlert();
@@ -881,7 +899,7 @@
             }
         }
 
-        // 8. Auth State & Live Listeners
+        // 9. Auth State & Live Listeners
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const doc = await db.collection('users').doc(user.uid).get();
@@ -894,6 +912,7 @@
                     if (data.firstName) displayName = data.firstName;
                     if (data.role) userRole = data.role;
                     if (data.permissions) permissions = data.permissions;
+                    if (data.fcmToken) updatePushBadge(true);
                 } else {
                     const isAdmin = user.email.toLowerCase().includes('admin') || user.email.toLowerCase().includes('julian');
                     userRole = isAdmin ? 'admin' : 'user';
@@ -916,7 +935,7 @@
 
                 document.getElementById('user-display-name').innerText = displayName;
 
-                // Admin Controls aktivieren
+                // Admin Navigation
                 const navAdmin = document.getElementById('nav-btn-admin');
                 const navLogs = document.getElementById('nav-btn-logs');
                 const isUserAdmin = currentUser.role === 'admin' || (currentUser.permissions && currentUser.permissions.admin);
@@ -948,6 +967,7 @@
                 document.getElementById('form-login').reset();
                 document.getElementById('btn-login').disabled = false;
                 document.getElementById('btn-login').innerText = 'Anmelden';
+                updatePushBadge(false);
                 toggleSideMenu(false);
             }
         });
@@ -960,7 +980,77 @@
         }
 
         // ==========================================
-        // 9. KALENDER (FIRESTORE)
+        // 10. CLOUD MESSAGING (PUSH NOTIFICATIONS)
+        // ==========================================
+        function updatePushBadge(active) {
+            const badge = document.getElementById('badge-fcm-status');
+            const label = document.getElementById('push-btn-label');
+            if (badge) {
+                if (active) {
+                    badge.className = 'flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]';
+                    badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Aktiviert';
+                } else {
+                    badge.className = 'flex items-center gap-1.5 text-slate-400 font-medium text-[11px]';
+                    badge.innerText = 'Bereit';
+                }
+            }
+            if (label && active) {
+                label.innerText = 'Push-Nachrichten aktiv ✓';
+            }
+        }
+
+        async function enablePushNotifications() {
+            if (!messaging) {
+                alert('Push-Benachrichtigungen werden von diesem Browser nicht unterstützt oder erfordern HTTPS.');
+                return;
+            }
+
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    alert('Berechtigung für Benachrichtigungen wurde nicht erteilt.');
+                    return;
+                }
+
+                // Service Worker sicher registrieren
+                const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                await navigator.serviceWorker.ready;
+
+                const token = await messaging.getToken({
+                    vapidKey: FCM_VAPID_KEY,
+                    serviceWorkerRegistration: reg
+                });
+
+                if (token && currentUser) {
+                    await db.collection('users').doc(currentUser.uid).update({
+                        fcmToken: token,
+                        notificationsEnabled: true,
+                        tokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    updatePushBadge(true);
+                    alert('Push-Benachrichtigungen für dieses Gerät erfolgreich aktiviert!');
+                    logSystemEvent('admin', 'Push-Benachrichtigungen aktiviert', { tokenSnippet: token.slice(0, 12) + '...' });
+                } else {
+                    alert('Token konnte nicht abgerufen werden.');
+                }
+            } catch (err) {
+                console.error('Fehler bei FCM:', err);
+                alert('Fehler beim Aktivieren der Benachrichtigungen: ' + err.message);
+            }
+        }
+
+        // Vordergrund-Empfänger (wenn Website gerade offen ist)
+        if (messaging) {
+            messaging.onMessage((payload) => {
+                const title = payload.notification?.title || payload.data?.title || 'Familie Mainz Hub';
+                const body = payload.notification?.body || payload.data?.body || '';
+                alert(`🔔 ${title}\n\n${body}`);
+                logSystemEvent('visit', 'Push-Nachricht empfangen', { title: title });
+            });
+        }
+
+        // ==========================================
+        // 11. KALENDER (FIRESTORE)
         // ==========================================
         function initCalendarListener() {
             db.collection('events').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
@@ -1069,7 +1159,7 @@
         }
 
         // ==========================================
-        // 10. NOTIZEN / PINNWAND (FIRESTORE)
+        // 12. NOTIZEN / PINNWAND (FIRESTORE)
         // ==========================================
         function initNotesListener() {
             db.collection('notes').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
@@ -1129,7 +1219,7 @@
         }
 
         // ==========================================
-        // 11. TO-DO / EINKAUFSLISTE (FIRESTORE)
+        // 13. TO-DO / EINKAUFSLISTE (FIRESTORE)
         // ==========================================
         function initTodosListener() {
             db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
@@ -1195,7 +1285,7 @@
         }
 
         // ==========================================
-        // 12. ADMIN VERWALTUNG
+        // 14. ADMIN VERWALTUNG
         // ==========================================
         function initAdminUsersListener() {
             db.collection('users').onSnapshot(snapshot => {
@@ -1236,6 +1326,7 @@
                                 <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${isAdmin ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-400'}">
                                     ${(u.role || 'user').toUpperCase()}
                                 </span>
+                                ${u.fcmToken ? '<span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded-full" title="Push aktiviert"><i class="fa-solid fa-bell"></i></span>' : ''}
                             </div>
                             <div class="text-xs text-slate-500">${u.email}</div>
                         </div>
@@ -1278,7 +1369,7 @@
         }
 
         // ==========================================
-        // 13. ZEITERFASSUNGSSYSTEM (FIRESTORE)
+        // 15. ZEITERFASSUNGSSYSTEM (FIRESTORE)
         // ==========================================
         function initWorkTimeListener() {
             if (!currentUser) return;
@@ -1543,7 +1634,7 @@
         }
 
         // ==========================================
-        // 14. ADMIN SYSTEM-LOGS & AUDIT LISTENER
+        // 16. ADMIN SYSTEM-LOGS & AUDIT LISTENER
         // ==========================================
         function initSystemLogsListener() {
             db.collection('system_logs')
@@ -1561,7 +1652,6 @@
             const catVal = document.getElementById('log-category-filter')?.value || 'all';
             if (!tbody) return;
 
-            // Zähler aktualisieren
             const countTotal = systemLogs.length;
             const countVisits = systemLogs.filter(l => l.category === 'visit').length;
             const countAuth = systemLogs.filter(l => l.category === 'auth').length;
@@ -1572,7 +1662,6 @@
             if (document.getElementById('stat-log-auth')) document.getElementById('stat-log-auth').innerText = countAuth;
             if (document.getElementById('stat-log-actions')) document.getElementById('stat-log-actions').innerText = countActions;
 
-            // Filtern
             let filtered = systemLogs.filter(log => {
                 if (catVal !== 'all' && log.category !== catVal) return false;
                 if (!searchVal) return true;
@@ -1597,7 +1686,6 @@
                     timeStr = `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`;
                 }
 
-                // Kategorie Badge Stil
                 let catBadge = '';
                 switch (log.category) {
                     case 'visit':
@@ -1616,7 +1704,6 @@
                         catBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${log.category || 'Info'}</span>`;
                 }
 
-                // Details lesbar formatieren
                 let detailsStr = log.device || '';
                 if (log.details && Object.keys(log.details).length > 0) {
                     const extra = Object.entries(log.details)
