@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Julian-Mainz.de</title>
+    <!-- App & Mobile Metatags -->
+    <meta name="theme-color" content="#080c14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Familie Mainz">
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -158,7 +164,7 @@
     <!-- ========================================== -->
     <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full min-h-screen md:min-h-0 p-3 md:p-6 overflow-hidden">
         
-        <!-- HEADER (Responsive) -->
+        <!-- HEADER -->
         <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
             <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
                 <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
@@ -516,7 +522,7 @@
                     <span class="text-cyan-300">System-Logs</span>
                 </button>
 
-                <!-- NEUES UNTERMENÜ: EINSTELLUNGEN & BENACHRICHTIGUNGEN -->
+                <!-- EINSTELLUNGEN & ALARM -->
                 <button onclick="openSettingsModal(); toggleSideMenu(false);" class="w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left border border-slate-800">
                     <i class="fa-solid fa-gear w-5 text-indigo-400"></i>
                     <span class="text-slate-200">Einstellungen & Alarm</span>
@@ -555,7 +561,7 @@
             </div>
 
             <div class="text-[11px] text-slate-500 text-center">
-                Familie-Mainz Dashboard &bull; v2.5
+                Familie-Mainz Dashboard &bull; v2.6
             </div>
         </div>
     </aside>
@@ -583,21 +589,21 @@
 
             <div class="space-y-4">
                 
-                <!-- Master Schalter Push -->
+                <!-- Master Schalter Push (Mit Umschaltfunktion: Aktivieren / Deaktivieren) -->
                 <div class="p-3.5 bg-slate-950/60 border border-slate-800 rounded-2xl flex items-center justify-between gap-3">
                     <div>
                         <div class="text-xs font-semibold text-slate-200 flex items-center gap-2">
                             <i class="fa-solid fa-bell text-yellow-400"></i>
-                            Push-Mitteilungen erlauben
+                            Push-Mitteilungen
                         </div>
-                        <div class="text-[10px] text-slate-400 mt-0.5">Mitteilungs-Berechtigung des Browsers</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5" id="master-push-subtext">Status: Inaktiv</div>
                     </div>
-                    <button id="btn-master-push" onclick="enablePushNotifications()" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">
+                    <button id="btn-master-push" onclick="toggleMasterPush()" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">
                         Aktivieren
                     </button>
                 </div>
 
-                <!-- Unter-Optionen (Selber aktivieren) -->
+                <!-- Unter-Optionen -->
                 <div class="space-y-2.5 pt-1">
                     <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block px-1">
                         Benachrichtigungs-Typen
@@ -711,7 +717,7 @@
 
 
     <!-- ========================================== -->
-    <!-- LOGIK (FIREBASE, FIRESTORE, AUDIT & FCM)   -->
+    <!-- LOGIK                                      -->
     <!-- ========================================== -->
     <script>
         const firebaseConfig = {
@@ -807,6 +813,9 @@
                 backdrop.classList.remove('backdrop-active');
             }
         }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -955,6 +964,7 @@
                 let userRole = 'user';
                 let permissions = getDefaultPermissions('user');
                 let userPrefs = { notifyWork: true, notifyEvents: true };
+                let hasPush = false;
 
                 if (doc.exists) {
                     const data = doc.data();
@@ -962,7 +972,7 @@
                     if (data.role) userRole = data.role;
                     if (data.permissions) permissions = data.permissions;
                     if (data.userPrefs) userPrefs = { ...userPrefs, ...data.userPrefs };
-                    if (data.fcmToken) updatePushBadge(true);
+                    if (data.notificationsEnabled && data.fcmToken) hasPush = true;
                 } else {
                     const isAdmin = user.email.toLowerCase().includes('admin') || user.email.toLowerCase().includes('julian');
                     userRole = isAdmin ? 'admin' : 'user';
@@ -982,7 +992,8 @@
                     name: displayName, 
                     role: userRole, 
                     permissions: permissions,
-                    userPrefs: userPrefs
+                    userPrefs: userPrefs,
+                    notificationsEnabled: hasPush
                 };
 
                 document.getElementById('user-display-name').innerText = displayName;
@@ -994,6 +1005,7 @@
                 if (document.getElementById('pref-notify-events')) {
                     document.getElementById('pref-notify-events').checked = currentUser.userPrefs.notifyEvents !== false;
                 }
+                updatePushBadge(hasPush);
 
                 const navAdmin = document.getElementById('nav-btn-admin');
                 const navLogs = document.getElementById('nav-btn-logs');
@@ -1047,6 +1059,8 @@
         function updatePushBadge(active) {
             const badge = document.getElementById('badge-fcm-status');
             const btn = document.getElementById('btn-master-push');
+            const subtext = document.getElementById('master-push-subtext');
+
             if (badge) {
                 if (active) {
                     badge.className = 'flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]';
@@ -1056,40 +1070,70 @@
                     badge.innerText = 'Inaktiv';
                 }
             }
+
+            if (subtext) {
+                subtext.innerText = active ? 'Status: Aktiviert auf diesem Gerät' : 'Status: Inaktiv / Abgeschaltet';
+            }
+
             if (btn) {
                 if (active) {
-                    btn.innerText = 'Aktiviert ✓';
-                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600/30 text-emerald-300 border border-emerald-500/30';
+                    btn.innerText = 'Deaktivieren';
+                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-500/30';
                 } else {
                     btn.innerText = 'Aktivieren';
-                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white';
+                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-indigo-600 hover:bg-indigo-500 text-white shadow-md';
                 }
             }
         }
 
-        async function enablePushNotifications() {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') {
-                    alert('Berechtigung für Mitteilungen wurde im Browser nicht erteilt.');
-                    return;
-                }
+        // Toggle-Funktion: Aktivieren ODER Deaktivieren
+        async function toggleMasterPush() {
+            if (!currentUser) return;
+            const isCurrentlyActive = currentUser.notificationsEnabled;
 
-                let token = null;
-                if (messaging) {
-                    try {
-                        const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-                        await navigator.serviceWorker.ready;
-                        token = await messaging.getToken({
-                            vapidKey: FCM_VAPID_KEY,
-                            serviceWorkerRegistration: reg
-                        });
-                    } catch (swErr) {
-                        console.warn('FCM Token Registrierung übersprungen:', swErr);
+            if (isCurrentlyActive) {
+                // 1. DEAKTIVIEREN
+                try {
+                    if (messaging) {
+                        try { await messaging.deleteToken(); } catch (delErr) { console.warn(delErr); }
                     }
+                    currentUser.notificationsEnabled = false;
+                    await db.collection('users').doc(currentUser.uid).update({
+                        notificationsEnabled: false,
+                        fcmToken: firebase.firestore.FieldValue.delete(),
+                        tokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    updatePushBadge(false);
+                    alert('Push-Benachrichtigungen wurden erfolgreich deaktiviert.');
+                    logSystemEvent('admin', 'Push-Benachrichtigungen deaktiviert');
+                } catch (err) {
+                    console.error('Fehler beim Deaktivieren:', err);
+                    alert('Fehler beim Deaktivieren: ' + err.message);
                 }
+            } else {
+                // 2. AKTIVIEREN
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        alert('Berechtigung für Mitteilungen wurde im Browser nicht erteilt.');
+                        return;
+                    }
 
-                if (currentUser) {
+                    let token = null;
+                    if (messaging) {
+                        try {
+                            const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                            await navigator.serviceWorker.ready;
+                            token = await messaging.getToken({
+                                vapidKey: FCM_VAPID_KEY,
+                                serviceWorkerRegistration: reg
+                            });
+                        } catch (swErr) {
+                            console.warn('FCM Token Registrierung:', swErr);
+                        }
+                    }
+
+                    currentUser.notificationsEnabled = true;
                     await db.collection('users').doc(currentUser.uid).update({
                         notificationsEnabled: true,
                         fcmToken: token || 'browser-permission-granted',
@@ -1098,23 +1142,21 @@
                     updatePushBadge(true);
                     sendLocalNotification('Benachrichtigungen aktiv! 🔔', 'Dein Gerät empfängt jetzt System- und Stempeluhr-Mitteilungen.');
                     logSystemEvent('admin', 'Push-Benachrichtigungen aktiviert');
+                } catch (err) {
+                    console.error('Fehler bei Benachrichtigungen:', err);
+                    alert('Fehler beim Aktivieren: ' + err.message);
                 }
-            } catch (err) {
-                console.error('Fehler bei Benachrichtigungen:', err);
-                alert('Fehler beim Aktivieren: ' + err.message);
             }
         }
 
-        // Sendet sofort eine Mitteilung an das System/Gerät
         function sendLocalNotification(title, body) {
             if (Notification.permission === 'granted') {
                 try {
                     new Notification(title, {
                         body: body,
-                        icon: 'https://cdn-icons-png.flatsome.com/icons/calendar.png'
+                        icon: '/favicon.ico'
                     });
                 } catch (e) {
-                    // Fallback für mobile Service-Worker
                     if (navigator.serviceWorker && navigator.serviceWorker.controller) {
                         navigator.serviceWorker.controller.postMessage({
                             type: 'SHOW_NOTIFICATION',
@@ -1220,9 +1262,6 @@
             renderCalendar();
         }
 
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
         function openEventModal(defaultDate = '') {
             document.getElementById('ev-title').value = '';
             document.getElementById('ev-date').value = defaultDate || new Date().toISOString().split('T')[0];
@@ -1248,7 +1287,7 @@
 
             logSystemEvent('data', 'Termin erstellt', { title: title, date: date, public: isPublic });
 
-            if (currentUser.userPrefs?.notifyEvents) {
+            if (currentUser.notificationsEnabled && currentUser.userPrefs?.notifyEvents) {
                 sendLocalNotification('Termin gespeichert 📅', `"${title}" am ${date} eingetragen.`);
             }
 
@@ -1428,7 +1467,7 @@
                                 <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${isAdmin ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-400'}">
                                     ${(u.role || 'user').toUpperCase()}
                                 </span>
-                                ${u.fcmToken ? '<span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded-full" title="Push aktiviert"><i class="fa-solid fa-bell"></i></span>' : ''}
+                                ${u.notificationsEnabled && u.fcmToken ? '<span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded-full" title="Push aktiviert"><i class="fa-solid fa-bell"></i></span>' : ''}
                             </div>
                             <div class="text-xs text-slate-500">${u.email}</div>
                         </div>
@@ -1579,8 +1618,8 @@
                 await db.collection('active_work').doc(currentUser.uid).delete();
                 logSystemEvent('data', 'Arbeitszeit beendet (Live)', { date: dateStr, netMinutes: netMinutes });
 
-                // AUTOMATISCHE MITTEILUNG: FEIERABEND
-                if (currentUser.userPrefs?.notifyWork) {
+                // AUTOMATISCHE MITTEILUNG (NUR WENN PUSH AKTIV & GEWÜNSCHT)
+                if (currentUser.notificationsEnabled && currentUser.userPrefs?.notifyWork) {
                     const h = Math.floor(netMinutes / 60);
                     const m = netMinutes % 60;
                     sendLocalNotification('Feierabend erfasst! 🛑', `Ausgestempelt um ${endTimeStr} Uhr. Arbeitszeit: ${h} Std ${m} Min.`);
@@ -1593,8 +1632,8 @@
                 });
                 logSystemEvent('data', 'Arbeitszeit gestartet (Live)');
 
-                // AUTOMATISCHE MITTEILUNG: ARBEITSBEGINN
-                if (currentUser.userPrefs?.notifyWork) {
+                // AUTOMATISCHE MITTEILUNG (NUR WENN PUSH AKTIV & GEWÜNSCHT)
+                if (currentUser.notificationsEnabled && currentUser.userPrefs?.notifyWork) {
                     const nowStr = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
                     sendLocalNotification('Erfolgreich eingestempelt! ⏱️', `Deine Arbeitszeit läuft seit ${nowStr} Uhr.`);
                 }
