@@ -262,7 +262,7 @@
                         </div>
                     </div>
 
-                    <!-- Kalender Tage Raster (Horizontal scrollbar auf kleinen Handys) -->
+                    <!-- Kalender Tage Raster -->
                     <div class="flex-1 overflow-x-auto pb-2">
                         <div class="min-w-[620px]">
                             <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
@@ -277,7 +277,7 @@
                 </div>
             </div>
 
-            <!-- TAB: ZEITERFASSUNG -->
+            <!-- TAB 2: ZEITERFASSUNG -->
             <div id="tab-worktime" class="tab-pane hidden flex-1 flex flex-col gap-4">
                 
                 <!-- OBERE LEISTE: STEMPELUHR & STATISTIK -->
@@ -412,6 +412,88 @@
                 </div>
             </div>
 
+            <!-- TAB 4: NEU: ADMIN SYSTEM-LOGS & AUDIT -->
+            <div id="tab-logs" class="tab-pane hidden flex-1 flex flex-col gap-4">
+                <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
+                    
+                    <!-- Header mit Filter und Toolbar -->
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-3">
+                        <div>
+                            <h2 class="text-lg md:text-xl font-bold text-cyan-400 flex items-center gap-2">
+                                <i class="fa-solid fa-timeline"></i>
+                                System- & Aktivitäts-Logs
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Audit-Trail über Seitenbesuche, Logins und Datenänderungen im Hub.</p>
+                        </div>
+
+                        <!-- Filter Controls -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <!-- Suchfeld -->
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+                                <input type="text" id="log-search-input" oninput="renderLogsTable()" placeholder="Logs filtern..." class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl pl-8 pr-3 py-2 focus:outline-none focus:border-cyan-500 w-40 sm:w-48">
+                            </div>
+
+                            <!-- Kategorie Filter -->
+                            <select id="log-category-filter" onchange="renderLogsTable()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none">
+                                <option value="all">Alle Aktivitäten</option>
+                                <option value="visit">Seitenbesuche</option>
+                                <option value="auth">Logins / Auth</option>
+                                <option value="data">Datenänderungen</option>
+                                <option value="admin">Sicherheit & Rechte</option>
+                            </select>
+
+                            <!-- Logs leeren -->
+                            <button onclick="clearSystemLogs()" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-xs px-3 py-2 rounded-xl transition-all flex items-center gap-1.5" title="Ältere Logs leeren">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span class="hidden sm:inline">Bereinigen</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Statistik Badges -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                        <div class="bg-slate-950/40 border border-slate-800/80 p-2.5 rounded-xl text-center">
+                            <span class="text-[10px] text-slate-400 block">Gesamt-Events</span>
+                            <span id="stat-log-total" class="text-sm font-bold text-slate-200">0</span>
+                        </div>
+                        <div class="bg-slate-950/40 border border-slate-800/80 p-2.5 rounded-xl text-center">
+                            <span class="text-[10px] text-slate-400 block">Seitenbesuche</span>
+                            <span id="stat-log-visits" class="text-sm font-bold text-cyan-400">0</span>
+                        </div>
+                        <div class="bg-slate-950/40 border border-slate-800/80 p-2.5 rounded-xl text-center">
+                            <span class="text-[10px] text-slate-400 block">Logins</span>
+                            <span id="stat-log-auth" class="text-sm font-bold text-emerald-400">0</span>
+                        </div>
+                        <div class="bg-slate-950/40 border border-slate-800/80 p-2.5 rounded-xl text-center">
+                            <span class="text-[10px] text-slate-400 block">Aktionen</span>
+                            <span id="stat-log-actions" class="text-sm font-bold text-amber-400">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Log Tabelle -->
+                    <div class="flex-1 overflow-x-auto overflow-y-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800">
+                                <tr>
+                                    <th class="p-2.5">Zeitpunkt</th>
+                                    <th class="p-2.5">Kategorie</th>
+                                    <th class="p-2.5">Benutzer</th>
+                                    <th class="p-2.5">Ereignis / Aktion</th>
+                                    <th class="p-2.5">Details / Gerät</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table-body" class="divide-y divide-slate-800/60 text-slate-200 font-mono text-[11px]">
+                                <tr>
+                                    <td colspan="5" class="text-center py-6 text-slate-500 font-sans">Lade System-Logs...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
         </main>
 
     </div>
@@ -449,9 +531,16 @@
                     <span class="text-emerald-300">Zeiterfassung</span>
                 </button>
 
+                <!-- Admin: Rechte -->
                 <button onclick="switchTab('admin'); toggleSideMenu(false);" id="nav-btn-admin" class="nav-btn hidden w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
                     <i class="fa-solid fa-user-shield w-5 text-amber-400"></i>
                     <span class="text-amber-300">Admin & Rechte</span>
+                </button>
+
+                <!-- Admin: System Logs (Neu) -->
+                <button onclick="switchTab('logs'); toggleSideMenu(false);" id="nav-btn-logs" class="nav-btn hidden w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
+                    <i class="fa-solid fa-timeline w-5 text-cyan-400"></i>
+                    <span class="text-cyan-300">System-Logs</span>
                 </button>
             </nav>
         </div>
@@ -477,18 +566,18 @@
                     <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
                         <div class="flex items-center gap-2 text-slate-300">
                             <i class="fa-solid fa-shield-halved text-slate-500 text-[11px]"></i>
-                            <span>Auth System</span>
+                            <span>Audit & Security</span>
                         </div>
                         <span class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Online
+                            Aktiv
                         </span>
                     </div>
                 </div>
             </div>
 
             <div class="text-[11px] text-slate-500 text-center">
-                Familie-Mainz Dashboard &bull; v2.2
+                Familie-Mainz Dashboard &bull; v2.3
             </div>
         </div>
     </aside>
@@ -497,7 +586,6 @@
     <!-- ========================================== -->
     <!-- 4. MODALS (TERMIN & MANUELLE ARBEITSZEIT)   -->
     <!-- ========================================== -->
-    <!-- Modal: Termin hinzufügen -->
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -525,7 +613,6 @@
         </div>
     </div>
 
-    <!-- Modal: Manuelle Arbeitszeit nachtragen -->
     <div id="modal-work-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -565,7 +652,7 @@
 
 
     <!-- ========================================== -->
-    <!-- LOGIK (FIREBASE, FIRESTORE & DRAWER)       -->
+    <!-- LOGIK (FIREBASE, FIRESTORE, AUDIT & DRAWER) -->
     <!-- ========================================== -->
     <script>
         // 1. Firebase Initialisierung
@@ -588,6 +675,7 @@
         let familyNotes = [];
         let familyTodos = [];
         let workEntries = [];
+        let systemLogs = [];
         let activeWorkSession = null;
         let workTimerInterval = null;
         let currentCalendarDate = new Date();
@@ -595,6 +683,44 @@
         const todayStr = new Date().toISOString().slice(0, 7);
         const monthInput = document.getElementById('work-filter-month');
         if (monthInput) monthInput.value = todayStr;
+
+        // Gerät & Plattform für Audit ermitteln
+        function getDeviceType() {
+            const ua = navigator.userAgent;
+            if (/mobile/i.test(ua)) return 'Smartphone';
+            if (/tablet|ipad/i.test(ua)) return 'Tablet';
+            return 'Desktop / PC';
+        }
+
+        // ==========================================
+        // AUDIT & LOGGING SERVICE
+        // ==========================================
+        async function logSystemEvent(category, action, details = {}) {
+            try {
+                const userEmail = currentUser ? currentUser.email : (details.attemptedEmail || 'Gast / Anonym');
+                const userName = currentUser ? currentUser.name : (details.name || 'Nicht eingeloggt');
+
+                await db.collection('system_logs').add({
+                    category: category, // 'visit', 'auth', 'data', 'admin'
+                    action: action,
+                    userEmail: userEmail,
+                    userName: userName,
+                    device: getDeviceType(),
+                    userAgent: navigator.userAgent,
+                    url: window.location.href,
+                    details: details,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (err) {
+                console.warn('Logging error:', err);
+            }
+        }
+
+        // Automatischen Seitenbesuch tracken (einmal pro Session)
+        if (!sessionStorage.getItem('session_visited')) {
+            sessionStorage.setItem('session_visited', 'true');
+            logSystemEvent('visit', 'Website aufgerufen', { referrer: document.referrer || 'Direktaufruf' });
+        }
 
         function getDefaultPermissions(role) {
             if (role === 'admin') {
@@ -664,6 +790,8 @@
                 renderCalendar();
             } else if (tabId === 'worktime') {
                 renderWorkTimeTable();
+            } else if (tabId === 'logs') {
+                renderLogsTable();
             }
         }
 
@@ -703,9 +831,11 @@
 
             try {
                 await auth.signInWithEmailAndPassword(email, password);
+                logSystemEvent('auth', 'Erfolgreicher Login', { email: email });
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Anmelden';
+                logSystemEvent('auth', 'Fehlgeschlagener Login-Versuch', { attemptedEmail: email, reason: err.message });
                 if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
                     showAlert('E-Mail oder Passwort ist nicht korrekt.');
                 } else {
@@ -742,6 +872,8 @@
                     permissions: getDefaultPermissions(role),
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+
+                logSystemEvent('auth', 'Neuer Benutzer registriert', { email: email, name: `${firstName} ${lastName}`, role: role });
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Benutzer jetzt erstellen';
@@ -784,12 +916,19 @@
 
                 document.getElementById('user-display-name').innerText = displayName;
 
+                // Admin Controls aktivieren
                 const navAdmin = document.getElementById('nav-btn-admin');
-                if (currentUser.role === 'admin' || (currentUser.permissions && currentUser.permissions.admin)) {
+                const navLogs = document.getElementById('nav-btn-logs');
+                const isUserAdmin = currentUser.role === 'admin' || (currentUser.permissions && currentUser.permissions.admin);
+
+                if (isUserAdmin) {
                     navAdmin.classList.remove('hidden');
+                    navLogs.classList.remove('hidden');
                     initAdminUsersListener();
+                    initSystemLogsListener();
                 } else {
                     navAdmin.classList.add('hidden');
+                    navLogs.classList.add('hidden');
                 }
 
                 document.getElementById('view-auth').classList.add('hidden');
@@ -813,7 +952,10 @@
             }
         });
 
-        function handleLogout() {
+        async function handleLogout() {
+            if (currentUser) {
+                await logSystemEvent('auth', 'Benutzer abgemeldet', { email: currentUser.email });
+            }
             auth.signOut();
         }
 
@@ -875,7 +1017,7 @@
                     eventsHtml += `
                         <div class="text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}" title="${ev.title}">
                             <span class="truncate">${ev.isPublic ? '' : '<i class="fa-solid fa-lock text-[8px] mr-1 text-amber-400"></i>'}${ev.title}</span>
-                            ${isOwner ? `<button onclick="deleteCalendarEvent('${ev.id}')" class="text-slate-400 hover:text-rose-400 ml-1"><i class="fa-solid fa-xmark text-[9px]"></i></button>` : ''}
+                            ${isOwner ? `<button onclick="deleteCalendarEvent('${ev.id}', '${ev.title}')" class="text-slate-400 hover:text-rose-400 ml-1"><i class="fa-solid fa-xmark text-[9px]"></i></button>` : ''}
                         </div>
                     `;
                 });
@@ -917,11 +1059,13 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
+            logSystemEvent('data', 'Termin erstellt', { title: title, date: date, public: isPublic });
             closeModal('modal-event');
         }
 
-        async function deleteCalendarEvent(id) {
+        async function deleteCalendarEvent(id, title = '') {
             await db.collection('events').doc(id).delete();
+            logSystemEvent('data', 'Termin gelöscht', { eventId: id, title: title });
         }
 
         // ==========================================
@@ -956,7 +1100,7 @@
                         <span class="text-slate-200 text-[11px]">${n.text}</span>
                         <span class="text-[9px] text-slate-500">${n.author || 'Familie'}</span>
                     </div>
-                    ${isOwner ? `<button onclick="deleteNote('${n.id}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
+                    ${isOwner ? `<button onclick="deleteNote('${n.id}', '${n.text}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
                 `;
                 list.appendChild(item);
             });
@@ -975,11 +1119,13 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
+            logSystemEvent('data', 'Notiz angepinnt', { text: text });
             input.value = '';
         }
 
-        async function deleteNote(id) {
+        async function deleteNote(id, text = '') {
             await db.collection('notes').doc(id).delete();
+            logSystemEvent('data', 'Notiz entfernt', { noteId: id, text: text });
         }
 
         // ==========================================
@@ -1011,10 +1157,10 @@
                 item.className = "flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
                 item.innerHTML = `
                     <label class="flex items-center gap-2 cursor-pointer truncate">
-                        <input type="checkbox" onchange="toggleTodo('${t.id}', this.checked)" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0 w-3.5 h-3.5">
+                        <input type="checkbox" onchange="toggleTodo('${t.id}', this.checked, '${t.text}')" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0 w-3.5 h-3.5">
                         <span class="text-[11px] truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${t.text}</span>
                     </label>
-                    <button onclick="deleteTodo('${t.id}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                    <button onclick="deleteTodo('${t.id}', '${t.text}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-xmark text-[10px]"></i></button>
                 `;
                 list.appendChild(item);
             });
@@ -1034,15 +1180,18 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
+            logSystemEvent('data', 'Aufgabe erstellt', { text: text });
             input.value = '';
         }
 
-        async function toggleTodo(id, done) {
+        async function toggleTodo(id, done, text = '') {
             await db.collection('todos').doc(id).update({ done: done });
+            logSystemEvent('data', done ? 'Aufgabe erledigt' : 'Aufgabe wiedereröffnet', { text: text, todoId: id });
         }
 
-        async function deleteTodo(id) {
+        async function deleteTodo(id, text = '') {
             await db.collection('todos').doc(id).delete();
+            logSystemEvent('data', 'Aufgabe gelöscht', { todoId: id, text: text });
         }
 
         // ==========================================
@@ -1125,6 +1274,7 @@
             }
 
             await db.collection('users').doc(userId).update(updateData);
+            logSystemEvent('admin', `Berechtigung geändert: ${permKey}`, { targetUser: target.email, granted: isChecked });
         }
 
         // ==========================================
@@ -1133,7 +1283,6 @@
         function initWorkTimeListener() {
             if (!currentUser) return;
 
-            // 1. Alle gebuchten Zeiten des Nutzers laden
             db.collection('worktime')
                 .where('owner', '==', currentUser.email)
                 .onSnapshot(snapshot => {
@@ -1141,7 +1290,6 @@
                     renderWorkTimeTable();
                 });
 
-            // 2. Prüfen, ob eine Session aktiv läuft
             db.collection('active_work')
                 .doc(currentUser.uid)
                 .onSnapshot(doc => {
@@ -1211,13 +1359,12 @@
             if (!currentUser) return;
 
             if (activeWorkSession) {
-                // Ausstempeln
                 const start = activeWorkSession.startTime ? activeWorkSession.startTime.toDate() : new Date();
                 const end = new Date();
                 const totalMinutes = Math.max(0, Math.round((end - start) / 60000));
                 
                 let pauseMin = 0;
-                if (totalMinutes > 360) pauseMin = 30; // Automatische Pause ab 6 Stunden
+                if (totalMinutes > 360) pauseMin = 30;
 
                 const dateStr = start.toISOString().split('T')[0];
                 const startTimeStr = start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
@@ -1235,12 +1382,13 @@
                 });
 
                 await db.collection('active_work').doc(currentUser.uid).delete();
+                logSystemEvent('data', 'Arbeitszeit beendet (Live)', { date: dateStr, netMinutes: Math.max(0, totalMinutes - pauseMin) });
             } else {
-                // Einstempeln
                 await db.collection('active_work').doc(currentUser.uid).set({
                     startTime: firebase.firestore.FieldValue.serverTimestamp(),
                     owner: currentUser.email
                 });
+                logSystemEvent('data', 'Arbeitszeit gestartet (Live)');
             }
         }
 
@@ -1294,7 +1442,6 @@
                 });
             }
 
-            // Statistik
             const totalHours = (totalMinutes / 60).toFixed(1);
             const totalDaysCount = uniqueDays.size;
             const avgHours = totalDaysCount > 0 ? (totalMinutes / 60 / totalDaysCount).toFixed(1) : '0.0';
@@ -1330,7 +1477,7 @@
             const [sH, sM] = start.split(':').map(Number);
             const [eH, eM] = end.split(':').map(Number);
             let diff = (eH * 60 + eM) - (sH * 60 + sM);
-            if (diff < 0) diff += 24 * 60; // Falls über Mitternacht gearbeitet wurde
+            if (diff < 0) diff += 24 * 60;
             const netMinutes = Math.max(0, diff - pause);
 
             await db.collection('worktime').add({
@@ -1344,18 +1491,17 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
+            logSystemEvent('data', 'Arbeitszeit manuell nachgetragen', { date: date, netMinutes: netMinutes });
             closeModal('modal-work-manual');
         }
 
         async function deleteWorkEntry(id) {
             if (confirm('Diesen Arbeitseintrag wirklich löschen?')) {
                 await db.collection('worktime').doc(id).delete();
+                logSystemEvent('data', 'Arbeitszeit-Eintrag gelöscht', { entryId: id });
             }
         }
 
-        // ==========================================
-        // 14. EXPORT-FUNKTION (CSV FÜR EXCEL)
-        // ==========================================
         function exportWorkCSV() {
             const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
             const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
@@ -1367,7 +1513,7 @@
 
             filtered.sort((a, b) => a.date.localeCompare(b.date));
 
-            let csvContent = "\uFEFF"; // UTF-8 BOM für Umlaute in Excel
+            let csvContent = "\uFEFF";
             csvContent += "Mitarbeiter;" + (currentUser.name || currentUser.email) + "\r\n";
             csvContent += "Monat;" + filterMonth + "\r\n\r\n";
             csvContent += "Datum;Beginn;Ende;Pause (Min);Netto-Stunden;Tätigkeit / Bemerkung\r\n";
@@ -1392,6 +1538,119 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+
+            logSystemEvent('data', 'Stundenzettel exportiert', { month: filterMonth });
+        }
+
+        // ==========================================
+        // 14. ADMIN SYSTEM-LOGS & AUDIT LISTENER
+        // ==========================================
+        function initSystemLogsListener() {
+            db.collection('system_logs')
+                .orderBy('timestamp', 'desc')
+                .limit(200)
+                .onSnapshot(snapshot => {
+                    systemLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderLogsTable();
+                });
+        }
+
+        function renderLogsTable() {
+            const tbody = document.getElementById('logs-table-body');
+            const searchVal = (document.getElementById('log-search-input')?.value || '').toLowerCase();
+            const catVal = document.getElementById('log-category-filter')?.value || 'all';
+            if (!tbody) return;
+
+            // Zähler aktualisieren
+            const countTotal = systemLogs.length;
+            const countVisits = systemLogs.filter(l => l.category === 'visit').length;
+            const countAuth = systemLogs.filter(l => l.category === 'auth').length;
+            const countActions = systemLogs.filter(l => l.category === 'data' || l.category === 'admin').length;
+
+            if (document.getElementById('stat-log-total')) document.getElementById('stat-log-total').innerText = countTotal;
+            if (document.getElementById('stat-log-visits')) document.getElementById('stat-log-visits').innerText = countVisits;
+            if (document.getElementById('stat-log-auth')) document.getElementById('stat-log-auth').innerText = countAuth;
+            if (document.getElementById('stat-log-actions')) document.getElementById('stat-log-actions').innerText = countActions;
+
+            // Filtern
+            let filtered = systemLogs.filter(log => {
+                if (catVal !== 'all' && log.category !== catVal) return false;
+                if (!searchVal) return true;
+                const matchUser = (log.userName || '').toLowerCase().includes(searchVal);
+                const matchEmail = (log.userEmail || '').toLowerCase().includes(searchVal);
+                const matchAction = (log.action || '').toLowerCase().includes(searchVal);
+                const matchDevice = (log.device || '').toLowerCase().includes(searchVal);
+                return matchUser || matchEmail || matchAction || matchDevice;
+            });
+
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-500 font-sans">Keine Logs für die gewählten Filter gefunden.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(log => {
+                let timeStr = '--:--:--';
+                if (log.timestamp && log.timestamp.toDate) {
+                    const d = log.timestamp.toDate();
+                    timeStr = `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`;
+                }
+
+                // Kategorie Badge Stil
+                let catBadge = '';
+                switch (log.category) {
+                    case 'visit':
+                        catBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">Besuch</span>';
+                        break;
+                    case 'auth':
+                        catBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">Auth</span>';
+                        break;
+                    case 'data':
+                        catBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">Daten</span>';
+                        break;
+                    case 'admin':
+                        catBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 border border-amber-500/20 text-amber-400">Rechte</span>';
+                        break;
+                    default:
+                        catBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${log.category || 'Info'}</span>`;
+                }
+
+                // Details lesbar formatieren
+                let detailsStr = log.device || '';
+                if (log.details && Object.keys(log.details).length > 0) {
+                    const extra = Object.entries(log.details)
+                        .filter(([k]) => k !== 'userAgent')
+                        .map(([k, v]) => `${k}: ${v}`)
+                        .join(' | ');
+                    if (extra) detailsStr += ` (${extra})`;
+                }
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-900/50 transition-colors";
+                row.innerHTML = `
+                    <td class="p-2.5 text-slate-400 whitespace-nowrap">${timeStr}</td>
+                    <td class="p-2.5">${catBadge}</td>
+                    <td class="p-2.5">
+                        <div class="font-sans font-medium text-slate-200">${log.userName || 'Unbekannt'}</div>
+                        <div class="text-[10px] text-slate-500 truncate max-w-[140px]">${log.userEmail || ''}</div>
+                    </td>
+                    <td class="p-2.5 font-sans text-slate-200 font-medium">${log.action || '-'}</td>
+                    <td class="p-2.5 text-slate-400 truncate max-w-[200px]" title="${detailsStr}">${detailsStr}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        async function clearSystemLogs() {
+            if (!confirm('Möchtest du wirklich alle aufgezeichneten System-Logs unwiderruflich löschen?')) return;
+
+            const batch = db.batch();
+            const snapshot = await db.collection('system_logs').get();
+            snapshot.docs.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+
+            logSystemEvent('admin', 'Audit-Logs manuell bereinigt', { deletedCount: snapshot.size });
         }
     </script>
 </body>
