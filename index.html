@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Mainz Hub">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1160/1160358.png">
+    <link rel="apple-touch-icon" href="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f6e1.png">
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -68,7 +68,6 @@
     <!-- 1. LOGIN & REGISTRIERUNG OVERLAY           -->
     <!-- ========================================== -->
     <div id="view-auth" class="fixed inset-0 z-50 bg-[#080c14] flex flex-col justify-between p-6 overflow-y-auto">
-        
         <div class="absolute top-6 right-6 flex items-center gap-3 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-2xl shadow-xl">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -89,7 +88,6 @@
 
         <main class="flex-1 flex items-center justify-center p-4">
             <div class="w-full max-w-md bg-slate-900/90 border border-slate-800/80 rounded-3xl p-8 shadow-2xl">
-                
                 <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs text-center flex items-center justify-center gap-2">
                     <i class="fa-solid fa-circle-exclamation"></i>
                     <span id="auth-alert-text"></span>
@@ -101,13 +99,11 @@
                         <input type="email" id="login-email" required placeholder="name@familie-mainz.de" 
                             class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                     </div>
-
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort</label>
                         <input type="password" id="login-password" required placeholder="••••••••" 
                             class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                     </div>
-
                     <div class="pt-3 space-y-3">
                         <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 text-sm">
                             Anmelden
@@ -122,28 +118,21 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Vorname</label>
-                            <input type="text" id="reg-firstname" required placeholder="Julian" 
-                                class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <input type="text" id="reg-firstname" required placeholder="Julian" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Nachname</label>
-                            <input type="text" id="reg-lastname" required placeholder="Mainz" 
-                                class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <input type="text" id="reg-lastname" required placeholder="Mainz" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                         </div>
                     </div>
-
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail</label>
-                        <input type="email" id="reg-email" required placeholder="name@familie-mainz.de" 
-                            class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                        <input type="email" id="reg-email" required placeholder="name@familie-mainz.de" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                     </div>
-
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort (min. 6 Zeichen)</label>
-                        <input type="password" id="reg-password" required minlength="6" placeholder="••••••••" 
-                            class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                        <input type="password" id="reg-password" required minlength="6" placeholder="••••••••" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                     </div>
-
                     <div class="pt-2 space-y-3">
                         <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 text-sm">
                             Benutzer jetzt erstellen
@@ -153,7 +142,6 @@
                         </button>
                     </div>
                 </form>
-
             </div>
         </main>
 
@@ -173,10 +161,6 @@
                 <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
                     <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
                     <span class="hidden sm:inline">Menü</span>
-                </button>
-                <button id="btn-pwa-install" onclick="installPWA()" class="hidden flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-400 px-3 py-2 rounded-xl text-xs font-semibold transition-all">
-                    <i class="fa-solid fa-download"></i>
-                    <span class="hidden md:inline">App installieren</span>
                 </button>
             </div>
 
@@ -206,9 +190,7 @@
                                 <i class="fa-solid fa-location-dot text-rose-400"></i>
                                 <span id="weather-location">Standort...</span>
                             </span>
-                            <button onclick="loadWeather()" class="text-slate-400 hover:text-indigo-400 text-xs p-1" title="Aktualisieren">
-                                <i class="fa-solid fa-rotate"></i>
-                            </button>
+                            <button onclick="loadWeather()" class="text-slate-400 hover:text-indigo-400 text-xs p-1"><i class="fa-solid fa-rotate"></i></button>
                         </div>
                         <div class="flex items-center justify-between my-auto">
                             <div class="flex items-center gap-3">
@@ -372,14 +354,121 @@
                                 </tr>
                             </thead>
                             <tbody id="worktime-table-body" class="divide-y divide-slate-800/60 text-slate-200">
-                                <tr><td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten für diesen Zeitraum gefunden.</td></tr>
+                                <tr><td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten gefunden.</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 3: PASSWORT- & DOKUMENTEN-SAFE -->
+            <!-- TAB 3: NEU: FINANZEN, SPARKASSE & LOHNABRECHNUNGEN -->
+            <div id="tab-finanzen" class="tab-pane hidden flex-1 flex flex-col gap-4">
+                
+                <!-- KACHELN: MONATSBILANZ & FILTER -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
+                        <span class="text-xs text-slate-400">Filter Monat</span>
+                        <input type="month" id="finance-filter-month" onchange="renderFinanceData()" class="mt-2 bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none">
+                    </div>
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
+                        <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-arrow-down text-emerald-400"></i> Einnahmen</span>
+                        <div id="fin-stat-income" class="text-xl font-bold text-emerald-400 mt-1">0,00 €</div>
+                    </div>
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
+                        <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-arrow-up text-rose-400"></i> Ausgaben</span>
+                        <div id="fin-stat-expenses" class="text-xl font-bold text-rose-400 mt-1">0,00 €</div>
+                    </div>
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
+                        <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-wallet text-indigo-400"></i> Saldo / Überschuss</span>
+                        <div id="fin-stat-balance" class="text-xl font-bold text-slate-100 mt-1">0,00 €</div>
+                    </div>
+                </div>
+
+                <!-- IMPORT & UPLOAD LEISTE -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- SPARKASSE CSV IMPORT -->
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-file-csv text-red-500"></i> Sparkasse CSV-Umsätze importieren
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-3">
+                            Lade deine exportierte Umsatz-CSV aus dem Sparkassen-Online-Banking hoch. Buchungen werden automatisch erkannt & zugeordnet.
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <label class="flex-1 py-2.5 px-3 bg-red-600/10 hover:bg-red-600/20 border border-red-500/30 text-red-400 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all">
+                                <i class="fa-solid fa-upload"></i>
+                                <span>CSV-Datei auswählen</span>
+                                <input type="file" id="sparkasse-csv-input" accept=".csv" class="hidden" onchange="handleSparkasseCSV(event)">
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- LOHNABRECHNUNG UPLOAD -->
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> Lohnabrechnung ablegen
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-3">
+                            Lohnzettel als PDF oder Foto direkt in deiner Cloud ablegen (sicher ohne Zusatzkosten).
+                        </p>
+                        <button onclick="openPayslipModal()" class="w-full py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Neue Abrechnung hochladen</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- UNTERE REIHE: TRANSAKTIONEN & DOKUMENTE -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 overflow-hidden min-h-[300px]">
+                    <!-- TRANSAKTIONEN TABELLE (2/3 Breite) -->
+                    <div class="lg:col-span-2 bg-slate-900/60 border border-panel rounded-3xl p-4 shadow-lg flex flex-col overflow-hidden">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-2.5">
+                            <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-list text-indigo-400"></i> Buchungen & Umsätze
+                            </h3>
+                            <button onclick="openManualTransactionModal()" class="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+                                <i class="fa-solid fa-plus"></i> Manuell hinzufügen
+                            </button>
+                        </div>
+                        <div class="flex-1 overflow-y-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800">
+                                    <tr>
+                                        <th class="p-2">Datum</th>
+                                        <th class="p-2">Begünstigter / Partner</th>
+                                        <th class="p-2">Kategorie</th>
+                                        <th class="p-2 text-right">Betrag</th>
+                                        <th class="p-2 text-right">Aktion</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="finance-table-body" class="divide-y divide-slate-800/60 text-slate-200">
+                                    <tr><td colspan="5" class="text-center py-6 text-slate-500">Keine Umsätze für diesen Monat gefunden.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ABGELEGTE LOHNABRECHNUNGEN (1/3 Breite) -->
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 shadow-lg flex flex-col overflow-hidden">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-2.5">
+                            <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-folder-open text-amber-400"></i> Lohnabrechnungen
+                            </h3>
+                            <span id="payslip-count-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
+                        </div>
+                        <div id="payslip-list" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                            <div class="text-xs text-slate-500 text-center py-6">Keine Lohnabrechnungen hinterlegt.</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TAB 4: PASSWORT- & DOKUMENTEN-SAFE -->
             <div id="tab-vault" class="tab-pane hidden flex-1 flex flex-col gap-4">
                 <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
                     <div id="vault-locked-view" class="flex-1 flex flex-col items-center justify-center p-6 text-center my-auto">
@@ -422,7 +511,7 @@
                 </div>
             </div>
 
-            <!-- TAB 4: ADMIN RECHTE -->
+            <!-- TAB 5: ADMIN RECHTE -->
             <div id="tab-admin" class="tab-pane hidden flex-1 flex flex-col gap-4">
                 <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-2">
@@ -438,7 +527,7 @@
                 </div>
             </div>
 
-            <!-- TAB 5: ADMIN SYSTEM-LOGS -->
+            <!-- TAB 6: ADMIN SYSTEM-LOGS -->
             <div id="tab-logs" class="tab-pane hidden flex-1 flex flex-col gap-4">
                 <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
                     <div class="flex flex-col lg:flex-row lg:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-3">
@@ -519,6 +608,12 @@
                     <span class="text-emerald-300">Zeiterfassung</span>
                 </button>
 
+                <!-- NEU: FINANZEN -->
+                <button onclick="switchTab('finanzen'); toggleSideMenu(false);" id="nav-btn-finanzen" class="nav-btn w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
+                    <i class="fa-solid fa-coins w-5 text-yellow-400"></i>
+                    <span class="text-yellow-300">Finanzen & Sparkasse</span>
+                </button>
+
                 <button onclick="switchTab('vault'); toggleSideMenu(false);" id="nav-btn-vault" class="nav-btn w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
                     <i class="fa-solid fa-shield-halved w-5 text-amber-400"></i>
                     <span class="text-amber-300">Passwort-Safe</span>
@@ -550,29 +645,99 @@
                     <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
                         <div class="flex items-center gap-2 text-slate-300">
                             <i class="fa-solid fa-cloud text-slate-500 text-[11px]"></i>
-                            <span>Firestore</span>
+                            <span>Firestore DB</span>
                         </div>
                         <span class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live
                         </span>
                     </div>
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
-                        <div class="flex items-center gap-2 text-slate-300">
-                            <i class="fa-solid fa-bell text-slate-500 text-[11px]"></i>
-                            <span>Push</span>
-                        </div>
-                        <span id="badge-fcm-status" class="flex items-center gap-1.5 text-slate-400 font-medium text-[11px]">Inaktiv</span>
-                    </div>
                 </div>
             </div>
-            <div class="text-[11px] text-slate-500 text-center">Familie-Mainz Hub &bull; v3.1</div>
+            <div class="text-[11px] text-slate-500 text-center">Familie-Mainz Hub &bull; v3.2</div>
         </div>
     </aside>
 
 
     <!-- ========================================== -->
-    <!-- 4. MODALS                                  -->
+    <!-- 4. MODALS (FINANZEN & LOHN)                -->
     <!-- ========================================== -->
+    
+    <!-- MODAL: LOHNABRECHNUNG HOCHLADEN -->
+    <div id="modal-payslip-add" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-slate-100">Lohnabrechnung ablegen</h3>
+                <button onclick="closeModal('modal-payslip-add')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="savePayslip(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Abrechnungsmonat</label>
+                    <input type="month" id="payslip-month" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Netto-Gehalt (€)</label>
+                        <input type="number" step="0.01" id="payslip-netto" required placeholder="z. B. 2450.00" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Brutto (€, optional)</label>
+                        <input type="number" step="0.01" id="payslip-brutto" placeholder="z. B. 3800.00" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Datei (PDF oder Foto auswählen)</label>
+                    <input type="file" id="payslip-file" required accept=".pdf,image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-600/20 file:text-emerald-300 hover:file:bg-emerald-600/30">
+                </div>
+                <div class="flex justify-end space-x-3 pt-3">
+                    <button type="button" onclick="closeModal('modal-payslip-add')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
+                    <button type="submit" id="btn-save-payslip" class="px-4 py-2 rounded-xl text-xs bg-emerald-600 text-white font-medium">In Cloud speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: MANUELLE BUCHUNG -->
+    <div id="modal-finance-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-slate-100">Manuelle Buchung anlegen</h3>
+                <button onclick="closeModal('modal-finance-manual')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveManualTransaction(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Datum</label>
+                    <input type="date" id="fin-man-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Begünstigter / Empfänger / Quelle</label>
+                    <input type="text" id="fin-man-partner" required placeholder="z. B. Rewe, Tankstelle, Gehalt" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Kategorie</label>
+                        <select id="fin-man-cat" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
+                            <option value="Supermarkt">Supermarkt / Essen</option>
+                            <option value="Gehalt">Gehalt / Einnahme</option>
+                            <option value="Miete / Wohnen">Miete / Wohnen</option>
+                            <option value="Tanken / Auto">Tanken / Auto</option>
+                            <option value="Freizeit / Abo">Freizeit / Abo</option>
+                            <option value="Sonstiges">Sonstiges</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Betrag (€, z.B. -45.50)</label>
+                        <input type="number" step="0.01" id="fin-man-amount" required placeholder="-45.50 oder +100" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-3">
+                    <button type="button" onclick="closeModal('modal-finance-manual')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: EINSTELLUNGEN -->
     <div id="modal-settings" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
@@ -608,6 +773,7 @@
         </div>
     </div>
 
+    <!-- MODAL: SAFE EINTRAG -->
     <div id="modal-vault-add" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -635,6 +801,7 @@
         </div>
     </div>
 
+    <!-- MODAL: TERMIN -->
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -662,6 +829,7 @@
         </div>
     </div>
 
+    <!-- MODAL: MANUELLE ARBEITSZEIT -->
     <div id="modal-work-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -717,20 +885,15 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Service Worker Registrierung direkt beim Start
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(err => {
-                    console.warn('ServiceWorker Registrierung:', err);
-                });
+                navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(err => {});
             });
         }
 
         let messaging = null;
         try {
-            if (firebase.messaging.isSupported()) {
-                messaging = firebase.messaging();
-            }
+            if (firebase.messaging.isSupported()) messaging = firebase.messaging();
         } catch (e) {}
 
         const FCM_VAPID_KEY = 'BPEpGDjLNQG4JpIwPgr2_WtdKDE5G8GE5S33LKLJmxfNPrAfxBXW6wpeHj0dQOhENsmYbUWOh669HoSJ18w18Lk';
@@ -743,33 +906,16 @@
         let workEntries = [];
         let systemLogs = [];
         let rawVaultItems = [];
+        let rawTransactions = [];
+        let rawPayslips = [];
         let activeWorkSession = null;
         let workTimerInterval = null;
         let currentCalendarDate = new Date();
         let vaultMasterKey = null;
 
         const todayStr = new Date().toISOString().slice(0, 7);
-        const monthInput = document.getElementById('work-filter-month');
-        if (monthInput) monthInput.value = todayStr;
-
-        // PWA Install Prompt
-        let deferredPrompt = null;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const btn = document.getElementById('btn-pwa-install');
-            if (btn) btn.classList.remove('hidden');
-        });
-
-        async function installPWA() {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                document.getElementById('btn-pwa-install').classList.add('hidden');
-            }
-            deferredPrompt = null;
-        }
+        if (document.getElementById('work-filter-month')) document.getElementById('work-filter-month').value = todayStr;
+        if (document.getElementById('finance-filter-month')) document.getElementById('finance-filter-month').value = todayStr;
 
         function getDeviceType() {
             const ua = navigator.userAgent;
@@ -796,11 +942,6 @@
             } catch (err) {}
         }
 
-        if (!sessionStorage.getItem('session_visited')) {
-            sessionStorage.setItem('session_visited', 'true');
-            logSystemEvent('visit', 'Website aufgerufen', { referrer: document.referrer || 'Direktaufruf' });
-        }
-
         function getDefaultPermissions(role) {
             if (role === 'admin') return { finanzen: true, kalender: true, admin: true };
             return { finanzen: true, kalender: true, admin: false };
@@ -820,16 +961,6 @@
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                toggleSideMenu(false);
-                closeModal('modal-settings');
-                closeModal('modal-event');
-                closeModal('modal-work-manual');
-                closeModal('modal-vault-add');
-            }
-        });
 
         function updateClock() {
             const now = new Date();
@@ -861,6 +992,7 @@
             }
             if (tabId === 'start') renderCalendar();
             else if (tabId === 'worktime') renderWorkTimeTable();
+            else if (tabId === 'finanzen') renderFinanceData();
             else if (tabId === 'logs') renderLogsTable();
             else if (tabId === 'vault' && vaultMasterKey) renderVaultItems();
         }
@@ -900,12 +1032,7 @@
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Anmelden';
-                logSystemEvent('auth', 'Fehlgeschlagener Login', { attemptedEmail: email, reason: err.message });
-                if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-                    showAlert('E-Mail oder Passwort ist nicht korrekt.');
-                } else {
-                    showAlert(err.message);
-                }
+                showAlert(err.message);
             }
         }
 
@@ -935,7 +1062,6 @@
                     userPrefs: { notifyWork: true, notifyEvents: true },
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                logSystemEvent('auth', 'Neuer Benutzer registriert', { email: email, name: `${firstName} ${lastName}` });
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Benutzer jetzt erstellen';
@@ -950,7 +1076,6 @@
                 let userRole = 'user';
                 let permissions = getDefaultPermissions('user');
                 let userPrefs = { notifyWork: true, notifyEvents: true };
-                let hasPush = false;
 
                 if (doc.exists) {
                     const data = doc.data();
@@ -958,18 +1083,6 @@
                     if (data.role) userRole = data.role;
                     if (data.permissions) permissions = data.permissions;
                     if (data.userPrefs) userPrefs = { ...userPrefs, ...data.userPrefs };
-                    if (data.notificationsEnabled && data.fcmToken) hasPush = true;
-                } else {
-                    const isAdmin = user.email.toLowerCase().includes('admin') || user.email.toLowerCase().includes('julian');
-                    userRole = isAdmin ? 'admin' : 'user';
-                    permissions = getDefaultPermissions(userRole);
-                    await db.collection('users').doc(user.uid).set({
-                        displayName: displayName,
-                        email: user.email,
-                        role: userRole,
-                        permissions: permissions,
-                        userPrefs: userPrefs
-                    });
                 }
 
                 currentUser = { 
@@ -978,19 +1091,10 @@
                     name: displayName, 
                     role: userRole, 
                     permissions: permissions,
-                    userPrefs: userPrefs,
-                    notificationsEnabled: hasPush
+                    userPrefs: userPrefs
                 };
 
                 document.getElementById('user-display-name').innerText = displayName;
-
-                if (document.getElementById('pref-notify-work')) {
-                    document.getElementById('pref-notify-work').checked = currentUser.userPrefs.notifyWork !== false;
-                }
-                if (document.getElementById('pref-notify-events')) {
-                    document.getElementById('pref-notify-events').checked = currentUser.userPrefs.notifyEvents !== false;
-                }
-                updatePushBadge(hasPush);
 
                 const navAdmin = document.getElementById('nav-btn-admin');
                 const navLogs = document.getElementById('nav-btn-logs');
@@ -1016,6 +1120,7 @@
                 initTodosListener();
                 initWorkTimeListener();
                 initVaultListener();
+                initFinanceListener();
                 loadWeather();
             } else {
                 currentUser = null;
@@ -1024,7 +1129,6 @@
                 document.getElementById('form-login').reset();
                 document.getElementById('btn-login').disabled = false;
                 document.getElementById('btn-login').innerText = 'Anmelden';
-                updatePushBadge(false);
                 lockVault();
                 toggleSideMenu(false);
             }
@@ -1036,7 +1140,308 @@
         }
 
         // ==========================================
-        // WETTER WIDGET (OPEN-METEO)
+        // 10. NEU: FINANZEN, SPARKASSE & LOHNABRECHNUNGEN
+        // ==========================================
+        function initFinanceListener() {
+            if (!currentUser) return;
+
+            db.collection('finance_transactions')
+                .where('owner', '==', currentUser.email)
+                .onSnapshot(snapshot => {
+                    rawTransactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderFinanceData();
+                });
+
+            db.collection('payslips')
+                .where('owner', '==', currentUser.email)
+                .onSnapshot(snapshot => {
+                    rawPayslips = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderPayslips();
+                });
+        }
+
+        // SPARKASSEN CSV PARSER
+        function handleSparkasseCSV(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(evt) {
+                const text = evt.target.result;
+                const lines = text.split(/\r\n|\n/);
+                let importedCount = 0;
+
+                const batch = db.batch();
+
+                // Intelligente Spaltensuche
+                let colDate = -1, colPartner = -1, colPurpose = -1, colAmount = -1;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+
+                    // Typische CSV Spalten-Trenner der Sparkasse
+                    const parts = line.split(';').map(p => p.replace(/^"|"$/g, '').trim());
+
+                    // Header-Erkennung
+                    if (colDate === -1) {
+                        for (let j = 0; j < parts.length; j++) {
+                            const header = parts[j].toLowerCase();
+                            if (header.includes('buchungstag') || header.includes('datum')) colDate = j;
+                            if (header.includes('begünstigter') || header.includes('zahlungspflichtiger') || header.includes('auftragskonto') || header.includes('name')) colPartner = j;
+                            if (header.includes('verwendungszweck')) colPurpose = j;
+                            if (header.includes('betrag')) colAmount = j;
+                        }
+                        continue;
+                    }
+
+                    if (colDate !== -1 && colAmount !== -1 && parts.length > Math.max(colDate, colAmount)) {
+                        const rawDate = parts[colDate];
+                        const partner = parts[colPartner] || 'Unbekannt';
+                        const purpose = parts[colPurpose] || '';
+                        let rawAmount = parts[colAmount];
+
+                        if (!rawDate || !rawAmount) continue;
+
+                        // Deutsches Datumsformat (TT.MM.JJJJ oder TT.MM.JJ) -> YYYY-MM-DD
+                        let dateStr = '';
+                        const dateParts = rawDate.split('.');
+                        if (dateParts.length === 3) {
+                            let y = dateParts[2];
+                            if (y.length === 2) y = '20' + y;
+                            dateStr = `${y}-${dateParts[1].padStart(2, '0')}-${dateParts[0].padStart(2, '0')}`;
+                        } else {
+                            dateStr = rawDate;
+                        }
+
+                        // Deutsches Zahlenformat: 1.250,50 -> 1250.50
+                        rawAmount = rawAmount.replace(/\./g, '').replace(',', '.');
+                        const amount = parseFloat(rawAmount);
+
+                        if (isNaN(amount)) continue;
+
+                        // Automatische Kategorisierung anhand Stichwörtern
+                        let category = 'Sonstiges';
+                        const matchText = (partner + ' ' + purpose).toLowerCase();
+
+                        if (matchText.includes('gehalt') || matchText.includes('lohn') || matchText.includes('bezüge') || amount > 1000 && !matchText.includes('miete')) category = 'Gehalt';
+                        else if (matchText.includes('rewe') || matchText.includes('edeka') || matchText.includes('aldi') || matchText.includes('lidl') || matchText.includes('kaufland')) category = 'Supermarkt';
+                        else if (matchText.includes('miete') || matchText.includes('wohnen') || matchText.includes('nebenkosten')) category = 'Miete / Wohnen';
+                        else if (matchText.includes('aral') || matchText.includes('shell') || matchText.includes('total') || matchText.includes('tanken')) category = 'Tanken / Auto';
+                        else if (matchText.includes('netflix') || matchText.includes('spotify') || matchText.includes('amazon') || matchText.includes('disney')) category = 'Freizeit / Abo';
+
+                        const ref = db.collection('finance_transactions').doc();
+                        batch.set(ref, {
+                            date: dateStr,
+                            partner: partner,
+                            purpose: purpose,
+                            amount: amount,
+                            category: category,
+                            owner: currentUser.email,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        importedCount++;
+                    }
+                }
+
+                if (importedCount > 0) {
+                    await batch.commit();
+                    alert(`${importedCount} Buchungen erfolgreich aus Sparkassen-CSV importiert!`);
+                    logSystemEvent('data', 'Sparkassen-CSV importiert', { anzahl: importedCount });
+                } else {
+                    alert('Konnte keine gültigen Buchungszeilen in der CSV finden. Prüfe das Format.');
+                }
+                e.target.value = '';
+            };
+            // Sparkasse verwendet oft Windows-1252 / ISO-8859-1 Codierung
+            reader.readAsText(file, 'ISO-8859-1');
+        }
+
+        function renderFinanceData() {
+            const filterMonth = document.getElementById('finance-filter-month')?.value || todayStr;
+            const tbody = document.getElementById('finance-table-body');
+            if (!tbody) return;
+
+            const filtered = rawTransactions.filter(t => t.date && t.date.startsWith(filterMonth));
+            filtered.sort((a, b) => b.date.localeCompare(a.date));
+
+            let totalIncome = 0;
+            let totalExpenses = 0;
+
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-500">Keine Umsätze für diesen Monat gefunden.</td></tr>';
+            } else {
+                filtered.forEach(t => {
+                    const isIncome = t.amount > 0;
+                    if (isIncome) totalIncome += t.amount;
+                    else totalExpenses += Math.abs(t.amount);
+
+                    const amountStr = (isIncome ? '+' : '') + t.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-900/40 transition-colors";
+                    row.innerHTML = `
+                        <td class="p-2 whitespace-nowrap text-slate-400 font-mono text-[11px]">${t.date}</td>
+                        <td class="p-2 font-medium text-slate-200 truncate max-w-[180px]" title="${t.purpose || ''}">${t.partner}</td>
+                        <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${t.category || 'Sonstiges'}</span></td>
+                        <td class="p-2 text-right font-bold ${isIncome ? 'text-emerald-400' : 'text-rose-400'} font-mono">${amountStr}</td>
+                        <td class="p-2 text-right">
+                            <button onclick="deleteTransaction('${t.id}')" class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            const balance = totalIncome - totalExpenses;
+            document.getElementById('fin-stat-income').innerText = totalIncome.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+            document.getElementById('fin-stat-expenses').innerText = totalExpenses.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+            
+            const balEl = document.getElementById('fin-stat-balance');
+            balEl.innerText = (balance >= 0 ? '+' : '') + balance.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+            balEl.className = 'text-xl font-bold mt-1 ' + (balance >= 0 ? 'text-emerald-400' : 'text-rose-400');
+        }
+
+        async function deleteTransaction(id) {
+            await db.collection('finance_transactions').doc(id).delete();
+        }
+
+        function openManualTransactionModal() {
+            document.getElementById('fin-man-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('fin-man-partner').value = '';
+            document.getElementById('fin-man-amount').value = '';
+            openModal('modal-finance-manual');
+        }
+
+        async function saveManualTransaction(e) {
+            e.preventDefault();
+            const date = document.getElementById('fin-man-date').value;
+            const partner = document.getElementById('fin-man-partner').value.trim();
+            const category = document.getElementById('fin-man-cat').value;
+            const amount = parseFloat(document.getElementById('fin-man-amount').value);
+
+            if (!date || !partner || isNaN(amount) || !currentUser) return;
+
+            await db.collection('finance_transactions').add({
+                date: date,
+                partner: partner,
+                purpose: 'Manuelle Buchung',
+                amount: amount,
+                category: category,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            closeModal('modal-finance-manual');
+        }
+
+        // LOHNABRECHNUNGEN
+        function openPayslipModal() {
+            document.getElementById('payslip-month').value = todayStr;
+            document.getElementById('payslip-netto').value = '';
+            document.getElementById('payslip-brutto').value = '';
+            document.getElementById('payslip-file').value = '';
+            openModal('modal-payslip-add');
+        }
+
+        async function savePayslip(e) {
+            e.preventDefault();
+            const month = document.getElementById('payslip-month').value;
+            const netto = parseFloat(document.getElementById('payslip-netto').value);
+            const brutto = parseFloat(document.getElementById('payslip-brutto').value) || 0;
+            const fileInput = document.getElementById('payslip-file');
+            const file = fileInput.files[0];
+            const btn = document.getElementById('btn-save-payslip');
+
+            if (!month || isNaN(netto) || !file || !currentUser) return;
+
+            btn.disabled = true;
+            btn.innerText = 'Wird gespeichert...';
+
+            const reader = new FileReader();
+            reader.onload = async function(evt) {
+                const base64Data = evt.target.result;
+
+                await db.collection('payslips').add({
+                    month: month,
+                    netto: netto,
+                    brutto: brutto,
+                    fileName: file.name,
+                    fileData: base64Data, // Direkt in Firestore ohne Blaze-Upgrade
+                    owner: currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Automatisch als Einnahme in Finanzen buchen
+                await db.collection('finance_transactions').add({
+                    date: `${month}-01`,
+                    partner: 'Arbeitgeber (Gehalt)',
+                    purpose: `Lohnabrechnung ${month}`,
+                    amount: netto,
+                    category: 'Gehalt',
+                    owner: currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                btn.disabled = false;
+                btn.innerText = 'In Cloud speichern';
+                closeModal('modal-payslip-add');
+                logSystemEvent('data', 'Lohnabrechnung abgelegt', { monat: month, netto: netto });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderPayslips() {
+            const list = document.getElementById('payslip-list');
+            const badge = document.getElementById('payslip-count-badge');
+            if (!list) return;
+
+            badge.innerText = rawPayslips.length;
+            list.innerHTML = '';
+
+            if (rawPayslips.length === 0) {
+                list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Lohnabrechnungen hinterlegt.</div>';
+                return;
+            }
+
+            rawPayslips.sort((a, b) => b.month.localeCompare(a.month));
+
+            rawPayslips.forEach(p => {
+                const item = document.createElement('div');
+                item.className = "p-3 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex items-center justify-between gap-2 text-xs";
+                item.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-slate-200 block">${p.month}</span>
+                            <span class="text-[10px] text-emerald-400 font-mono">${p.netto.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € Netto</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <a href="${p.fileData}" download="Lohnabrechnung_${p.month}_${p.fileName}" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" title="Herunterladen">
+                            <i class="fa-solid fa-download"></i>
+                        </a>
+                        <button onclick="deletePayslip('${p.id}')" class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl" title="Löschen">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        async function deletePayslip(id) {
+            if (confirm('Diese Lohnabrechnung wirklich löschen?')) {
+                await db.collection('payslips').doc(id).delete();
+            }
+        }
+
+        // ==========================================
+        // WETTER WIDGET
         // ==========================================
         async function loadWeather() {
             const locEl = document.getElementById('weather-location');
@@ -1047,7 +1452,7 @@
             const iconEl = document.getElementById('weather-icon');
             if (!locEl || !tempEl) return;
 
-            let lat = 50.8021; // Düren / Mainz Umgebung
+            let lat = 50.8021;
             let lon = 6.4836;
             let cityName = 'Düren';
 
@@ -1066,12 +1471,10 @@
                     let desc = 'Heiter';
                     let iconClass = 'fa-solid fa-sun text-amber-400';
 
-                    if (code === 0) { desc = 'Klar'; iconClass = 'fa-solid fa-sun text-amber-400'; }
-                    else if (code >= 1 && code <= 3) { desc = 'Leicht bewölkt'; iconClass = 'fa-solid fa-cloud-sun text-amber-300'; }
+                    if (code >= 1 && code <= 3) { desc = 'Leicht bewölkt'; iconClass = 'fa-solid fa-cloud-sun text-amber-300'; }
                     else if (code >= 45 && code <= 48) { desc = 'Nebelig'; iconClass = 'fa-solid fa-smog text-slate-400'; }
                     else if (code >= 51 && code <= 67) { desc = 'Regnerisch'; iconClass = 'fa-solid fa-cloud-rain text-cyan-400'; }
-                    else if (code >= 71 && code <= 77) { desc = 'Schneefall'; iconClass = 'fa-solid fa-snowflake text-indigo-300'; }
-                    else if (code >= 80 && code <= 82) { desc = 'Schauer'; iconClass = 'fa-solid fa-cloud-showers-heavy text-cyan-400'; }
+                    else if (code >= 71 && code <= 77) { desc = 'Schnee'; iconClass = 'fa-solid fa-snowflake text-indigo-300'; }
                     else if (code >= 95) { desc = 'Gewitter'; iconClass = 'fa-solid fa-cloud-bolt text-amber-500'; }
 
                     condEl.innerText = desc;
@@ -1089,7 +1492,7 @@
                         try {
                             const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
                             const geoData = await geoRes.json();
-                            cityName = geoData.address.city || geoData.address.town || geoData.address.village || 'Mein Standort';
+                            cityName = geoData.address.city || geoData.address.town || 'Mein Standort';
                         } catch (e) { cityName = 'Mein Standort'; }
                         fetchWeatherData(lat, lon, cityName);
                     },
@@ -1102,7 +1505,7 @@
         }
 
         // ==========================================
-        // PASSWORT-SAFE & AES-256
+        // PASSWORT-SAFE
         // ==========================================
         async function deriveKey(password, salt) {
             const enc = new TextEncoder();
@@ -1156,7 +1559,6 @@
             document.getElementById('vault-locked-view').classList.add('hidden');
             document.getElementById('vault-unlocked-view').classList.remove('hidden');
             renderVaultItems();
-            logSystemEvent('auth', 'Passwort-Safe entsperrt');
         }
 
         function lockVault() {
@@ -1195,7 +1597,6 @@
             });
 
             closeModal('modal-vault-add');
-            logSystemEvent('data', 'Eintrag im Safe erstellt', { title: title });
         }
 
         async function renderVaultItems() {
@@ -1235,7 +1636,7 @@
                         <button onclick="navigator.clipboard.writeText('${decrypted}'); alert('Kopiert!');" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl">
                             <i class="fa-regular fa-copy"></i>
                         </button>
-                        <button onclick="deleteVaultItem('${item.id}', '${item.title}')" class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl">
+                        <button onclick="deleteVaultItem('${item.id}')" class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
@@ -1244,11 +1645,8 @@
             }
         }
 
-        async function deleteVaultItem(id, title) {
-            if (confirm(`Eintrag "${title}" löschen?`)) {
-                await db.collection('vault').doc(id).delete();
-                logSystemEvent('data', 'Safe-Eintrag gelöscht', { title: title });
-            }
+        async function deleteVaultItem(id) {
+            await db.collection('vault').doc(id).delete();
         }
 
         // ==========================================
@@ -1256,83 +1654,25 @@
         // ==========================================
         function openSettingsModal() { openModal('modal-settings'); }
 
-        function updatePushBadge(active) {
-            const badge = document.getElementById('badge-fcm-status');
-            const btn = document.getElementById('btn-master-push');
-            const subtext = document.getElementById('master-push-subtext');
-
-            if (badge) {
-                if (active) {
-                    badge.className = 'flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]';
-                    badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Aktiviert';
-                } else {
-                    badge.className = 'flex items-center gap-1.5 text-slate-400 font-medium text-[11px]';
-                    badge.innerText = 'Inaktiv';
-                }
-            }
-            if (subtext) subtext.innerText = active ? 'Status: Aktiviert' : 'Status: Inaktiv';
-            if (btn) {
-                if (active) {
-                    btn.innerText = 'Deaktivieren';
-                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-500/30';
-                } else {
-                    btn.innerText = 'Aktivieren';
-                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white';
-                }
-            }
-        }
-
         async function toggleMasterPush() {
             if (!currentUser) return;
             if (currentUser.notificationsEnabled) {
-                try {
-                    if (messaging) try { await messaging.deleteToken(); } catch (e) {}
-                    currentUser.notificationsEnabled = false;
-                    await db.collection('users').doc(currentUser.uid).update({
-                        notificationsEnabled: false,
-                        fcmToken: firebase.firestore.FieldValue.delete(),
-                        tokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    updatePushBadge(false);
-                    alert('Push-Benachrichtigungen deaktiviert.');
-                    logSystemEvent('admin', 'Push deaktiviert');
-                } catch (err) { alert(err.message); }
+                currentUser.notificationsEnabled = false;
+                await db.collection('users').doc(currentUser.uid).update({ notificationsEnabled: false });
+                alert('Push deaktiviert.');
             } else {
-                try {
-                    const permission = await Notification.requestPermission();
-                    if (permission !== 'granted') return alert('Berechtigung verweigert.');
-                    let token = null;
-                    if (messaging) {
-                        try {
-                            const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-                            await navigator.serviceWorker.ready;
-                            token = await messaging.getToken({ vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
-                        } catch (e) {}
-                    }
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
                     currentUser.notificationsEnabled = true;
-                    await db.collection('users').doc(currentUser.uid).update({
-                        notificationsEnabled: true,
-                        fcmToken: token || 'browser-permission-granted',
-                        tokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    updatePushBadge(true);
-                    sendLocalNotification('Aktiviert! 🔔', 'Benachrichtigungen sind nun eingeschaltet.');
-                    logSystemEvent('admin', 'Push aktiviert');
-                } catch (err) { alert(err.message); }
+                    await db.collection('users').doc(currentUser.uid).update({ notificationsEnabled: true });
+                    alert('Push aktiviert!');
+                }
             }
         }
 
         function sendLocalNotification(title, body) {
             if (Notification.permission === 'granted') {
-                try {
-                    new Notification(title, { body: body, icon: 'https://cdn-icons-png.flaticon.com/512/1160/1160358.png' });
-                } catch (e) {
-                    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-                        navigator.serviceWorker.controller.postMessage({ type: 'SHOW_NOTIFICATION', title: title, body: body });
-                    }
-                }
-            } else {
-                alert(`${title}\n\n${body}`);
+                new Notification(title, { body: body, icon: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f6e1.png' });
             }
         }
 
@@ -1344,7 +1684,7 @@
         }
 
         // ==========================================
-        // KALENDER, PINNWAND, TO-DOS & ZEITERFASSUNG
+        // KALENDER, PINNWAND, TO-DOS
         // ==========================================
         function initCalendarListener() {
             db.collection('events').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
@@ -1398,8 +1738,8 @@
                     const isOwner = currentUser && ev.owner === currentUser.email;
                     eventsHtml += `
                         <div class="text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}" title="${ev.title}">
-                            <span class="truncate">${ev.isPublic ? '' : '<i class="fa-solid fa-lock text-[8px] mr-1 text-amber-400"></i>'}${ev.title}</span>
-                            ${isOwner ? `<button onclick="deleteCalendarEvent('${ev.id}', '${ev.title}')" class="text-slate-400 hover:text-rose-400 ml-1"><i class="fa-solid fa-xmark text-[9px]"></i></button>` : ''}
+                            <span class="truncate">${ev.title}</span>
+                            ${isOwner ? `<button onclick="deleteCalendarEvent('${ev.id}')" class="text-slate-400 hover:text-rose-400 ml-1"><i class="fa-solid fa-xmark text-[9px]"></i></button>` : ''}
                         </div>
                     `;
                 });
@@ -1437,16 +1777,11 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            logSystemEvent('data', 'Termin erstellt', { title: title, date: date });
-            if (currentUser.notificationsEnabled && currentUser.userPrefs?.notifyEvents) {
-                sendLocalNotification('Termin gespeichert 📅', `"${title}" am ${date} eingetragen.`);
-            }
             closeModal('modal-event');
         }
 
-        async function deleteCalendarEvent(id, title = '') {
+        async function deleteCalendarEvent(id) {
             await db.collection('events').doc(id).delete();
-            logSystemEvent('data', 'Termin gelöscht', { title: title });
         }
 
         function initNotesListener() {
@@ -1477,7 +1812,7 @@
                         <span class="text-slate-200 text-[11px]">${n.text}</span>
                         <span class="text-[9px] text-slate-500">${n.author || 'Familie'}</span>
                     </div>
-                    ${isOwner ? `<button onclick="deleteNote('${n.id}', '${n.text}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
+                    ${isOwner ? `<button onclick="deleteNote('${n.id}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
                 `;
                 list.appendChild(item);
             });
@@ -1497,10 +1832,7 @@
             input.value = '';
         }
 
-        async function deleteNote(id, text = '') {
-            await db.collection('notes').doc(id).delete();
-            logSystemEvent('data', 'Notiz entfernt', { text: text });
-        }
+        async function deleteNote(id) { await db.collection('notes').doc(id).delete(); }
 
         function initTodosListener() {
             db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
@@ -1527,10 +1859,10 @@
                 item.className = "flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
                 item.innerHTML = `
                     <label class="flex items-center gap-2 cursor-pointer truncate">
-                        <input type="checkbox" onchange="toggleTodo('${t.id}', this.checked, '${t.text}')" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-emerald-500 w-3.5 h-3.5">
+                        <input type="checkbox" onchange="toggleTodo('${t.id}', this.checked)" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-emerald-500 w-3.5 h-3.5">
                         <span class="text-[11px] truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${t.text}</span>
                     </label>
-                    <button onclick="deleteTodo('${t.id}', '${t.text}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                    <button onclick="deleteTodo('${t.id}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-xmark text-[10px]"></i></button>
                 `;
                 list.appendChild(item);
             });
@@ -1551,16 +1883,11 @@
             input.value = '';
         }
 
-        async function toggleTodo(id, done, text = '') {
-            await db.collection('todos').doc(id).update({ done: done });
-        }
-
-        async function deleteTodo(id, text = '') {
-            await db.collection('todos').doc(id).delete();
-        }
+        async function toggleTodo(id, done) { await db.collection('todos').doc(id).update({ done: done }); }
+        async function deleteTodo(id) { await db.collection('todos').doc(id).delete(); }
 
         // ==========================================
-        // ADMIN BEREICH & RECHTE
+        // ADMIN & RECHTE
         // ==========================================
         function initAdminUsersListener() {
             db.collection('users').onSnapshot(snapshot => {
@@ -1579,7 +1906,7 @@
             allUsers.forEach(u => {
                 const perms = u.permissions || getDefaultPermissions(u.role || 'user');
                 const isAdmin = u.role === 'admin' || perms.admin;
-                const nameDisplay = u.displayName || (u.firstName ? `${u.firstName} ${u.lastName || ''}` : u.email.split('@')[0]);
+                const nameDisplay = u.displayName || u.email.split('@')[0];
 
                 const card = document.createElement('div');
                 card.className = "bg-slate-950/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4";
@@ -1589,24 +1916,11 @@
                             <i class="${isAdmin ? 'fa-solid fa-shield-halved' : 'fa-solid fa-user'}"></i>
                         </div>
                         <div>
-                            <div class="font-semibold text-slate-200 text-sm flex items-center gap-2">
-                                <span>${nameDisplay}</span>
-                                <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${isAdmin ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-400'}">
-                                    ${(u.role || 'user').toUpperCase()}
-                                </span>
-                            </div>
+                            <div class="font-semibold text-slate-200 text-sm">${nameDisplay}</div>
                             <div class="text-xs text-slate-500">${u.email}</div>
                         </div>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs cursor-pointer">
-                            <input type="checkbox" onchange="toggleUserPerm('${u.id}', 'finanzen', this.checked)" ${perms.finanzen ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-3.5 h-3.5">
-                            <span class="text-slate-300">Finanzen</span>
-                        </label>
-                        <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs cursor-pointer">
-                            <input type="checkbox" onchange="toggleUserPerm('${u.id}', 'kalender', this.checked)" ${perms.kalender ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-3.5 h-3.5">
-                            <span class="text-slate-300">Kalender</span>
-                        </label>
+                    <div class="flex items-center gap-2">
                         <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs cursor-pointer">
                             <input type="checkbox" onchange="toggleUserPerm('${u.id}', 'admin', this.checked)" ${isAdmin ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-amber-500 w-3.5 h-3.5">
                             <span class="text-amber-300 font-medium">Admin</span>
@@ -1625,7 +1939,6 @@
             const updateData = { permissions: updatedPerms };
             if (permKey === 'admin') updateData.role = isChecked ? 'admin' : 'user';
             await db.collection('users').doc(userId).update(updateData);
-            logSystemEvent('admin', `Rechte geändert: ${permKey}`, { user: target.email, granted: isChecked });
         }
 
         // ==========================================
@@ -1722,23 +2035,11 @@
                 });
 
                 await db.collection('active_work').doc(currentUser.uid).delete();
-                logSystemEvent('data', 'Arbeitszeit beendet', { netMinutes: netMinutes });
-
-                if (currentUser.notificationsEnabled && currentUser.userPrefs?.notifyWork) {
-                    const h = Math.floor(netMinutes / 60);
-                    const m = netMinutes % 60;
-                    sendLocalNotification('Feierabend erfasst! 🛑', `Ausgestempelt um ${endTimeStr} Uhr. Dauer: ${h} Std ${m} Min.`);
-                }
             } else {
                 await db.collection('active_work').doc(currentUser.uid).set({
                     startTime: firebase.firestore.FieldValue.serverTimestamp(),
                     owner: currentUser.email
                 });
-                logSystemEvent('data', 'Arbeitszeit gestartet');
-                if (currentUser.notificationsEnabled && currentUser.userPrefs?.notifyWork) {
-                    const nowStr = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                    sendLocalNotification('Eingestempelt! ⏱️', `Arbeitszeit läuft seit ${nowStr} Uhr.`);
-                }
             }
         }
 
@@ -1865,7 +2166,7 @@
         }
 
         // ==========================================
-        // SYSTEM LOGS AUDIT
+        // SYSTEM LOGS
         // ==========================================
         function initSystemLogsListener() {
             db.collection('system_logs').orderBy('timestamp', 'desc').limit(200).onSnapshot(snapshot => {
