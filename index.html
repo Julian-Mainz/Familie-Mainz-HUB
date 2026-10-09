@@ -55,13 +55,13 @@
 </head>
 <body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden">
 
-    <!-- ========================================== -->
+<!-- ========================================== -->
     <!-- 1. LOGIN & REGISTRIERUNG OVERLAY           -->
     <!-- ========================================== -->
-    <div id="view-auth" class="fixed inset-0 z-50 bg-[#080c14] flex flex-col justify-between p-4 md:p-6 overflow-y-auto">
+    <div id="view-auth" class="fixed inset-0 z-50 bg-[#080c14] flex flex-col justify-between p-6 overflow-y-auto">
         
-        <!-- Status-Badge oben rechts -->
-        <div class="self-end md:absolute md:top-6 md:right-6 flex items-center gap-3 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-2xl shadow-xl">
+        <!-- Status-Badge in der oberen rechten Ecke -->
+        <div class="absolute top-6 right-6 flex items-center gap-3 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-2xl shadow-xl">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span class="text-xs font-medium text-slate-300">Cloud</span>
@@ -69,21 +69,20 @@
             <span class="text-slate-700">|</span>
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-xs font-medium text-slate-300">Auth</span>
+                <span class="text-xs font-medium text-slate-300">Auth System</span>
             </div>
         </div>
 
         <!-- Titel ganz oben -->
-        <header class="text-center pt-4 md:pt-8 my-auto">
+        <header class="text-center pt-8">
             <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-slate-100">
-                Familie Mainz Hub
+                Willkommen im Dashboard von Julian Mainz
             </h1>
-            <p class="text-xs md:text-sm text-slate-400 mt-1">Zentrales Familien-Dashboard & Cloud-Speicher</p>
         </header>
 
         <!-- Formular Mitte -->
-        <main class="w-full flex items-center justify-center p-2 my-auto">
-            <div class="w-full max-w-md bg-slate-900/90 border border-slate-800/80 rounded-3xl p-6 md:p-8 shadow-2xl">
+        <main class="flex-1 flex items-center justify-center p-4">
+            <div class="w-full max-w-md bg-slate-900/90 border border-slate-800/80 rounded-3xl p-8 shadow-2xl">
                 
                 <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs text-center flex items-center justify-center gap-2">
                     <i class="fa-solid fa-circle-exclamation"></i>
@@ -105,11 +104,11 @@
                     </div>
 
                     <div class="pt-3 space-y-3">
-                        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 text-sm">
+                        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 text-sm">
                             Anmelden
                         </button>
-                        <button type="button" onclick="showRegisterView(true)" class="w-full bg-slate-800/60 hover:bg-slate-800 active:scale-[0.99] text-slate-300 font-medium py-3 rounded-2xl transition-all border border-slate-700/60 text-sm">
-                            Konto erstellen
+                        <button type="button" onclick="showRegisterView(true)" class="w-full bg-slate-800/60 hover:bg-slate-800 text-slate-300 font-medium py-3 rounded-2xl transition-all border border-slate-700/60 text-sm">
+                            Registrieren
                         </button>
                     </div>
                 </form>
@@ -142,7 +141,7 @@
                     </div>
 
                     <div class="pt-2 space-y-3">
-                        <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 text-sm">
+                        <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 text-sm">
                             Benutzer jetzt erstellen
                         </button>
                         <button type="button" onclick="showRegisterView(false)" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1 transition-colors text-center">
