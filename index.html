@@ -2,8 +2,8 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Familie Mainz - Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Julian-Mainz.de</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -19,6 +19,7 @@
             background-color: #080c14;
             color: #f8fafc;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         .border-panel {
             border-color: #1e293b;
@@ -41,17 +42,26 @@
             opacity: 1;
             pointer-events: auto;
         }
+        /* Mobile scrollbar polish */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
+<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden">
 
     <!-- ========================================== -->
     <!-- 1. LOGIN & REGISTRIERUNG OVERLAY           -->
     <!-- ========================================== -->
-    <div id="view-auth" class="fixed inset-0 z-50 bg-[#080c14] flex flex-col justify-between p-6">
+    <div id="view-auth" class="fixed inset-0 z-50 bg-[#080c14] flex flex-col justify-between p-4 md:p-6 overflow-y-auto">
         
-        <!-- Status-Badge in der oberen rechten Ecke -->
-        <div class="absolute top-6 right-6 flex items-center gap-3 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-2xl shadow-xl">
+        <!-- Status-Badge oben rechts -->
+        <div class="self-end md:absolute md:top-6 md:right-6 flex items-center gap-3 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-2xl shadow-xl">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span class="text-xs font-medium text-slate-300">Cloud</span>
@@ -59,20 +69,21 @@
             <span class="text-slate-700">|</span>
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-xs font-medium text-slate-300">Auth System</span>
+                <span class="text-xs font-medium text-slate-300">Auth</span>
             </div>
         </div>
 
         <!-- Titel ganz oben -->
-        <header class="text-center pt-8">
+        <header class="text-center pt-4 md:pt-8 my-auto">
             <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-slate-100">
-                Willkommen im Dashboard der Familie Mainz
+                Familie Mainz Hub
             </h1>
+            <p class="text-xs md:text-sm text-slate-400 mt-1">Zentrales Familien-Dashboard & Cloud-Speicher</p>
         </header>
 
         <!-- Formular Mitte -->
-        <main class="flex-1 flex items-center justify-center p-4">
-            <div class="w-full max-w-md bg-slate-900/90 border border-slate-800/80 rounded-3xl p-8 shadow-2xl">
+        <main class="w-full flex items-center justify-center p-2 my-auto">
+            <div class="w-full max-w-md bg-slate-900/90 border border-slate-800/80 rounded-3xl p-6 md:p-8 shadow-2xl">
                 
                 <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs text-center flex items-center justify-center gap-2">
                     <i class="fa-solid fa-circle-exclamation"></i>
@@ -94,11 +105,11 @@
                     </div>
 
                     <div class="pt-3 space-y-3">
-                        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 text-sm">
+                        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 text-sm">
                             Anmelden
                         </button>
-                        <button type="button" onclick="showRegisterView(true)" class="w-full bg-slate-800/60 hover:bg-slate-800 text-slate-300 font-medium py-3 rounded-2xl transition-all border border-slate-700/60 text-sm">
-                            Registrieren
+                        <button type="button" onclick="showRegisterView(true)" class="w-full bg-slate-800/60 hover:bg-slate-800 active:scale-[0.99] text-slate-300 font-medium py-3 rounded-2xl transition-all border border-slate-700/60 text-sm">
+                            Konto erstellen
                         </button>
                     </div>
                 </form>
@@ -131,7 +142,7 @@
                     </div>
 
                     <div class="pt-2 space-y-3">
-                        <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 text-sm">
+                        <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 text-sm">
                             Benutzer jetzt erstellen
                         </button>
                         <button type="button" onclick="showRegisterView(false)" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1 transition-colors text-center">
@@ -150,77 +161,116 @@
 
 
     <!-- ========================================== -->
-    <!-- 2. HAUPT-DASHBOARD (VOLLER BILDSCHIRM)     -->
+    <!-- 2. HAUPT-DASHBOARD                         -->
     <!-- ========================================== -->
-    <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full p-4 md:p-6 overflow-hidden">
+    <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full min-h-screen md:min-h-0 p-3 md:p-6 overflow-hidden">
         
-        <!-- HEADER MIT MENÜ-BUTTON LINKS, TITEL MITTIG & AUSLOGGEN RECHTS -->
-        <header class="relative flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-2">
-            <!-- Menü Öffnen Button -->
-            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2.5 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-850 text-slate-200 px-4 py-2.5 rounded-2xl text-xs font-semibold transition-all shadow-lg group">
+        <!-- HEADER (Responsive) -->
+        <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
+            <!-- Menü Button -->
+            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
                 <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
-                <span>Menü</span>
+                <span class="hidden sm:inline">Menü</span>
             </button>
 
-            <!-- Exakt zentrierte Begrüßung über den gesamten Bildschirm -->
-            <h1 class="absolute left-1/2 -translate-x-1/2 text-xl md:text-2xl font-bold text-slate-100 tracking-wide text-center pointer-events-none w-max">
-                Willkommen im System <span id="user-display-name" class="text-indigo-400 font-semibold"></span>
+            <!-- Begrüßung -->
+            <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide text-center truncate px-2">
+                Hallo, <span id="user-display-name" class="text-indigo-400 font-semibold"></span> 👋
             </h1>
 
             <!-- Ausloggen Button -->
-            <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:bg-rose-500/10 hover:text-rose-400 text-slate-300 px-4 py-2.5 rounded-2xl text-xs font-semibold transition-all shadow-lg">
+            <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span class="hidden sm:inline">Ausloggen</span>
             </button>
         </header>
 
-        <!-- HAUPTINHALT: VOLLER BILDSCHIRM (KEIN MAX-W MEHR) -->
-        <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-1">
+        <!-- HAUPTINHALT -->
+        <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
             
-            <!-- TAB 1: START MENÜ (UHR & KALENDER) -->
+            <!-- TAB 1: START MENÜ (UHR, PINNWAND, TO-DOS, KALENDER) -->
             <div id="tab-start" class="tab-pane flex-1 flex flex-col gap-4">
                 
-                <!-- OBERE BOX: UHRZEIT & DATUM -->
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col items-center justify-center text-center shadow-lg">
-                    <div id="dash-time" class="text-4xl md:text-5xl font-mono font-bold tracking-wider text-slate-100">
-                        00:00:00
+                <!-- TOP GRID: UHR + PINNWAND + TO-DO LISTE -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    
+                    <!-- UHR & DATUM -->
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col items-center justify-center text-center shadow-lg">
+                        <div id="dash-time" class="text-3xl md:text-4xl font-mono font-bold tracking-wider text-slate-100">
+                            00:00:00
+                        </div>
+                        <div id="dash-date" class="text-xs font-medium text-indigo-400 uppercase tracking-widest mt-2">
+                            Lade Datum...
+                        </div>
                     </div>
-                    <div id="dash-date" class="text-xs md:text-sm font-medium text-indigo-400 uppercase tracking-widest mt-2">
-                        Lade Datum...
+
+                    <!-- GEMEINSAME NOTIZEN / PINNWAND (Cloud Sync) -->
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-note-sticky text-amber-400"></i> Familien-Pinnwand
+                            </span>
+                            <span id="note-count" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
+                        </div>
+                        <div id="notes-list" class="flex-1 overflow-y-auto max-h-28 space-y-1.5 pr-1">
+                            <div class="text-[11px] text-slate-500 text-center py-2">Keine Notizen vorhanden.</div>
+                        </div>
+                        <form onsubmit="saveNewNote(event)" class="mt-2 flex gap-1.5">
+                            <input type="text" id="new-note-input" required placeholder="Notiz hinterlassen..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                            <button type="submit" class="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 text-xs px-2.5 py-1.5 rounded-xl"><i class="fa-solid fa-paper-plane"></i></button>
+                        </form>
                     </div>
+
+                    <!-- TO-DO & EINKAUFSLISTE (Cloud Sync) -->
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-emerald-400"></i> Aufgaben & Einkauf
+                            </span>
+                            <span id="todo-count" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
+                        </div>
+                        <div id="todos-list" class="flex-1 overflow-y-auto max-h-28 space-y-1.5 pr-1">
+                            <div class="text-[11px] text-slate-500 text-center py-2">Alles erledigt! 🎉</div>
+                        </div>
+                        <form onsubmit="saveNewTodo(event)" class="mt-2 flex gap-1.5">
+                            <input type="text" id="new-todo-input" required placeholder="Aufgabe / Einkauf..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                            <button type="submit" class="bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 text-xs px-2.5 py-1.5 rounded-xl"><i class="fa-solid fa-plus"></i></button>
+                        </form>
+                    </div>
+
                 </div>
 
-                <!-- UNTERE BOX: KALENDER -->
-                <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col shadow-lg">
+                <!-- KALENDER BOX -->
+                <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 flex flex-col shadow-lg">
                     
                     <!-- Kalender Toolbar -->
-                    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
                         <div class="flex items-center space-x-3">
                             <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
                             <h2 class="text-base font-bold text-slate-200">Familien-Kalender</h2>
                         </div>
 
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-center justify-between w-full sm:w-auto gap-2">
                             <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
                                 <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
-                                <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-36 text-center"></span>
+                                <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-28 sm:w-36 text-center truncate"></span>
                                 <button onclick="changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
                             </div>
-                            <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
+                            <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-1.5 whitespace-nowrap">
                                 <i class="fa-solid fa-plus"></i>
-                                <span>Termin hinzufügen</span>
+                                <span>Termin</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Kalender Tage Raster -->
-                    <div class="flex-1 overflow-x-auto">
-                        <div class="min-w-[700px]">
+                    <!-- Kalender Tage Raster (Horizontal scrollbar auf kleinen Handys) -->
+                    <div class="flex-1 overflow-x-auto pb-2">
+                        <div class="min-w-[620px]">
                             <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
                                 <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
                             </div>
                             <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2">
-                                <!-- Wird via JS dynamisch gerendert -->
+                                <!-- JS dynamisch -->
                             </div>
                         </div>
                     </div>
@@ -230,16 +280,16 @@
 
             <!-- TAB 2: ADMIN & RECHTESYSTEM -->
             <div id="tab-admin" class="tab-pane hidden flex-1 flex flex-col gap-4">
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 shadow-lg">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+                <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-2">
                         <div>
-                            <h2 class="text-xl font-bold text-amber-400 flex items-center gap-2">
+                            <h2 class="text-lg md:text-xl font-bold text-amber-400 flex items-center gap-2">
                                 <i class="fa-solid fa-user-shield"></i>
                                 Admin- & Rechtesystem
                             </h2>
-                            <p class="text-xs text-slate-400 mt-1">Verwalte die Zugriffsrechte aller registrierten Familienmitglieder live in der Cloud.</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Verwalte die Zugriffsrechte aller Familienmitglieder live in Firestore.</p>
                         </div>
-                        <span id="user-count-badge" class="text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1.5 rounded-xl">
+                        <span id="user-count-badge" class="self-start sm:self-center text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1.5 rounded-xl">
                             0 Benutzer
                         </span>
                     </div>
@@ -256,13 +306,13 @@
 
 
     <!-- ========================================== -->
-    <!-- 3. FLÜSSIGER MENÜ-DRAWER MIT STATUS UNTEN  -->
+    <!-- 3. MENÜ-DRAWER (MOBILE & DESKTOP)          -->
     <!-- ========================================== -->
     <div id="menu-backdrop" onclick="toggleSideMenu(false)" class="fixed inset-0 bg-slate-950/70 z-50"></div>
     
     <aside id="side-drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 z-50 p-6 flex flex-col justify-between shadow-2xl">
         <div>
-            <!-- Drawer Header mit Schließen-Kreuz -->
+            <!-- Header -->
             <div class="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-6">
                 <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-xs">
@@ -282,7 +332,6 @@
                     <span>Start Menü</span>
                 </button>
 
-                <!-- Admin Button (erscheint nur für Admins) -->
                 <button onclick="switchTab('admin'); toggleSideMenu(false);" id="nav-btn-admin" class="nav-btn hidden w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
                     <i class="fa-solid fa-user-shield w-5 text-amber-400"></i>
                     <span class="text-amber-300">Admin & Rechte</span>
@@ -290,7 +339,7 @@
             </nav>
         </div>
 
-        <!-- UNTERER BEREICH: SYSTEMSTATUS & VERSION -->
+        <!-- Systemstatus -->
         <div class="space-y-4 pt-4 border-t border-slate-800/80">
             <div>
                 <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-2.5 flex items-center gap-2">
@@ -305,7 +354,7 @@
                         </div>
                         <span class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Online
+                            Live Sync
                         </span>
                     </div>
                     <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
@@ -322,7 +371,7 @@
             </div>
 
             <div class="text-[11px] text-slate-500 text-center">
-                Familien-Mainz HUB v2.0
+                Familie-Mainz Dashboard &bull; v2.2
             </div>
         </div>
     </aside>
@@ -332,7 +381,7 @@
     <!-- 4. MODAL: TERMIN HINZUFÜGEN                -->
     <!-- ========================================== -->
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-2xl w-full max-w-md">
+        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-base font-bold text-slate-100">Neuen Termin eintragen</h3>
                 <button onclick="closeModal('modal-event')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
@@ -380,6 +429,8 @@
         let currentUser = null;
         let allUsers = [];
         let calendarEvents = [];
+        let familyNotes = [];
+        let familyTodos = [];
         let currentCalendarDate = new Date();
 
         function getDefaultPermissions(role) {
@@ -389,7 +440,7 @@
             return { finanzen: true, kalender: true, admin: false };
         }
 
-        // 2. Schneller, ruckelfreier Drawer-Toggle
+        // 2. Drawer Toggle
         function toggleSideMenu(open) {
             const drawer = document.getElementById('side-drawer');
             const backdrop = document.getElementById('menu-backdrop');
@@ -402,12 +453,11 @@
             }
         }
 
-        // ESC-Taste schließt das Menü
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') toggleSideMenu(false);
         });
 
-        // 3. Uhr & Datum Aktualisierung
+        // 3. Uhr & Datum
         function updateClock() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -420,9 +470,9 @@
             const dateEl = document.getElementById('dash-date');
             if (dateEl) {
                 dateEl.innerText = now.toLocaleDateString('de-DE', { 
-                    weekday: 'long', 
+                    weekday: 'short', 
                     day: '2-digit', 
-                    month: 'long', 
+                    month: 'short', 
                     year: 'numeric' 
                 });
             }
@@ -430,7 +480,7 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // 4. Tab Umschaltung (Start vs Admin)
+        // 4. Tab Umschaltung
         function switchTab(tabId) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -452,7 +502,7 @@
             }
         }
 
-        // 5. Auth UI Umschaltung
+        // 5. Auth UI
         function showRegisterView(show) {
             hideAlert();
             if (show) {
@@ -475,7 +525,7 @@
             document.getElementById('auth-alert').classList.add('hidden');
         }
 
-        // 6. Anmelden
+        // 6. Login
         async function handleSignIn(e) {
             e.preventDefault();
             hideAlert();
@@ -534,7 +584,7 @@
             }
         }
 
-        // 8. Auth State Listener
+        // 8. Auth State & Live Listeners
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const doc = await db.collection('users').doc(user.uid).get();
@@ -563,11 +613,11 @@
                     uid: user.uid, 
                     email: user.email, 
                     name: displayName, 
-                    role: userRole,
+                    role: userRole, 
                     permissions: permissions 
                 };
 
-                document.getElementById('user-display-name').innerText = `[${displayName}]`;
+                document.getElementById('user-display-name').innerText = displayName;
 
                 const navAdmin = document.getElementById('nav-btn-admin');
                 if (currentUser.role === 'admin' || (currentUser.permissions && currentUser.permissions.admin)) {
@@ -581,8 +631,11 @@
                 document.getElementById('view-dashboard').classList.remove('hidden');
 
                 switchTab('start');
+                
+                // Firestore Module starten
                 initCalendarListener();
-                renderCalendar();
+                initNotesListener();
+                initTodosListener();
             } else {
                 currentUser = null;
                 document.getElementById('view-dashboard').classList.add('hidden');
@@ -598,9 +651,11 @@
             auth.signOut();
         }
 
-        // 9. Kalender Logik
+        // ==========================================
+        // 9. KALENDER (FIRESTORE)
+        // ==========================================
         function initCalendarListener() {
-            db.collection('events').onSnapshot(snapshot => {
+            db.collection('events').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                 calendarEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderCalendar();
             });
@@ -623,7 +678,7 @@
 
             for (let i = 0; i < firstDayIndex; i++) {
                 const empty = document.createElement('div');
-                empty.className = 'h-24 bg-slate-900/20 border border-slate-800/30 rounded-2xl opacity-20';
+                empty.className = 'h-20 md:h-24 bg-slate-900/20 border border-slate-800/30 rounded-2xl opacity-20';
                 grid.appendChild(empty);
             }
 
@@ -634,7 +689,7 @@
                 const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
 
                 const dayCell = document.createElement('div');
-                dayCell.className = `h-24 p-2 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col justify-between overflow-hidden`;
+                dayCell.className = `h-20 md:h-24 p-1.5 md:p-2 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col justify-between overflow-hidden`;
 
                 let dayHeader = `
                     <div class="flex items-center justify-between text-[11px] mb-1">
@@ -648,11 +703,11 @@
                     return ev.isPublic || (currentUser && ev.owner === currentUser.email);
                 });
 
-                let eventsHtml = `<div class="space-y-1 overflow-y-auto max-h-16 pr-0.5">`;
+                let eventsHtml = `<div class="space-y-1 overflow-y-auto max-h-12 md:max-h-16 pr-0.5">`;
                 dayEvents.forEach(ev => {
                     const isOwner = currentUser && ev.owner === currentUser.email;
                     eventsHtml += `
-                        <div class="text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}" title="${ev.title}">
+                        <div class="text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}" title="${ev.title}">
                             <span class="truncate">${ev.isPublic ? '' : '<i class="fa-solid fa-lock text-[8px] mr-1 text-amber-400"></i>'}${ev.title}</span>
                             ${isOwner ? `<button onclick="deleteCalendarEvent('${ev.id}')" class="text-slate-400 hover:text-rose-400 ml-1"><i class="fa-solid fa-xmark text-[9px]"></i></button>` : ''}
                         </div>
@@ -676,7 +731,7 @@
         function openEventModal(defaultDate = '') {
             document.getElementById('ev-title').value = '';
             document.getElementById('ev-date').value = defaultDate || new Date().toISOString().split('T')[0];
-            document.getElementById('ev-public').checked = false;
+            document.getElementById('ev-public').checked = true;
             openModal('modal-event');
         }
 
@@ -703,7 +758,130 @@
             await db.collection('events').doc(id).delete();
         }
 
-        // 10. Admin Liste (Firestore)
+        // ==========================================
+        // 10. NOTIZEN / PINNWAND (FIRESTORE)
+        // ==========================================
+        function initNotesListener() {
+            db.collection('notes').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                familyNotes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderNotes();
+            });
+        }
+
+        function renderNotes() {
+            const list = document.getElementById('notes-list');
+            const count = document.getElementById('note-count');
+            if (!list) return;
+
+            count.innerText = familyNotes.length;
+            list.innerHTML = '';
+
+            if (familyNotes.length === 0) {
+                list.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-2">Keine Notizen vorhanden.</div>';
+                return;
+            }
+
+            familyNotes.forEach(n => {
+                const isOwner = currentUser && (n.owner === currentUser.email || currentUser.role === 'admin');
+                const item = document.createElement('div');
+                item.className = "flex items-start justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
+                item.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-slate-200 text-[11px]">${n.text}</span>
+                        <span class="text-[9px] text-slate-500">${n.author || 'Familie'}</span>
+                    </div>
+                    ${isOwner ? `<button onclick="deleteNote('${n.id}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        async function saveNewNote(e) {
+            e.preventDefault();
+            const input = document.getElementById('new-note-input');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+
+            await db.collection('notes').add({
+                text: text,
+                author: currentUser.name,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            input.value = '';
+        }
+
+        async function deleteNote(id) {
+            await db.collection('notes').doc(id).delete();
+        }
+
+        // ==========================================
+        // 11. TO-DO / EINKAUFSLISTE (FIRESTORE)
+        // ==========================================
+        function initTodosListener() {
+            db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                familyTodos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderTodos();
+            });
+        }
+
+        function renderTodos() {
+            const list = document.getElementById('todos-list');
+            const count = document.getElementById('todo-count');
+            if (!list) return;
+
+            const openTodos = familyTodos.filter(t => !t.done);
+            count.innerText = openTodos.length;
+            list.innerHTML = '';
+
+            if (familyTodos.length === 0) {
+                list.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-2">Alles erledigt! 🎉</div>';
+                return;
+            }
+
+            familyTodos.forEach(t => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
+                item.innerHTML = `
+                    <label class="flex items-center gap-2 cursor-pointer truncate">
+                        <input type="checkbox" onchange="toggleTodo('${t.id}', this.checked)" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0 w-3.5 h-3.5">
+                        <span class="text-[11px] truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${t.text}</span>
+                    </label>
+                    <button onclick="deleteTodo('${t.id}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        async function saveNewTodo(e) {
+            e.preventDefault();
+            const input = document.getElementById('new-todo-input');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+
+            await db.collection('todos').add({
+                text: text,
+                done: false,
+                author: currentUser.name,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            input.value = '';
+        }
+
+        async function toggleTodo(id, done) {
+            await db.collection('todos').doc(id).update({ done: done });
+        }
+
+        async function deleteTodo(id) {
+            await db.collection('todos').doc(id).delete();
+        }
+
+        // ==========================================
+        // 12. ADMIN VERWALTUNG
+        // ==========================================
         function initAdminUsersListener() {
             db.collection('users').onSnapshot(snapshot => {
                 allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
