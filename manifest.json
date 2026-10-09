@@ -1,22 +1,19 @@
 {
+  "id": "/",
   "name": "Familie Mainz Hub",
   "short_name": "Mainz Hub",
-  "description": "Zentrales Dashboard & Cloud-Workspace Familie Mainz",
+  "description": "Zentrales Dashboard Familie Mainz",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#080c14",
   "theme_color": "#080c14",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1160/1160358.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/1160/1160358.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23080c14'/%3E%3Cpath d='M256 64l140 50v130c0 100-70 170-140 204-70-34-140-104-140-204V114l140-50z' fill='%236366f1'/%3E%3Cpath d='M256 120l90 35v85c0 70-50 120-90 145-40-25-90-75-90-145v-85l90-35z' fill='%234338ca'/%3E%3Ctext x='256' y='275' font-family='sans-serif' font-size='120' font-weight='bold' fill='white' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]
