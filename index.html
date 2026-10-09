@@ -23,6 +23,24 @@
         .border-panel {
             border-color: #1e293b;
         }
+        /* Hardwarebeschleunigte Transitions für ruckelfreie Drawer-Animation */
+        #side-drawer {
+            transform: translate3d(-100%, 0, 0);
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
+        }
+        #side-drawer.drawer-open {
+            transform: translate3d(0, 0, 0);
+        }
+        #menu-backdrop {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-out;
+        }
+        #menu-backdrop.backdrop-active {
+            opacity: 1;
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
@@ -33,7 +51,7 @@
     <div id="view-auth" class="fixed inset-0 z-50 bg-[#080c14] flex flex-col justify-between p-6">
         
         <!-- Status-Badge in der oberen rechten Ecke -->
-        <div class="absolute top-6 right-6 flex items-center gap-3 bg-slate-900/80 backdrop-blur-md border border-slate-800 px-4 py-2.5 rounded-2xl shadow-xl">
+        <div class="absolute top-6 right-6 flex items-center gap-3 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-2xl shadow-xl">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span class="text-xs font-medium text-slate-300">Cloud</span>
@@ -54,7 +72,7 @@
 
         <!-- Formular Mitte -->
         <main class="flex-1 flex items-center justify-center p-4">
-            <div class="w-full max-w-md bg-slate-900/90 border border-slate-800/80 rounded-3xl p-8 shadow-2xl backdrop-blur-sm">
+            <div class="w-full max-w-md bg-slate-900/90 border border-slate-800/80 rounded-3xl p-8 shadow-2xl">
                 
                 <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs text-center flex items-center justify-center gap-2">
                     <i class="fa-solid fa-circle-exclamation"></i>
@@ -132,19 +150,19 @@
 
 
     <!-- ========================================== -->
-    <!-- 2. HAUPT-DASHBOARD (MITTIG & AUFKLAPPBAR)  -->
+    <!-- 2. HAUPT-DASHBOARD (VOLLER BILDSCHIRM)     -->
     <!-- ========================================== -->
     <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full p-4 md:p-6 overflow-hidden">
         
         <!-- HEADER MIT MENÜ-BUTTON LINKS, TITEL MITTIG & AUSLOGGEN RECHTS -->
-        <header class="relative flex items-center justify-between w-full max-w-7xl mx-auto px-2 py-2 min-h-[48px] mb-2">
+        <header class="relative flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-2">
             <!-- Menü Öffnen Button -->
             <button onclick="toggleSideMenu(true)" class="flex items-center gap-2.5 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-850 text-slate-200 px-4 py-2.5 rounded-2xl text-xs font-semibold transition-all shadow-lg group">
                 <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
                 <span>Menü</span>
             </button>
 
-            <!-- Exakt zentrierte Begrüßung -->
+            <!-- Exakt zentrierte Begrüßung über den gesamten Bildschirm -->
             <h1 class="absolute left-1/2 -translate-x-1/2 text-xl md:text-2xl font-bold text-slate-100 tracking-wide text-center pointer-events-none w-max">
                 Willkommen im System <span id="user-display-name" class="text-indigo-400 font-semibold"></span>
             </h1>
@@ -156,14 +174,14 @@
             </button>
         </header>
 
-        <!-- ZENTRIERTER HAUPTINHALT (MAX-BREITE FÜR ELEGANTE SYMMETRIE) -->
-        <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col gap-4 overflow-y-auto pr-1">
+        <!-- HAUPTINHALT: VOLLER BILDSCHIRM (KEIN MAX-W MEHR) -->
+        <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-1">
             
             <!-- TAB 1: START MENÜ (UHR & KALENDER) -->
             <div id="tab-start" class="tab-pane flex-1 flex flex-col gap-4">
                 
                 <!-- OBERE BOX: UHRZEIT & DATUM -->
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col items-center justify-center text-center shadow-lg backdrop-blur-sm">
+                <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col items-center justify-center text-center shadow-lg">
                     <div id="dash-time" class="text-4xl md:text-5xl font-mono font-bold tracking-wider text-slate-100">
                         00:00:00
                     </div>
@@ -173,7 +191,7 @@
                 </div>
 
                 <!-- UNTERE BOX: KALENDER -->
-                <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col shadow-lg backdrop-blur-sm">
+                <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col shadow-lg">
                     
                     <!-- Kalender Toolbar -->
                     <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-4">
@@ -185,7 +203,7 @@
                         <div class="flex items-center space-x-3">
                             <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
                                 <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
-                                <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-32 text-center"></span>
+                                <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-36 text-center"></span>
                                 <button onclick="changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
                             </div>
                             <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
@@ -197,7 +215,7 @@
 
                     <!-- Kalender Tage Raster -->
                     <div class="flex-1 overflow-x-auto">
-                        <div class="min-w-[650px]">
+                        <div class="min-w-[700px]">
                             <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
                                 <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
                             </div>
@@ -212,7 +230,7 @@
 
             <!-- TAB 2: ADMIN & RECHTESYSTEM -->
             <div id="tab-admin" class="tab-pane hidden flex-1 flex flex-col gap-4">
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 shadow-lg backdrop-blur-sm">
+                <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 shadow-lg">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
                         <div>
                             <h2 class="text-xl font-bold text-amber-400 flex items-center gap-2">
@@ -238,11 +256,11 @@
 
 
     <!-- ========================================== -->
-    <!-- 3. AUFKLAPPBARER MENÜ-DRAWER (SIDEBAR)     -->
+    <!-- 3. FLÜSSIGER MENÜ-DRAWER MIT STATUS UNTEN  -->
     <!-- ========================================== -->
-    <div id="menu-backdrop" onclick="toggleSideMenu(false)" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+    <div id="menu-backdrop" onclick="toggleSideMenu(false)" class="fixed inset-0 bg-slate-950/70 z-50"></div>
     
-    <aside id="side-drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 z-50 p-6 flex flex-col justify-between shadow-2xl transition-transform duration-300 -translate-x-full">
+    <aside id="side-drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 z-50 p-6 flex flex-col justify-between shadow-2xl">
         <div>
             <!-- Drawer Header mit Schließen-Kreuz -->
             <div class="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-6">
@@ -272,8 +290,40 @@
             </nav>
         </div>
 
-        <div class="text-[11px] text-slate-500 text-center py-2 border-t border-slate-800/80">
-            Familien-Mainz HUB v2.0
+        <!-- UNTERER BEREICH: SYSTEMSTATUS & VERSION -->
+        <div class="space-y-4 pt-4 border-t border-slate-800/80">
+            <div>
+                <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-2.5 flex items-center gap-2">
+                    <i class="fa-solid fa-server text-indigo-400 text-xs"></i>
+                    Status des Systems
+                </div>
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
+                        <div class="flex items-center gap-2 text-slate-300">
+                            <i class="fa-solid fa-cloud text-slate-500 text-[11px]"></i>
+                            <span>Cloud Firestore</span>
+                        </div>
+                        <span class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Online
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
+                        <div class="flex items-center gap-2 text-slate-300">
+                            <i class="fa-solid fa-shield-halved text-slate-500 text-[11px]"></i>
+                            <span>Auth System</span>
+                        </div>
+                        <span class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Online
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-[11px] text-slate-500 text-center">
+                Familien-Mainz HUB v2.0
+            </div>
         </div>
     </aside>
 
@@ -339,18 +389,23 @@
             return { finanzen: true, kalender: true, admin: false };
         }
 
-        // 2. Aufklappbares Menü (Drawer) Toggle
+        // 2. Schneller, ruckelfreier Drawer-Toggle
         function toggleSideMenu(open) {
             const drawer = document.getElementById('side-drawer');
             const backdrop = document.getElementById('menu-backdrop');
             if (open) {
-                backdrop.classList.remove('hidden');
-                drawer.classList.remove('-translate-x-full');
+                backdrop.classList.add('backdrop-active');
+                drawer.classList.add('drawer-open');
             } else {
-                drawer.classList.add('-translate-x-full');
-                backdrop.classList.add('hidden');
+                drawer.classList.remove('drawer-open');
+                backdrop.classList.remove('backdrop-active');
             }
         }
+
+        // ESC-Taste schließt das Menü
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') toggleSideMenu(false);
+        });
 
         // 3. Uhr & Datum Aktualisierung
         function updateClock() {
