@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Familie Mainz - Login</title>
+    <title>Familie Mainz - Hub</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -16,161 +16,255 @@
 
     <style>
         body {
-            background-color: #0b0f19;
+            background-color: #080c14;
             color: #f8fafc;
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .bg-card {
+            background-color: #0f172a;
+        }
+        .border-panel {
+            border-color: #1e293b;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-6 md:p-12 relative overflow-x-hidden">
+<body class="h-screen flex flex-col overflow-hidden">
 
-    <!-- OBERE ÜBERSCHRIFT (Zentriert) -->
-    <header class="text-center pt-4 md:pt-8">
-        <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-slate-100 font-sans">
-            Willkommen im Dashboard der Familie Mainz
-        </h1>
-        <p class="text-xs text-indigo-400 mt-2 tracking-wider uppercase font-semibold">Zentraler Familien-Hub</p>
-    </header>
-
-    <!-- HAUPTBEREICH: Login-Karte (Mitte) & Status-Karte (Rechts) -->
-    <main class="flex-1 flex flex-col lg:flex-row items-center justify-center lg:justify-between w-full max-w-6xl mx-auto gap-8 my-8 relative">
-
-        <!-- Platzhalter links (damit die Box in der Mitte optisch genau im Zentrum bleibt) -->
-        <div class="hidden lg:block w-72 pointer-events-none"></div>
-
-        <!-- MITTIGE KARTE: LOGIN & REGISTRIERUNG -->
-        <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10 transition-all">
-            
-            <!-- Fehlermeldung Box -->
-            <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs text-center flex items-center justify-center gap-2">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <span id="auth-alert-text"></span>
+    <!-- ========================================== -->
+    <!-- 1. LOGIN & REGISTRIERUNG OVERLAY           -->
+    <!-- ========================================== -->
+    <div id="view-auth" class="fixed inset-0 z-50 bg-[#080c14] flex flex-col justify-between p-6">
+        
+        <!-- Status-Badge in der oberen rechten Ecke -->
+        <div class="absolute top-6 right-6 flex items-center gap-3 bg-slate-900/80 backdrop-blur-md border border-slate-800 px-4 py-2.5 rounded-2xl shadow-xl">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-xs font-medium text-slate-300">Cloud</span>
             </div>
+            <span class="text-slate-700">|</span>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-xs font-medium text-slate-300">Auth System</span>
+            </div>
+        </div>
 
-            <!-- FORMULAR: ANMELDUNG -->
-            <form id="form-login" onsubmit="handleSignIn(event)" class="space-y-4">
-                <div class="text-center mb-6">
-                    <h2 class="text-lg font-semibold text-slate-200">Anmelden</h2>
-                    <p class="text-xs text-slate-400">Gib deine Zugangsdaten ein</p>
+        <!-- Titel ganz oben -->
+        <header class="text-center pt-8">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-slate-100">
+                Willkommen im Dashboard der Familie Mainz
+            </h1>
+        </header>
+
+        <!-- Formular Mitte -->
+        <main class="flex-1 flex items-center justify-center p-4">
+            <div class="w-full max-w-md bg-slate-900/90 border border-slate-800/80 rounded-3xl p-8 shadow-2xl backdrop-blur-sm">
+                
+                <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs text-center flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="auth-alert-text"></span>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail</label>
-                    <input type="email" id="login-email" required placeholder="name@familie-mainz.de" 
-                        class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort</label>
-                    <input type="password" id="login-password" required placeholder="••••••••" 
-                        class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
-                </div>
-
-                <div class="pt-2 space-y-3">
-                    <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 text-sm">
-                        Anmelden
-                    </button>
-
-                    <button type="button" onclick="showRegisterView(true)" class="w-full bg-slate-800/60 hover:bg-slate-800 text-slate-300 font-medium py-3 rounded-2xl transition-all border border-slate-700/60 text-sm">
-                        Registrieren
-                    </button>
-                </div>
-            </form>
-
-            <!-- FORMULAR: REGISTRIERUNG (Umschaltbar) -->
-            <form id="form-register" onsubmit="handleSignUp(event)" class="space-y-4 hidden">
-                <div class="text-center mb-6">
-                    <h2 class="text-lg font-semibold text-indigo-400">Neuen Benutzer anlegen</h2>
-                    <p class="text-xs text-slate-400">Erstelle deinen persönlichen Zugang</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
+                <!-- LOGIN FORMULAR -->
+                <form id="form-login" onsubmit="handleSignIn(event)" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Vorname</label>
-                        <input type="text" id="reg-firstname" required placeholder="Julian" 
-                            class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail</label>
+                        <input type="email" id="login-email" required placeholder="name@familie-mainz.de" 
+                            class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                     </div>
+
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Nachname</label>
-                        <input type="text" id="reg-lastname" required placeholder="Mainz" 
-                            class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort</label>
+                        <input type="password" id="login-password" required placeholder="••••••••" 
+                            class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                    </div>
+
+                    <div class="pt-3 space-y-3">
+                        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 text-sm">
+                            Anmelden
+                        </button>
+                        <button type="button" onclick="showRegisterView(true)" class="w-full bg-slate-800/60 hover:bg-slate-800 text-slate-300 font-medium py-3 rounded-2xl transition-all border border-slate-700/60 text-sm">
+                            Registrieren
+                        </button>
+                    </div>
+                </form>
+
+                <!-- REGISTRIERUNGS FORMULAR -->
+                <form id="form-register" onsubmit="handleSignUp(event)" class="space-y-4 hidden">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Vorname</label>
+                            <input type="text" id="reg-firstname" required placeholder="Julian" 
+                                class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Nachname</label>
+                            <input type="text" id="reg-lastname" required placeholder="Mainz" 
+                                class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail</label>
+                        <input type="email" id="reg-email" required placeholder="name@familie-mainz.de" 
+                            class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort (min. 6 Zeichen)</label>
+                        <input type="password" id="reg-password" required minlength="6" placeholder="••••••••" 
+                            class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div class="pt-2 space-y-3">
+                        <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 text-sm">
+                            Benutzer jetzt erstellen
+                        </button>
+                        <button type="button" onclick="showRegisterView(false)" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1 transition-colors text-center">
+                            &larr; Zurück zum Login
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </main>
+
+        <footer class="text-center text-xs text-slate-600 pb-2">
+            Familie Mainz Hub &bull; Cloud Security
+        </footer>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- 2. HAUPT-DASHBOARD (NACH ERFOLGREICHEM LOGIN) -->
+    <!-- ========================================== -->
+    <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full p-4 md:p-6 gap-4">
+        
+        <!-- HEADER: Willkommen [NAME] & Ausloggen -->
+        <header class="flex items-center justify-between px-2">
+            <div></div> <!-- Zentrierungs-Ausgleich -->
+            <h1 class="text-xl md:text-2xl font-bold text-slate-100 tracking-wide text-center">
+                Willkommen im System <span id="user-display-name" class="text-indigo-400"></span>
+            </h1>
+            <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:bg-rose-500/10 hover:text-rose-400 text-slate-300 px-4 py-2.5 rounded-2xl text-xs font-semibold transition-all shadow-lg">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span class="hidden sm:inline">Ausloggen</span>
+            </button>
+        </header>
+
+        <!-- ARBEITSFLÄCHE: Linkes Menü & Rechter Hauptbereich -->
+        <div class="flex-1 flex gap-4 overflow-hidden">
+            
+            <!-- LINKE MENÜ-BOX -->
+            <aside class="w-56 md:w-64 bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-xl backdrop-blur-sm">
+                <div class="space-y-4">
+                    <div class="text-xs uppercase tracking-widest text-slate-400 font-bold px-2">
+                        Menü
+                    </div>
+                    <nav class="space-y-2">
+                        <button class="w-full flex items-center gap-3 bg-indigo-600 text-white px-4 py-3 rounded-2xl text-sm font-medium shadow-lg shadow-indigo-600/20 transition-all">
+                            <i class="fa-solid fa-border-all"></i>
+                            <span>Start Menü</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <div class="text-[11px] text-slate-500 text-center py-2 border-t border-slate-800/80">
+                    Familien-Mainz HUB v2.0
+                </div>
+            </aside>
+
+            <!-- RECHTER HAUPTBEREICH -->
+            <main class="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
+                
+                <!-- OBERE BOX: UHRZEIT & DATUM -->
+                <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col items-center justify-center text-center shadow-lg">
+                    <div id="dash-time" class="text-4xl md:text-5xl font-mono font-bold tracking-wider text-slate-100">
+                        00:00:00
+                    </div>
+                    <div id="dash-date" class="text-xs md:text-sm font-medium text-indigo-400 uppercase tracking-widest mt-2">
+                        Lade Datum...
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail</label>
-                    <input type="email" id="reg-email" required placeholder="name@familie-mainz.de" 
-                        class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                <!-- UNTERE BOX: KALENDER -->
+                <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col shadow-lg">
+                    
+                    <!-- Kalender Toolbar -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
+                            <h2 class="text-base font-bold text-slate-200">Familien-Kalender</h2>
+                        </div>
+
+                        <div class="flex items-center space-x-3">
+                            <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
+                                <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
+                                <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-32 text-center"></span>
+                                <button onclick="changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                            <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Termin hinzufügen</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Kalender Tage Raster -->
+                    <div class="flex-1 overflow-x-auto">
+                        <div class="min-w-[650px]">
+                            <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
+                                <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+                            </div>
+                            <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2">
+                                <!-- Wird via JS dynamisch gerendert -->
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
+            </main>
+
+        </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL: TERMIN HINZUFÜGEN                   -->
+    <!-- ========================================== -->
+    <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-2xl w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-slate-100">Neuen Termin eintragen</h3>
+                <button onclick="closeModal('modal-event')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveCalendarEvent(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort (min. 6 Zeichen)</label>
-                    <input type="password" id="reg-password" required minlength="6" placeholder="••••••••" 
-                        class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                    <label class="block text-xs text-slate-400 mb-1">Titel / Anlass</label>
+                    <input type="text" id="ev-title" required placeholder="z.B. Zahnarzttermin, Geburtstag" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                 </div>
-
-                <div class="pt-2 space-y-3">
-                    <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 text-sm">
-                        Benutzer jetzt erstellen
-                    </button>
-
-                    <button type="button" onclick="showRegisterView(false)" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1 transition-colors text-center">
-                        &larr; Zurück zum Login
-                    </button>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Datum</label>
+                    <input type="date" id="ev-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex items-center space-x-2 pt-1">
+                    <input type="checkbox" id="ev-public" class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                    <label for="ev-public" class="text-xs text-slate-300">Öffentlich für alle sichtbar</label>
+                </div>
+                <div class="flex justify-end space-x-3 pt-3">
+                    <button type="button" onclick="closeModal('modal-event')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white hover:bg-indigo-500 font-medium shadow-lg shadow-indigo-600/30">Speichern</button>
                 </div>
             </form>
         </div>
+    </div>
 
-        <!-- RECHTE STATUS-KARTE -->
-        <aside class="w-full lg:w-72 bg-slate-900/60 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
-            <div class="border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-sm text-slate-200 tracking-wide flex items-center gap-2">
-                    <i class="fa-solid fa-server text-indigo-400"></i>
-                    Status des Systems
-                </h3>
-            </div>
 
-            <div class="space-y-4">
-                <!-- Status Cloud -->
-                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-950/40 border border-slate-800/50">
-                    <div class="flex items-center space-x-3">
-                        <i class="fa-solid fa-cloud text-slate-400 text-sm"></i>
-                        <span class="text-xs text-slate-300 font-medium">Cloud</span>
-                    </div>
-                    <div id="status-cloud" class="flex items-center space-x-1.5 text-emerald-400 text-xs font-semibold">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>Online</span>
-                    </div>
-                </div>
-
-                <!-- Status Login System -->
-                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-950/40 border border-slate-800/50">
-                    <div class="flex items-center space-x-3">
-                        <i class="fa-solid fa-shield-halved text-slate-400 text-sm"></i>
-                        <span class="text-xs text-slate-300 font-medium">Log in System</span>
-                    </div>
-                    <div id="status-auth" class="flex items-center space-x-1.5 text-emerald-400 text-xs font-semibold">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>Online</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-[11px] text-slate-500 text-center pt-2">
-                Firebase Firestore & Auth aktiv
-            </div>
-        </aside>
-
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="text-center text-xs text-slate-600 pb-2">
-        Familie Mainz Hub &bull; Sichere Familienplattform
-    </footer>
-
-    <!-- LOGIK & FIREBASE INTEGRATION -->
+    <!-- ========================================== -->
+    <!-- LOGIK (FIREBASE & FIRESTORE)              -->
+    <!-- ========================================== -->
     <script>
-        // 1. Firebase Konfiguration
+        // 1. Firebase Initialisierung
         const firebaseConfig = {
             apiKey: "AIzaSyCfKWWHQ17-ujYGJcHw6efFBESArA8uY0Q",
             authDomain: "familie-mainz-netzwerk.firebaseapp.com",
@@ -184,7 +278,34 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Umschalten zwischen Login und Registrierung
+        let currentUser = null;
+        let calendarEvents = [];
+        let currentCalendarDate = new Date();
+
+        // 2. Uhr & Datum Aktualisierung
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            
+            const timeEl = document.getElementById('dash-time');
+            if (timeEl) timeEl.innerText = `${h}:${m}:${s}`;
+
+            const dateEl = document.getElementById('dash-date');
+            if (dateEl) {
+                dateEl.innerText = now.toLocaleDateString('de-DE', { 
+                    weekday: 'long', 
+                    day: '2-digit', 
+                    month: 'long', 
+                    year: 'numeric' 
+                });
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 3. UI Umschalten Login / Registrieren
         function showRegisterView(show) {
             hideAlert();
             if (show) {
@@ -207,7 +328,7 @@
             document.getElementById('auth-alert').classList.add('hidden');
         }
 
-        // 2. Anmelden
+        // 4. Anmelden
         async function handleSignIn(e) {
             e.preventDefault();
             hideAlert();
@@ -220,7 +341,6 @@
 
             try {
                 await auth.signInWithEmailAndPassword(email, password);
-                // Wenn erfolgreich eingeloggt, leitet onAuthStateChanged weiter
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Anmelden';
@@ -232,7 +352,7 @@
             }
         }
 
-        // 3. Registrieren (Neuer Benutzer mit Name, E-Mail & Firestore-Eintrag)
+        // 5. Registrieren
         async function handleSignUp(e) {
             e.preventDefault();
             hideAlert();
@@ -246,49 +366,161 @@
             btn.innerText = 'Erstelle Benutzer...';
 
             try {
-                // In Firebase Auth anlegen
                 const userCred = await auth.createUserWithEmailAndPassword(email, password);
                 
-                // Rolle bestimmen
-                const isAdmin = email.toLowerCase().includes('admin') || email.toLowerCase().includes('julian');
-                const role = isAdmin ? 'admin' : 'user';
-
-                // Profil & Name in Cloud Firestore speichern
                 await db.collection('users').doc(userCred.user.uid).set({
                     firstName: firstName,
                     lastName: lastName,
                     displayName: `${firstName} ${lastName}`,
                     email: email,
-                    role: role,
-                    permissions: {
-                        finanzen: true,
-                        kalender: true,
-                        admin: isAdmin
-                    },
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Benutzer jetzt erstellen';
-                if (err.code === 'auth/email-already-in-use') {
-                    showAlert('Diese E-Mail-Adresse ist bereits vergeben.');
-                } else if (err.code === 'auth/weak-password') {
-                    showAlert('Das Passwort muss mindestens 6 Zeichen lang sein.');
-                } else {
-                    showAlert(err.message);
-                }
+                showAlert(err.message);
             }
         }
 
-        // 4. Status-Listener: Erkennt Login sofort
-        auth.onAuthStateChanged(user => {
+        // 6. Auth State Listener & Profil laden
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
-                console.log('Angemeldet als:', user.email);
-                // Hier bauen wir im nächsten Schritt die Weiterleitung zur nächsten Dashboard-Ansicht ein
-                showAlert(`Erfolgreich angemeldet als ${user.email}!`);
+                // Benutzerdaten aus Firestore holen
+                const doc = await db.collection('users').doc(user.uid).get();
+                let displayName = user.email.split('@')[0];
+
+                if (doc.exists && doc.data().firstName) {
+                    displayName = doc.data().firstName;
+                }
+
+                currentUser = { uid: user.uid, email: user.email, name: displayName };
+                document.getElementById('user-display-name').innerText = `[${displayName}]`;
+
+                // View umschalten
+                document.getElementById('view-auth').classList.add('hidden');
+                document.getElementById('view-dashboard').classList.remove('hidden');
+
+                // Kalender Echtzeit-Sync starten
+                initCalendarListener();
+                renderCalendar();
+            } else {
+                currentUser = null;
+                document.getElementById('view-dashboard').classList.add('hidden');
+                document.getElementById('view-auth').classList.remove('hidden');
+                document.getElementById('form-login').reset();
+                document.getElementById('btn-login').disabled = false;
+                document.getElementById('btn-login').innerText = 'Anmelden';
             }
         });
+
+        function handleLogout() {
+            auth.signOut();
+        }
+
+        // 7. Kalender Logik (Firestore Live Sync)
+        function initCalendarListener() {
+            db.collection('events').onSnapshot(snapshot => {
+                calendarEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderCalendar();
+            });
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-days-grid');
+            const title = document.getElementById('calendar-month-year');
+            if (!grid || !title) return;
+
+            grid.innerHTML = '';
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+
+            title.innerText = new Date(year, month, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+
+            const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDayIndex; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'h-24 bg-slate-900/20 border border-slate-800/30 rounded-2xl opacity-20';
+                grid.appendChild(empty);
+            }
+
+            const today = new Date();
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+
+                const dayCell = document.createElement('div');
+                dayCell.className = `h-24 p-2 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col justify-between overflow-hidden`;
+
+                let dayHeader = `
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                        <span class="${isToday ? 'font-bold text-indigo-400 bg-indigo-500/20 px-1.5 py-0.5 rounded-md' : 'text-slate-400'}">${day}</span>
+                        <button onclick="openEventModal('${dayDateStr}')" class="text-slate-500 hover:text-indigo-400 text-[10px]" title="Termin hinzufügen"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                `;
+
+                const dayEvents = calendarEvents.filter(ev => {
+                    if (ev.date !== dayDateStr) return false;
+                    return ev.isPublic || (currentUser && ev.owner === currentUser.email);
+                });
+
+                let eventsHtml = `<div class="space-y-1 overflow-y-auto max-h-16 pr-0.5">`;
+                dayEvents.forEach(ev => {
+                    const isOwner = currentUser && ev.owner === currentUser.email;
+                    eventsHtml += `
+                        <div class="text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}" title="${ev.title}">
+                            <span class="truncate">${ev.isPublic ? '' : '<i class="fa-solid fa-lock text-[8px] mr-1 text-amber-400"></i>'}${ev.title}</span>
+                            ${isOwner ? `<button onclick="deleteCalendarEvent('${ev.id}')" class="text-slate-400 hover:text-rose-400 ml-1"><i class="fa-solid fa-xmark text-[9px]"></i></button>` : ''}
+                        </div>
+                    `;
+                });
+                eventsHtml += `</div>`;
+
+                dayCell.innerHTML = dayHeader + eventsHtml;
+                grid.appendChild(dayCell);
+            }
+        }
+
+        function changeCalendarMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function openEventModal(defaultDate = '') {
+            document.getElementById('ev-title').value = '';
+            document.getElementById('ev-date').value = defaultDate || new Date().toISOString().split('T')[0];
+            document.getElementById('ev-public').checked = false;
+            openModal('modal-event');
+        }
+
+        async function saveCalendarEvent(e) {
+            e.preventDefault();
+            const title = document.getElementById('ev-title').value.trim();
+            const date = document.getElementById('ev-date').value;
+            const isPublic = document.getElementById('ev-public').checked;
+
+            if (!title || !date || !currentUser) return;
+
+            await db.collection('events').add({
+                title: title,
+                date: date,
+                isPublic: isPublic,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            closeModal('modal-event');
+        }
+
+        async function deleteCalendarEvent(id) {
+            await db.collection('events').doc(id).delete();
+        }
     </script>
 </body>
 </html>
