@@ -168,7 +168,6 @@
     <!-- ========================================== -->
     <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full min-h-screen md:min-h-0 p-3 md:p-6 overflow-hidden">
         
-        <!-- HEADER -->
         <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
             <div class="flex items-center gap-2">
                 <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
@@ -191,25 +190,16 @@
             </button>
         </header>
 
-        <!-- HAUPTINHALT -->
         <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
             
-            <!-- TAB 1: START MENÜ (UHR, WETTER, PINNWAND, TO-DOS, KALENDER) -->
+            <!-- TAB 1: START MENÜ -->
             <div id="tab-start" class="tab-pane flex-1 flex flex-col gap-4">
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    
-                    <!-- 1. UHR & DATUM -->
                     <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col items-center justify-center text-center shadow-lg">
-                        <div id="dash-time" class="text-3xl font-mono font-bold tracking-wider text-slate-100">
-                            00:00:00
-                        </div>
-                        <div id="dash-date" class="text-xs font-medium text-indigo-400 uppercase tracking-widest mt-2">
-                            Lade Datum...
-                        </div>
+                        <div id="dash-time" class="text-3xl font-mono font-bold tracking-wider text-slate-100">00:00:00</div>
+                        <div id="dash-date" class="text-xs font-medium text-indigo-400 uppercase tracking-widest mt-2">Lade Datum...</div>
                     </div>
 
-                    <!-- 2. WETTER- & STANDORT-WIDGET -->
                     <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg relative overflow-hidden">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
                             <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5 truncate">
@@ -235,7 +225,6 @@
                         </div>
                     </div>
 
-                    <!-- 3. PINNWAND -->
                     <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
                             <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
@@ -252,7 +241,6 @@
                         </form>
                     </div>
 
-                    <!-- 4. TO-DO & EINKAUFSLISTE -->
                     <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
                             <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
@@ -268,17 +256,14 @@
                             <button type="submit" class="bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 text-xs px-2.5 py-1.5 rounded-xl"><i class="fa-solid fa-plus"></i></button>
                         </form>
                     </div>
-
                 </div>
 
-                <!-- KALENDER BOX -->
                 <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 flex flex-col shadow-lg">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
                         <div class="flex items-center space-x-3">
                             <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
                             <h2 class="text-base font-bold text-slate-200">Familien-Kalender</h2>
                         </div>
-
                         <div class="flex items-center justify-between w-full sm:w-auto gap-2">
                             <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
                                 <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
@@ -291,7 +276,6 @@
                             </button>
                         </div>
                     </div>
-
                     <div class="flex-1 overflow-x-auto pb-2">
                         <div class="min-w-[620px]">
                             <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
@@ -353,9 +337,7 @@
                                 <i class="fa-solid fa-file-export text-amber-400"></i> Arbeitgeber-Export
                             </span>
                         </div>
-                        <p class="text-xs text-slate-400 mb-3">
-                            Erstelle einen monatlichen Stundenzettel zur Vorlage bei deinem Arbeitgeber als Excel-CSV.
-                        </p>
+                        <p class="text-xs text-slate-400 mb-3">Erstelle einen monatlichen Stundenzettel für deinen Arbeitgeber.</p>
                         <div class="space-y-2">
                             <button onclick="exportWorkCSV()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700">
                                 <i class="fa-solid fa-file-csv text-emerald-400"></i>
@@ -372,8 +354,7 @@
                 <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
                         <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-slate-400"></i>
-                            Erfasste Arbeitszeiten
+                            <i class="fa-solid fa-list-check text-slate-400"></i> Erfasste Arbeitszeiten
                         </h3>
                         <span id="work-table-count" class="text-xs text-slate-500">0 Einträge</span>
                     </div>
@@ -391,9 +372,7 @@
                                 </tr>
                             </thead>
                             <tbody id="worktime-table-body" class="divide-y divide-slate-800/60 text-slate-200">
-                                <tr>
-                                    <td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten für diesen Zeitraum gefunden.</td>
-                                </tr>
+                                <tr><td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten für diesen Zeitraum gefunden.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -403,17 +382,16 @@
             <!-- TAB 3: PASSWORT- & DOKUMENTEN-SAFE -->
             <div id="tab-vault" class="tab-pane hidden flex-1 flex flex-col gap-4">
                 <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
-                    
                     <div id="vault-locked-view" class="flex-1 flex flex-col items-center justify-center p-6 text-center my-auto">
                         <div class="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl mb-4 shadow-xl">
                             <i class="fa-solid fa-shield-halved"></i>
                         </div>
                         <h2 class="text-lg md:text-xl font-bold text-slate-100">Passwort- & Dokumenten-Safe</h2>
                         <p class="text-xs text-slate-400 max-w-sm mt-1 mb-6">
-                            Deine Passwörter und Dokumente sind durch ein Master-Passwort per AES-256 direkt im Browser verschlüsselt.
+                            Deine Daten sind durch ein Master-Passwort per AES-256 direkt im Browser verschlüsselt.
                         </p>
                         <form onsubmit="unlockVault(event)" class="w-full max-w-xs space-y-3">
-                            <input type="password" id="vault-master-pass" required placeholder="Master-Passwort / PIN eingeben" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-center text-sm text-slate-100 focus:outline-none focus:border-amber-500 tracking-widest">
+                            <input type="password" id="vault-master-pass" required placeholder="Master-Passwort eingeben" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-center text-sm text-slate-100 focus:outline-none focus:border-amber-500 tracking-widest">
                             <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-2xl text-xs transition-all shadow-lg shadow-amber-600/20">
                                 Safe entsperren 🔓
                             </button>
@@ -437,12 +415,10 @@
                                 </button>
                             </div>
                         </div>
-
                         <div class="flex-1 overflow-y-auto space-y-2.5 pr-1" id="vault-items-list">
                             <div class="text-xs text-slate-500 text-center py-6">Keine Passwörter im Tresor hinterlegt.</div>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -452,14 +428,11 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-2">
                         <div>
                             <h2 class="text-lg md:text-xl font-bold text-amber-400 flex items-center gap-2">
-                                <i class="fa-solid fa-user-shield"></i>
-                                Admin- & Rechtesystem
+                                <i class="fa-solid fa-user-shield"></i> Admin- & Rechtesystem
                             </h2>
-                            <p class="text-xs text-slate-400 mt-0.5">Verwalte die Zugriffsrechte aller Familienmitglieder live in Firestore.</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Verwalte die Zugriffsrechte aller registrierten Mitglieder.</p>
                         </div>
-                        <span id="user-count-badge" class="self-start sm:self-center text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1.5 rounded-xl">
-                            0 Benutzer
-                        </span>
+                        <span id="user-count-badge" class="self-start sm:self-center text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1.5 rounded-xl">0 Benutzer</span>
                     </div>
                     <div id="admin-user-list" class="space-y-3"></div>
                 </div>
@@ -471,10 +444,9 @@
                     <div class="flex flex-col lg:flex-row lg:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-3">
                         <div>
                             <h2 class="text-lg md:text-xl font-bold text-cyan-400 flex items-center gap-2">
-                                <i class="fa-solid fa-timeline"></i>
-                                System- & Aktivitäts-Logs
+                                <i class="fa-solid fa-timeline"></i> System- & Aktivitäts-Logs
                             </h2>
-                            <p class="text-xs text-slate-400 mt-0.5">Audit-Trail über Seitenbesuche, Logins und Datenänderungen im Hub.</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Audit-Trail über alle Aktionen.</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
                             <div class="relative">
@@ -488,28 +460,10 @@
                                 <option value="data">Datenänderungen</option>
                                 <option value="admin">Sicherheit & Rechte</option>
                             </select>
-                            <button onclick="clearSystemLogs()" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-xs px-3 py-2 rounded-xl transition-all flex items-center gap-1.5" title="Ältere Logs leeren">
+                            <button onclick="clearSystemLogs()" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-xs px-3 py-2 rounded-xl transition-all flex items-center gap-1.5">
                                 <i class="fa-solid fa-trash-can"></i>
                                 <span class="hidden sm:inline">Bereinigen</span>
                             </button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-                        <div class="bg-slate-950/40 border border-slate-800/80 p-2.5 rounded-xl text-center">
-                            <span class="text-[10px] text-slate-400 block">Gesamt-Events</span>
-                            <span id="stat-log-total" class="text-sm font-bold text-slate-200">0</span>
-                        </div>
-                        <div class="bg-slate-950/40 border border-slate-800/80 p-2.5 rounded-xl text-center">
-                            <span class="text-[10px] text-slate-400 block">Seitenbesuche</span>
-                            <span id="stat-log-visits" class="text-sm font-bold text-cyan-400">0</span>
-                        </div>
-                        <div class="bg-slate-950/40 border border-slate-800/80 p-2.5 rounded-xl text-center">
-                            <span class="text-[10px] text-slate-400 block">Logins</span>
-                            <span id="stat-log-auth" class="text-sm font-bold text-emerald-400">0</span>
-                        </div>
-                        <div class="bg-slate-950/40 border border-slate-800/80 p-2.5 rounded-xl text-center">
-                            <span class="text-[10px] text-slate-400 block">Aktionen</span>
-                            <span id="stat-log-actions" class="text-sm font-bold text-amber-400">0</span>
                         </div>
                     </div>
                     <div class="flex-1 overflow-x-auto overflow-y-auto">
@@ -519,14 +473,12 @@
                                     <th class="p-2.5">Zeitpunkt</th>
                                     <th class="p-2.5">Kategorie</th>
                                     <th class="p-2.5">Benutzer</th>
-                                    <th class="p-2.5">Ereignis / Aktion</th>
-                                    <th class="p-2.5">Details / Gerät</th>
+                                    <th class="p-2.5">Ereignis</th>
+                                    <th class="p-2.5">Details</th>
                                 </tr>
                             </thead>
                             <tbody id="logs-table-body" class="divide-y divide-slate-800/60 text-slate-200 font-mono text-[11px]">
-                                <tr>
-                                    <td colspan="5" class="text-center py-6 text-slate-500 font-sans">Lade System-Logs...</td>
-                                </tr>
+                                <tr><td colspan="5" class="text-center py-6 text-slate-500 font-sans">Lade System-Logs...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -556,7 +508,6 @@
                 </button>
             </div>
 
-            <!-- Navigation Buttons -->
             <nav class="space-y-2">
                 <button onclick="switchTab('start'); toggleSideMenu(false);" id="nav-btn-start" class="nav-btn w-full flex items-center gap-3 bg-indigo-600 text-white px-4 py-3 rounded-2xl text-sm font-medium shadow-lg shadow-indigo-600/20 transition-all text-left">
                     <i class="fa-solid fa-border-all w-5"></i>
@@ -593,35 +544,28 @@
         <div class="space-y-4 pt-4 border-t border-slate-800/80">
             <div>
                 <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-2.5 flex items-center gap-2">
-                    <i class="fa-solid fa-server text-indigo-400 text-xs"></i>
-                    Status des Systems
+                    <i class="fa-solid fa-server text-indigo-400 text-xs"></i> Status des Systems
                 </div>
                 <div class="space-y-2">
                     <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
                         <div class="flex items-center gap-2 text-slate-300">
                             <i class="fa-solid fa-cloud text-slate-500 text-[11px]"></i>
-                            <span>Cloud Firestore</span>
+                            <span>Firestore</span>
                         </div>
                         <span class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Live Sync
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live
                         </span>
                     </div>
                     <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
                         <div class="flex items-center gap-2 text-slate-300">
                             <i class="fa-solid fa-bell text-slate-500 text-[11px]"></i>
-                            <span>Push Alarm</span>
+                            <span>Push</span>
                         </div>
-                        <span id="badge-fcm-status" class="flex items-center gap-1.5 text-slate-400 font-medium text-[11px]">
-                            Inaktiv
-                        </span>
+                        <span id="badge-fcm-status" class="flex items-center gap-1.5 text-slate-400 font-medium text-[11px]">Inaktiv</span>
                     </div>
                 </div>
             </div>
-
-            <div class="text-[11px] text-slate-500 text-center">
-                Familie-Mainz Hub &bull; v3.0 (PWA & Safe)
-            </div>
+            <div class="text-[11px] text-slate-500 text-center">Familie-Mainz Hub &bull; v3.1</div>
         </div>
     </aside>
 
@@ -629,107 +573,68 @@
     <!-- ========================================== -->
     <!-- 4. MODALS                                  -->
     <!-- ========================================== -->
-    
     <div id="modal-settings" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-sm">
-                        <i class="fa-solid fa-sliders"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-bold text-slate-100">Einstellungen</h3>
-                        <p class="text-[11px] text-slate-400">Persönliche App- & Push-Optionen</p>
-                    </div>
-                </div>
+                <h3 class="text-base font-bold text-slate-100">Einstellungen</h3>
                 <button onclick="closeModal('modal-settings')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
             <div class="space-y-4">
                 <div class="p-3.5 bg-slate-950/60 border border-slate-800 rounded-2xl flex items-center justify-between gap-3">
                     <div>
                         <div class="text-xs font-semibold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-bell text-yellow-400"></i>
-                            Push-Mitteilungen
+                            <i class="fa-solid fa-bell text-yellow-400"></i> Push-Mitteilungen
                         </div>
                         <div class="text-[10px] text-slate-400 mt-0.5" id="master-push-subtext">Status: Inaktiv</div>
                     </div>
-                    <button id="btn-master-push" onclick="toggleMasterPush()" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">
+                    <button id="btn-master-push" onclick="toggleMasterPush()" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-indigo-600 hover:bg-indigo-500 text-white">
                         Aktivieren
                     </button>
                 </div>
-
-                <div class="space-y-2.5 pt-1">
-                    <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block px-1">
-                        Benachrichtigungs-Typen
-                    </span>
-
-                    <label class="flex items-center justify-between p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl cursor-pointer hover:border-slate-700 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-stopwatch text-emerald-400 text-sm w-4 text-center"></i>
-                            <div>
-                                <span class="text-xs font-medium text-slate-200 block">Stempeluhr-Alarm</span>
-                                <span class="text-[10px] text-slate-500 block">Info bei Beginn & Feierabend</span>
-                            </div>
-                        </div>
-                        <input type="checkbox" id="pref-notify-work" onchange="saveNotificationPref('notifyWork', this.checked)" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0 w-4 h-4 cursor-pointer">
+                <div class="space-y-2.5">
+                    <label class="flex items-center justify-between p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl cursor-pointer">
+                        <span class="text-xs font-medium text-slate-200">Stempeluhr-Alarm</span>
+                        <input type="checkbox" id="pref-notify-work" onchange="saveNotificationPref('notifyWork', this.checked)" class="rounded bg-slate-800 border-slate-700 text-emerald-500 w-4 h-4 cursor-pointer">
                     </label>
-
-                    <label class="flex items-center justify-between p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl cursor-pointer hover:border-slate-700 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-regular fa-calendar-days text-indigo-400 text-sm w-4 text-center"></i>
-                            <div>
-                                <span class="text-xs font-medium text-slate-200 block">Termin-Bestätigung</span>
-                                <span class="text-[10px] text-slate-500 block">Hinweis bei neuen Kalendereinträgen</span>
-                            </div>
-                        </div>
-                        <input type="checkbox" id="pref-notify-events" onchange="saveNotificationPref('notifyEvents', this.checked)" class="rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-0 w-4 h-4 cursor-pointer">
+                    <label class="flex items-center justify-between p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl cursor-pointer">
+                        <span class="text-xs font-medium text-slate-200">Termin-Bestätigung</span>
+                        <input type="checkbox" id="pref-notify-events" onchange="saveNotificationPref('notifyEvents', this.checked)" class="rounded bg-slate-800 border-slate-700 text-indigo-500 w-4 h-4 cursor-pointer">
                     </label>
-
-                    <div class="pt-2">
-                        <button onclick="sendLocalNotification('Test-Alarm 🚀', 'Deine Benachrichtigungen auf Julian-Mainz.de funktionieren perfekt!')" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium flex items-center justify-center gap-2 border border-slate-700 transition-colors">
-                            <i class="fa-solid fa-vial text-slate-400"></i>
-                            <span>Test-Alarm an mein Gerät senden</span>
-                        </button>
-                    </div>
                 </div>
-
                 <div class="pt-3 border-t border-slate-800 text-right">
-                    <button onclick="closeModal('modal-settings')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium">Schließen</button>
+                    <button onclick="closeModal('modal-settings')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Schließen</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: SAFE EINTRAG -->
     <div id="modal-vault-add" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-slate-100">Passwort / Dokument sichern</h3>
+                <h3 class="text-base font-bold text-slate-100">Passwort sichern</h3>
                 <button onclick="closeModal('modal-vault-add')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form onsubmit="saveVaultItem(event)" class="space-y-3.5">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Titel / Dienst</label>
-                    <input type="text" id="vault-title" required placeholder="z. B. WLAN Zuhause, Netflix, Krankenkasse" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                    <input type="text" id="vault-title" required placeholder="z. B. WLAN, Netflix" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">Benutzername / E-Mail (optional)</label>
+                    <label class="block text-xs text-slate-400 mb-1">Benutzername (optional)</label>
                     <input type="text" id="vault-username" placeholder="z. B. benutzername@email.de" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">Geheimes Passwort / PIN / Notiz</label>
+                    <label class="block text-xs text-slate-400 mb-1">Passwort / PIN</label>
                     <textarea id="vault-secret" required rows="3" placeholder="Wird verschlüsselt gespeichert..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-mono"></textarea>
                 </div>
                 <div class="flex justify-end space-x-3 pt-3">
-                    <button type="button" onclick="closeModal('modal-vault-add')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">Abbrechen</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-amber-600 text-slate-950 hover:bg-amber-500 font-bold shadow-lg shadow-amber-600/30">Verschlüsselt sichern</button>
+                    <button type="button" onclick="closeModal('modal-vault-add')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-amber-600 text-slate-950 hover:bg-amber-500 font-bold">Verschlüsselt sichern</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: TERMIN -->
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -739,25 +644,24 @@
             <form onsubmit="saveCalendarEvent(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Titel / Anlass</label>
-                    <input type="text" id="ev-title" required placeholder="z.B. Zahnarzttermin, Geburtstag" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                    <input type="text" id="ev-title" required placeholder="z.B. Geburtstag" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Datum</label>
                     <input type="date" id="ev-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                 </div>
                 <div class="flex items-center space-x-2 pt-1">
-                    <input type="checkbox" id="ev-public" class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                    <input type="checkbox" id="ev-public" class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-4 h-4">
                     <label for="ev-public" class="text-xs text-slate-300">Öffentlich für alle sichtbar</label>
                 </div>
                 <div class="flex justify-end space-x-3 pt-3">
-                    <button type="button" onclick="closeModal('modal-event')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">Abbrechen</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white hover:bg-indigo-500 font-medium shadow-lg shadow-indigo-600/30">Speichern</button>
+                    <button type="button" onclick="closeModal('modal-event')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: MANUELLE ARBEITSZEIT -->
     <div id="modal-work-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -785,11 +689,11 @@
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Tätigkeit / Beschreibung</label>
-                    <input type="text" id="man-note" placeholder="z. B. Reguläre Arbeitszeit, Projekt X" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                    <input type="text" id="man-note" placeholder="Reguläre Arbeitszeit" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                 </div>
                 <div class="flex justify-end space-x-3 pt-3">
-                    <button type="button" onclick="closeModal('modal-work-manual')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">Abbrechen</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-emerald-600 text-white hover:bg-emerald-500 font-medium shadow-lg shadow-emerald-600/30">Speichern</button>
+                    <button type="button" onclick="closeModal('modal-work-manual')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-emerald-600 text-white font-medium">Speichern</button>
                 </div>
             </form>
         </div>
@@ -797,16 +701,1224 @@
 
 
     <!-- ========================================== -->
-    <!-- LOGIK INITIALISIERUNG                      -->
+    <!-- LOGIK & VOLLSTÄNDIGER FIREBASE CODE        -->
     <!-- ========================================== -->
     <script>
-        // PWA Service Worker sofort beim Laden registrieren
+        const firebaseConfig = {
+            apiKey: "AIzaSyCfKWWHQ17-ujYGJcHw6efFBESArA8uY0Q",
+            authDomain: "familie-mainz-netzwerk.firebaseapp.com",
+            projectId: "familie-mainz-netzwerk",
+            storageBucket: "familie-mainz-netzwerk.firebasestorage.app",
+            messagingSenderId: "361922663455",
+            appId: "1:361922663455:web:ed3eb8d34103ce89be312a"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Service Worker Registrierung direkt beim Start
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(err => {
                     console.warn('ServiceWorker Registrierung:', err);
                 });
             });
+        }
+
+        let messaging = null;
+        try {
+            if (firebase.messaging.isSupported()) {
+                messaging = firebase.messaging();
+            }
+        } catch (e) {}
+
+        const FCM_VAPID_KEY = 'BPEpGDjLNQG4JpIwPgr2_WtdKDE5G8GE5S33LKLJmxfNPrAfxBXW6wpeHj0dQOhENsmYbUWOh669HoSJ18w18Lk';
+
+        let currentUser = null;
+        let allUsers = [];
+        let calendarEvents = [];
+        let familyNotes = [];
+        let familyTodos = [];
+        let workEntries = [];
+        let systemLogs = [];
+        let rawVaultItems = [];
+        let activeWorkSession = null;
+        let workTimerInterval = null;
+        let currentCalendarDate = new Date();
+        let vaultMasterKey = null;
+
+        const todayStr = new Date().toISOString().slice(0, 7);
+        const monthInput = document.getElementById('work-filter-month');
+        if (monthInput) monthInput.value = todayStr;
+
+        // PWA Install Prompt
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btn = document.getElementById('btn-pwa-install');
+            if (btn) btn.classList.remove('hidden');
+        });
+
+        async function installPWA() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                document.getElementById('btn-pwa-install').classList.add('hidden');
+            }
+            deferredPrompt = null;
+        }
+
+        function getDeviceType() {
+            const ua = navigator.userAgent;
+            if (/mobile/i.test(ua)) return 'Smartphone';
+            if (/tablet|ipad/i.test(ua)) return 'Tablet';
+            return 'Desktop / PC';
+        }
+
+        async function logSystemEvent(category, action, details = {}) {
+            try {
+                const userEmail = currentUser ? currentUser.email : (details.attemptedEmail || 'Gast / Anonym');
+                const userName = currentUser ? currentUser.name : (details.name || 'Nicht eingeloggt');
+                await db.collection('system_logs').add({
+                    category: category,
+                    action: action,
+                    userEmail: userEmail,
+                    userName: userName,
+                    device: getDeviceType(),
+                    userAgent: navigator.userAgent,
+                    url: window.location.href,
+                    details: details,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (err) {}
+        }
+
+        if (!sessionStorage.getItem('session_visited')) {
+            sessionStorage.setItem('session_visited', 'true');
+            logSystemEvent('visit', 'Website aufgerufen', { referrer: document.referrer || 'Direktaufruf' });
+        }
+
+        function getDefaultPermissions(role) {
+            if (role === 'admin') return { finanzen: true, kalender: true, admin: true };
+            return { finanzen: true, kalender: true, admin: false };
+        }
+
+        function toggleSideMenu(open) {
+            const drawer = document.getElementById('side-drawer');
+            const backdrop = document.getElementById('menu-backdrop');
+            if (open) {
+                backdrop.classList.add('backdrop-active');
+                drawer.classList.add('drawer-open');
+            } else {
+                drawer.classList.remove('drawer-open');
+                backdrop.classList.remove('backdrop-active');
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                toggleSideMenu(false);
+                closeModal('modal-settings');
+                closeModal('modal-event');
+                closeModal('modal-work-manual');
+                closeModal('modal-vault-add');
+            }
+        });
+
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            const timeEl = document.getElementById('dash-time');
+            if (timeEl) timeEl.innerText = `${h}:${m}:${s}`;
+            const dateEl = document.getElementById('dash-date');
+            if (dateEl) {
+                dateEl.innerText = now.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/20');
+                btn.classList.add('text-slate-300');
+            });
+            const activeTab = document.getElementById('tab-' + tabId);
+            const activeBtn = document.getElementById('nav-btn-' + tabId);
+            if (activeTab) activeTab.classList.remove('hidden');
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-300');
+                activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/20');
+            }
+            if (tabId === 'start') renderCalendar();
+            else if (tabId === 'worktime') renderWorkTimeTable();
+            else if (tabId === 'logs') renderLogsTable();
+            else if (tabId === 'vault' && vaultMasterKey) renderVaultItems();
+        }
+
+        function showRegisterView(show) {
+            hideAlert();
+            if (show) {
+                document.getElementById('form-login').classList.add('hidden');
+                document.getElementById('form-register').classList.remove('hidden');
+            } else {
+                document.getElementById('form-register').classList.add('hidden');
+                document.getElementById('form-login').classList.remove('hidden');
+            }
+        }
+
+        function showAlert(msg) {
+            const alertBox = document.getElementById('auth-alert');
+            const alertText = document.getElementById('auth-alert-text');
+            alertText.innerText = msg;
+            alertBox.classList.remove('hidden');
+        }
+
+        function hideAlert() { document.getElementById('auth-alert').classList.add('hidden'); }
+
+        async function handleSignIn(e) {
+            e.preventDefault();
+            hideAlert();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('btn-login');
+            btn.disabled = true;
+            btn.innerText = 'Wird angemeldet...';
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                logSystemEvent('auth', 'Erfolgreicher Login', { email: email });
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerText = 'Anmelden';
+                logSystemEvent('auth', 'Fehlgeschlagener Login', { attemptedEmail: email, reason: err.message });
+                if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+                    showAlert('E-Mail oder Passwort ist nicht korrekt.');
+                } else {
+                    showAlert(err.message);
+                }
+            }
+        }
+
+        async function handleSignUp(e) {
+            e.preventDefault();
+            hideAlert();
+            const firstName = document.getElementById('reg-firstname').value.trim();
+            const lastName = document.getElementById('reg-lastname').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const btn = document.getElementById('btn-register');
+            btn.disabled = true;
+            btn.innerText = 'Erstelle Benutzer...';
+
+            try {
+                const userCred = await auth.createUserWithEmailAndPassword(email, password);
+                const isAdmin = email.toLowerCase().includes('admin') || email.toLowerCase().includes('julian');
+                const role = isAdmin ? 'admin' : 'user';
+
+                await db.collection('users').doc(userCred.user.uid).set({
+                    firstName: firstName,
+                    lastName: lastName,
+                    displayName: `${firstName} ${lastName}`,
+                    email: email,
+                    role: role,
+                    permissions: getDefaultPermissions(role),
+                    userPrefs: { notifyWork: true, notifyEvents: true },
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                logSystemEvent('auth', 'Neuer Benutzer registriert', { email: email, name: `${firstName} ${lastName}` });
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerText = 'Benutzer jetzt erstellen';
+                showAlert(err.message);
+            }
+        }
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const doc = await db.collection('users').doc(user.uid).get();
+                let displayName = user.email.split('@')[0];
+                let userRole = 'user';
+                let permissions = getDefaultPermissions('user');
+                let userPrefs = { notifyWork: true, notifyEvents: true };
+                let hasPush = false;
+
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.firstName) displayName = data.firstName;
+                    if (data.role) userRole = data.role;
+                    if (data.permissions) permissions = data.permissions;
+                    if (data.userPrefs) userPrefs = { ...userPrefs, ...data.userPrefs };
+                    if (data.notificationsEnabled && data.fcmToken) hasPush = true;
+                } else {
+                    const isAdmin = user.email.toLowerCase().includes('admin') || user.email.toLowerCase().includes('julian');
+                    userRole = isAdmin ? 'admin' : 'user';
+                    permissions = getDefaultPermissions(userRole);
+                    await db.collection('users').doc(user.uid).set({
+                        displayName: displayName,
+                        email: user.email,
+                        role: userRole,
+                        permissions: permissions,
+                        userPrefs: userPrefs
+                    });
+                }
+
+                currentUser = { 
+                    uid: user.uid, 
+                    email: user.email, 
+                    name: displayName, 
+                    role: userRole, 
+                    permissions: permissions,
+                    userPrefs: userPrefs,
+                    notificationsEnabled: hasPush
+                };
+
+                document.getElementById('user-display-name').innerText = displayName;
+
+                if (document.getElementById('pref-notify-work')) {
+                    document.getElementById('pref-notify-work').checked = currentUser.userPrefs.notifyWork !== false;
+                }
+                if (document.getElementById('pref-notify-events')) {
+                    document.getElementById('pref-notify-events').checked = currentUser.userPrefs.notifyEvents !== false;
+                }
+                updatePushBadge(hasPush);
+
+                const navAdmin = document.getElementById('nav-btn-admin');
+                const navLogs = document.getElementById('nav-btn-logs');
+                const isUserAdmin = currentUser.role === 'admin' || (currentUser.permissions && currentUser.permissions.admin);
+
+                if (isUserAdmin) {
+                    navAdmin.classList.remove('hidden');
+                    navLogs.classList.remove('hidden');
+                    initAdminUsersListener();
+                    initSystemLogsListener();
+                } else {
+                    navAdmin.classList.add('hidden');
+                    navLogs.classList.add('hidden');
+                }
+
+                document.getElementById('view-auth').classList.add('hidden');
+                document.getElementById('view-dashboard').classList.remove('hidden');
+
+                switchTab('start');
+                
+                initCalendarListener();
+                initNotesListener();
+                initTodosListener();
+                initWorkTimeListener();
+                initVaultListener();
+                loadWeather();
+            } else {
+                currentUser = null;
+                document.getElementById('view-dashboard').classList.add('hidden');
+                document.getElementById('view-auth').classList.remove('hidden');
+                document.getElementById('form-login').reset();
+                document.getElementById('btn-login').disabled = false;
+                document.getElementById('btn-login').innerText = 'Anmelden';
+                updatePushBadge(false);
+                lockVault();
+                toggleSideMenu(false);
+            }
+        });
+
+        async function handleLogout() {
+            if (currentUser) logSystemEvent('auth', 'Benutzer abgemeldet', { email: currentUser.email });
+            auth.signOut();
+        }
+
+        // ==========================================
+        // WETTER WIDGET (OPEN-METEO)
+        // ==========================================
+        async function loadWeather() {
+            const locEl = document.getElementById('weather-location');
+            const tempEl = document.getElementById('weather-temp');
+            const condEl = document.getElementById('weather-condition');
+            const windEl = document.getElementById('weather-wind');
+            const rainEl = document.getElementById('weather-rain');
+            const iconEl = document.getElementById('weather-icon');
+            if (!locEl || !tempEl) return;
+
+            let lat = 50.8021; // Düren / Mainz Umgebung
+            let lon = 6.4836;
+            let cityName = 'Düren';
+
+            const fetchWeatherData = async (latitude, longitude, name) => {
+                try {
+                    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`);
+                    const data = await res.json();
+                    const current = data.current;
+
+                    locEl.innerText = name;
+                    tempEl.innerText = `${Math.round(current.temperature_2m)}°C`;
+                    windEl.innerText = `${Math.round(current.wind_speed_10m)} km/h`;
+                    rainEl.innerText = `${current.relative_humidity_2m} %`;
+
+                    const code = current.weather_code;
+                    let desc = 'Heiter';
+                    let iconClass = 'fa-solid fa-sun text-amber-400';
+
+                    if (code === 0) { desc = 'Klar'; iconClass = 'fa-solid fa-sun text-amber-400'; }
+                    else if (code >= 1 && code <= 3) { desc = 'Leicht bewölkt'; iconClass = 'fa-solid fa-cloud-sun text-amber-300'; }
+                    else if (code >= 45 && code <= 48) { desc = 'Nebelig'; iconClass = 'fa-solid fa-smog text-slate-400'; }
+                    else if (code >= 51 && code <= 67) { desc = 'Regnerisch'; iconClass = 'fa-solid fa-cloud-rain text-cyan-400'; }
+                    else if (code >= 71 && code <= 77) { desc = 'Schneefall'; iconClass = 'fa-solid fa-snowflake text-indigo-300'; }
+                    else if (code >= 80 && code <= 82) { desc = 'Schauer'; iconClass = 'fa-solid fa-cloud-showers-heavy text-cyan-400'; }
+                    else if (code >= 95) { desc = 'Gewitter'; iconClass = 'fa-solid fa-cloud-bolt text-amber-500'; }
+
+                    condEl.innerText = desc;
+                    iconEl.className = `${iconClass} text-3xl`;
+                } catch (e) {
+                    condEl.innerText = 'Wetter offline';
+                }
+            };
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                        lat = pos.coords.latitude;
+                        lon = pos.coords.longitude;
+                        try {
+                            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                            const geoData = await geoRes.json();
+                            cityName = geoData.address.city || geoData.address.town || geoData.address.village || 'Mein Standort';
+                        } catch (e) { cityName = 'Mein Standort'; }
+                        fetchWeatherData(lat, lon, cityName);
+                    },
+                    () => { fetchWeatherData(lat, lon, cityName); },
+                    { timeout: 5000 }
+                );
+            } else {
+                fetchWeatherData(lat, lon, cityName);
+            }
+        }
+
+        // ==========================================
+        // PASSWORT-SAFE & AES-256
+        // ==========================================
+        async function deriveKey(password, salt) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
+            return crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+            );
+        }
+
+        async function encryptSecret(secret, password) {
+            const enc = new TextEncoder();
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const key = await deriveKey(password, salt);
+            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, enc.encode(secret));
+            return {
+                cipher: btoa(String.fromCharCode(...new Uint8Array(cipher))),
+                salt: btoa(String.fromCharCode(...salt)),
+                iv: btoa(String.fromCharCode(...iv))
+            };
+        }
+
+        async function decryptSecret(cipherB64, saltB64, ivB64, password) {
+            const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+            const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
+            const cipher = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
+            const key = await deriveKey(password, salt);
+            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, cipher);
+            return new TextDecoder().decode(decrypted);
+        }
+
+        function initVaultListener() {
+            if (!currentUser) return;
+            db.collection('vault')
+                .where('owner', '==', currentUser.email)
+                .onSnapshot(snapshot => {
+                    rawVaultItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    if (vaultMasterKey) renderVaultItems();
+                });
+        }
+
+        async function unlockVault(e) {
+            e.preventDefault();
+            const pass = document.getElementById('vault-master-pass').value;
+            if (!pass) return;
+            vaultMasterKey = pass;
+            document.getElementById('vault-locked-view').classList.add('hidden');
+            document.getElementById('vault-unlocked-view').classList.remove('hidden');
+            renderVaultItems();
+            logSystemEvent('auth', 'Passwort-Safe entsperrt');
+        }
+
+        function lockVault() {
+            vaultMasterKey = null;
+            const passInput = document.getElementById('vault-master-pass');
+            if (passInput) passInput.value = '';
+            document.getElementById('vault-unlocked-view')?.classList.add('hidden');
+            document.getElementById('vault-locked-view')?.classList.remove('hidden');
+        }
+
+        function openAddVaultItemModal() {
+            document.getElementById('vault-title').value = '';
+            document.getElementById('vault-username').value = '';
+            document.getElementById('vault-secret').value = '';
+            openModal('modal-vault-add');
+        }
+
+        async function saveVaultItem(e) {
+            e.preventDefault();
+            if (!vaultMasterKey || !currentUser) return;
+
+            const title = document.getElementById('vault-title').value.trim();
+            const username = document.getElementById('vault-username').value.trim();
+            const secret = document.getElementById('vault-secret').value;
+
+            const encrypted = await encryptSecret(secret, vaultMasterKey);
+
+            await db.collection('vault').add({
+                title: title,
+                username: username,
+                cipher: encrypted.cipher,
+                salt: encrypted.salt,
+                iv: encrypted.iv,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            closeModal('modal-vault-add');
+            logSystemEvent('data', 'Eintrag im Safe erstellt', { title: title });
+        }
+
+        async function renderVaultItems() {
+            const list = document.getElementById('vault-items-list');
+            if (!list || !vaultMasterKey) return;
+            list.innerHTML = '';
+
+            if (rawVaultItems.length === 0) {
+                list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Einträge hinterlegt.</div>';
+                return;
+            }
+
+            for (const item of rawVaultItems) {
+                let decrypted = '***';
+                try {
+                    decrypted = await decryptSecret(item.cipher, item.salt, item.iv, vaultMasterKey);
+                } catch (err) {
+                    decrypted = 'Falsches Master-Passwort';
+                }
+
+                const card = document.createElement('div');
+                card.className = "p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs";
+                card.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-slate-200 text-sm block">${item.title}</span>
+                            ${item.username ? `<span class="text-[11px] text-slate-400 block">${item.username}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-[11px] text-amber-300 select-all truncate max-w-[200px]">
+                            ${decrypted}
+                        </div>
+                        <button onclick="navigator.clipboard.writeText('${decrypted}'); alert('Kopiert!');" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                        <button onclick="deleteVaultItem('${item.id}', '${item.title}')" class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                list.appendChild(card);
+            }
+        }
+
+        async function deleteVaultItem(id, title) {
+            if (confirm(`Eintrag "${title}" löschen?`)) {
+                await db.collection('vault').doc(id).delete();
+                logSystemEvent('data', 'Safe-Eintrag gelöscht', { title: title });
+            }
+        }
+
+        // ==========================================
+        // PUSH & EINSTELLUNGEN
+        // ==========================================
+        function openSettingsModal() { openModal('modal-settings'); }
+
+        function updatePushBadge(active) {
+            const badge = document.getElementById('badge-fcm-status');
+            const btn = document.getElementById('btn-master-push');
+            const subtext = document.getElementById('master-push-subtext');
+
+            if (badge) {
+                if (active) {
+                    badge.className = 'flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]';
+                    badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Aktiviert';
+                } else {
+                    badge.className = 'flex items-center gap-1.5 text-slate-400 font-medium text-[11px]';
+                    badge.innerText = 'Inaktiv';
+                }
+            }
+            if (subtext) subtext.innerText = active ? 'Status: Aktiviert' : 'Status: Inaktiv';
+            if (btn) {
+                if (active) {
+                    btn.innerText = 'Deaktivieren';
+                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-500/30';
+                } else {
+                    btn.innerText = 'Aktivieren';
+                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white';
+                }
+            }
+        }
+
+        async function toggleMasterPush() {
+            if (!currentUser) return;
+            if (currentUser.notificationsEnabled) {
+                try {
+                    if (messaging) try { await messaging.deleteToken(); } catch (e) {}
+                    currentUser.notificationsEnabled = false;
+                    await db.collection('users').doc(currentUser.uid).update({
+                        notificationsEnabled: false,
+                        fcmToken: firebase.firestore.FieldValue.delete(),
+                        tokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    updatePushBadge(false);
+                    alert('Push-Benachrichtigungen deaktiviert.');
+                    logSystemEvent('admin', 'Push deaktiviert');
+                } catch (err) { alert(err.message); }
+            } else {
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') return alert('Berechtigung verweigert.');
+                    let token = null;
+                    if (messaging) {
+                        try {
+                            const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                            await navigator.serviceWorker.ready;
+                            token = await messaging.getToken({ vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
+                        } catch (e) {}
+                    }
+                    currentUser.notificationsEnabled = true;
+                    await db.collection('users').doc(currentUser.uid).update({
+                        notificationsEnabled: true,
+                        fcmToken: token || 'browser-permission-granted',
+                        tokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    updatePushBadge(true);
+                    sendLocalNotification('Aktiviert! 🔔', 'Benachrichtigungen sind nun eingeschaltet.');
+                    logSystemEvent('admin', 'Push aktiviert');
+                } catch (err) { alert(err.message); }
+            }
+        }
+
+        function sendLocalNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                try {
+                    new Notification(title, { body: body, icon: 'https://cdn-icons-png.flaticon.com/512/1160/1160358.png' });
+                } catch (e) {
+                    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.controller.postMessage({ type: 'SHOW_NOTIFICATION', title: title, body: body });
+                    }
+                }
+            } else {
+                alert(`${title}\n\n${body}`);
+            }
+        }
+
+        async function saveNotificationPref(prefKey, isChecked) {
+            if (!currentUser) return;
+            currentUser.userPrefs = currentUser.userPrefs || {};
+            currentUser.userPrefs[prefKey] = isChecked;
+            await db.collection('users').doc(currentUser.uid).update({ [`userPrefs.${prefKey}`]: isChecked });
+        }
+
+        // ==========================================
+        // KALENDER, PINNWAND, TO-DOS & ZEITERFASSUNG
+        // ==========================================
+        function initCalendarListener() {
+            db.collection('events').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                calendarEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderCalendar();
+            });
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-days-grid');
+            const title = document.getElementById('calendar-month-year');
+            if (!grid || !title) return;
+            grid.innerHTML = '';
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            title.innerText = new Date(year, month, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+
+            const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDayIndex; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'h-20 md:h-24 bg-slate-900/20 border border-slate-800/30 rounded-2xl opacity-20';
+                grid.appendChild(empty);
+            }
+
+            const today = new Date();
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+
+                const dayCell = document.createElement('div');
+                dayCell.className = `h-20 md:h-24 p-1.5 md:p-2 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col justify-between overflow-hidden`;
+
+                let dayHeader = `
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                        <span class="${isToday ? 'font-bold text-indigo-400 bg-indigo-500/20 px-1.5 py-0.5 rounded-md' : 'text-slate-400'}">${day}</span>
+                        <button onclick="openEventModal('${dayDateStr}')" class="text-slate-500 hover:text-indigo-400 text-[10px]"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                `;
+
+                const dayEvents = calendarEvents.filter(ev => {
+                    if (ev.date !== dayDateStr) return false;
+                    return ev.isPublic || (currentUser && ev.owner === currentUser.email);
+                });
+
+                let eventsHtml = `<div class="space-y-1 overflow-y-auto max-h-12 md:max-h-16 pr-0.5">`;
+                dayEvents.forEach(ev => {
+                    const isOwner = currentUser && ev.owner === currentUser.email;
+                    eventsHtml += `
+                        <div class="text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}" title="${ev.title}">
+                            <span class="truncate">${ev.isPublic ? '' : '<i class="fa-solid fa-lock text-[8px] mr-1 text-amber-400"></i>'}${ev.title}</span>
+                            ${isOwner ? `<button onclick="deleteCalendarEvent('${ev.id}', '${ev.title}')" class="text-slate-400 hover:text-rose-400 ml-1"><i class="fa-solid fa-xmark text-[9px]"></i></button>` : ''}
+                        </div>
+                    `;
+                });
+                eventsHtml += `</div>`;
+
+                dayCell.innerHTML = dayHeader + eventsHtml;
+                grid.appendChild(dayCell);
+            }
+        }
+
+        function changeCalendarMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function openEventModal(defaultDate = '') {
+            document.getElementById('ev-title').value = '';
+            document.getElementById('ev-date').value = defaultDate || new Date().toISOString().split('T')[0];
+            document.getElementById('ev-public').checked = true;
+            openModal('modal-event');
+        }
+
+        async function saveCalendarEvent(e) {
+            e.preventDefault();
+            const title = document.getElementById('ev-title').value.trim();
+            const date = document.getElementById('ev-date').value;
+            const isPublic = document.getElementById('ev-public').checked;
+            if (!title || !date || !currentUser) return;
+
+            await db.collection('events').add({
+                title: title,
+                date: date,
+                isPublic: isPublic,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            logSystemEvent('data', 'Termin erstellt', { title: title, date: date });
+            if (currentUser.notificationsEnabled && currentUser.userPrefs?.notifyEvents) {
+                sendLocalNotification('Termin gespeichert 📅', `"${title}" am ${date} eingetragen.`);
+            }
+            closeModal('modal-event');
+        }
+
+        async function deleteCalendarEvent(id, title = '') {
+            await db.collection('events').doc(id).delete();
+            logSystemEvent('data', 'Termin gelöscht', { title: title });
+        }
+
+        function initNotesListener() {
+            db.collection('notes').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                familyNotes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderNotes();
+            });
+        }
+
+        function renderNotes() {
+            const list = document.getElementById('notes-list');
+            const count = document.getElementById('note-count');
+            if (!list) return;
+            count.innerText = familyNotes.length;
+            list.innerHTML = '';
+
+            if (familyNotes.length === 0) {
+                list.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-2">Keine Notizen.</div>';
+                return;
+            }
+
+            familyNotes.forEach(n => {
+                const isOwner = currentUser && (n.owner === currentUser.email || currentUser.role === 'admin');
+                const item = document.createElement('div');
+                item.className = "flex items-start justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
+                item.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-slate-200 text-[11px]">${n.text}</span>
+                        <span class="text-[9px] text-slate-500">${n.author || 'Familie'}</span>
+                    </div>
+                    ${isOwner ? `<button onclick="deleteNote('${n.id}', '${n.text}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        async function saveNewNote(e) {
+            e.preventDefault();
+            const input = document.getElementById('new-note-input');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+            await db.collection('notes').add({
+                text: text,
+                author: currentUser.name,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            input.value = '';
+        }
+
+        async function deleteNote(id, text = '') {
+            await db.collection('notes').doc(id).delete();
+            logSystemEvent('data', 'Notiz entfernt', { text: text });
+        }
+
+        function initTodosListener() {
+            db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                familyTodos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderTodos();
+            });
+        }
+
+        function renderTodos() {
+            const list = document.getElementById('todos-list');
+            const count = document.getElementById('todo-count');
+            if (!list) return;
+            const openTodos = familyTodos.filter(t => !t.done);
+            count.innerText = openTodos.length;
+            list.innerHTML = '';
+
+            if (familyTodos.length === 0) {
+                list.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-2">Alles erledigt! 🎉</div>';
+                return;
+            }
+
+            familyTodos.forEach(t => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
+                item.innerHTML = `
+                    <label class="flex items-center gap-2 cursor-pointer truncate">
+                        <input type="checkbox" onchange="toggleTodo('${t.id}', this.checked, '${t.text}')" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-emerald-500 w-3.5 h-3.5">
+                        <span class="text-[11px] truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${t.text}</span>
+                    </label>
+                    <button onclick="deleteTodo('${t.id}', '${t.text}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        async function saveNewTodo(e) {
+            e.preventDefault();
+            const input = document.getElementById('new-todo-input');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+            await db.collection('todos').add({
+                text: text,
+                done: false,
+                author: currentUser.name,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            input.value = '';
+        }
+
+        async function toggleTodo(id, done, text = '') {
+            await db.collection('todos').doc(id).update({ done: done });
+        }
+
+        async function deleteTodo(id, text = '') {
+            await db.collection('todos').doc(id).delete();
+        }
+
+        // ==========================================
+        // ADMIN BEREICH & RECHTE
+        // ==========================================
+        function initAdminUsersListener() {
+            db.collection('users').onSnapshot(snapshot => {
+                allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAdminUserList();
+            });
+        }
+
+        function renderAdminUserList() {
+            const listEl = document.getElementById('admin-user-list');
+            const badgeEl = document.getElementById('user-count-badge');
+            if (!listEl) return;
+            badgeEl.innerText = `${allUsers.length} Benutzer`;
+            listEl.innerHTML = '';
+
+            allUsers.forEach(u => {
+                const perms = u.permissions || getDefaultPermissions(u.role || 'user');
+                const isAdmin = u.role === 'admin' || perms.admin;
+                const nameDisplay = u.displayName || (u.firstName ? `${u.firstName} ${u.lastName || ''}` : u.email.split('@')[0]);
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-950/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4";
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-2xl ${isAdmin ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400'} flex items-center justify-center font-bold text-sm">
+                            <i class="${isAdmin ? 'fa-solid fa-shield-halved' : 'fa-solid fa-user'}"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-slate-200 text-sm flex items-center gap-2">
+                                <span>${nameDisplay}</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${isAdmin ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-400'}">
+                                    ${(u.role || 'user').toUpperCase()}
+                                </span>
+                            </div>
+                            <div class="text-xs text-slate-500">${u.email}</div>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs cursor-pointer">
+                            <input type="checkbox" onchange="toggleUserPerm('${u.id}', 'finanzen', this.checked)" ${perms.finanzen ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-3.5 h-3.5">
+                            <span class="text-slate-300">Finanzen</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs cursor-pointer">
+                            <input type="checkbox" onchange="toggleUserPerm('${u.id}', 'kalender', this.checked)" ${perms.kalender ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-3.5 h-3.5">
+                            <span class="text-slate-300">Kalender</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs cursor-pointer">
+                            <input type="checkbox" onchange="toggleUserPerm('${u.id}', 'admin', this.checked)" ${isAdmin ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-amber-500 w-3.5 h-3.5">
+                            <span class="text-amber-300 font-medium">Admin</span>
+                        </label>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+        }
+
+        async function toggleUserPerm(userId, permKey, isChecked) {
+            const target = allUsers.find(u => u.id === userId);
+            if (!target) return;
+            const updatedPerms = { ...(target.permissions || getDefaultPermissions(target.role || 'user')) };
+            updatedPerms[permKey] = isChecked;
+            const updateData = { permissions: updatedPerms };
+            if (permKey === 'admin') updateData.role = isChecked ? 'admin' : 'user';
+            await db.collection('users').doc(userId).update(updateData);
+            logSystemEvent('admin', `Rechte geändert: ${permKey}`, { user: target.email, granted: isChecked });
+        }
+
+        // ==========================================
+        // ZEITERFASSUNG
+        // ==========================================
+        function initWorkTimeListener() {
+            if (!currentUser) return;
+            db.collection('worktime')
+                .where('owner', '==', currentUser.email)
+                .onSnapshot(snapshot => {
+                    workEntries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderWorkTimeTable();
+                });
+
+            db.collection('active_work').doc(currentUser.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                    activeWorkSession = doc.data();
+                    if (activeWorkSession.startTime) startLiveTimer(activeWorkSession.startTime.toDate());
+                    updateWorkBtnUI(true);
+                } else {
+                    activeWorkSession = null;
+                    stopLiveTimer();
+                    updateWorkBtnUI(false);
+                }
+            });
+        }
+
+        function updateWorkBtnUI(isActive) {
+            const btn = document.getElementById('btn-toggle-work');
+            const badge = document.getElementById('work-status-badge');
+            const hint = document.getElementById('work-start-hint');
+            if (!btn || !badge) return;
+
+            if (isActive) {
+                badge.innerText = 'Aktiv am Arbeiten';
+                badge.className = 'text-[10px] bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full animate-pulse';
+                btn.className = 'w-full py-3 rounded-2xl font-semibold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/20';
+                btn.innerHTML = '<i class="fa-solid fa-stop"></i><span>Arbeit beenden (Ausstempeln)</span>';
+            } else {
+                badge.innerText = 'Inaktiv';
+                badge.className = 'text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full';
+                if (hint) hint.innerText = 'Nicht eingestempelt';
+                const timerEl = document.getElementById('work-active-timer');
+                if (timerEl) timerEl.innerText = '00:00:00';
+                btn.className = 'w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20';
+                btn.innerHTML = '<i class="fa-solid fa-play"></i><span>Arbeit beginnen (Einstempeln)</span>';
+            }
+        }
+
+        function startLiveTimer(startDate) {
+            stopLiveTimer();
+            const hint = document.getElementById('work-start-hint');
+            if (hint) hint.innerText = `Eingestempelt seit: ${startDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr`;
+
+            const updateTimer = () => {
+                const diffMs = new Date() - startDate;
+                const hours = Math.floor(diffMs / 3600000);
+                const minutes = Math.floor((diffMs % 3600000) / 60000);
+                const seconds = Math.floor((diffMs % 60000) / 1000);
+                const timerEl = document.getElementById('work-active-timer');
+                if (timerEl) timerEl.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            };
+            updateTimer();
+            workTimerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function stopLiveTimer() {
+            if (workTimerInterval) clearInterval(workTimerInterval);
+            workTimerInterval = null;
+        }
+
+        async function toggleWorkSession() {
+            if (!currentUser) return;
+
+            if (activeWorkSession) {
+                const start = activeWorkSession.startTime ? activeWorkSession.startTime.toDate() : new Date();
+                const end = new Date();
+                const totalMinutes = Math.max(0, Math.round((end - start) / 60000));
+                let pauseMin = totalMinutes > 360 ? 30 : 0;
+                const dateStr = start.toISOString().split('T')[0];
+                const startTimeStr = start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                const endTimeStr = end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                const netMinutes = Math.max(0, totalMinutes - pauseMin);
+
+                await db.collection('worktime').add({
+                    date: dateStr,
+                    start: startTimeStr,
+                    end: endTimeStr,
+                    pauseMinutes: pauseMin,
+                    netMinutes: netMinutes,
+                    note: 'Live erfasst',
+                    owner: currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                await db.collection('active_work').doc(currentUser.uid).delete();
+                logSystemEvent('data', 'Arbeitszeit beendet', { netMinutes: netMinutes });
+
+                if (currentUser.notificationsEnabled && currentUser.userPrefs?.notifyWork) {
+                    const h = Math.floor(netMinutes / 60);
+                    const m = netMinutes % 60;
+                    sendLocalNotification('Feierabend erfasst! 🛑', `Ausgestempelt um ${endTimeStr} Uhr. Dauer: ${h} Std ${m} Min.`);
+                }
+            } else {
+                await db.collection('active_work').doc(currentUser.uid).set({
+                    startTime: firebase.firestore.FieldValue.serverTimestamp(),
+                    owner: currentUser.email
+                });
+                logSystemEvent('data', 'Arbeitszeit gestartet');
+                if (currentUser.notificationsEnabled && currentUser.userPrefs?.notifyWork) {
+                    const nowStr = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                    sendLocalNotification('Eingestempelt! ⏱️', `Arbeitszeit läuft seit ${nowStr} Uhr.`);
+                }
+            }
+        }
+
+        function filterWorkMonth() { renderWorkTimeTable(); }
+
+        function renderWorkTimeTable() {
+            const tbody = document.getElementById('worktime-table-body');
+            const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
+            const countEl = document.getElementById('work-table-count');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
+            filtered.sort((a, b) => b.date.localeCompare(a.date));
+            if (countEl) countEl.innerText = `${filtered.length} Einträge`;
+
+            let totalMinutes = 0;
+            const uniqueDays = new Set();
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten gefunden.</td></tr>';
+            } else {
+                filtered.forEach(entry => {
+                    totalMinutes += (entry.netMinutes || 0);
+                    uniqueDays.add(entry.date);
+                    const netH = Math.floor((entry.netMinutes || 0) / 60);
+                    const netM = (entry.netMinutes || 0) % 60;
+
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-900/40 transition-colors";
+                    row.innerHTML = `
+                        <td class="p-2.5 font-medium text-slate-200">${entry.date}</td>
+                        <td class="p-2.5 text-slate-400">${entry.start || '--:--'}</td>
+                        <td class="p-2.5 text-slate-400">${entry.end || '--:--'}</td>
+                        <td class="p-2.5 text-slate-400">${entry.pauseMinutes || 0} Min</td>
+                        <td class="p-2.5 font-semibold text-emerald-400">${netH} Std ${netM} Min</td>
+                        <td class="p-2.5 text-slate-400 truncate max-w-[150px]">${entry.note || '-'}</td>
+                        <td class="p-2.5 text-right">
+                            <button onclick="deleteWorkEntry('${entry.id}')" class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            const totalHours = (totalMinutes / 60).toFixed(1);
+            const totalDaysCount = uniqueDays.size;
+            const avgHours = totalDaysCount > 0 ? (totalMinutes / 60 / totalDaysCount).toFixed(1) : '0.0';
+
+            const statHoursEl = document.getElementById('stat-total-hours');
+            const statDaysEl = document.getElementById('stat-total-days');
+            const statAvgEl = document.getElementById('stat-avg-hours');
+            if (statHoursEl) statHoursEl.innerText = `${totalHours} Std`;
+            if (statDaysEl) statDaysEl.innerText = totalDaysCount;
+            if (statAvgEl) statAvgEl.innerText = `${avgHours} Std / Tag`;
+        }
+
+        function openManualWorkModal() {
+            document.getElementById('man-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('man-start').value = '08:00';
+            document.getElementById('man-end').value = '16:30';
+            document.getElementById('man-pause').value = '30';
+            document.getElementById('man-note').value = 'Reguläre Arbeitszeit';
+            openModal('modal-work-manual');
+        }
+
+        async function saveManualWorkTime(e) {
+            e.preventDefault();
+            const date = document.getElementById('man-date').value;
+            const start = document.getElementById('man-start').value;
+            const end = document.getElementById('man-end').value;
+            const pause = parseInt(document.getElementById('man-pause').value || 0, 10);
+            const note = document.getElementById('man-note').value.trim();
+            if (!date || !start || !end || !currentUser) return;
+
+            const [sH, sM] = start.split(':').map(Number);
+            const [eH, eM] = end.split(':').map(Number);
+            let diff = (eH * 60 + eM) - (sH * 60 + sM);
+            if (diff < 0) diff += 24 * 60;
+            const netMinutes = Math.max(0, diff - pause);
+
+            await db.collection('worktime').add({
+                date: date,
+                start: start,
+                end: end,
+                pauseMinutes: pause,
+                netMinutes: netMinutes,
+                note: note,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            closeModal('modal-work-manual');
+        }
+
+        async function deleteWorkEntry(id) {
+            if (confirm('Eintrag löschen?')) await db.collection('worktime').doc(id).delete();
+        }
+
+        function exportWorkCSV() {
+            const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
+            const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
+            if (filtered.length === 0) return alert('Keine Einträge vorhanden.');
+
+            filtered.sort((a, b) => a.date.localeCompare(b.date));
+            let csv = "\uFEFFMitarbeiter;" + (currentUser.name || currentUser.email) + "\r\nMonat;" + filterMonth + "\r\n\r\nDatum;Beginn;Ende;Pause (Min);Netto-Stunden;Notiz\r\n";
+            let total = 0;
+
+            filtered.forEach(item => {
+                total += item.netMinutes || 0;
+                const hoursDec = ((item.netMinutes || 0) / 60).toFixed(2).replace('.', ',');
+                csv += `"${item.date}";"${item.start || ''}";"${item.end || ''}";"${item.pauseMinutes || 0}";"${hoursDec}";"${item.note || ''}"\r\n`;
+            });
+            csv += `\r\n;;"GESAMT;";;${(total / 60).toFixed(2).replace('.', ',')};\r\n`;
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `Stundenzettel_${(currentUser.name || 'Julian').replace(/\s+/g, '_')}_${filterMonth}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // ==========================================
+        // SYSTEM LOGS AUDIT
+        // ==========================================
+        function initSystemLogsListener() {
+            db.collection('system_logs').orderBy('timestamp', 'desc').limit(200).onSnapshot(snapshot => {
+                systemLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderLogsTable();
+            });
+        }
+
+        function renderLogsTable() {
+            const tbody = document.getElementById('logs-table-body');
+            const searchVal = (document.getElementById('log-search-input')?.value || '').toLowerCase();
+            const catVal = document.getElementById('log-category-filter')?.value || 'all';
+            if (!tbody) return;
+
+            let filtered = systemLogs.filter(log => {
+                if (catVal !== 'all' && log.category !== catVal) return false;
+                if (!searchVal) return true;
+                return (log.userName || '').toLowerCase().includes(searchVal) ||
+                       (log.userEmail || '').toLowerCase().includes(searchVal) ||
+                       (log.action || '').toLowerCase().includes(searchVal);
+            });
+
+            tbody.innerHTML = '';
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-500">Keine Logs gefunden.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(log => {
+                let timeStr = '--:--:--';
+                if (log.timestamp && log.timestamp.toDate) {
+                    const d = log.timestamp.toDate();
+                    timeStr = `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`;
+                }
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-900/50 transition-colors";
+                row.innerHTML = `
+                    <td class="p-2.5 text-slate-400 whitespace-nowrap">${timeStr}</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${log.category || 'Info'}</span></td>
+                    <td class="p-2.5 text-slate-200">${log.userName || 'Unbekannt'}</td>
+                    <td class="p-2.5 font-medium text-slate-200">${log.action || '-'}</td>
+                    <td class="p-2.5 text-slate-400 truncate max-w-[180px]">${log.device || '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        async function clearSystemLogs() {
+            if (!confirm('Alle Logs löschen?')) return;
+            const batch = db.batch();
+            const snapshot = await db.collection('system_logs').get();
+            snapshot.docs.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
         }
     </script>
 </body>
