@@ -131,7 +131,8 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort (min. 6 Zeichen)</label>
-                        <input type="password" id="reg-password" required minlength="6" placeholder="••••••••" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                        <input type="password" id="reg-password" required minlength="6" placeholder="••••••••" 
+                            class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                     </div>
                     <div class="pt-2 space-y-3">
                         <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 text-sm">
@@ -361,15 +362,21 @@
                 </div>
             </div>
 
-            <!-- TAB 3: NEU: FINANZEN, SPARKASSE & LOHNABRECHNUNGEN -->
+            <!-- TAB 3: FINANZEN (MIT DYNAMISCHEM MONATSFILTER) -->
             <div id="tab-finanzen" class="tab-pane hidden flex-1 flex flex-col gap-4">
                 
                 <!-- KACHELN: MONATSBILANZ & FILTER -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- DYNAMISCHES MONATS-DROPDOWN (NUR MONATE MIT DATEN) -->
                     <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
-                        <span class="text-xs text-slate-400">Filter Monat</span>
-                        <input type="month" id="finance-filter-month" onchange="renderFinanceData()" class="mt-2 bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none">
+                        <span class="text-xs text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-regular fa-calendar text-indigo-400"></i> Aktiver Monat
+                        </span>
+                        <select id="finance-filter-month" onchange="renderFinanceData()" class="mt-2 bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500 font-medium">
+                            <option value="">Keine Daten vorhanden</option>
+                        </select>
                     </div>
+
                     <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
                         <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-arrow-down text-emerald-400"></i> Einnahmen</span>
                         <div id="fin-stat-income" class="text-xl font-bold text-emerald-400 mt-1">0,00 €</div>
@@ -608,7 +615,7 @@
                     <span class="text-emerald-300">Zeiterfassung</span>
                 </button>
 
-                <!-- NEU: FINANZEN -->
+                <!-- FINANZEN -->
                 <button onclick="switchTab('finanzen'); toggleSideMenu(false);" id="nav-btn-finanzen" class="nav-btn w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
                     <i class="fa-solid fa-coins w-5 text-yellow-400"></i>
                     <span class="text-yellow-300">Finanzen & Sparkasse</span>
@@ -659,7 +666,7 @@
 
 
     <!-- ========================================== -->
-    <!-- 4. MODALS (FINANZEN & LOHN)                -->
+    <!-- 4. MODALS                                  -->
     <!-- ========================================== -->
     
     <!-- MODAL: LOHNABRECHNUNG HOCHLADEN -->
@@ -915,7 +922,6 @@
 
         const todayStr = new Date().toISOString().slice(0, 7);
         if (document.getElementById('work-filter-month')) document.getElementById('work-filter-month').value = todayStr;
-        if (document.getElementById('finance-filter-month')) document.getElementById('finance-filter-month').value = todayStr;
 
         function getDeviceType() {
             const ua = navigator.userAgent;
@@ -1140,7 +1146,7 @@
         }
 
         // ==========================================
-        // 10. NEU: FINANZEN, SPARKASSE & LOHNABRECHNUNGEN
+        // 10. FINANZEN, SPARKASSE & DYNAMISCHE MONATSLISTE
         // ==========================================
         function initFinanceListener() {
             if (!currentUser) return;
@@ -1157,6 +1163,7 @@
                 .onSnapshot(snapshot => {
                     rawPayslips = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     renderPayslips();
+                    renderFinanceData();
                 });
         }
 
@@ -1172,18 +1179,14 @@
                 let importedCount = 0;
 
                 const batch = db.batch();
-
-                // Intelligente Spaltensuche
                 let colDate = -1, colPartner = -1, colPurpose = -1, colAmount = -1;
 
                 for (let i = 0; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
 
-                    // Typische CSV Spalten-Trenner der Sparkasse
                     const parts = line.split(';').map(p => p.replace(/^"|"$/g, '').trim());
 
-                    // Header-Erkennung
                     if (colDate === -1) {
                         for (let j = 0; j < parts.length; j++) {
                             const header = parts[j].toLowerCase();
@@ -1203,7 +1206,6 @@
 
                         if (!rawDate || !rawAmount) continue;
 
-                        // Deutsches Datumsformat (TT.MM.JJJJ oder TT.MM.JJ) -> YYYY-MM-DD
                         let dateStr = '';
                         const dateParts = rawDate.split('.');
                         if (dateParts.length === 3) {
@@ -1214,13 +1216,11 @@
                             dateStr = rawDate;
                         }
 
-                        // Deutsches Zahlenformat: 1.250,50 -> 1250.50
                         rawAmount = rawAmount.replace(/\./g, '').replace(',', '.');
                         const amount = parseFloat(rawAmount);
 
                         if (isNaN(amount)) continue;
 
-                        // Automatische Kategorisierung anhand Stichwörtern
                         let category = 'Sonstiges';
                         const matchText = (partner + ' ' + purpose).toLowerCase();
 
@@ -1249,16 +1249,68 @@
                     alert(`${importedCount} Buchungen erfolgreich aus Sparkassen-CSV importiert!`);
                     logSystemEvent('data', 'Sparkassen-CSV importiert', { anzahl: importedCount });
                 } else {
-                    alert('Konnte keine gültigen Buchungszeilen in der CSV finden. Prüfe das Format.');
+                    alert('Konnte keine gültigen Buchungszeilen in der CSV finden.');
                 }
                 e.target.value = '';
             };
-            // Sparkasse verwendet oft Windows-1252 / ISO-8859-1 Codierung
             reader.readAsText(file, 'ISO-8859-1');
         }
 
+        // Hilfsfunktion: "2026-10" -> "Oktober 2026"
+        function formatMonthLabel(ymStr) {
+            const parts = ymStr.split('-');
+            if (parts.length < 2) return ymStr;
+            const date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, 1);
+            return date.toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+        }
+
+        // Synchronisiert die Monatsliste so, dass NUR Monate mit Daten erscheinen
+        function updateFinanceMonthDropdown() {
+            const selectEl = document.getElementById('finance-filter-month');
+            if (!selectEl) return;
+
+            const monthsSet = new Set();
+            rawTransactions.forEach(t => {
+                if (t.date && t.date.length >= 7) monthsSet.add(t.date.slice(0, 7));
+            });
+            rawPayslips.forEach(p => {
+                if (p.month && p.month.length >= 7) monthsSet.add(p.month.slice(0, 7));
+            });
+
+            const sortedMonths = Array.from(monthsSet).sort((a, b) => b.localeCompare(a));
+            const prevSelected = selectEl.value;
+
+            selectEl.innerHTML = '';
+
+            if (sortedMonths.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = todayStr;
+                opt.innerText = `${formatMonthLabel(todayStr)} (Keine Daten)`;
+                selectEl.appendChild(opt);
+                return;
+            }
+
+            sortedMonths.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.innerText = formatMonthLabel(m);
+                selectEl.appendChild(opt);
+            });
+
+            if (sortedMonths.includes(prevSelected)) {
+                selectEl.value = prevSelected;
+            } else {
+                selectEl.value = sortedMonths[0];
+            }
+        }
+
         function renderFinanceData() {
-            const filterMonth = document.getElementById('finance-filter-month')?.value || todayStr;
+            const selectEl = document.getElementById('finance-filter-month');
+            if (!selectEl) return;
+
+            updateFinanceMonthDropdown();
+
+            const filterMonth = selectEl.value;
             const tbody = document.getElementById('finance-table-body');
             if (!tbody) return;
 
@@ -1271,7 +1323,7 @@
             tbody.innerHTML = '';
 
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-500">Keine Umsätze für diesen Monat gefunden.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-500">Keine Buchungen für diesen Monat vorhanden.</td></tr>';
             } else {
                 filtered.forEach(t => {
                     const isIncome = t.amount > 0;
@@ -1369,12 +1421,11 @@
                     netto: netto,
                     brutto: brutto,
                     fileName: file.name,
-                    fileData: base64Data, // Direkt in Firestore ohne Blaze-Upgrade
+                    fileData: base64Data,
                     owner: currentUser.email,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                // Automatisch als Einnahme in Finanzen buchen
                 await db.collection('finance_transactions').add({
                     date: `${month}-01`,
                     partner: 'Arbeitgeber (Gehalt)',
