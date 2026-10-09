@@ -1550,3 +1550,313 @@
 
         async function toggleWorkSession() {
             if (!currentUser) return;
+
+            if (activeWorkSession) {
+                // Ausstempeln
+                const start = activeWorkSession.startTime ? activeWorkSession.startTime.toDate() : new Date();
+                const end = new Date();
+                const totalMinutes = Math.max(0, Math.round((end - start) / 60000));
+                
+                let pauseMin = 0;
+                if (totalMinutes > 360) pauseMin = 30;
+
+                const dateStr = start.toISOString().split('T')[0];
+                const startTimeStr = start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                const endTimeStr = end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                const netMinutes = Math.max(0, totalMinutes - pauseMin);
+
+                await db.collection('worktime').add({
+                    date: dateStr,
+                    start: startTimeStr,
+                    end: endTimeStr,
+                    pauseMinutes: pauseMin,
+                    netMinutes: netMinutes,
+                    note: 'Live erfasst',
+                    owner: currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                await db.collection('active_work').doc(currentUser.uid).delete();
+                logSystemEvent('data', 'Arbeitszeit beendet (Live)', { date: dateStr, netMinutes: netMinutes });
+
+                // AUTOMATISCHE MITTEILUNG: FEIERABEND
+                if (currentUser.userPrefs?.notifyWork) {
+                    const h = Math.floor(netMinutes / 60);
+                    const m = netMinutes % 60;
+                    sendLocalNotification('Feierabend erfasst! 🛑', `Ausgestempelt um ${endTimeStr} Uhr. Arbeitszeit: ${h} Std ${m} Min.`);
+                }
+            } else {
+                // Einstempeln
+                await db.collection('active_work').doc(currentUser.uid).set({
+                    startTime: firebase.firestore.FieldValue.serverTimestamp(),
+                    owner: currentUser.email
+                });
+                logSystemEvent('data', 'Arbeitszeit gestartet (Live)');
+
+                // AUTOMATISCHE MITTEILUNG: ARBEITSBEGINN
+                if (currentUser.userPrefs?.notifyWork) {
+                    const nowStr = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                    sendLocalNotification('Erfolgreich eingestempelt! ⏱️', `Deine Arbeitszeit läuft seit ${nowStr} Uhr.`);
+                }
+            }
+        }
+
+        function filterWorkMonth() {
+            renderWorkTimeTable();
+        }
+
+        function renderWorkTimeTable() {
+            const tbody = document.getElementById('worktime-table-body');
+            const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
+            const countEl = document.getElementById('work-table-count');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
+            filtered.sort((a, b) => b.date.localeCompare(a.date));
+
+            if (countEl) countEl.innerText = `${filtered.length} Einträge`;
+
+            let totalMinutes = 0;
+            const uniqueDays = new Set();
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten für diesen Zeitraum gefunden.</td></tr>';
+            } else {
+                filtered.forEach(entry => {
+                    totalMinutes += (entry.netMinutes || 0);
+                    uniqueDays.add(entry.date);
+
+                    const netH = Math.floor((entry.netMinutes || 0) / 60);
+                    const netM = (entry.netMinutes || 0) % 60;
+                    const durationStr = `${netH} Std ${netM} Min`;
+
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-900/40 transition-colors";
+                    row.innerHTML = `
+                        <td class="p-2.5 font-medium text-slate-200">${entry.date}</td>
+                        <td class="p-2.5 text-slate-400">${entry.start || '--:--'}</td>
+                        <td class="p-2.5 text-slate-400">${entry.end || '--:--'}</td>
+                        <td class="p-2.5 text-slate-400">${entry.pauseMinutes || 0} Min</td>
+                        <td class="p-2.5 font-semibold text-emerald-400">${durationStr}</td>
+                        <td class="p-2.5 text-slate-400 truncate max-w-[150px]">${entry.note || '-'}</td>
+                        <td class="p-2.5 text-right">
+                            <button onclick="deleteWorkEntry('${entry.id}')" class="text-slate-500 hover:text-rose-400 p-1">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            const totalHours = (totalMinutes / 60).toFixed(1);
+            const totalDaysCount = uniqueDays.size;
+            const avgHours = totalDaysCount > 0 ? (totalMinutes / 60 / totalDaysCount).toFixed(1) : '0.0';
+
+            const statHoursEl = document.getElementById('stat-total-hours');
+            const statDaysEl = document.getElementById('stat-total-days');
+            const statAvgEl = document.getElementById('stat-avg-hours');
+
+            if (statHoursEl) statHoursEl.innerText = `${totalHours} Std`;
+            if (statDaysEl) statDaysEl.innerText = totalDaysCount;
+            if (statAvgEl) statAvgEl.innerText = `${avgHours} Std / Tag`;
+        }
+
+        function openManualWorkModal() {
+            document.getElementById('man-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('man-start').value = '08:00';
+            document.getElementById('man-end').value = '16:30';
+            document.getElementById('man-pause').value = '30';
+            document.getElementById('man-note').value = 'Reguläre Arbeitszeit';
+            openModal('modal-work-manual');
+        }
+
+        async function saveManualWorkTime(e) {
+            e.preventDefault();
+            const date = document.getElementById('man-date').value;
+            const start = document.getElementById('man-start').value;
+            const end = document.getElementById('man-end').value;
+            const pause = parseInt(document.getElementById('man-pause').value || 0, 10);
+            const note = document.getElementById('man-note').value.trim();
+
+            if (!date || !start || !end || !currentUser) return;
+
+            const [sH, sM] = start.split(':').map(Number);
+            const [eH, eM] = end.split(':').map(Number);
+            let diff = (eH * 60 + eM) - (sH * 60 + sM);
+            if (diff < 0) diff += 24 * 60;
+            const netMinutes = Math.max(0, diff - pause);
+
+            await db.collection('worktime').add({
+                date: date,
+                start: start,
+                end: end,
+                pauseMinutes: pause,
+                netMinutes: netMinutes,
+                note: note,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            logSystemEvent('data', 'Arbeitszeit manuell nachgetragen', { date: date, netMinutes: netMinutes });
+            closeModal('modal-work-manual');
+        }
+
+        async function deleteWorkEntry(id) {
+            if (confirm('Diesen Arbeitseintrag wirklich löschen?')) {
+                await db.collection('worktime').doc(id).delete();
+                logSystemEvent('data', 'Arbeitszeit-Eintrag gelöscht', { entryId: id });
+            }
+        }
+
+        function exportWorkCSV() {
+            const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
+            const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
+
+            if (filtered.length === 0) {
+                alert('Keine Einträge im ausgewählten Monat zum Exportieren vorhanden.');
+                return;
+            }
+
+            filtered.sort((a, b) => a.date.localeCompare(b.date));
+
+            let csvContent = "\uFEFF";
+            csvContent += "Mitarbeiter;" + (currentUser.name || currentUser.email) + "\r\n";
+            csvContent += "Monat;" + filterMonth + "\r\n\r\n";
+            csvContent += "Datum;Beginn;Ende;Pause (Min);Netto-Stunden;Tätigkeit / Bemerkung\r\n";
+
+            let totalMinutes = 0;
+
+            filtered.forEach(item => {
+                totalMinutes += item.netMinutes || 0;
+                const hoursDec = ((item.netMinutes || 0) / 60).toFixed(2).replace('.', ',');
+                csvContent += `"${item.date}";"${item.start || ''}";"${item.end || ''}";"${item.pauseMinutes || 0}";"${hoursDec}";"${item.note || ''}"\r\n`;
+            });
+
+            const totalHoursDec = (totalMinutes / 60).toFixed(2).replace('.', ',');
+            csvContent += `\r\n;;"GESAMT;";;${totalHoursDec};\r\n`;
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            const sanitizedName = (currentUser.name || 'Mitarbeiter').replace(/\s+/g, '_');
+            link.setAttribute("download", `Stundenzettel_${sanitizedName}_${filterMonth}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            logSystemEvent('data', 'Stundenzettel exportiert', { month: filterMonth });
+        }
+
+        // ==========================================
+        // 16. ADMIN SYSTEM-LOGS & AUDIT LISTENER
+        // ==========================================
+        function initSystemLogsListener() {
+            db.collection('system_logs')
+                .orderBy('timestamp', 'desc')
+                .limit(200)
+                .onSnapshot(snapshot => {
+                    systemLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderLogsTable();
+                });
+        }
+
+        function renderLogsTable() {
+            const tbody = document.getElementById('logs-table-body');
+            const searchVal = (document.getElementById('log-search-input')?.value || '').toLowerCase();
+            const catVal = document.getElementById('log-category-filter')?.value || 'all';
+            if (!tbody) return;
+
+            const countTotal = systemLogs.length;
+            const countVisits = systemLogs.filter(l => l.category === 'visit').length;
+            const countAuth = systemLogs.filter(l => l.category === 'auth').length;
+            const countActions = systemLogs.filter(l => l.category === 'data' || l.category === 'admin').length;
+
+            if (document.getElementById('stat-log-total')) document.getElementById('stat-log-total').innerText = countTotal;
+            if (document.getElementById('stat-log-visits')) document.getElementById('stat-log-visits').innerText = countVisits;
+            if (document.getElementById('stat-log-auth')) document.getElementById('stat-log-auth').innerText = countAuth;
+            if (document.getElementById('stat-log-actions')) document.getElementById('stat-log-actions').innerText = countActions;
+
+            let filtered = systemLogs.filter(log => {
+                if (catVal !== 'all' && log.category !== catVal) return false;
+                if (!searchVal) return true;
+                const matchUser = (log.userName || '').toLowerCase().includes(searchVal);
+                const matchEmail = (log.userEmail || '').toLowerCase().includes(searchVal);
+                const matchAction = (log.action || '').toLowerCase().includes(searchVal);
+                const matchDevice = (log.device || '').toLowerCase().includes(searchVal);
+                return matchUser || matchEmail || matchAction || matchDevice;
+            });
+
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-500 font-sans">Keine Logs für die gewählten Filter gefunden.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(log => {
+                let timeStr = '--:--:--';
+                if (log.timestamp && log.timestamp.toDate) {
+                    const d = log.timestamp.toDate();
+                    timeStr = `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`;
+                }
+
+                let catBadge = '';
+                switch (log.category) {
+                    case 'visit':
+                        catBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">Besuch</span>';
+                        break;
+                    case 'auth':
+                        catBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">Auth</span>';
+                        break;
+                    case 'data':
+                        catBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">Daten</span>';
+                        break;
+                    case 'admin':
+                        catBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 border border-amber-500/20 text-amber-400">Rechte</span>';
+                        break;
+                    default:
+                        catBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${log.category || 'Info'}</span>`;
+                }
+
+                let detailsStr = log.device || '';
+                if (log.details && Object.keys(log.details).length > 0) {
+                    const extra = Object.entries(log.details)
+                        .filter(([k]) => k !== 'userAgent')
+                        .map(([k, v]) => `${k}: ${v}`)
+                        .join(' | ');
+                    if (extra) detailsStr += ` (${extra})`;
+                }
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-900/50 transition-colors";
+                row.innerHTML = `
+                    <td class="p-2.5 text-slate-400 whitespace-nowrap">${timeStr}</td>
+                    <td class="p-2.5">${catBadge}</td>
+                    <td class="p-2.5">
+                        <div class="font-sans font-medium text-slate-200">${log.userName || 'Unbekannt'}</div>
+                        <div class="text-[10px] text-slate-500 truncate max-w-[140px]">${log.userEmail || ''}</div>
+                    </td>
+                    <td class="p-2.5 font-sans text-slate-200 font-medium">${log.action || '-'}</td>
+                    <td class="p-2.5 text-slate-400 truncate max-w-[200px]" title="${detailsStr}">${detailsStr}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        async function clearSystemLogs() {
+            if (!confirm('Möchtest du wirklich alle aufgezeichneten System-Logs unwiderruflich löschen?')) return;
+
+            const batch = db.batch();
+            const snapshot = await db.collection('system_logs').get();
+            snapshot.docs.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+
+            logSystemEvent('admin', 'Audit-Logs manuell bereinigt', { deletedCount: snapshot.size });
+        }
+    </script>
+</body>
+</html>
