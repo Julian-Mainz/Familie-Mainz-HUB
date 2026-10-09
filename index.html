@@ -55,7 +55,7 @@
 </head>
 <body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden">
 
-<!-- ========================================== -->
+    <!-- ========================================== -->
     <!-- 1. LOGIN & REGISTRIERUNG OVERLAY           -->
     <!-- ========================================== -->
     <div id="view-auth" class="fixed inset-0 z-50 bg-[#080c14] flex flex-col justify-between p-6 overflow-y-auto">
@@ -277,7 +277,120 @@
                 </div>
             </div>
 
-            <!-- TAB 2: ADMIN & RECHTESYSTEM -->
+            <!-- TAB: ZEITERFASSUNG -->
+            <div id="tab-worktime" class="tab-pane hidden flex-1 flex flex-col gap-4">
+                
+                <!-- OBERE LEISTE: STEMPELUHR & STATISTIK -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    
+                    <!-- STEMPELUHR -->
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-stopwatch text-emerald-400"></i> Digitale Stempeluhr
+                            </span>
+                            <span id="work-status-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">Inaktiv</span>
+                        </div>
+                        
+                        <div class="text-center py-2">
+                            <div id="work-active-timer" class="text-3xl font-mono font-bold text-slate-100 tracking-wider">00:00:00</div>
+                            <div id="work-start-hint" class="text-xs text-slate-500 mt-1">Nicht eingestempelt</div>
+                        </div>
+
+                        <div class="pt-3">
+                            <button id="btn-toggle-work" onclick="toggleWorkSession()" class="w-full py-3 rounded-2xl font-semibold text-sm transition-all shadow-lg flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20">
+                                <i class="fa-solid fa-play"></i>
+                                <span>Arbeit beginnen</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- MONATS-STATISTIK -->
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie text-indigo-400"></i> Monatsstatistik
+                            </span>
+                            <input type="month" id="work-filter-month" onchange="filterWorkMonth()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-2 py-1 focus:outline-none">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-center my-auto py-2">
+                            <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl">
+                                <span class="text-[11px] text-slate-400 block">Gesamtzeit</span>
+                                <span id="stat-total-hours" class="text-xl font-bold text-indigo-300">0.0 Std</span>
+                            </div>
+                            <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl">
+                                <span class="text-[11px] text-slate-400 block">Arbeitstage</span>
+                                <span id="stat-total-days" class="text-xl font-bold text-slate-100">0</span>
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-slate-500 text-center pt-2">
+                            Durchschnitt: <span id="stat-avg-hours" class="text-slate-300 font-medium">0.0 Std / Tag</span>
+                        </div>
+                    </div>
+
+                    <!-- EXPORT & AKTIONEN -->
+                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
+                        <div class="border-b border-slate-800 pb-2 mb-3">
+                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-file-export text-amber-400"></i> Arbeitgeber-Export
+                            </span>
+                        </div>
+
+                        <p class="text-xs text-slate-400 mb-3">
+                            Erstelle einen monatlichen Stundenzettel zur Vorlage bei deinem Arbeitgeber als Excel-CSV.
+                        </p>
+
+                        <div class="space-y-2">
+                            <button onclick="exportWorkCSV()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700">
+                                <i class="fa-solid fa-file-csv text-emerald-400"></i>
+                                <span>Monat als CSV (Excel) exportieren</span>
+                            </button>
+                            <button onclick="openManualWorkModal()" class="w-full py-2.5 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Zeit manuell nachtragen</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- TABELLE DER EINTRÄGE -->
+                <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                        <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-slate-400"></i>
+                            Erfasste Arbeitszeiten
+                        </h3>
+                        <span id="work-table-count" class="text-xs text-slate-500">0 Einträge</span>
+                    </div>
+
+                    <div class="flex-1 overflow-x-auto overflow-y-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800">
+                                <tr>
+                                    <th class="p-2.5">Datum</th>
+                                    <th class="p-2.5">Beginn</th>
+                                    <th class="p-2.5">Ende</th>
+                                    <th class="p-2.5">Pause</th>
+                                    <th class="p-2.5">Netto-Dauer</th>
+                                    <th class="p-2.5">Tätigkeit / Notiz</th>
+                                    <th class="p-2.5 text-right">Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="worktime-table-body" class="divide-y divide-slate-800/60 text-slate-200">
+                                <tr>
+                                    <td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten für diesen Zeitraum gefunden.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TAB 3: ADMIN & RECHTESYSTEM -->
             <div id="tab-admin" class="tab-pane hidden flex-1 flex flex-col gap-4">
                 <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-2">
@@ -331,6 +444,11 @@
                     <span>Start Menü</span>
                 </button>
 
+                <button onclick="switchTab('worktime'); toggleSideMenu(false);" id="nav-btn-worktime" class="nav-btn w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
+                    <i class="fa-solid fa-business-time w-5 text-emerald-400"></i>
+                    <span class="text-emerald-300">Zeiterfassung</span>
+                </button>
+
                 <button onclick="switchTab('admin'); toggleSideMenu(false);" id="nav-btn-admin" class="nav-btn hidden w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
                     <i class="fa-solid fa-user-shield w-5 text-amber-400"></i>
                     <span class="text-amber-300">Admin & Rechte</span>
@@ -377,8 +495,9 @@
 
 
     <!-- ========================================== -->
-    <!-- 4. MODAL: TERMIN HINZUFÜGEN                -->
+    <!-- 4. MODALS (TERMIN & MANUELLE ARBEITSZEIT)   -->
     <!-- ========================================== -->
+    <!-- Modal: Termin hinzufügen -->
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -401,6 +520,44 @@
                 <div class="flex justify-end space-x-3 pt-3">
                     <button type="button" onclick="closeModal('modal-event')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">Abbrechen</button>
                     <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white hover:bg-indigo-500 font-medium shadow-lg shadow-indigo-600/30">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Manuelle Arbeitszeit nachtragen -->
+    <div id="modal-work-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-slate-100">Arbeitszeit nachtragen</h3>
+                <button onclick="closeModal('modal-work-manual')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveManualWorkTime(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Datum</label>
+                    <input type="date" id="man-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Startzeit</label>
+                        <input type="time" id="man-start" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Endzeit</label>
+                        <input type="time" id="man-end" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Pause (Minuten)</label>
+                    <input type="number" id="man-pause" min="0" value="30" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Tätigkeit / Beschreibung</label>
+                    <input type="text" id="man-note" placeholder="z. B. Reguläre Arbeitszeit, Projekt X" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-3">
+                    <button type="button" onclick="closeModal('modal-work-manual')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-emerald-600 text-white hover:bg-emerald-500 font-medium shadow-lg shadow-emerald-600/30">Speichern</button>
                 </div>
             </form>
         </div>
@@ -430,7 +587,14 @@
         let calendarEvents = [];
         let familyNotes = [];
         let familyTodos = [];
+        let workEntries = [];
+        let activeWorkSession = null;
+        let workTimerInterval = null;
         let currentCalendarDate = new Date();
+
+        const todayStr = new Date().toISOString().slice(0, 7);
+        const monthInput = document.getElementById('work-filter-month');
+        if (monthInput) monthInput.value = todayStr;
 
         function getDefaultPermissions(role) {
             if (role === 'admin') {
@@ -498,6 +662,8 @@
 
             if (tabId === 'start') {
                 renderCalendar();
+            } else if (tabId === 'worktime') {
+                renderWorkTimeTable();
             }
         }
 
@@ -635,6 +801,7 @@
                 initCalendarListener();
                 initNotesListener();
                 initTodosListener();
+                initWorkTimeListener();
             } else {
                 currentUser = null;
                 document.getElementById('view-dashboard').classList.add('hidden');
@@ -958,6 +1125,273 @@
             }
 
             await db.collection('users').doc(userId).update(updateData);
+        }
+
+        // ==========================================
+        // 13. ZEITERFASSUNGSSYSTEM (FIRESTORE)
+        // ==========================================
+        function initWorkTimeListener() {
+            if (!currentUser) return;
+
+            // 1. Alle gebuchten Zeiten des Nutzers laden
+            db.collection('worktime')
+                .where('owner', '==', currentUser.email)
+                .onSnapshot(snapshot => {
+                    workEntries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderWorkTimeTable();
+                });
+
+            // 2. Prüfen, ob eine Session aktiv läuft
+            db.collection('active_work')
+                .doc(currentUser.uid)
+                .onSnapshot(doc => {
+                    if (doc.exists) {
+                        activeWorkSession = doc.data();
+                        if (activeWorkSession.startTime) {
+                            startLiveTimer(activeWorkSession.startTime.toDate());
+                        }
+                        updateWorkBtnUI(true);
+                    } else {
+                        activeWorkSession = null;
+                        stopLiveTimer();
+                        updateWorkBtnUI(false);
+                    }
+                });
+        }
+
+        function updateWorkBtnUI(isActive) {
+            const btn = document.getElementById('btn-toggle-work');
+            const badge = document.getElementById('work-status-badge');
+            const hint = document.getElementById('work-start-hint');
+            if (!btn || !badge) return;
+
+            if (isActive) {
+                badge.innerText = 'Aktiv am Arbeiten';
+                badge.className = 'text-[10px] bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full animate-pulse';
+                btn.className = 'w-full py-3 rounded-2xl font-semibold text-sm transition-all shadow-lg flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/20';
+                btn.innerHTML = '<i class="fa-solid fa-stop"></i><span>Arbeit beenden (Ausstempeln)</span>';
+            } else {
+                badge.innerText = 'Inaktiv';
+                badge.className = 'text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full';
+                if (hint) hint.innerText = 'Nicht eingestempelt';
+                const timerEl = document.getElementById('work-active-timer');
+                if (timerEl) timerEl.innerText = '00:00:00';
+                btn.className = 'w-full py-3 rounded-2xl font-semibold text-sm transition-all shadow-lg flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20';
+                btn.innerHTML = '<i class="fa-solid fa-play"></i><span>Arbeit beginnen (Einstempeln)</span>';
+            }
+        }
+
+        function startLiveTimer(startDate) {
+            stopLiveTimer();
+            const hint = document.getElementById('work-start-hint');
+            if (hint) {
+                hint.innerText = `Eingestempelt seit: ${startDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr`;
+            }
+
+            const updateTimer = () => {
+                const diffMs = new Date() - startDate;
+                const hours = Math.floor(diffMs / 3600000);
+                const minutes = Math.floor((diffMs % 3600000) / 60000);
+                const seconds = Math.floor((diffMs % 60000) / 1000);
+                const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                const timerEl = document.getElementById('work-active-timer');
+                if (timerEl) timerEl.innerText = display;
+            };
+
+            updateTimer();
+            workTimerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function stopLiveTimer() {
+            if (workTimerInterval) clearInterval(workTimerInterval);
+            workTimerInterval = null;
+        }
+
+        async function toggleWorkSession() {
+            if (!currentUser) return;
+
+            if (activeWorkSession) {
+                // Ausstempeln
+                const start = activeWorkSession.startTime ? activeWorkSession.startTime.toDate() : new Date();
+                const end = new Date();
+                const totalMinutes = Math.max(0, Math.round((end - start) / 60000));
+                
+                let pauseMin = 0;
+                if (totalMinutes > 360) pauseMin = 30; // Automatische Pause ab 6 Stunden
+
+                const dateStr = start.toISOString().split('T')[0];
+                const startTimeStr = start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                const endTimeStr = end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+                await db.collection('worktime').add({
+                    date: dateStr,
+                    start: startTimeStr,
+                    end: endTimeStr,
+                    pauseMinutes: pauseMin,
+                    netMinutes: Math.max(0, totalMinutes - pauseMin),
+                    note: 'Live erfasst',
+                    owner: currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                await db.collection('active_work').doc(currentUser.uid).delete();
+            } else {
+                // Einstempeln
+                await db.collection('active_work').doc(currentUser.uid).set({
+                    startTime: firebase.firestore.FieldValue.serverTimestamp(),
+                    owner: currentUser.email
+                });
+            }
+        }
+
+        function filterWorkMonth() {
+            renderWorkTimeTable();
+        }
+
+        function renderWorkTimeTable() {
+            const tbody = document.getElementById('worktime-table-body');
+            const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
+            const countEl = document.getElementById('work-table-count');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
+            filtered.sort((a, b) => b.date.localeCompare(a.date));
+
+            if (countEl) countEl.innerText = `${filtered.length} Einträge`;
+
+            let totalMinutes = 0;
+            const uniqueDays = new Set();
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten für diesen Zeitraum gefunden.</td></tr>';
+            } else {
+                filtered.forEach(entry => {
+                    totalMinutes += (entry.netMinutes || 0);
+                    uniqueDays.add(entry.date);
+
+                    const netH = Math.floor((entry.netMinutes || 0) / 60);
+                    const netM = (entry.netMinutes || 0) % 60;
+                    const durationStr = `${netH} Std ${netM} Min`;
+
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-900/40 transition-colors";
+                    row.innerHTML = `
+                        <td class="p-2.5 font-medium text-slate-200">${entry.date}</td>
+                        <td class="p-2.5 text-slate-400">${entry.start || '--:--'}</td>
+                        <td class="p-2.5 text-slate-400">${entry.end || '--:--'}</td>
+                        <td class="p-2.5 text-slate-400">${entry.pauseMinutes || 0} Min</td>
+                        <td class="p-2.5 font-semibold text-emerald-400">${durationStr}</td>
+                        <td class="p-2.5 text-slate-400 truncate max-w-[150px]">${entry.note || '-'}</td>
+                        <td class="p-2.5 text-right">
+                            <button onclick="deleteWorkEntry('${entry.id}')" class="text-slate-500 hover:text-rose-400 p-1">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            // Statistik
+            const totalHours = (totalMinutes / 60).toFixed(1);
+            const totalDaysCount = uniqueDays.size;
+            const avgHours = totalDaysCount > 0 ? (totalMinutes / 60 / totalDaysCount).toFixed(1) : '0.0';
+
+            const statHoursEl = document.getElementById('stat-total-hours');
+            const statDaysEl = document.getElementById('stat-total-days');
+            const statAvgEl = document.getElementById('stat-avg-hours');
+
+            if (statHoursEl) statHoursEl.innerText = `${totalHours} Std`;
+            if (statDaysEl) statDaysEl.innerText = totalDaysCount;
+            if (statAvgEl) statAvgEl.innerText = `${avgHours} Std / Tag`;
+        }
+
+        function openManualWorkModal() {
+            document.getElementById('man-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('man-start').value = '08:00';
+            document.getElementById('man-end').value = '16:30';
+            document.getElementById('man-pause').value = '30';
+            document.getElementById('man-note').value = 'Reguläre Arbeitszeit';
+            openModal('modal-work-manual');
+        }
+
+        async function saveManualWorkTime(e) {
+            e.preventDefault();
+            const date = document.getElementById('man-date').value;
+            const start = document.getElementById('man-start').value;
+            const end = document.getElementById('man-end').value;
+            const pause = parseInt(document.getElementById('man-pause').value || 0, 10);
+            const note = document.getElementById('man-note').value.trim();
+
+            if (!date || !start || !end || !currentUser) return;
+
+            const [sH, sM] = start.split(':').map(Number);
+            const [eH, eM] = end.split(':').map(Number);
+            let diff = (eH * 60 + eM) - (sH * 60 + sM);
+            if (diff < 0) diff += 24 * 60; // Falls über Mitternacht gearbeitet wurde
+            const netMinutes = Math.max(0, diff - pause);
+
+            await db.collection('worktime').add({
+                date: date,
+                start: start,
+                end: end,
+                pauseMinutes: pause,
+                netMinutes: netMinutes,
+                note: note,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            closeModal('modal-work-manual');
+        }
+
+        async function deleteWorkEntry(id) {
+            if (confirm('Diesen Arbeitseintrag wirklich löschen?')) {
+                await db.collection('worktime').doc(id).delete();
+            }
+        }
+
+        // ==========================================
+        // 14. EXPORT-FUNKTION (CSV FÜR EXCEL)
+        // ==========================================
+        function exportWorkCSV() {
+            const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
+            const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
+
+            if (filtered.length === 0) {
+                alert('Keine Einträge im ausgewählten Monat zum Exportieren vorhanden.');
+                return;
+            }
+
+            filtered.sort((a, b) => a.date.localeCompare(b.date));
+
+            let csvContent = "\uFEFF"; // UTF-8 BOM für Umlaute in Excel
+            csvContent += "Mitarbeiter;" + (currentUser.name || currentUser.email) + "\r\n";
+            csvContent += "Monat;" + filterMonth + "\r\n\r\n";
+            csvContent += "Datum;Beginn;Ende;Pause (Min);Netto-Stunden;Tätigkeit / Bemerkung\r\n";
+
+            let totalMinutes = 0;
+
+            filtered.forEach(item => {
+                totalMinutes += item.netMinutes || 0;
+                const hoursDec = ((item.netMinutes || 0) / 60).toFixed(2).replace('.', ',');
+                csvContent += `"${item.date}";"${item.start || ''}";"${item.end || ''}";"${item.pauseMinutes || 0}";"${hoursDec}";"${item.note || ''}"\r\n`;
+            });
+
+            const totalHoursDec = (totalMinutes / 60).toFixed(2).replace('.', ',');
+            csvContent += `\r\n;;"GESAMT;";;${totalHoursDec};\r\n`;
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            const sanitizedName = (currentUser.name || 'Mitarbeiter').replace(/\s+/g, '_');
+            link.setAttribute("download", `Stundenzettel_${sanitizedName}_${filterMonth}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
