@@ -132,133 +132,154 @@
 
 
     <!-- ========================================== -->
-    <!-- 2. HAUPT-DASHBOARD (NACH ERFOLGREICHEM LOGIN) -->
+    <!-- 2. HAUPT-DASHBOARD (MITTIG & AUFKLAPPBAR)  -->
     <!-- ========================================== -->
-    <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full p-4 md:p-6 gap-4">
+    <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full p-4 md:p-6 overflow-hidden">
         
-        <!-- HEADER: Exakt zentriertes Willkommen & Ausloggen rechts -->
-        <header class="relative flex items-center justify-center w-full px-2 py-2 min-h-[44px]">
-            <h1 class="text-xl md:text-2xl font-bold text-slate-100 tracking-wide text-center">
-                Willkommen im System <span id="user-display-name" class="text-indigo-400"></span>
+        <!-- HEADER MIT MENÜ-BUTTON LINKS, TITEL MITTIG & AUSLOGGEN RECHTS -->
+        <header class="relative flex items-center justify-between w-full max-w-7xl mx-auto px-2 py-2 min-h-[48px] mb-2">
+            <!-- Menü Öffnen Button -->
+            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2.5 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-850 text-slate-200 px-4 py-2.5 rounded-2xl text-xs font-semibold transition-all shadow-lg group">
+                <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
+                <span>Menü</span>
+            </button>
+
+            <!-- Exakt zentrierte Begrüßung -->
+            <h1 class="absolute left-1/2 -translate-x-1/2 text-xl md:text-2xl font-bold text-slate-100 tracking-wide text-center pointer-events-none w-max">
+                Willkommen im System <span id="user-display-name" class="text-indigo-400 font-semibold"></span>
             </h1>
-            <button onclick="handleLogout()" class="absolute right-2 flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:bg-rose-500/10 hover:text-rose-400 text-slate-300 px-4 py-2 rounded-2xl text-xs font-semibold transition-all shadow-lg">
+
+            <!-- Ausloggen Button -->
+            <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:bg-rose-500/10 hover:text-rose-400 text-slate-300 px-4 py-2.5 rounded-2xl text-xs font-semibold transition-all shadow-lg">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span class="hidden sm:inline">Ausloggen</span>
             </button>
         </header>
 
-        <!-- ARBEITSFLÄCHE: Linkes Menü & Rechter Hauptbereich -->
-        <div class="flex-1 flex gap-4 overflow-hidden">
+        <!-- ZENTRIERTER HAUPTINHALT (MAX-BREITE FÜR ELEGANTE SYMMETRIE) -->
+        <main class="flex-1 w-full max-w-7xl mx-auto flex flex-col gap-4 overflow-y-auto pr-1">
             
-            <!-- LINKE MENÜ-BOX -->
-            <aside class="w-56 md:w-64 bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-xl backdrop-blur-sm">
-                <div class="space-y-4">
-                    <div class="text-xs uppercase tracking-widest text-slate-400 font-bold px-2">
-                        Menü
-                    </div>
-                    <nav class="space-y-2">
-                        <button onclick="switchTab('start')" id="nav-btn-start" class="nav-btn w-full flex items-center gap-3 bg-indigo-600 text-white px-4 py-3 rounded-2xl text-sm font-medium shadow-lg shadow-indigo-600/20 transition-all">
-                            <i class="fa-solid fa-border-all w-5"></i>
-                            <span>Start Menü</span>
-                        </button>
-
-                        <!-- Admin Menüpunkt: standardmäßig ausgeblendet, nur für Admins sichtbar -->
-                        <button onclick="switchTab('admin')" id="nav-btn-admin" class="nav-btn hidden w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/60 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
-                            <i class="fa-solid fa-user-shield w-5 text-amber-400"></i>
-                            <span class="text-amber-300">Admin & Rechte</span>
-                        </button>
-                    </nav>
-                </div>
-
-                <div class="text-[11px] text-slate-500 text-center py-2 border-t border-slate-800/80">
-                    Familien-Mainz HUB v2.0
-                </div>
-            </aside>
-
-            <!-- RECHTER HAUPTBEREICH -->
-            <main class="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
+            <!-- TAB 1: START MENÜ (UHR & KALENDER) -->
+            <div id="tab-start" class="tab-pane flex-1 flex flex-col gap-4">
                 
-                <!-- TAB 1: START MENÜ (UHR & KALENDER) -->
-                <div id="tab-start" class="tab-pane flex-1 flex flex-col gap-4">
-                    <!-- OBERE BOX: UHRZEIT & DATUM -->
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col items-center justify-center text-center shadow-lg">
-                        <div id="dash-time" class="text-4xl md:text-5xl font-mono font-bold tracking-wider text-slate-100">
-                            00:00:00
-                        </div>
-                        <div id="dash-date" class="text-xs md:text-sm font-medium text-indigo-400 uppercase tracking-widest mt-2">
-                            Lade Datum...
-                        </div>
+                <!-- OBERE BOX: UHRZEIT & DATUM -->
+                <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col items-center justify-center text-center shadow-lg backdrop-blur-sm">
+                    <div id="dash-time" class="text-4xl md:text-5xl font-mono font-bold tracking-wider text-slate-100">
+                        00:00:00
                     </div>
-
-                    <!-- UNTERE BOX: KALENDER -->
-                    <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col shadow-lg">
-                        
-                        <!-- Kalender Toolbar -->
-                        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-4">
-                            <div class="flex items-center space-x-3">
-                                <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
-                                <h2 class="text-base font-bold text-slate-200">Familien-Kalender</h2>
-                            </div>
-
-                            <div class="flex items-center space-x-3">
-                                <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
-                                    <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
-                                    <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-32 text-center"></span>
-                                    <button onclick="changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
-                                </div>
-                                <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
-                                    <i class="fa-solid fa-plus"></i>
-                                    <span>Termin hinzufügen</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Kalender Tage Raster -->
-                        <div class="flex-1 overflow-x-auto">
-                            <div class="min-w-[650px]">
-                                <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
-                                    <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
-                                </div>
-                                <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2">
-                                    <!-- Wird via JS dynamisch gerendert -->
-                                </div>
-                            </div>
-                        </div>
-
+                    <div id="dash-date" class="text-xs md:text-sm font-medium text-indigo-400 uppercase tracking-widest mt-2">
+                        Lade Datum...
                     </div>
                 </div>
 
-                <!-- TAB 2: ADMIN & RECHTESYSTEM -->
-                <div id="tab-admin" class="tab-pane hidden flex-1 flex flex-col gap-4">
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 shadow-lg">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
-                            <div>
-                                <h2 class="text-xl font-bold text-amber-400 flex items-center gap-2">
-                                    <i class="fa-solid fa-user-shield"></i>
-                                    Admin- & Rechtesystem
-                                </h2>
-                                <p class="text-xs text-slate-400 mt-1">Verwalte die Zugriffsrechte aller registrierten Familienmitglieder live in der Cloud.</p>
-                            </div>
-                            <span id="user-count-badge" class="text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1.5 rounded-xl">
-                                0 Benutzer
-                            </span>
+                <!-- UNTERE BOX: KALENDER -->
+                <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-6 flex flex-col shadow-lg backdrop-blur-sm">
+                    
+                    <!-- Kalender Toolbar -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
+                            <h2 class="text-base font-bold text-slate-200">Familien-Kalender</h2>
                         </div>
 
-                        <!-- Dynamische Liste aller registrierten Benutzer -->
-                        <div id="admin-user-list" class="space-y-3">
-                            <!-- Kärtchen werden via JS geladen -->
+                        <div class="flex items-center space-x-3">
+                            <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
+                                <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
+                                <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-32 text-center"></span>
+                                <button onclick="changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                            <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Termin hinzufügen</span>
+                            </button>
                         </div>
                     </div>
+
+                    <!-- Kalender Tage Raster -->
+                    <div class="flex-1 overflow-x-auto">
+                        <div class="min-w-[650px]">
+                            <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
+                                <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+                            </div>
+                            <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2">
+                                <!-- Wird via JS dynamisch gerendert -->
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+            </div>
 
-            </main>
+            <!-- TAB 2: ADMIN & RECHTESYSTEM -->
+            <div id="tab-admin" class="tab-pane hidden flex-1 flex flex-col gap-4">
+                <div class="bg-slate-900/60 border border-panel rounded-3xl p-6 shadow-lg backdrop-blur-sm">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-amber-400 flex items-center gap-2">
+                                <i class="fa-solid fa-user-shield"></i>
+                                Admin- & Rechtesystem
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-1">Verwalte die Zugriffsrechte aller registrierten Familienmitglieder live in der Cloud.</p>
+                        </div>
+                        <span id="user-count-badge" class="text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1.5 rounded-xl">
+                            0 Benutzer
+                        </span>
+                    </div>
 
-        </div>
+                    <div id="admin-user-list" class="space-y-3">
+                        <!-- Benutzerkarten via JS -->
+                    </div>
+                </div>
+            </div>
+
+        </main>
 
     </div>
 
+
     <!-- ========================================== -->
-    <!-- MODAL: TERMIN HINZUFÜGEN                   -->
+    <!-- 3. AUFKLAPPBARER MENÜ-DRAWER (SIDEBAR)     -->
+    <!-- ========================================== -->
+    <div id="menu-backdrop" onclick="toggleSideMenu(false)" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+    
+    <aside id="side-drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 z-50 p-6 flex flex-col justify-between shadow-2xl transition-transform duration-300 -translate-x-full">
+        <div>
+            <!-- Drawer Header mit Schließen-Kreuz -->
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-6">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-xs">
+                        <i class="fa-solid fa-house"></i>
+                    </div>
+                    <span class="font-bold text-sm tracking-wide text-slate-200">Menü</span>
+                </div>
+                <button onclick="toggleSideMenu(false)" class="text-slate-400 hover:text-slate-200 p-1.5 transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <nav class="space-y-2">
+                <button onclick="switchTab('start'); toggleSideMenu(false);" id="nav-btn-start" class="nav-btn w-full flex items-center gap-3 bg-indigo-600 text-white px-4 py-3 rounded-2xl text-sm font-medium shadow-lg shadow-indigo-600/20 transition-all text-left">
+                    <i class="fa-solid fa-border-all w-5"></i>
+                    <span>Start Menü</span>
+                </button>
+
+                <!-- Admin Button (erscheint nur für Admins) -->
+                <button onclick="switchTab('admin'); toggleSideMenu(false);" id="nav-btn-admin" class="nav-btn hidden w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
+                    <i class="fa-solid fa-user-shield w-5 text-amber-400"></i>
+                    <span class="text-amber-300">Admin & Rechte</span>
+                </button>
+            </nav>
+        </div>
+
+        <div class="text-[11px] text-slate-500 text-center py-2 border-t border-slate-800/80">
+            Familien-Mainz HUB v2.0
+        </div>
+    </aside>
+
+
+    <!-- ========================================== -->
+    <!-- 4. MODAL: TERMIN HINZUFÜGEN                -->
     <!-- ========================================== -->
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-2xl w-full max-w-md">
@@ -289,7 +310,7 @@
 
 
     <!-- ========================================== -->
-    <!-- LOGIK (FIREBASE, FIRESTORE & ADMIN)        -->
+    <!-- LOGIK (FIREBASE, FIRESTORE & DRAWER)       -->
     <!-- ========================================== -->
     <script>
         // 1. Firebase Initialisierung
@@ -318,7 +339,20 @@
             return { finanzen: true, kalender: true, admin: false };
         }
 
-        // 2. Uhr & Datum Aktualisierung
+        // 2. Aufklappbares Menü (Drawer) Toggle
+        function toggleSideMenu(open) {
+            const drawer = document.getElementById('side-drawer');
+            const backdrop = document.getElementById('menu-backdrop');
+            if (open) {
+                backdrop.classList.remove('hidden');
+                drawer.classList.remove('-translate-x-full');
+            } else {
+                drawer.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        // 3. Uhr & Datum Aktualisierung
         function updateClock() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -341,7 +375,7 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // 3. Tab Umschaltung (Start vs Admin)
+        // 4. Tab Umschaltung (Start vs Admin)
         function switchTab(tabId) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -363,7 +397,7 @@
             }
         }
 
-        // 4. UI Umschalten Login / Registrieren
+        // 5. Auth UI Umschaltung
         function showRegisterView(show) {
             hideAlert();
             if (show) {
@@ -386,7 +420,7 @@
             document.getElementById('auth-alert').classList.add('hidden');
         }
 
-        // 5. Anmelden
+        // 6. Anmelden
         async function handleSignIn(e) {
             e.preventDefault();
             hideAlert();
@@ -410,7 +444,7 @@
             }
         }
 
-        // 6. Registrieren
+        // 7. Registrieren
         async function handleSignUp(e) {
             e.preventDefault();
             hideAlert();
@@ -445,7 +479,7 @@
             }
         }
 
-        // 7. Auth State Listener & Profil laden
+        // 8. Auth State Listener
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const doc = await db.collection('users').doc(user.uid).get();
@@ -480,7 +514,6 @@
 
                 document.getElementById('user-display-name').innerText = `[${displayName}]`;
 
-                // Admin-Menüpunkt freischalten falls berechtigt
                 const navAdmin = document.getElementById('nav-btn-admin');
                 if (currentUser.role === 'admin' || (currentUser.permissions && currentUser.permissions.admin)) {
                     navAdmin.classList.remove('hidden');
@@ -489,7 +522,6 @@
                     navAdmin.classList.add('hidden');
                 }
 
-                // UI umschalten
                 document.getElementById('view-auth').classList.add('hidden');
                 document.getElementById('view-dashboard').classList.remove('hidden');
 
@@ -503,6 +535,7 @@
                 document.getElementById('form-login').reset();
                 document.getElementById('btn-login').disabled = false;
                 document.getElementById('btn-login').innerText = 'Anmelden';
+                toggleSideMenu(false);
             }
         });
 
@@ -510,7 +543,7 @@
             auth.signOut();
         }
 
-        // 8. Kalender Logik (Firestore Live Sync)
+        // 9. Kalender Logik
         function initCalendarListener() {
             db.collection('events').onSnapshot(snapshot => {
                 calendarEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -615,7 +648,7 @@
             await db.collection('events').doc(id).delete();
         }
 
-        // 9. ADMIN & RECHTESYSTEM (FIRESTORE LIVE-SYNC)
+        // 10. Admin Liste (Firestore)
         function initAdminUsersListener() {
             db.collection('users').onSnapshot(snapshot => {
                 allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -660,7 +693,6 @@
                         </div>
                     </div>
 
-                    <!-- Rechte-Schalter -->
                     <div class="flex flex-wrap items-center gap-2">
                         <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs cursor-pointer hover:border-slate-700 transition-colors">
                             <input type="checkbox" onchange="toggleUserPerm('${u.id}', 'finanzen', this.checked)" ${perms.finanzen ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-0 w-3.5 h-3.5">
