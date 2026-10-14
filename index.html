@@ -202,7 +202,7 @@
                         </div>
                         <div class="flex justify-between items-center text-[10px] text-slate-500 pt-2 border-t border-slate-800/60">
                             <span>Wind: <span id="weather-wind" class="text-slate-300">-- km/h</span></span>
-                            <span>Regen: <span id="weather-rain" class="text-slate-300">-- %</span></span>
+                            <span>Feuchte: <span id="weather-rain" class="text-slate-300">-- %</span></span>
                         </div>
                     </div>
 
@@ -1065,7 +1065,8 @@
         let vaultMasterKey = null;
         let workBusy = false;
 
-        const todayStr = localDate().slice(0, 7);
+        let todayStr = localDate().slice(0, 7);
+        setInterval(() => { todayStr = localDate().slice(0, 7); }, 60000);
 
         function getDeviceType() {
             const ua = navigator.userAgent;
@@ -1241,6 +1242,7 @@
                     let permissions = ROLES.user.perms;
                     let userPrefs = { notifyWork: true, notifyEvents: true };
                     let userStatus = 'active';
+                    let notifOn = false;
 
                     if (doc.exists) {
                         const data = doc.data();
@@ -1261,6 +1263,7 @@
                         if (data.role) userRole = data.role;
                         if (data.permissions) permissions = data.permissions;
                         if (data.userPrefs) userPrefs = { ...userPrefs, ...data.userPrefs };
+                        notifOn = !!data.notificationsEnabled;
                     } else {
                         if (signingUp) return;
                         await auth.signOut();
@@ -1276,7 +1279,8 @@
                         role: userRole, 
                         status: userStatus,
                         permissions: permissions,
-                        userPrefs: userPrefs
+                        userPrefs: userPrefs,
+                        notificationsEnabled: notifOn
                     };
 
                     document.getElementById('user-display-name').innerText = displayName;
@@ -1308,6 +1312,7 @@
                     initWorkTimeListener();
                     initVaultListener();
                     initFinanceListener();
+                    refreshPushUI();
                     loadWeather();
                 } else {
                     unsubs.forEach(u => { try { u(); } catch (e) {} });
@@ -1627,7 +1632,13 @@
             }
         }
 
-        function exportWorkCSV() {
+        function csvCell(v) {
+    let s = String(v ?? '');
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    return '"' + s.replace(/"/g, '""') + '"';
+}
+
+function exportWorkCSV() {
             const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
             const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
             if (filtered.length === 0) return alert('Keine Einträge für den ausgewählten Monat vorhanden.');
@@ -1638,7 +1649,7 @@
 
             let csv = "\uFEFF";
             csv += "ARBEITSZEITNACHWEIS / STUNDENZETTEL\r\n";
-            csv += "Mitarbeiter:;" + employeeName + "\r\n";
+            csv += "Mitarbeiter:;" + csvCell(employeeName) + "\r\n";
             csv += "Abrechnungsmonat:;" + monthFormatted + "\r\n";
             csv += "Erstellt am:;" + new Date().toLocaleDateString('de-DE') + " um " + new Date().toLocaleTimeString('de-DE') + " Uhr\r\n\r\n";
             csv += "Wochentag;Datum;Beginn;Ende;Pause (Min);Netto-Arbeitszeit;Stunden (Dezimal);Tätigkeit / Projekt\r\n";
@@ -1660,7 +1671,7 @@
                 const hhmm = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
                 const hoursDec = (netM / 60).toFixed(2).replace('.', ',');
 
-                csv += `"${weekday}";"${germanDate}";"${item.start || ''}";"${item.end || ''}";"${item.pauseMinutes ?? 60}";"${hhmm}";"${hoursDec}";"${item.note || ''}"\r\n`;
+                csv += `"${weekday}";"${germanDate}";"${item.start || ''}";"${item.end || ''}";"${item.pauseMinutes ?? 60}";"${hhmm}";"${hoursDec}";${csvCell(item.note)}\r\n`;
             });
 
             const totalHoursDec = (totalMinutes / 60).toFixed(2).replace('.', ',');
@@ -1739,7 +1750,7 @@
                 <html lang="de">
                 <head>
                     <meta charset="UTF-8">
-                    <title>Stundenzettel_${employeeName}_${filterMonth}</title>
+                    <title>Stundenzettel_${esc(employeeName)}_${esc(filterMonth)}</title>
                     <style>
                         body { font-family: system-ui, -apple-system, sans-serif; color: #0f172a; padding: 30px; margin: 0; }
                         h1 { margin: 0 0 4px 0; font-size: 24px; }
@@ -1840,99 +1851,119 @@
             return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('').slice(0, 32);
         };
 
-        function handleSparkasseCSV(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+function parseCsvLine(line) {
+    const out = []; let cur = '', q = false;
+    for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') { if (q && line[i + 1] === '"') { cur += '"'; i++; } else q = !q; }
+        else if (c === ';' && !q) { out.push(cur.trim()); cur = ''; }
+        else cur += c;
+    }
+    out.push(cur.trim());
+    return out;
+}
 
-            const reader = new FileReader();
-            reader.onload = async function(evt) {
-                const text = evt.target.result;
-                const lines = text.split(/\r\n|\n/);
-                const itemsToInsert = [];
+function decodeCsv(buf) {
+    try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); }
+    catch (e) { return new TextDecoder('windows-1252').decode(buf); }
+}
 
-                let colDate = -1, colPartner = -1, colPurpose = -1, colAmount = -1;
+function handleSparkasseCSV(e) {
+    const file = e.target.files[0];
+    if (!file) return;
 
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    const parts = line.split(';').map(p => p.replace(/^"|"$/g, '').trim());
+    const reader = new FileReader();
+    reader.onload = async function(evt) {
+        const text = decodeCsv(evt.target.result);
+        const lines = text.split(/\r\n|\n/);
+        const itemsToInsert = [];
+        const seen = {};
 
-                    if (colDate === -1) {
-                        for (let j = 0; j < parts.length; j++) {
-                            const header = parts[j].toLowerCase();
-                            if (header.includes('buchungstag') || header.includes('datum')) colDate = j;
-                            if (header.includes('begünstigter') || header.includes('zahlungspflichtiger') || header.includes('auftragskonto') || header.includes('name')) colPartner = j;
-                            if (header.includes('verwendungszweck')) colPurpose = j;
-                            if (header.includes('betrag')) colAmount = j;
-                        }
-                        continue;
-                    }
+        let colDate = -1, colPartner = -1, colPurpose = -1, colAmount = -1;
 
-                    if (colDate !== -1 && colAmount !== -1 && parts.length > Math.max(colDate, colAmount)) {
-                        const rawDate = parts[colDate];
-                        const partner = parts[colPartner] || 'Unbekannt';
-                        const purpose = parts[colPurpose] || '';
-                        let rawAmount = parts[colAmount];
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            const parts = parseCsvLine(line);
 
-                        if (!rawDate || !rawAmount) continue;
-
-                        let dateStr = '';
-                        const dateParts = rawDate.split('.');
-                        if (dateParts.length === 3) {
-                            let y = dateParts[2];
-                            if (y.length === 2) y = '20' + y;
-                            dateStr = `${y}-${dateParts[1].padStart(2, '0')}-${dateParts[0].padStart(2, '0')}`;
-                        } else {
-                            dateStr = rawDate;
-                        }
-
-                        rawAmount = rawAmount.replace(/\./g, '').replace(',', '.');
-                        const amount = parseFloat(rawAmount);
-                        if (isNaN(amount)) continue;
-
-                        let category = 'Sonstiges';
-                        const matchText = (partner + ' ' + purpose).toLowerCase();
-
-                        if (matchText.includes('gehalt') || matchText.includes('lohn') || matchText.includes('bezüge') || (amount > 1000 && !matchText.includes('miete'))) category = 'Gehalt';
-                        else if (matchText.includes('rewe') || matchText.includes('edeka') || matchText.includes('aldi') || matchText.includes('lidl') || matchText.includes('kaufland')) category = 'Supermarkt';
-                        else if (matchText.includes('miete') || matchText.includes('wohnen') || matchText.includes('nebenkosten')) category = 'Miete / Wohnen';
-                        else if (matchText.includes('aral') || matchText.includes('shell') || matchText.includes('total') || matchText.includes('tanken')) category = 'Tanken / Auto';
-                        else if (matchText.includes('netflix') || matchText.includes('spotify') || matchText.includes('amazon') || matchText.includes('disney')) category = 'Freizeit / Abo';
-
-                        itemsToInsert.push({
-                            date: dateStr,
-                            partner,
-                            purpose,
-                            amount,
-                            category,
-                            owner: currentUser.email,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    }
+            if (colDate === -1) {
+                for (let j = 0; j < parts.length; j++) {
+                    const header = parts[j].toLowerCase();
+                    if (header.includes('buchungstag') || header.includes('datum')) colDate = j;
+                    if (header.includes('begünstigter') || header.includes('beguenstigter') || header.includes('zahlungspflichtiger') || header.includes('auftragskonto') || header.includes('name')) colPartner = j;
+                    if (header.includes('verwendungszweck')) colPurpose = j;
+                    if (header.includes('betrag')) colAmount = j;
                 }
+                continue;
+            }
 
-                if (itemsToInsert.length > 0) {
-                    try {
-                        for (let i = 0; i < itemsToInsert.length; i += 400) {
-                            const batch = db.batch();
-                            for (const data of itemsToInsert.slice(i, i + 400)) {
-                                const docId = await hashString([currentUser.email, data.date, data.partner, data.amount, data.purpose].join('|'));
-                                batch.set(db.collection('finance_transactions').doc(docId), data);
-                            }
-                            await batch.commit();
-                        }
-                        alert(`${itemsToInsert.length} Buchungen synchronisiert (Duplikate automatisch zusammengeführt)!`);
-                        logSystemEvent('data', 'Sparkassen-CSV importiert', { anzahl: itemsToInsert.length });
-                    } catch (batchErr) {
-                        alert('Fehler beim Speichern: ' + batchErr.message);
-                    }
+            if (colDate !== -1 && colAmount !== -1 && parts.length > Math.max(colDate, colAmount)) {
+                const rawDate = parts[colDate];
+                const partner = parts[colPartner] || 'Unbekannt';
+                const purpose = parts[colPurpose] || '';
+                let rawAmount = parts[colAmount];
+
+                if (!rawDate || !rawAmount) continue;
+
+                let dateStr = '';
+                const dateParts = rawDate.split('.');
+                if (dateParts.length === 3) {
+                    let y = dateParts[2];
+                    if (y.length === 2) y = '20' + y;
+                    dateStr = `${y}-${dateParts[1].padStart(2, '0')}-${dateParts[0].padStart(2, '0')}`;
                 } else {
-                    alert('Konnte keine gültigen Buchungszeilen in der CSV finden.');
+                    dateStr = rawDate;
                 }
-                e.target.value = '';
-            };
-            reader.readAsText(file, 'ISO-8859-1');
+
+                rawAmount = rawAmount.replace(/\./g, '').replace(',', '.');
+                const amount = parseFloat(rawAmount);
+                if (isNaN(amount)) continue;
+
+                let category = 'Sonstiges';
+                const matchText = (partner + ' ' + purpose).toLowerCase();
+
+                if (matchText.includes('gehalt') || matchText.includes('lohn') || matchText.includes('bezüge') || (amount > 1000 && !matchText.includes('miete'))) category = 'Gehalt';
+                else if (matchText.includes('rewe') || matchText.includes('edeka') || matchText.includes('aldi') || matchText.includes('lidl') || matchText.includes('kaufland')) category = 'Supermarkt';
+                else if (matchText.includes('miete') || matchText.includes('wohnen') || matchText.includes('nebenkosten')) category = 'Miete / Wohnen';
+                else if (matchText.includes('aral') || matchText.includes('shell') || matchText.includes('total') || matchText.includes('tanken')) category = 'Tanken / Auto';
+                else if (matchText.includes('netflix') || matchText.includes('spotify') || matchText.includes('amazon') || matchText.includes('disney')) category = 'Freizeit / Abo';
+
+                itemsToInsert.push({
+                    date: dateStr,
+                    partner,
+                    purpose,
+                    amount,
+                    category,
+                    owner: currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
         }
+
+        if (itemsToInsert.length > 0) {
+            try {
+                for (let i = 0; i < itemsToInsert.length; i += 400) {
+                    const batch = db.batch();
+                    for (const data of itemsToInsert.slice(i, i + 400)) {
+                        const baseKey = [currentUser.email, data.date, data.partner, data.amount, data.purpose].join('|');
+                        seen[baseKey] = (seen[baseKey] || 0) + 1;
+                        const docId = await hashString(baseKey + '|' + seen[baseKey]);
+                        batch.set(db.collection('finance_transactions').doc(docId), data);
+                    }
+                    await batch.commit();
+                }
+                alert(`${itemsToInsert.length} Buchungen synchronisiert (Duplikate automatisch zusammengeführt)!`);
+                logSystemEvent('data', 'Sparkassen-CSV importiert', { anzahl: itemsToInsert.length });
+            } catch (batchErr) {
+                alert('Fehler beim Speichern: ' + batchErr.message);
+            }
+        } else {
+            alert('Konnte keine gültigen Buchungszeilen in der CSV finden.');
+        }
+        e.target.value = '';
+    };
+    reader.readAsArrayBuffer(file);
+}
 
         function formatMonthLabel(ymStr) {
             const parts = ymStr.split('-');
@@ -2033,9 +2064,8 @@
             balEl.className = 'text-xl font-bold mt-1 ' + (balance >= 0 ? 'text-emerald-400' : 'text-rose-400');
         }
 
-        async function deleteTransaction(id) {
-            await db.collection('finance_transactions').doc(id).delete();
-        }
+       async function deleteTransaction(id) {
+            if (!confirm('Diese Buchung wirklich löschen?')) return;
 
         function openManualTransactionModal() {
             document.getElementById('fin-man-date').value = localDate();
@@ -2073,48 +2103,57 @@
         }
 
         async function savePayslip(e) {
-            e.preventDefault();
-            const month = document.getElementById('payslip-month').value;
-            const netto = parseFloat(document.getElementById('payslip-netto').value);
-            const brutto = parseFloat(document.getElementById('payslip-brutto').value) || 0;
-            const fileInput = document.getElementById('payslip-file');
-            const file = fileInput.files[0];
-            const btn = document.getElementById('btn-save-payslip');
+    e.preventDefault();
+    const month = document.getElementById('payslip-month').value;
+    const netto = parseFloat(document.getElementById('payslip-netto').value);
+    const brutto = parseFloat(document.getElementById('payslip-brutto').value) || 0;
+    const file = document.getElementById('payslip-file').files[0];
+    const btn = document.getElementById('btn-save-payslip');
 
-            if (!month || isNaN(netto) || !file || !currentUser) return;
+    if (!month || isNaN(netto) || !file || !currentUser) return;
+    if (file.size > 700 * 1024) return alert('Datei zu groß (max. ca. 700 KB wegen des Firestore-Limits). Bitte verkleinern.');
 
-            btn.disabled = true;
-            btn.innerText = 'Wird gespeichert...';
+    btn.disabled = true;
+    btn.innerText = 'Wird gespeichert...';
 
-            const reader = new FileReader();
-            reader.onload = async function(evt) {
-                const base64Data = evt.target.result;
-
-                await db.collection('payslips').add({
-                    month, netto, brutto,
-                    fileName: file.name,
-                    fileData: base64Data,
-                    owner: currentUser.email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                await db.collection('finance_transactions').add({
-                    date: `${month}-01`,
-                    partner: 'Arbeitgeber (Gehalt)',
-                    purpose: `Lohnabrechnung ${month}`,
-                    amount: netto,
-                    category: 'Gehalt',
-                    owner: currentUser.email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                btn.disabled = false;
-                btn.innerText = 'In Cloud speichern';
-                closeModal('modal-payslip-add');
-                logSystemEvent('data', 'Lohnabrechnung abgelegt', { monat: month, netto });
-            };
-            reader.readAsDataURL(file);
+    const reader = new FileReader();
+    reader.onerror = () => {
+        alert('Datei konnte nicht gelesen werden.');
+        btn.disabled = false;
+        btn.innerText = 'In Cloud speichern';
+    };
+    reader.onload = async function(evt) {
+        const base64Data = evt.target.result;
+        try {
+            const txRef = db.collection('finance_transactions').doc();
+            await db.collection('payslips').add({
+                txId: txRef.id,
+                month, netto, brutto,
+                fileName: file.name,
+                fileData: base64Data,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            await txRef.set({
+                date: `${month}-01`,
+                partner: 'Arbeitgeber (Gehalt)',
+                purpose: `Lohnabrechnung ${month}`,
+                amount: netto,
+                category: 'Gehalt',
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            closeModal('modal-payslip-add');
+            logSystemEvent('data', 'Lohnabrechnung abgelegt', { monat: month, netto });
+        } catch (err) {
+            alert('Speichern fehlgeschlagen: ' + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'In Cloud speichern';
         }
+    };
+    reader.readAsDataURL(file);
+}
 
         function renderPayslips() {
             const list = document.getElementById('payslip-list');
@@ -2158,11 +2197,12 @@
             });
         }
 
-        async function deletePayslip(id) {
-            if (confirm('Diese Lohnabrechnung wirklich löschen?')) {
-                await db.collection('payslips').doc(id).delete();
-            }
-        }
+async function deletePayslip(id) {
+    if (!confirm('Diese Lohnabrechnung wirklich löschen? Die zugehörige Gehaltsbuchung wird mit entfernt.')) return;
+    const p = rawPayslips.find(x => x.id === id);
+    await db.collection('payslips').doc(id).delete();
+    if (p?.txId) await db.collection('finance_transactions').doc(p.txId).delete().catch(() => {});
+}
 
         // ==========================================
         // WETTER WIDGET
@@ -2407,34 +2447,66 @@
         // ==========================================
         function openSettingsModal() { openModal('modal-settings'); }
 
-        async function toggleMasterPush() {
-            if (!currentUser) return;
-            if (currentUser.notificationsEnabled) {
-                currentUser.notificationsEnabled = false;
-                await db.collection('users').doc(currentUser.uid).update({ notificationsEnabled: false });
-                alert('Push deaktiviert.');
-            } else {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    currentUser.notificationsEnabled = true;
-                    await db.collection('users').doc(currentUser.uid).update({ notificationsEnabled: true });
-                    alert('Push aktiviert!');
-                }
-            }
-        }
+        function refreshPushUI() {
+    if (!currentUser) return;
+    const on = !!currentUser.notificationsEnabled && 'Notification' in window && Notification.permission === 'granted';
+    const btn = document.getElementById('btn-master-push');
+    const sub = document.getElementById('master-push-subtext');
+    const badge = document.getElementById('badge-fcm-status');
+    if (btn) {
+        btn.innerText = on ? 'Deaktivieren' : 'Aktivieren';
+        btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all text-white ' + (on ? 'bg-rose-600 hover:bg-rose-500' : 'bg-indigo-600 hover:bg-indigo-500');
+    }
+    if (sub) sub.innerText = 'Status: ' + (on ? 'Aktiv' : 'Inaktiv');
+    if (badge) {
+        badge.className = 'flex items-center gap-1.5 font-medium text-[11px] ' + (on ? 'text-emerald-400' : 'text-slate-400');
+        badge.innerText = on ? 'Aktiv' : 'Inaktiv';
+    }
+    const p = currentUser.userPrefs || {};
+    const w = document.getElementById('pref-notify-work');
+    const e = document.getElementById('pref-notify-events');
+    if (w) w.checked = p.notifyWork !== false;
+    if (e) e.checked = p.notifyEvents !== false;
+}
 
-        function sendLocalNotification(title, body) {
-            if (Notification.permission === 'granted') {
-                new Notification(title, { body, icon: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f6e1.png' });
-            }
+async function toggleMasterPush() {
+    if (!currentUser) return;
+    const userRef = db.collection('users').doc(currentUser.uid);
+    try {
+        if (currentUser.notificationsEnabled) {
+            if (messaging) await messaging.deleteToken().catch(() => {});
+            currentUser.notificationsEnabled = false;
+            await userRef.update({ notificationsEnabled: false, fcmToken: firebase.firestore.FieldValue.delete() });
+        } else {
+            if (!messaging || !('Notification' in window)) return alert('Push wird von diesem Browser nicht unterstützt.');
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') return alert('Benachrichtigungen wurden nicht erlaubt.');
+            const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+            const token = await messaging.getToken({ vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
+            if (!token) throw new Error('Kein Token erhalten');
+            currentUser.notificationsEnabled = true;
+            await userRef.update({ notificationsEnabled: true, fcmToken: token });
         }
+    } catch (err) {
+        alert('Push fehlgeschlagen: ' + err.message);
+    }
+    refreshPushUI();
+}
 
-        async function saveNotificationPref(prefKey, isChecked) {
-            if (!currentUser) return;
-            currentUser.userPrefs = currentUser.userPrefs || {};
-            currentUser.userPrefs[prefKey] = isChecked;
-            await db.collection('users').doc(currentUser.uid).update({ [`userPrefs.${prefKey}`]: isChecked });
-        }
+if (messaging) messaging.onMessage(p => sendLocalNotification(p.notification?.title || 'Hinweis', p.notification?.body || ''));
+
+function sendLocalNotification(title, body) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { body, icon: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f6e1.png' });
+    }
+}
+
+async function saveNotificationPref(prefKey, isChecked) {
+    if (!currentUser) return;
+    currentUser.userPrefs = currentUser.userPrefs || {};
+    currentUser.userPrefs[prefKey] = isChecked;
+    await db.collection('users').doc(currentUser.uid).update({ [`userPrefs.${prefKey}`]: isChecked });
+}
 
         // ==========================================
         // KALENDER (Dedup & Fehlertolerante Listener)
