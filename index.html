@@ -2165,7 +2165,529 @@
         }
 
         // ==========================================
-        // ADMIN & RECHTESYSTEM (mit Listener)
+        // WETTER WIDGET
+        // ==========================================
+        async function loadWeather() {
+            const locEl = document.getElementById('weather-location');
+            const tempEl = document.getElementById('weather-temp');
+            const condEl = document.getElementById('weather-condition');
+            const windEl = document.getElementById('weather-wind');
+            const rainEl = document.getElementById('weather-rain');
+            const iconEl = document.getElementById('weather-icon');
+            if (!locEl || !tempEl) return;
+
+            let lat = 50.8021;
+            let lon = 6.4836;
+            let cityName = 'Düren';
+
+            const fetchWeatherData = async (latitude, longitude, name) => {
+                try {
+                    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`);
+                    const data = await res.json();
+                    const current = data.current;
+
+                    locEl.innerText = name;
+                    tempEl.innerText = `${Math.round(current.temperature_2m)}°C`;
+                    windEl.innerText = `${Math.round(current.wind_speed_10m)} km/h`;
+                    rainEl.innerText = `${current.relative_humidity_2m} %`;
+
+                    const code = current.weather_code;
+                    let desc = 'Heiter';
+                    let iconClass = 'fa-solid fa-sun text-amber-400';
+
+                    if (code === 0) { desc = 'Klar'; iconClass = 'fa-solid fa-sun text-amber-400'; }
+                    else if (code >= 1 && code <= 3) { desc = 'Leicht bewölkt'; iconClass = 'fa-solid fa-cloud-sun text-amber-300'; }
+                    else if (code >= 45 && code <= 48) { desc = 'Nebelig'; iconClass = 'fa-solid fa-smog text-slate-400'; }
+                    else if (code >= 51 && code <= 67) { desc = 'Regnerisch'; iconClass = 'fa-solid fa-cloud-rain text-cyan-400'; }
+                    else if (code >= 71 && code <= 77) { desc = 'Schnee'; iconClass = 'fa-solid fa-snowflake text-indigo-300'; }
+                    else if (code >= 95) { desc = 'Gewitter'; iconClass = 'fa-solid fa-cloud-bolt text-amber-500'; }
+
+                    condEl.innerText = desc;
+                    iconEl.className = `${iconClass} text-3xl`;
+                } catch (e) {
+                    condEl.innerText = 'Wetter offline';
+                }
+            };
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                        lat = pos.coords.latitude;
+                        lon = pos.coords.longitude;
+                        try {
+                            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                            const geoData = await geoRes.json();
+                            cityName = geoData.address.city || geoData.address.town || 'Mein Standort';
+                        } catch (e) { cityName = 'Mein Standort'; }
+                        fetchWeatherData(lat, lon, cityName);
+                    },
+                    () => { fetchWeatherData(lat, lon, cityName); },
+                    { timeout: 5000 }
+                );
+            } else {
+                fetchWeatherData(lat, lon, cityName);
+            }
+        }
+
+        // ==========================================
+        // PASSWORT-SAFE
+        // ==========================================
+        async function deriveKey(password, salt) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
+            return crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+            );
+        }
+
+        async function encryptSecret(secret, password) {
+            const enc = new TextEncoder();
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const key = await deriveKey(password, salt);
+            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(secret));
+            return {
+                cipher: btoa(String.fromCharCode(...new Uint8Array(cipher))),
+                salt: btoa(String.fromCharCode(...salt)),
+                iv: btoa(String.fromCharCode(...iv))
+            };
+        }
+
+        async function decryptSecret(cipherB64, saltB64, ivB64, password) {
+            const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+            const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
+            const cipher = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
+            const key = await deriveKey(password, salt);
+            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
+            return new TextDecoder().decode(decrypted);
+        }
+
+        function initVaultListener() {
+            if (!currentUser) return;
+            db.collection('vault')
+                .where('owner', '==', currentUser.email)
+                .onSnapshot(snapshot => {
+                    rawVaultItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    if (vaultMasterKey) renderVaultItems();
+                });
+        }
+
+        async function unlockVault(e) {
+            e.preventDefault();
+            const pass = document.getElementById('vault-master-pass').value;
+            if (!pass) return;
+            vaultMasterKey = pass;
+            document.getElementById('vault-locked-view').classList.add('hidden');
+            document.getElementById('vault-unlocked-view').classList.remove('hidden');
+            renderVaultItems();
+        }
+
+        function lockVault() {
+            vaultMasterKey = null;
+            const passInput = document.getElementById('vault-master-pass');
+            if (passInput) passInput.value = '';
+            document.getElementById('vault-unlocked-view')?.classList.add('hidden');
+            document.getElementById('vault-locked-view')?.classList.remove('hidden');
+        }
+
+        function openAddVaultItemModal() {
+            document.getElementById('vault-title').value = '';
+            document.getElementById('vault-username').value = '';
+            document.getElementById('vault-secret').value = '';
+            openModal('modal-vault-add');
+        }
+
+        async function saveVaultItem(e) {
+            e.preventDefault();
+            if (!vaultMasterKey || !currentUser) return;
+
+            const title = document.getElementById('vault-title').value.trim();
+            const username = document.getElementById('vault-username').value.trim();
+            const secret = document.getElementById('vault-secret').value;
+
+            const encrypted = await encryptSecret(secret, vaultMasterKey);
+
+            await db.collection('vault').add({
+                title,
+                username,
+                cipher: encrypted.cipher,
+                salt: encrypted.salt,
+                iv: encrypted.iv,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            closeModal('modal-vault-add');
+        }
+
+        async function renderVaultItems() {
+            const list = document.getElementById('vault-items-list');
+            if (!list || !vaultMasterKey) return;
+            if (!rawVaultItems.length) {
+                list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Einträge hinterlegt.</div>';
+                return;
+            }
+
+            const frag = document.createDocumentFragment();
+            let wrongPassCount = 0;
+
+            for (const item of rawVaultItems) {
+                let secret = null;
+                try {
+                    secret = await decryptSecret(item.cipher, item.salt, item.iv, vaultMasterKey);
+                } catch (err) {
+                    wrongPassCount++;
+                }
+
+                const card = document.createElement('div');
+                card.className = "p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs";
+                card.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-slate-200 text-sm block">${esc(item.title)}</span>
+                            ${item.username ? `<span class="text-[11px] text-slate-400 block">${esc(item.username)}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div data-val class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-[11px] text-amber-300 truncate max-w-[200px]"></div>
+                        <button data-show class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''} title="Anzeigen / Maskieren">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                        <button data-copy class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''} title="Kopieren">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                        <button data-del class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl" title="Löschen">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+
+                const valEl = card.querySelector('[data-val]');
+                let isShown = false;
+                valEl.textContent = secret === null ? 'Falsches Master-Passwort' : '••••••••';
+
+                card.querySelector('[data-show]').addEventListener('click', () => {
+                    isShown = !isShown;
+                    valEl.textContent = isShown ? secret : '••••••••';
+                });
+
+                card.querySelector('[data-copy]').addEventListener('click', async () => {
+                    await navigator.clipboard.writeText(secret);
+                    setTimeout(() => navigator.clipboard.writeText('').catch(() => {}), 30000);
+                    alert('Kopiert! (Zwischenablage wird nach 30 Sekunden automatisch geleert)');
+                });
+
+                card.querySelector('[data-del]').addEventListener('click', () => {
+                    if (confirm('Eintrag wirklich löschen?')) deleteVaultItem(item.id);
+                });
+
+                frag.appendChild(card);
+            }
+
+            list.innerHTML = '';
+            if (wrongPassCount && wrongPassCount === rawVaultItems.length) {
+                list.innerHTML = '<div class="text-xs text-rose-400 text-center py-2">Master-Passwort stimmt nicht. Bitte Safe sperren und neu entsperren.</div>';
+            }
+            list.appendChild(frag);
+        }
+
+        async function deleteVaultItem(id) {
+            await db.collection('vault').doc(id).delete();
+        }
+
+        // ==========================================
+        // PUSH & EINSTELLUNGEN
+        // ==========================================
+        function openSettingsModal() { openModal('modal-settings'); }
+
+        async function toggleMasterPush() {
+            if (!currentUser) return;
+            if (currentUser.notificationsEnabled) {
+                currentUser.notificationsEnabled = false;
+                await db.collection('users').doc(currentUser.uid).update({ notificationsEnabled: false });
+                alert('Push deaktiviert.');
+            } else {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    currentUser.notificationsEnabled = true;
+                    await db.collection('users').doc(currentUser.uid).update({ notificationsEnabled: true });
+                    alert('Push aktiviert!');
+                }
+            }
+        }
+
+        function sendLocalNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                new Notification(title, { body, icon: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f6e1.png' });
+            }
+        }
+
+        async function saveNotificationPref(prefKey, isChecked) {
+            if (!currentUser) return;
+            currentUser.userPrefs = currentUser.userPrefs || {};
+            currentUser.userPrefs[prefKey] = isChecked;
+            await db.collection('users').doc(currentUser.uid).update({ [`userPrefs.${prefKey}`]: isChecked });
+        }
+
+        // ==========================================
+        // KALENDER (Dedup & Fehlertolerante Listener)
+        // ==========================================
+        function initCalendarListener() {
+            if (!currentUser) return;
+            let pub = [], mine = [];
+            
+            const merge = () => {
+                const map = new Map();
+                [...pub, ...mine].forEach(e => map.set(e.id, e));
+                calendarEvents = [...map.values()];
+                renderCalendar();
+            };
+
+            const toList = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            // 1. Öffentliche Termine
+            db.collection('events')
+                .where('isPublic', '==', true)
+                .onSnapshot(
+                    s => { pub = toList(s); merge(); },
+                    err => {
+                        console.warn("Konnte öffentliche Termine nicht abrufen:", err);
+                        renderCalendar();
+                    }
+                );
+
+            // 2. Eigene Termine
+            if (currentUser.email) {
+                db.collection('events')
+                    .where('owner', '==', currentUser.email)
+                    .onSnapshot(
+                        s => { mine = toList(s); merge(); },
+                        err => {
+                            console.warn("Konnte eigene Termine nicht abrufen:", err);
+                            renderCalendar();
+                        }
+                    );
+            }
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-days-grid');
+            const title = document.getElementById('calendar-month-year');
+            if (!grid || !title) return;
+            grid.innerHTML = '';
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            title.innerText = new Date(year, month, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+
+            const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDayIndex; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'h-20 md:h-24 bg-slate-900/20 border border-slate-800/30 rounded-2xl opacity-20';
+                grid.appendChild(empty);
+            }
+
+            const today = new Date();
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+
+                const dayCell = document.createElement('div');
+                dayCell.className = `h-20 md:h-24 p-1.5 md:p-2 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col justify-between overflow-hidden`;
+
+                dayCell.innerHTML = `
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                        <span class="${isToday ? 'font-bold text-indigo-400 bg-indigo-500/20 px-1.5 py-0.5 rounded-md' : 'text-slate-400'}">${day}</span>
+                        <button data-add class="text-slate-500 hover:text-indigo-400 text-[10px] p-0.5" title="Termin hinzufügen"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <div data-evs class="space-y-1 overflow-y-auto max-h-12 md:max-h-16 pr-0.5"></div>
+                `;
+
+                dayCell.querySelector('[data-add]').addEventListener('click', () => openEventModal(dayDateStr));
+                const box = dayCell.querySelector('[data-evs]');
+
+                calendarEvents
+                    .filter(ev => ev.date === dayDateStr)
+                    .forEach(ev => {
+                        const isMine = currentUser && ev.owner === currentUser.email;
+                        const el = document.createElement('div');
+                        el.className = `text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between gap-1 ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}`;
+                        el.title = ev.title;
+                        el.innerHTML = `
+                            <span class="truncate">${esc(ev.title)}</span>
+                            ${isMine ? '<button data-del class="text-slate-400 hover:text-rose-400 p-0.5 ml-1"><i class="fa-solid fa-xmark text-[9px]"></i></button>' : ''}
+                        `;
+                        el.querySelector('[data-del]')?.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            deleteCalendarEvent(ev.id);
+                        });
+                        box.appendChild(el);
+                    });
+
+                grid.appendChild(dayCell);
+            }
+        }
+
+        function changeCalendarMonth(delta) {
+            currentCalendarDate.setDate(1);
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function openEventModal(defaultDate = '') {
+            document.getElementById('ev-title').value = '';
+            document.getElementById('ev-date').value = defaultDate || localDate();
+            document.getElementById('ev-public').checked = true;
+            openModal('modal-event');
+        }
+
+        async function saveCalendarEvent(e) {
+            e.preventDefault();
+            const title = document.getElementById('ev-title').value.trim();
+            const date = document.getElementById('ev-date').value;
+            const isPublic = document.getElementById('ev-public').checked;
+            if (!title || !date || !currentUser) return;
+
+            try {
+                await db.collection('events').add({
+                    title, date, isPublic,
+                    owner: currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                closeModal('modal-event');
+                logSystemEvent('data', 'Termin erstellt', { title, date, isPublic });
+            } catch (err) {
+                alert("Fehler beim Speichern: " + err.message);
+            }
+        }
+
+        async function deleteCalendarEvent(id) {
+            if (!confirm('Diesen Termin wirklich löschen?')) return;
+            try {
+                await db.collection('events').doc(id).delete();
+                logSystemEvent('data', 'Termin gelöscht', { id });
+            } catch (err) {
+                alert("Fehler beim Löschen: " + err.message);
+            }
+        }
+
+        function initNotesListener() {
+            db.collection('notes').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                familyNotes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderNotes();
+            });
+        }
+
+        function renderNotes() {
+            const list = document.getElementById('notes-list');
+            const count = document.getElementById('note-count');
+            if (!list) return;
+            count.innerText = familyNotes.length;
+            list.innerHTML = '';
+
+            if (familyNotes.length === 0) {
+                list.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-2">Keine Notizen.</div>';
+                return;
+            }
+
+            familyNotes.forEach(n => {
+                const isOwner = currentUser && (n.owner === currentUser.email || currentUser.role === 'admin');
+                const item = document.createElement('div');
+                item.className = "flex items-start justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
+                item.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-slate-200 text-[11px]">${esc(n.text)}</span>
+                        <span class="text-[9px] text-slate-500">${esc(n.author || 'Familie')}</span>
+                    </div>
+                    ${isOwner ? `<button data-del class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
+                `;
+                item.querySelector('[data-del]')?.addEventListener('click', () => deleteNote(n.id));
+                list.appendChild(item);
+            });
+        }
+
+        async function saveNewNote(e) {
+            e.preventDefault();
+            const input = document.getElementById('new-note-input');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+            await db.collection('notes').add({
+                text,
+                author: currentUser.name,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            input.value = '';
+        }
+
+        async function deleteNote(id) { await db.collection('notes').doc(id).delete(); }
+
+        function initTodosListener() {
+            db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                familyTodos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderTodos();
+            });
+        }
+
+        function renderTodos() {
+            const list = document.getElementById('todos-list');
+            const count = document.getElementById('todo-count');
+            if (!list) return;
+            const openTodos = familyTodos.filter(t => !t.done);
+            count.innerText = openTodos.length;
+            list.innerHTML = '';
+
+            if (familyTodos.length === 0) {
+                list.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-2">Alles erledigt! 🎉</div>';
+                return;
+            }
+
+            familyTodos.forEach(t => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
+                item.innerHTML = `
+                    <label class="flex items-center gap-2 cursor-pointer truncate">
+                        <input type="checkbox" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-emerald-500 w-3.5 h-3.5">
+                        <span class="text-[11px] truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${esc(t.text)}</span>
+                    </label>
+                    <button data-del class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                `;
+                item.querySelector('input').addEventListener('change', e => toggleTodo(t.id, e.target.checked));
+                item.querySelector('[data-del]').addEventListener('click', () => deleteTodo(t.id));
+                list.appendChild(item);
+            });
+        }
+
+        async function saveNewTodo(e) {
+            e.preventDefault();
+            const input = document.getElementById('new-todo-input');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+            await db.collection('todos').add({
+                text,
+                done: false,
+                author: currentUser.name,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            input.value = '';
+        }
+
+        async function toggleTodo(id, done) { await db.collection('todos').doc(id).update({ done }); }
+        async function deleteTodo(id) { await db.collection('todos').doc(id).delete(); }
+
+        // ==========================================
+        // ADMIN & RECHTESYSTEM
         // ==========================================
         function initAdminUsersListener() {
             db.collection('users').onSnapshot(snapshot => {
@@ -2365,7 +2887,7 @@
                 return;
             }
 
-            tbody.innerHTML = filtered.map(log => {
+            filtered.forEach(log => {
                 let timeStr = '--:--:--';
                 if (log.timestamp && log.timestamp.toDate) {
                     const d = log.timestamp.toDate();
@@ -2373,16 +2895,17 @@
                 }
                 const det = [log.device, log.details && Object.keys(log.details).length ? JSON.stringify(log.details) : ''].filter(Boolean).join(' · ');
 
-                return `
-                    <tr class="hover:bg-slate-900/50 transition-colors">
-                        <td class="p-2.5 text-slate-400 whitespace-nowrap">${esc(timeStr)}</td>
-                        <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${esc(log.category || 'Info')}</span></td>
-                        <td class="p-2.5 text-slate-200">${esc(log.userName || 'Unbekannt')}</td>
-                        <td class="p-2.5 font-medium text-slate-200">${esc(log.action || '-')}</td>
-                        <td class="p-2.5 text-slate-400 truncate max-w-[180px]" title="${esc(det)}">${esc(det || '-')}</td>
-                    </tr>
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-900/50 transition-colors";
+                row.innerHTML = `
+                    <td class="p-2.5 text-slate-400 whitespace-nowrap">${esc(timeStr)}</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${esc(log.category || 'Info')}</span></td>
+                    <td class="p-2.5 text-slate-200">${esc(log.userName || 'Unbekannt')}</td>
+                    <td class="p-2.5 font-medium text-slate-200">${esc(log.action || '-')}</td>
+                    <td class="p-2.5 text-slate-400 truncate max-w-[180px]" title="${esc(det)}">${esc(det || '-')}</td>
                 `;
-            }).join('');
+                tbody.appendChild(row);
+            });
         }
 
         async function clearSystemLogs() {
