@@ -151,12 +151,10 @@
         </footer>
     </div>
 
-
     <!-- ========================================== -->
     <!-- 2. HAUPT-DASHBOARD                         -->
     <!-- ========================================== -->
     <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full min-h-screen md:min-h-0 p-3 md:p-6 overflow-hidden">
-        
         <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
             <div class="flex items-center gap-2">
                 <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
@@ -270,11 +268,9 @@
                 </div>
             </div>
 
-            <!-- TAB 2: ZEITERFASSUNG (VERBESSERT) -->
+            <!-- TAB 2: ZEITERFASSUNG -->
             <div id="tab-worktime" class="tab-pane hidden flex-1 flex flex-col gap-4">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    
-                    <!-- STEMPELUHR -->
                     <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                             <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
@@ -287,14 +283,13 @@
                             <div id="work-start-hint" class="text-xs text-slate-500 mt-1">Nicht eingestempelt (Pause: 60 Min)</div>
                         </div>
                         <div class="pt-3">
-                            <button id="btn-toggle-work" onclick="toggleWorkSession()" class="w-full py-3 rounded-2xl font-semibold text-sm transition-all shadow-lg flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20">
+                            <button id="btn-toggle-work" onclick="toggleWorkSession()" class="w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20">
                                 <i class="fa-solid fa-play"></i>
                                 <span>Arbeit beginnen</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- MONATS-STATISTIK (MIT DYNAMISCHER MONATSAUSWAHL) -->
                     <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                             <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
@@ -319,7 +314,6 @@
                         </div>
                     </div>
 
-                    <!-- ARBEITGEBER-EXPORT & AKTIONEN -->
                     <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
                         <div class="border-b border-slate-800 pb-2 mb-2">
                             <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
@@ -327,7 +321,7 @@
                             </span>
                         </div>
                         <p class="text-xs text-slate-400 mb-2">
-                            Monatlicher Nachweis zur Vorlage beim Arbeitgeber (offizieller Stundennachweis).
+                            Monatlicher Nachweis zur Vorlage beim Arbeitgeber.
                         </p>
                         <div class="space-y-2">
                             <button onclick="exportWorkCSV()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-colors">
@@ -346,7 +340,6 @@
                     </div>
                 </div>
 
-                <!-- TABELLE ERFASSTER ARBEITSZEITEN -->
                 <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
                         <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
@@ -587,7 +580,6 @@
         </main>
     </div>
 
-
     <!-- ========================================== -->
     <!-- 3. MENÜ-DRAWER                             -->
     <!-- ========================================== -->
@@ -662,16 +654,13 @@
                     </div>
                 </div>
             </div>
-            <div class="text-[11px] text-slate-500 text-center">Familie-Mainz Hub &bull; v3.3</div>
+            <div class="text-[11px] text-slate-500 text-center">Familie-Mainz Hub &bull; v3.4 (Security Enhanced)</div>
         </div>
     </aside>
 
-
     <!-- ========================================== -->
-    <!-- 4. MODALS (ARBEITSZEITEN, FINANZEN, SAFE)  -->
+    <!-- 4. MODALS                                  -->
     <!-- ========================================== -->
-
-    <!-- MODAL: ARBEITSZEIT MANUELL ERFASSEN (DEFAULT 60 MIN PAUSE) -->
     <div id="modal-work-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -709,7 +698,6 @@
         </div>
     </div>
 
-    <!-- NEU: MODAL ZUM BEARBEITEN EINER BESTEHENDEN ARBEITSZEIT -->
     <div id="modal-work-edit" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -751,7 +739,6 @@
         </div>
     </div>
 
-    <!-- MODAL: LOHNABRECHNUNG HOCHLADEN -->
     <div id="modal-payslip-add" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -785,7 +772,6 @@
         </div>
     </div>
 
-    <!-- MODAL: MANUELLE BUCHUNG (FINANZEN) -->
     <div id="modal-finance-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -826,7 +812,6 @@
         </div>
     </div>
 
-    <!-- MODAL: EINSTELLUNGEN -->
     <div id="modal-settings" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
@@ -862,7 +847,6 @@
         </div>
     </div>
 
-    <!-- MODAL: SAFE EINTRAG -->
     <div id="modal-vault-add" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -890,7 +874,6 @@
         </div>
     </div>
 
-    <!-- MODAL: TERMIN -->
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -918,11 +901,17 @@
         </div>
     </div>
 
-
     <!-- ========================================== -->
     <!-- LOGIK & VOLLSTÄNDIGER FIREBASE CODE        -->
     <!-- ========================================== -->
     <script>
+        // ---------- Globale Helfer (XSS-Schutz & Lokales Datum) ----------
+        window.esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        
+        window.localDate = (d = new Date()) =>
+            `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
         const firebaseConfig = {
             apiKey: "AIzaSyCfKWWHQ17-ujYGJcHw6efFBESArA8uY0Q",
             authDomain: "familie-mainz-netzwerk.firebaseapp.com",
@@ -935,6 +924,19 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+
+        // ---------- Listener-Cleanup Automatisierung ----------
+        let unsubs = [];
+        const wrapListener = proto => {
+            const orig = proto.onSnapshot;
+            proto.onSnapshot = function (...a) {
+                const u = orig.apply(this, a);
+                unsubs.push(u);
+                return u;
+            };
+        };
+        wrapListener(firebase.firestore.Query.prototype);
+        wrapListener(firebase.firestore.DocumentReference.prototype);
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -963,13 +965,14 @@
         let workTimerInterval = null;
         let currentCalendarDate = new Date();
         let vaultMasterKey = null;
+        let workBusy = false;
 
-        const todayStr = new Date().toISOString().slice(0, 7);
+        const todayStr = localDate().slice(0, 7);
 
         function getDeviceType() {
             const ua = navigator.userAgent;
-            if (/mobile/i.test(ua)) return 'Smartphone';
             if (/tablet|ipad/i.test(ua)) return 'Tablet';
+            if (/mobile/i.test(ua)) return 'Smartphone';
             return 'Desktop / PC';
         }
 
@@ -1077,11 +1080,12 @@
 
             try {
                 await auth.signInWithEmailAndPassword(email, password);
-                logSystemEvent('auth', 'Erfolgreicher Login', { email: email });
+                logSystemEvent('auth', 'Erfolgreicher Login', { email });
             } catch (err) {
                 btn.disabled = false;
                 btn.innerText = 'Anmelden';
-                showAlert(err.message);
+                logSystemEvent('auth', 'Fehlgeschlagener Login-Versuch', { attemptedEmail: email, reason: err.message });
+                showAlert('Anmeldung fehlgeschlagen. Bitte E-Mail und Passwort prüfen.');
             }
         }
 
@@ -1098,23 +1102,24 @@
 
             try {
                 const userCred = await auth.createUserWithEmailAndPassword(email, password);
-                const isAdmin = email.toLowerCase().includes('admin') || email.toLowerCase().includes('julian');
-                const role = isAdmin ? 'admin' : 'user';
-
                 await db.collection('users').doc(userCred.user.uid).set({
                     firstName: firstName,
                     lastName: lastName,
                     displayName: `${firstName} ${lastName}`,
                     email: email,
-                    role: role,
-                    permissions: getDefaultPermissions(role),
+                    role: 'user', // Niemals Admin per E-Mail-Prüfung
+                    permissions: getDefaultPermissions('user'),
                     userPrefs: { notifyWork: true, notifyEvents: true },
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                logSystemEvent('auth', 'Neuer Benutzer registriert', { email, name: `${firstName} ${lastName}` });
             } catch (err) {
+                showAlert(err.code === 'auth/email-already-in-use' ? 'Diese E-Mail ist bereits registriert.'
+                    : err.code === 'auth/weak-password' ? 'Passwort zu schwach (min. 6 Zeichen).'
+                    : 'Registrierung fehlgeschlagen: ' + err.message);
+            } finally {
                 btn.disabled = false;
                 btn.innerText = 'Benutzer jetzt erstellen';
-                showAlert(err.message);
             }
         }
 
@@ -1172,6 +1177,14 @@
                 initFinanceListener();
                 loadWeather();
             } else {
+                // Listener abbestellen und Zustand leeren
+                unsubs.forEach(u => { try { u(); } catch (e) {} });
+                unsubs = [];
+                allUsers = []; calendarEvents = []; familyNotes = []; familyTodos = [];
+                workEntries = []; systemLogs = []; rawVaultItems = [];
+                rawTransactions = []; rawPayslips = []; activeWorkSession = null;
+                stopLiveTimer();
+
                 currentUser = null;
                 document.getElementById('view-dashboard').classList.add('hidden');
                 document.getElementById('view-auth').classList.remove('hidden');
@@ -1189,7 +1202,7 @@
         }
 
         // ==========================================
-        // 10. ZEITERFASSUNG: 60 MIN PAUSE, BEARBEITEN, EXPORT
+        // ZEITERFASSUNG (Pausenlogik & Doppel-Klick-Schutz)
         // ==========================================
         function initWorkTimeListener() {
             if (!currentUser) return;
@@ -1227,7 +1240,7 @@
             } else {
                 badge.innerText = 'Inaktiv';
                 badge.className = 'text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full';
-                if (hint) hint.innerText = 'Nicht eingestempelt (Pause: 60 Min)';
+                if (hint) hint.innerText = 'Nicht eingestempelt (Pause: 60 Min ab 6 Std.)';
                 const timerEl = document.getElementById('work-active-timer');
                 if (timerEl) timerEl.innerText = '00:00:00';
                 btn.className = 'w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20';
@@ -1238,7 +1251,7 @@
         function startLiveTimer(startDate) {
             stopLiveTimer();
             const hint = document.getElementById('work-start-hint');
-            if (hint) hint.innerText = `Eingestempelt seit: ${startDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr (Pause: 60 Min)`;
+            if (hint) hint.innerText = `Eingestempelt seit: ${startDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr`;
 
             const updateTimer = () => {
                 const diffMs = new Date() - startDate;
@@ -1257,45 +1270,47 @@
             workTimerInterval = null;
         }
 
-        // Live-Stempeluhr: Standard 60 Minuten Pause bei Schichten ab 6 Stunden, sonst anteilig
         async function toggleWorkSession() {
-            if (!currentUser) return;
+            if (!currentUser || workBusy) return;
+            workBusy = true;
+            const btn = document.getElementById('btn-toggle-work');
+            if (btn) btn.disabled = true;
 
-            if (activeWorkSession) {
-                const start = activeWorkSession.startTime ? activeWorkSession.startTime.toDate() : new Date();
-                const end = new Date();
-                const totalMinutes = Math.max(0, Math.round((end - start) / 60000));
-                
-                // STANDARD: 60 MINUTEN PAUSE
-                let pauseMin = 60;
-                if (totalMinutes < 60) pauseMin = 0; // Bei sehr kurzen Testläufen
+            try {
+                if (activeWorkSession) {
+                    const start = activeWorkSession.startTime ? activeWorkSession.startTime.toDate() : new Date();
+                    const end = new Date();
+                    const totalMinutes = Math.max(0, Math.round((end - start) / 60000));
+                    // 60 Min Pause erst ab 6 Stunden Arbeitszeit
+                    const pauseMin = totalMinutes >= 360 ? 60 : 0;
+                    const t = d => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
-                const dateStr = start.toISOString().split('T')[0];
-                const startTimeStr = start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                const endTimeStr = end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                const netMinutes = Math.max(0, totalMinutes - pauseMin);
+                    await db.collection('worktime').add({
+                        date: localDate(start),
+                        start: t(start),
+                        end: t(end),
+                        pauseMinutes: pauseMin,
+                        netMinutes: Math.max(0, totalMinutes - pauseMin),
+                        note: 'Live erfasst',
+                        owner: currentUser.email,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
 
-                await db.collection('worktime').add({
-                    date: dateStr,
-                    start: startTimeStr,
-                    end: endTimeStr,
-                    pauseMinutes: pauseMin,
-                    netMinutes: netMinutes,
-                    note: 'Live erfasst',
-                    owner: currentUser.email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                await db.collection('active_work').doc(currentUser.uid).delete();
-            } else {
-                await db.collection('active_work').doc(currentUser.uid).set({
-                    startTime: firebase.firestore.FieldValue.serverTimestamp(),
-                    owner: currentUser.email
-                });
+                    await db.collection('active_work').doc(currentUser.uid).delete();
+                } else {
+                    await db.collection('active_work').doc(currentUser.uid).set({
+                        startTime: firebase.firestore.FieldValue.serverTimestamp(),
+                        owner: currentUser.email
+                    });
+                }
+            } catch (err) {
+                alert('Aktion fehlgeschlagen: ' + err.message);
+            } finally {
+                workBusy = false;
+                if (btn) btn.disabled = false;
             }
         }
 
-        // DYNAMISCHES MONATS-DROPDOWN FÜR ZEITERFASSUNG
         function updateWorkMonthDropdown() {
             const selectEl = document.getElementById('work-filter-month');
             if (!selectEl) return;
@@ -1304,7 +1319,7 @@
             workEntries.forEach(w => {
                 if (w.date && w.date.length >= 7) monthsSet.add(w.date.slice(0, 7));
             });
-            monthsSet.add(todayStr); // Aktueller Monat immer verfügbar
+            monthsSet.add(todayStr);
 
             const sortedMonths = Array.from(monthsSet).sort((a, b) => b.localeCompare(a));
             const prevSelected = selectEl.value;
@@ -1359,21 +1374,23 @@
                     const row = document.createElement('tr');
                     row.className = "hover:bg-slate-900/40 transition-colors";
                     row.innerHTML = `
-                        <td class="p-2.5 font-medium text-slate-200">${entry.date}</td>
-                        <td class="p-2.5 text-slate-400 font-mono">${entry.start || '--:--'}</td>
-                        <td class="p-2.5 text-slate-400 font-mono">${entry.end || '--:--'}</td>
-                        <td class="p-2.5 text-slate-400">${entry.pauseMinutes || 0} Min</td>
+                        <td class="p-2.5 font-medium text-slate-200">${esc(entry.date)}</td>
+                        <td class="p-2.5 text-slate-400 font-mono">${esc(entry.start || '--:--')}</td>
+                        <td class="p-2.5 text-slate-400 font-mono">${esc(entry.end || '--:--')}</td>
+                        <td class="p-2.5 text-slate-400">${Number(entry.pauseMinutes) || 0} Min</td>
                         <td class="p-2.5 font-semibold text-emerald-400 font-mono">${netH} Std ${netM} Min</td>
-                        <td class="p-2.5 text-slate-400 truncate max-w-[150px]">${entry.note || '-'}</td>
+                        <td class="p-2.5 text-slate-400 truncate max-w-[150px]">${esc(entry.note || '-')}</td>
                         <td class="p-2.5 text-right whitespace-nowrap">
-                            <button onclick="openEditWorkModal('${entry.id}')" class="text-slate-400 hover:text-indigo-400 p-1.5 rounded-lg hover:bg-slate-800 transition-colors mr-1" title="Eintrag bearbeiten">
+                            <button data-edit class="text-slate-400 hover:text-indigo-400 p-1.5 rounded-lg hover:bg-slate-800 transition-colors mr-1" title="Eintrag bearbeiten">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </button>
-                            <button onclick="deleteWorkEntry('${entry.id}')" class="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-800 transition-colors" title="Eintrag löschen">
+                            <button data-del class="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-800 transition-colors" title="Eintrag löschen">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </td>
                     `;
+                    row.querySelector('[data-edit]').addEventListener('click', () => openEditWorkModal(entry.id));
+                    row.querySelector('[data-del]').addEventListener('click', () => deleteWorkEntry(entry.id));
                     tbody.appendChild(row);
                 });
             }
@@ -1390,12 +1407,11 @@
             if (statAvgEl) statAvgEl.innerText = `${avgHours} Std / Tag`;
         }
 
-        // MANUELL NEU ANLEGEN (STANDARD: 60 MIN PAUSE)
         function openManualWorkModal() {
-            document.getElementById('man-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('man-date').value = localDate();
             document.getElementById('man-start').value = '08:00';
             document.getElementById('man-end').value = '17:00';
-            document.getElementById('man-pause').value = '60'; // STANDARD: 60 MINUTEN
+            document.getElementById('man-pause').value = '60';
             document.getElementById('man-note').value = 'Reguläre Arbeitszeit';
             openModal('modal-work-manual');
         }
@@ -1416,21 +1432,17 @@
             const netMinutes = Math.max(0, diff - pause);
 
             await db.collection('worktime').add({
-                date: date,
-                start: start,
-                end: end,
+                date, start, end,
                 pauseMinutes: pause,
-                netMinutes: netMinutes,
-                note: note,
+                netMinutes, note,
                 owner: currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
             closeModal('modal-work-manual');
-            logSystemEvent('data', 'Arbeitszeit manuell erfasst', { date: date, netMinutes: netMinutes });
+            logSystemEvent('data', 'Arbeitszeit manuell erfasst', { date, netMinutes });
         }
 
-        // BESTEHENDEN EINTRAG BEARBEITEN
         function openEditWorkModal(id) {
             const entry = workEntries.find(w => w.id === id);
             if (!entry) return;
@@ -1463,27 +1475,23 @@
             const netMinutes = Math.max(0, diff - pause);
 
             await db.collection('worktime').doc(id).update({
-                date: date,
-                start: start,
-                end: end,
+                date, start, end,
                 pauseMinutes: pause,
-                netMinutes: netMinutes,
-                note: note,
+                netMinutes, note,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
             closeModal('modal-work-edit');
-            logSystemEvent('data', 'Arbeitszeit bearbeitet', { id: id, date: date, netMinutes: netMinutes });
+            logSystemEvent('data', 'Arbeitszeit bearbeitet', { id, date, netMinutes });
         }
 
         async function deleteWorkEntry(id) {
             if (confirm('Diesen Arbeitseintrag wirklich löschen?')) {
                 await db.collection('worktime').doc(id).delete();
-                logSystemEvent('data', 'Arbeitszeit gelöscht', { id: id });
+                logSystemEvent('data', 'Arbeitszeit gelöscht', { id });
             }
         }
 
-        // PROFESSIONELLER EXCEL-CSV EXPORT
         function exportWorkCSV() {
             const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
             const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
@@ -1493,12 +1501,11 @@
             const monthFormatted = formatMonthLabel(filterMonth);
             const employeeName = currentUser.name || currentUser.email;
 
-            let csv = "\uFEFF"; // UTF-8 BOM für fehlerfreies Öffnen in Excel
+            let csv = "\uFEFF";
             csv += "ARBEITSZEITNACHWEIS / STUNDENZETTEL\r\n";
             csv += "Mitarbeiter:;" + employeeName + "\r\n";
             csv += "Abrechnungsmonat:;" + monthFormatted + "\r\n";
             csv += "Erstellt am:;" + new Date().toLocaleDateString('de-DE') + " um " + new Date().toLocaleTimeString('de-DE') + " Uhr\r\n\r\n";
-
             csv += "Wochentag;Datum;Beginn;Ende;Pause (Min);Netto-Arbeitszeit;Stunden (Dezimal);Tätigkeit / Projekt\r\n";
             
             let totalMinutes = 0;
@@ -1507,8 +1514,6 @@
             filtered.forEach(item => {
                 const d = new Date(item.date);
                 const weekday = !isNaN(d) ? weekdays[d.getDay()] : '-';
-                
-                // Datum im Format TT.MM.JJJJ
                 const dateParts = item.date.split('-');
                 const germanDate = dateParts.length === 3 ? `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}` : item.date;
 
@@ -1550,13 +1555,12 @@
             logSystemEvent('data', 'Stundenzettel als CSV exportiert', { monat: filterMonth });
         }
 
-        // PROFESSIONELLER DRUCK / PDF STUNDENZETTEL
         function printWorkTimesheet() {
             const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
             const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
             if (filtered.length === 0) return alert('Keine Einträge für den ausgewählten Monat vorhanden.');
 
-            filtered.sort((a, b) => a.date.localeCompare(b.date));
+            filtered.sort((a, b) => b.date.localeCompare(a.date));
             const monthFormatted = formatMonthLabel(filterMonth);
             const employeeName = currentUser.name || currentUser.email;
 
@@ -1580,11 +1584,11 @@
                     <tr style="border-bottom: 1px solid #e2e8f0;">
                         <td style="padding: 8px 10px;">${weekday}</td>
                         <td style="padding: 8px 10px; font-weight: 600;">${germanDate}</td>
-                        <td style="padding: 8px 10px; font-family: monospace;">${item.start || '--:--'}</td>
-                        <td style="padding: 8px 10px; font-family: monospace;">${item.end || '--:--'}</td>
+                        <td style="padding: 8px 10px; font-family: monospace;">${esc(item.start || '--:--')}</td>
+                        <td style="padding: 8px 10px; font-family: monospace;">${esc(item.end || '--:--')}</td>
                         <td style="padding: 8px 10px;">${item.pauseMinutes ?? 60} Min</td>
                         <td style="padding: 8px 10px; font-weight: bold; font-family: monospace;">${h}h ${m}m (${hoursDec}h)</td>
-                        <td style="padding: 8px 10px; color: #475569;">${item.note || '-'}</td>
+                        <td style="padding: 8px 10px; color: #475569;">${esc(item.note || '-')}</td>
                     </tr>
                 `;
             });
@@ -1625,19 +1629,17 @@
                     <div style="margin-bottom: 15px;">
                         <button onclick="window.print()" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer;">Drucken / Als PDF speichern</button>
                     </div>
-
                     <div class="header-box">
                         <div>
                             <h1>MONATLICHER STUNDENZETTEL</h1>
                             <div style="font-size: 14px; font-weight: 600; color: #2563eb;">Familie Mainz Hub &bull; Zeiterfassung</div>
                         </div>
                         <div style="text-align: right;">
-                            <div class="meta-item"><span class="meta-label">Mitarbeiter:</span> ${employeeName}</div>
-                            <div class="meta-item"><span class="meta-label">Abrechnungsmonat:</span> ${monthFormatted}</div>
+                            <div class="meta-item"><span class="meta-label">Mitarbeiter:</span> ${esc(employeeName)}</div>
+                            <div class="meta-item"><span class="meta-label">Abrechnungsmonat:</span> ${esc(monthFormatted)}</div>
                             <div class="meta-item"><span class="meta-label">Gedruckt am:</span> ${new Date().toLocaleDateString('de-DE')}</div>
                         </div>
                     </div>
-
                     <div class="summary-box">
                         <div class="sum-card">
                             <div class="sum-title">Gesamtarbeitszeit</div>
@@ -1652,7 +1654,6 @@
                             <div class="sum-val">${uniqueDays > 0 ? (totalMinutes / 60 / uniqueDays).toFixed(1) : '0.0'} Std</div>
                         </div>
                     </div>
-
                     <table>
                         <thead>
                             <tr>
@@ -1665,18 +1666,11 @@
                                 <th>Tätigkeit / Notiz</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            ${rowsHtml}
-                        </tbody>
+                        <tbody>${rowsHtml}</tbody>
                     </table>
-
                     <div class="signatures">
-                        <div>
-                            <div class="sign-line">Datum, Unterschrift Arbeitnehmer</div>
-                        </div>
-                        <div>
-                            <div class="sign-line">Datum, Unterschrift Arbeitgeber</div>
-                        </div>
+                        <div><div class="sign-line">Datum, Unterschrift Arbeitnehmer</div></div>
+                        <div><div class="sign-line">Datum, Unterschrift Arbeitgeber</div></div>
                     </div>
                 </body>
                 </html>
@@ -1685,7 +1679,7 @@
         }
 
         // ==========================================
-        // 11. FINANZEN & DYNAMISCHE MONATSLISTE
+        // 11. FINANZEN & DEDUPLIZIERTER SPARKASSEN-IMPORT
         // ==========================================
         function initFinanceListener() {
             if (!currentUser) return;
@@ -1706,6 +1700,11 @@
                 });
         }
 
+        const hashString = async s => {
+            const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+            return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('').slice(0, 32);
+        };
+
         function handleSparkasseCSV(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -1714,15 +1713,13 @@
             reader.onload = async function(evt) {
                 const text = evt.target.result;
                 const lines = text.split(/\r\n|\n/);
-                let importedCount = 0;
+                const itemsToInsert = [];
 
-                const batch = db.batch();
                 let colDate = -1, colPartner = -1, colPurpose = -1, colAmount = -1;
 
                 for (let i = 0; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
-
                     const parts = line.split(';').map(p => p.replace(/^"|"$/g, '').trim());
 
                     if (colDate === -1) {
@@ -1756,36 +1753,44 @@
 
                         rawAmount = rawAmount.replace(/\./g, '').replace(',', '.');
                         const amount = parseFloat(rawAmount);
-
                         if (isNaN(amount)) continue;
 
                         let category = 'Sonstiges';
                         const matchText = (partner + ' ' + purpose).toLowerCase();
 
-                        if (matchText.includes('gehalt') || matchText.includes('lohn') || matchText.includes('bezüge') || amount > 1000 && !matchText.includes('miete')) category = 'Gehalt';
+                        if (matchText.includes('gehalt') || matchText.includes('lohn') || matchText.includes('bezüge') || (amount > 1000 && !matchText.includes('miete'))) category = 'Gehalt';
                         else if (matchText.includes('rewe') || matchText.includes('edeka') || matchText.includes('aldi') || matchText.includes('lidl') || matchText.includes('kaufland')) category = 'Supermarkt';
                         else if (matchText.includes('miete') || matchText.includes('wohnen') || matchText.includes('nebenkosten')) category = 'Miete / Wohnen';
                         else if (matchText.includes('aral') || matchText.includes('shell') || matchText.includes('total') || matchText.includes('tanken')) category = 'Tanken / Auto';
                         else if (matchText.includes('netflix') || matchText.includes('spotify') || matchText.includes('amazon') || matchText.includes('disney')) category = 'Freizeit / Abo';
 
-                        const ref = db.collection('finance_transactions').doc();
-                        batch.set(ref, {
+                        itemsToInsert.push({
                             date: dateStr,
-                            partner: partner,
-                            purpose: purpose,
-                            amount: amount,
-                            category: category,
+                            partner,
+                            purpose,
+                            amount,
+                            category,
                             owner: currentUser.email,
                             createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                        importedCount++;
                     }
                 }
 
-                if (importedCount > 0) {
-                    await batch.commit();
-                    alert(`${importedCount} Buchungen erfolgreich aus Sparkassen-CSV importiert!`);
-                    logSystemEvent('data', 'Sparkassen-CSV importiert', { anzahl: importedCount });
+                if (itemsToInsert.length > 0) {
+                    try {
+                        for (let i = 0; i < itemsToInsert.length; i += 400) {
+                            const batch = db.batch();
+                            for (const data of itemsToInsert.slice(i, i + 400)) {
+                                const docId = await hashString([currentUser.email, data.date, data.partner, data.amount, data.purpose].join('|'));
+                                batch.set(db.collection('finance_transactions').doc(docId), data);
+                            }
+                            await batch.commit();
+                        }
+                        alert(`${itemsToInsert.length} Buchungen synchronisiert (Duplikate automatisch zusammengeführt)!`);
+                        logSystemEvent('data', 'Sparkassen-CSV importiert', { anzahl: itemsToInsert.length });
+                    } catch (batchErr) {
+                        alert('Fehler beim Speichern: ' + batchErr.message);
+                    }
                 } else {
                     alert('Konnte keine gültigen Buchungszeilen in der CSV finden.');
                 }
@@ -1871,14 +1876,15 @@
                     const row = document.createElement('tr');
                     row.className = "hover:bg-slate-900/40 transition-colors";
                     row.innerHTML = `
-                        <td class="p-2 whitespace-nowrap text-slate-400 font-mono text-[11px]">${t.date}</td>
-                        <td class="p-2 font-medium text-slate-200 truncate max-w-[180px]" title="${t.purpose || ''}">${t.partner}</td>
-                        <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${t.category || 'Sonstiges'}</span></td>
-                        <td class="p-2 text-right font-bold ${isIncome ? 'text-emerald-400' : 'text-rose-400'} font-mono">${amountStr}</td>
+                        <td class="p-2 whitespace-nowrap text-slate-400 font-mono text-[11px]">${esc(t.date)}</td>
+                        <td class="p-2 font-medium text-slate-200 truncate max-w-[180px]" title="${esc(t.purpose || '')}">${esc(t.partner)}</td>
+                        <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${esc(t.category || 'Sonstiges')}</span></td>
+                        <td class="p-2 text-right font-bold ${isIncome ? 'text-emerald-400' : 'text-rose-400'} font-mono">${esc(amountStr)}</td>
                         <td class="p-2 text-right">
-                            <button onclick="deleteTransaction('${t.id}')" class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                            <button data-del class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     `;
+                    row.querySelector('[data-del]').addEventListener('click', () => deleteTransaction(t.id));
                     tbody.appendChild(row);
                 });
             }
@@ -1897,7 +1903,7 @@
         }
 
         function openManualTransactionModal() {
-            document.getElementById('fin-man-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('fin-man-date').value = localDate();
             document.getElementById('fin-man-partner').value = '';
             document.getElementById('fin-man-amount').value = '';
             openModal('modal-finance-manual');
@@ -1913,11 +1919,9 @@
             if (!date || !partner || isNaN(amount) || !currentUser) return;
 
             await db.collection('finance_transactions').add({
-                date: date,
-                partner: partner,
+                date, partner,
                 purpose: 'Manuelle Buchung',
-                amount: amount,
-                category: category,
+                amount, category,
                 owner: currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -1925,7 +1929,6 @@
             closeModal('modal-finance-manual');
         }
 
-        // LOHNABRECHNUNGEN
         function openPayslipModal() {
             document.getElementById('payslip-month').value = todayStr;
             document.getElementById('payslip-netto').value = '';
@@ -1953,9 +1956,7 @@
                 const base64Data = evt.target.result;
 
                 await db.collection('payslips').add({
-                    month: month,
-                    netto: netto,
-                    brutto: brutto,
+                    month, netto, brutto,
                     fileName: file.name,
                     fileData: base64Data,
                     owner: currentUser.email,
@@ -1975,7 +1976,7 @@
                 btn.disabled = false;
                 btn.innerText = 'In Cloud speichern';
                 closeModal('modal-payslip-add');
-                logSystemEvent('data', 'Lohnabrechnung abgelegt', { monat: month, netto: netto });
+                logSystemEvent('data', 'Lohnabrechnung abgelegt', { monat: month, netto });
             };
             reader.readAsDataURL(file);
         }
@@ -2004,19 +2005,20 @@
                             <i class="fa-solid fa-file-pdf"></i>
                         </div>
                         <div>
-                            <span class="font-bold text-slate-200 block">${p.month}</span>
+                            <span class="font-bold text-slate-200 block">${esc(p.month)}</span>
                             <span class="text-[10px] text-emerald-400 font-mono">${p.netto.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € Netto</span>
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <a href="${p.fileData}" download="Lohnabrechnung_${p.month}_${p.fileName}" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" title="Herunterladen">
+                        <a href="${p.fileData}" download="Lohnabrechnung_${esc(p.month)}_${esc(p.fileName)}" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" title="Herunterladen">
                             <i class="fa-solid fa-download"></i>
                         </a>
-                        <button onclick="deletePayslip('${p.id}')" class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl" title="Löschen">
+                        <button data-del class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl" title="Löschen">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 `;
+                item.querySelector('[data-del]').addEventListener('click', () => deletePayslip(p.id));
                 list.appendChild(item);
             });
         }
@@ -2058,7 +2060,8 @@
                     let desc = 'Heiter';
                     let iconClass = 'fa-solid fa-sun text-amber-400';
 
-                    if (code >= 1 && code <= 3) { desc = 'Leicht bewölkt'; iconClass = 'fa-solid fa-cloud-sun text-amber-300'; }
+                    if (code === 0) { desc = 'Klar'; iconClass = 'fa-solid fa-sun text-amber-400'; }
+                    else if (code >= 1 && code <= 3) { desc = 'Leicht bewölkt'; iconClass = 'fa-solid fa-cloud-sun text-amber-300'; }
                     else if (code >= 45 && code <= 48) { desc = 'Nebelig'; iconClass = 'fa-solid fa-smog text-slate-400'; }
                     else if (code >= 51 && code <= 67) { desc = 'Regnerisch'; iconClass = 'fa-solid fa-cloud-rain text-cyan-400'; }
                     else if (code >= 71 && code <= 77) { desc = 'Schnee'; iconClass = 'fa-solid fa-snowflake text-indigo-300'; }
@@ -2098,7 +2101,7 @@
             const enc = new TextEncoder();
             const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
             return crypto.subtle.deriveKey(
-                { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
+                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
                 keyMaterial,
                 { name: 'AES-GCM', length: 256 },
                 false,
@@ -2111,7 +2114,7 @@
             const salt = crypto.getRandomValues(new Uint8Array(16));
             const iv = crypto.getRandomValues(new Uint8Array(12));
             const key = await deriveKey(password, salt);
-            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, enc.encode(secret));
+            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(secret));
             return {
                 cipher: btoa(String.fromCharCode(...new Uint8Array(cipher))),
                 salt: btoa(String.fromCharCode(...salt)),
@@ -2124,7 +2127,7 @@
             const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
             const cipher = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
             const key = await deriveKey(password, salt);
-            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, cipher);
+            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
             return new TextDecoder().decode(decrypted);
         }
 
@@ -2174,8 +2177,8 @@
             const encrypted = await encryptSecret(secret, vaultMasterKey);
 
             await db.collection('vault').add({
-                title: title,
-                username: username,
+                title,
+                username,
                 cipher: encrypted.cipher,
                 salt: encrypted.salt,
                 iv: encrypted.iv,
@@ -2189,19 +2192,20 @@
         async function renderVaultItems() {
             const list = document.getElementById('vault-items-list');
             if (!list || !vaultMasterKey) return;
-            list.innerHTML = '';
-
-            if (rawVaultItems.length === 0) {
+            if (!rawVaultItems.length) {
                 list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Einträge hinterlegt.</div>';
                 return;
             }
 
+            const frag = document.createDocumentFragment();
+            let wrongPassCount = 0;
+
             for (const item of rawVaultItems) {
-                let decrypted = '***';
+                let secret = null;
                 try {
-                    decrypted = await decryptSecret(item.cipher, item.salt, item.iv, vaultMasterKey);
+                    secret = await decryptSecret(item.cipher, item.salt, item.iv, vaultMasterKey);
                 } catch (err) {
-                    decrypted = 'Falsches Master-Passwort';
+                    wrongPassCount++;
                 }
 
                 const card = document.createElement('div');
@@ -2212,24 +2216,51 @@
                             <i class="fa-solid fa-key"></i>
                         </div>
                         <div>
-                            <span class="font-semibold text-slate-200 text-sm block">${item.title}</span>
-                            ${item.username ? `<span class="text-[11px] text-slate-400 block">${item.username}</span>` : ''}
+                            <span class="font-semibold text-slate-200 text-sm block">${esc(item.title)}</span>
+                            ${item.username ? `<span class="text-[11px] text-slate-400 block">${esc(item.username)}</span>` : ''}
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-[11px] text-amber-300 select-all truncate max-w-[200px]">
-                            ${decrypted}
-                        </div>
-                        <button onclick="navigator.clipboard.writeText('${decrypted}'); alert('Kopiert!');" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl">
+                        <div data-val class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-[11px] text-amber-300 truncate max-w-[200px]"></div>
+                        <button data-show class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''} title="Anzeigen / Maskieren">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                        <button data-copy class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''} title="Kopieren">
                             <i class="fa-regular fa-copy"></i>
                         </button>
-                        <button onclick="deleteVaultItem('${item.id}')" class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl">
+                        <button data-del class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl" title="Löschen">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 `;
-                list.appendChild(card);
+
+                const valEl = card.querySelector('[data-val]');
+                let isShown = false;
+                valEl.textContent = secret === null ? 'Falsches Master-Passwort' : '••••••••';
+
+                card.querySelector('[data-show]').addEventListener('click', () => {
+                    isShown = !isShown;
+                    valEl.textContent = isShown ? secret : '••••••••';
+                });
+
+                card.querySelector('[data-copy]').addEventListener('click', async () => {
+                    await navigator.clipboard.writeText(secret);
+                    setTimeout(() => navigator.clipboard.writeText('').catch(() => {}), 30000);
+                    alert('Kopiert! (Zwischenablage wird nach 30 Sekunden automatisch geleert)');
+                });
+
+                card.querySelector('[data-del]').addEventListener('click', () => {
+                    if (confirm('Eintrag wirklich löschen?')) deleteVaultItem(item.id);
+                });
+
+                frag.appendChild(card);
             }
+
+            list.innerHTML = '';
+            if (wrongPassCount && wrongPassCount === rawVaultItems.length) {
+                list.innerHTML = '<div class="text-xs text-rose-400 text-center py-2">Master-Passwort stimmt nicht. Bitte Safe sperren und neu entsperren.</div>';
+            }
+            list.appendChild(frag);
         }
 
         async function deleteVaultItem(id) {
@@ -2274,10 +2305,19 @@
         // KALENDER, PINNWAND, TO-DOS
         // ==========================================
         function initCalendarListener() {
-            db.collection('events').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                calendarEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            let pub = [], mine = [];
+            const merge = () => {
+                const map = new Map();
+                [...pub, ...mine].forEach(e => map.set(e.id, e));
+                calendarEvents = [...map.values()];
                 renderCalendar();
-            });
+            };
+            const toList = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            db.collection('events').where('isPublic', '==', true)
+                .onSnapshot(s => { pub = toList(s); merge(); });
+            db.collection('events').where('owner', '==', currentUser.email)
+                .onSnapshot(s => { mine = toList(s); merge(); });
         }
 
         function renderCalendar() {
@@ -2308,43 +2348,46 @@
                 const dayCell = document.createElement('div');
                 dayCell.className = `h-20 md:h-24 p-1.5 md:p-2 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col justify-between overflow-hidden`;
 
-                let dayHeader = `
+                dayCell.innerHTML = `
                     <div class="flex items-center justify-between text-[11px] mb-1">
                         <span class="${isToday ? 'font-bold text-indigo-400 bg-indigo-500/20 px-1.5 py-0.5 rounded-md' : 'text-slate-400'}">${day}</span>
-                        <button onclick="openEventModal('${dayDateStr}')" class="text-slate-500 hover:text-indigo-400 text-[10px]"><i class="fa-solid fa-plus"></i></button>
+                        <button data-add class="text-slate-500 hover:text-indigo-400 text-[10px]"><i class="fa-solid fa-plus"></i></button>
                     </div>
+                    <div data-evs class="space-y-1 overflow-y-auto max-h-12 md:max-h-16 pr-0.5"></div>
                 `;
 
-                const dayEvents = calendarEvents.filter(ev => {
-                    if (ev.date !== dayDateStr) return false;
-                    return ev.isPublic || (currentUser && ev.owner === currentUser.email);
-                });
+                dayCell.querySelector('[data-add]').addEventListener('click', () => openEventModal(dayDateStr));
+                const box = dayCell.querySelector('[data-evs]');
 
-                let eventsHtml = `<div class="space-y-1 overflow-y-auto max-h-12 md:max-h-16 pr-0.5">`;
-                dayEvents.forEach(ev => {
-                    const isOwner = currentUser && ev.owner === currentUser.email;
-                    eventsHtml += `
-                        <div class="text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}" title="${ev.title}">
-                            <span class="truncate">${ev.title}</span>
-                            ${isOwner ? `<button onclick="deleteCalendarEvent('${ev.id}')" class="text-slate-400 hover:text-rose-400 ml-1"><i class="fa-solid fa-xmark text-[9px]"></i></button>` : ''}
-                        </div>
-                    `;
-                });
-                eventsHtml += `</div>`;
+                calendarEvents
+                    .filter(ev => ev.date === dayDateStr && (ev.isPublic || (currentUser && ev.owner === currentUser.email)))
+                    .forEach(ev => {
+                        const isMine = currentUser && ev.owner === currentUser.email;
+                        const el = document.createElement('div');
+                        el.className = `text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}`;
+                        el.title = ev.title;
+                        el.innerHTML = `
+                            <span class="truncate">${esc(ev.title)}</span>
+                            ${isMine ? '<button data-del class="text-slate-400 hover:text-rose-400 ml-1"><i class="fa-solid fa-xmark text-[9px]"></i></button>' : ''}
+                        `;
+                        el.querySelector('[data-del]')?.addEventListener('click', () => deleteCalendarEvent(ev.id));
+                        box.appendChild(el);
+                    });
 
-                dayCell.innerHTML = dayHeader + eventsHtml;
                 grid.appendChild(dayCell);
             }
         }
 
+        // Wechselt auf den 1. des Monats, um Sprünge an 31er-Tagen zu verhindern
         function changeCalendarMonth(delta) {
+            currentCalendarDate.setDate(1);
             currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
             renderCalendar();
         }
 
         function openEventModal(defaultDate = '') {
             document.getElementById('ev-title').value = '';
-            document.getElementById('ev-date').value = defaultDate || new Date().toISOString().split('T')[0];
+            document.getElementById('ev-date').value = defaultDate || localDate();
             document.getElementById('ev-public').checked = true;
             openModal('modal-event');
         }
@@ -2357,9 +2400,7 @@
             if (!title || !date || !currentUser) return;
 
             await db.collection('events').add({
-                title: title,
-                date: date,
-                isPublic: isPublic,
+                title, date, isPublic,
                 owner: currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -2396,11 +2437,12 @@
                 item.className = "flex items-start justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
                 item.innerHTML = `
                     <div class="flex flex-col">
-                        <span class="text-slate-200 text-[11px]">${n.text}</span>
-                        <span class="text-[9px] text-slate-500">${n.author || 'Familie'}</span>
+                        <span class="text-slate-200 text-[11px]">${esc(n.text)}</span>
+                        <span class="text-[9px] text-slate-500">${esc(n.author || 'Familie')}</span>
                     </div>
-                    ${isOwner ? `<button onclick="deleteNote('${n.id}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
+                    ${isOwner ? `<button data-del class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
                 `;
+                item.querySelector('[data-del]')?.addEventListener('click', () => deleteNote(n.id));
                 list.appendChild(item);
             });
         }
@@ -2411,7 +2453,7 @@
             const text = input.value.trim();
             if (!text || !currentUser) return;
             await db.collection('notes').add({
-                text: text,
+                text,
                 author: currentUser.name,
                 owner: currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -2446,11 +2488,13 @@
                 item.className = "flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
                 item.innerHTML = `
                     <label class="flex items-center gap-2 cursor-pointer truncate">
-                        <input type="checkbox" onchange="toggleTodo('${t.id}', this.checked)" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-emerald-500 w-3.5 h-3.5">
-                        <span class="text-[11px] truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${t.text}</span>
+                        <input type="checkbox" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-emerald-500 w-3.5 h-3.5">
+                        <span class="text-[11px] truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${esc(t.text)}</span>
                     </label>
-                    <button onclick="deleteTodo('${t.id}')" class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                    <button data-del class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-xmark text-[10px]"></i></button>
                 `;
+                item.querySelector('input').addEventListener('change', e => toggleTodo(t.id, e.target.checked));
+                item.querySelector('[data-del]').addEventListener('click', () => deleteTodo(t.id));
                 list.appendChild(item);
             });
         }
@@ -2461,7 +2505,7 @@
             const text = input.value.trim();
             if (!text || !currentUser) return;
             await db.collection('todos').add({
-                text: text,
+                text,
                 done: false,
                 author: currentUser.name,
                 owner: currentUser.email,
@@ -2470,11 +2514,11 @@
             input.value = '';
         }
 
-        async function toggleTodo(id, done) { await db.collection('todos').doc(id).update({ done: done }); }
+        async function toggleTodo(id, done) { await db.collection('todos').doc(id).update({ done }); }
         async function deleteTodo(id) { await db.collection('todos').doc(id).delete(); }
 
         // ==========================================
-        // ADMIN & RECHTE
+        // ADMIN & RECHTE (Selbstschutz gegen Selbstdepotenzierung)
         // ==========================================
         function initAdminUsersListener() {
             db.collection('users').onSnapshot(snapshot => {
@@ -2493,6 +2537,7 @@
             allUsers.forEach(u => {
                 const perms = u.permissions || getDefaultPermissions(u.role || 'user');
                 const isAdmin = u.role === 'admin' || perms.admin;
+                const isSelf = currentUser && u.id === currentUser.uid;
                 const nameDisplay = u.displayName || u.email.split('@')[0];
 
                 const card = document.createElement('div');
@@ -2503,22 +2548,28 @@
                             <i class="${isAdmin ? 'fa-solid fa-shield-halved' : 'fa-solid fa-user'}"></i>
                         </div>
                         <div>
-                            <div class="font-semibold text-slate-200 text-sm">${nameDisplay}</div>
-                            <div class="text-xs text-slate-500">${u.email}</div>
+                            <div class="font-semibold text-slate-200 text-sm">${esc(nameDisplay)}</div>
+                            <div class="text-xs text-slate-500">${esc(u.email)}</div>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs cursor-pointer">
-                            <input type="checkbox" onchange="toggleUserPerm('${u.id}', 'admin', this.checked)" ${isAdmin ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-amber-500 w-3.5 h-3.5">
+                        <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs ${isSelf ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}">
+                            <input type="checkbox" ${isAdmin ? 'checked' : ''} ${isSelf ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 text-amber-500 w-3.5 h-3.5">
                             <span class="text-amber-300 font-medium">Admin</span>
                         </label>
                     </div>
                 `;
+                card.querySelector('input').addEventListener('change', e => toggleUserPerm(u.id, 'admin', e.target.checked));
                 listEl.appendChild(card);
             });
         }
 
         async function toggleUserPerm(userId, permKey, isChecked) {
+            if (currentUser && userId === currentUser.uid && permKey === 'admin' && !isChecked) {
+                alert('Du kannst dir deine eigenen Admin-Rechte nicht entziehen.');
+                renderAdminUserList();
+                return;
+            }
             const target = allUsers.find(u => u.id === userId);
             if (!target) return;
             const updatedPerms = { ...(target.permissions || getDefaultPermissions(target.role || 'user')) };
@@ -2529,7 +2580,7 @@
         }
 
         // ==========================================
-        // SYSTEM LOGS
+        // SYSTEM LOGS (Details-Spalte & Chunking)
         // ==========================================
         function initSystemLogsListener() {
             db.collection('system_logs').orderBy('timestamp', 'desc').limit(200).onSnapshot(snapshot => {
@@ -2558,31 +2609,37 @@
                 return;
             }
 
-            filtered.forEach(log => {
+            tbody.innerHTML = filtered.map(log => {
                 let timeStr = '--:--:--';
                 if (log.timestamp && log.timestamp.toDate) {
                     const d = log.timestamp.toDate();
                     timeStr = `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`;
                 }
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-900/50 transition-colors";
-                row.innerHTML = `
-                    <td class="p-2.5 text-slate-400 whitespace-nowrap">${timeStr}</td>
-                    <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${log.category || 'Info'}</span></td>
-                    <td class="p-2.5 text-slate-200">${log.userName || 'Unbekannt'}</td>
-                    <td class="p-2.5 font-medium text-slate-200">${log.action || '-'}</td>
-                    <td class="p-2.5 text-slate-400 truncate max-w-[180px]">${log.device || '-'}</td>
+                const det = [log.device, log.details && Object.keys(log.details).length ? JSON.stringify(log.details) : ''].filter(Boolean).join(' · ');
+                return `
+                    <tr class="hover:bg-slate-900/50">
+                        <td class="p-2.5 text-slate-400 whitespace-nowrap">${esc(timeStr)}</td>
+                        <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${esc(log.category || 'Info')}</span></td>
+                        <td class="p-2.5 text-slate-200">${esc(log.userName || 'Unbekannt')}</td>
+                        <td class="p-2.5 font-medium text-slate-200">${esc(log.action || '-')}</td>
+                        <td class="p-2.5 text-slate-400 truncate max-w-[180px]" title="${esc(det)}">${esc(det || '-')}</td>
+                    </tr>
                 `;
-                tbody.appendChild(row);
-            });
+            }).join('');
         }
 
         async function clearSystemLogs() {
-            if (!confirm('Alle Logs löschen?')) return;
-            const batch = db.batch();
-            const snapshot = await db.collection('system_logs').get();
-            snapshot.docs.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
+            if (!confirm('Alle Logs unwiderruflich löschen?')) return;
+            try {
+                const snap = await db.collection('system_logs').get();
+                for (let i = 0; i < snap.docs.length; i += 400) {
+                    const b = db.batch();
+                    snap.docs.slice(i, i + 400).forEach(d => b.delete(d.ref));
+                    await b.commit();
+                }
+            } catch (err) {
+                alert('Fehler beim Bereinigen: ' + err.message);
+            }
         }
     </script>
 </body>
