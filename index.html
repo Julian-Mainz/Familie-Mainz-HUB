@@ -579,7 +579,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- 3. MENÜ-DRAWER (J.Mainz Dashboard & Status)-->
+    <!-- 3. MENÜ-DRAWER                             -->
     <!-- ========================================== -->
     <div id="menu-backdrop" onclick="toggleSideMenu(false)" class="fixed inset-0 bg-slate-950/70 z-50"></div>
     
@@ -705,7 +705,7 @@
     </aside>
 
     <!-- ========================================== -->
-    <!-- 4. MODALS                                  -->
+    <!-- 4. MODALS (ARBEITSZEITEN, FINANZEN, SAFE)  -->
     <!-- ========================================== -->
     <div id="modal-work-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
@@ -1231,94 +1231,104 @@
         }
 
         auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const docRef = db.collection('users').doc(user.uid);
-                const doc = await docRef.get();
-                let displayName = user.email.split('@')[0];
-                let userRole = 'user';
-                let permissions = ROLES.user.perms;
-                let userPrefs = { notifyWork: true, notifyEvents: true };
-                let userStatus = 'active';
+            const btn = document.getElementById('btn-login');
+            try {
+                if (user) {
+                    const docRef = db.collection('users').doc(user.uid);
+                    const doc = await docRef.get();
+                    let displayName = user.email.split('@')[0];
+                    let userRole = 'user';
+                    let permissions = ROLES.user.perms;
+                    let userPrefs = { notifyWork: true, notifyEvents: true };
+                    let userStatus = 'active';
 
-                if (doc.exists) {
-                    const data = doc.data();
-                    userStatus = data.status || 'active';
+                    if (doc.exists) {
+                        const data = doc.data();
+                        userStatus = data.status || 'active';
 
-                    if (userStatus !== 'active') {
+                        if (userStatus !== 'active') {
+                            await auth.signOut();
+                            showAlert(userStatus === 'pending'
+                                ? 'Dein Konto wartet noch auf Freigabe durch einen Admin.'
+                                : 'Dein Konto wurde gesperrt.');
+                            if (btn) { btn.disabled = false; btn.innerText = 'Anmelden'; }
+                            return;
+                        }
+
+                        docRef.update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
+
+                        if (data.firstName) displayName = data.firstName;
+                        if (data.role) userRole = data.role;
+                        if (data.permissions) permissions = data.permissions;
+                        if (data.userPrefs) userPrefs = { ...userPrefs, ...data.userPrefs };
+                    } else {
+                        if (signingUp) return;
                         await auth.signOut();
-                        showAlert(userStatus === 'pending'
-                            ? 'Dein Konto wartet noch auf Freigabe durch einen Admin.'
-                            : 'Dein Konto wurde gesperrt.');
+                        showAlert('Für dieses Konto existiert kein Profil. Bitte wende dich an einen Admin.');
+                        if (btn) { btn.disabled = false; btn.innerText = 'Anmelden'; }
                         return;
                     }
 
-                    docRef.update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
+                    currentUser = { 
+                        uid: user.uid, 
+                        email: user.email, 
+                        name: displayName, 
+                        role: userRole, 
+                        status: userStatus,
+                        permissions: permissions,
+                        userPrefs: userPrefs
+                    };
 
-                    if (data.firstName) displayName = data.firstName;
-                    if (data.role) userRole = data.role;
-                    if (data.permissions) permissions = data.permissions;
-                    if (data.userPrefs) userPrefs = { ...userPrefs, ...data.userPrefs };
+                    document.getElementById('user-display-name').innerText = displayName;
+
+                    const navAdmin = document.getElementById('nav-btn-admin');
+                    const navLogs = document.getElementById('nav-btn-logs');
+                    const isUserAdmin = currentUser.role === 'admin' || (currentUser.permissions && currentUser.permissions.admin);
+
+                    if (isUserAdmin) {
+                        navAdmin.classList.remove('hidden');
+                        navLogs.classList.remove('hidden');
+                        initAdminUsersListener();
+                        initSystemLogsListener();
+                    } else {
+                        navAdmin.classList.add('hidden');
+                        navLogs.classList.add('hidden');
+                    }
+
+                    document.getElementById('view-auth').classList.add('hidden');
+                    document.getElementById('view-dashboard').classList.remove('hidden');
+
+                    if (btn) { btn.disabled = false; btn.innerText = 'Anmelden'; }
+
+                    switchTab('start');
+                    
+                    initCalendarListener();
+                    initNotesListener();
+                    initTodosListener();
+                    initWorkTimeListener();
+                    initVaultListener();
+                    initFinanceListener();
+                    loadWeather();
                 } else {
-                    if (signingUp) return;
-                    await auth.signOut();
-                    showAlert('Für dieses Konto existiert kein Profil. Bitte wende dich an einen Admin.');
-                    return;
+                    unsubs.forEach(u => { try { u(); } catch (e) {} });
+                    unsubs = [];
+                    allUsers = []; calendarEvents = []; familyNotes = []; familyTodos = [];
+                    workEntries = []; systemLogs = []; rawVaultItems = [];
+                    rawTransactions = []; rawPayslips = []; activeWorkSession = null;
+                    stopLiveTimer();
+
+                    currentUser = null;
+                    document.getElementById('view-dashboard').classList.add('hidden');
+                    document.getElementById('view-auth').classList.remove('hidden');
+                    document.getElementById('form-login').reset();
+                    if (btn) { btn.disabled = false; btn.innerText = 'Anmelden'; }
+                    lockVault();
+                    toggleSideMenu(false);
                 }
-
-                currentUser = { 
-                    uid: user.uid, 
-                    email: user.email, 
-                    name: displayName, 
-                    role: userRole, 
-                    status: userStatus,
-                    permissions: permissions,
-                    userPrefs: userPrefs
-                };
-
-                document.getElementById('user-display-name').innerText = displayName;
-
-                const navAdmin = document.getElementById('nav-btn-admin');
-                const navLogs = document.getElementById('nav-btn-logs');
-                const isUserAdmin = currentUser.role === 'admin' || (currentUser.permissions && currentUser.permissions.admin);
-
-                if (isUserAdmin) {
-                    navAdmin.classList.remove('hidden');
-                    navLogs.classList.remove('hidden');
-                    initAdminUsersListener();
-                    initSystemLogsListener();
-                } else {
-                    navAdmin.classList.add('hidden');
-                    navLogs.classList.add('hidden');
-                }
-
-                document.getElementById('view-auth').classList.add('hidden');
-                document.getElementById('view-dashboard').classList.remove('hidden');
-
-                switchTab('start');
-                
-                initCalendarListener();
-                initNotesListener();
-                initTodosListener();
-                initWorkTimeListener();
-                initVaultListener();
-                initFinanceListener();
-                loadWeather();
-            } else {
-                unsubs.forEach(u => { try { u(); } catch (e) {} });
-                unsubs = [];
-                allUsers = []; calendarEvents = []; familyNotes = []; familyTodos = [];
-                workEntries = []; systemLogs = []; rawVaultItems = [];
-                rawTransactions = []; rawPayslips = []; activeWorkSession = null;
-                stopLiveTimer();
-
-                currentUser = null;
-                document.getElementById('view-dashboard').classList.add('hidden');
-                document.getElementById('view-auth').classList.remove('hidden');
-                document.getElementById('form-login').reset();
-                document.getElementById('btn-login').disabled = false;
-                document.getElementById('btn-login').innerText = 'Anmelden';
-                lockVault();
-                toggleSideMenu(false);
+            } catch (err) {
+                console.error("Fehler beim Laden des Benutzerprofils:", err);
+                showAlert("Fehler beim Laden der Benutzerdaten: " + err.message);
+                if (btn) { btn.disabled = false; btn.innerText = 'Anmelden'; }
             }
         });
 
@@ -2155,275 +2165,174 @@
         }
 
         // ==========================================
-        // WETTER WIDGET
+        // ADMIN & RECHTESYSTEM (mit Listener)
         // ==========================================
-        async function loadWeather() {
-            const locEl = document.getElementById('weather-location');
-            const tempEl = document.getElementById('weather-temp');
-            const condEl = document.getElementById('weather-condition');
-            const windEl = document.getElementById('weather-wind');
-            const rainEl = document.getElementById('weather-rain');
-            const iconEl = document.getElementById('weather-icon');
-            if (!locEl || !tempEl) return;
-
-            let lat = 50.8021;
-            let lon = 6.4836;
-            let cityName = 'Düren';
-
-            const fetchWeatherData = async (latitude, longitude, name) => {
-                try {
-                    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`);
-                    const data = await res.json();
-                    const current = data.current;
-
-                    locEl.innerText = name;
-                    tempEl.innerText = `${Math.round(current.temperature_2m)}°C`;
-                    windEl.innerText = `${Math.round(current.wind_speed_10m)} km/h`;
-                    rainEl.innerText = `${current.relative_humidity_2m} %`;
-
-                    const code = current.weather_code;
-                    let desc = 'Heiter';
-                    let iconClass = 'fa-solid fa-sun text-amber-400';
-
-                    if (code === 0) { desc = 'Klar'; iconClass = 'fa-solid fa-sun text-amber-400'; }
-                    else if (code >= 1 && code <= 3) { desc = 'Leicht bewölkt'; iconClass = 'fa-solid fa-cloud-sun text-amber-300'; }
-                    else if (code >= 45 && code <= 48) { desc = 'Nebelig'; iconClass = 'fa-solid fa-smog text-slate-400'; }
-                    else if (code >= 51 && code <= 67) { desc = 'Regnerisch'; iconClass = 'fa-solid fa-cloud-rain text-cyan-400'; }
-                    else if (code >= 71 && code <= 77) { desc = 'Schnee'; iconClass = 'fa-solid fa-snowflake text-indigo-300'; }
-                    else if (code >= 95) { desc = 'Gewitter'; iconClass = 'fa-solid fa-cloud-bolt text-amber-500'; }
-
-                    condEl.innerText = desc;
-                    iconEl.className = `${iconClass} text-3xl`;
-                } catch (e) {
-                    condEl.innerText = 'Wetter offline';
-                }
-            };
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async (pos) => {
-                        lat = pos.coords.latitude;
-                        lon = pos.coords.longitude;
-                        try {
-                            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-                            const geoData = await geoRes.json();
-                            cityName = geoData.address.city || geoData.address.town || 'Mein Standort';
-                        } catch (e) { cityName = 'Mein Standort'; }
-                        fetchWeatherData(lat, lon, cityName);
-                    },
-                    () => { fetchWeatherData(lat, lon, cityName); },
-                    { timeout: 5000 }
-                );
-            } else {
-                fetchWeatherData(lat, lon, cityName);
-            }
-        }
-
-        // ==========================================
-        // PASSWORT-SAFE
-        // ==========================================
-        async function deriveKey(password, salt) {
-            const enc = new TextEncoder();
-            const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
-            return crypto.subtle.deriveKey(
-                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
-                keyMaterial,
-                { name: 'AES-GCM', length: 256 },
-                false,
-                ['encrypt', 'decrypt']
-            );
-        }
-
-        async function encryptSecret(secret, password) {
-            const enc = new TextEncoder();
-            const salt = crypto.getRandomValues(new Uint8Array(16));
-            const iv = crypto.getRandomValues(new Uint8Array(12));
-            const key = await deriveKey(password, salt);
-            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(secret));
-            return {
-                cipher: btoa(String.fromCharCode(...new Uint8Array(cipher))),
-                salt: btoa(String.fromCharCode(...salt)),
-                iv: btoa(String.fromCharCode(...iv))
-            };
-        }
-
-        async function decryptSecret(cipherB64, saltB64, ivB64, password) {
-            const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
-            const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
-            const cipher = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
-            const key = await deriveKey(password, salt);
-            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
-            return new TextDecoder().decode(decrypted);
-        }
-
-        function initVaultListener() {
-            if (!currentUser) return;
-            db.collection('vault')
-                .where('owner', '==', currentUser.email)
-                .onSnapshot(snapshot => {
-                    rawVaultItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    if (vaultMasterKey) renderVaultItems();
-                });
-        }
-
-        async function unlockVault(e) {
-            e.preventDefault();
-            const pass = document.getElementById('vault-master-pass').value;
-            if (!pass) return;
-            vaultMasterKey = pass;
-            document.getElementById('vault-locked-view').classList.add('hidden');
-            document.getElementById('vault-unlocked-view').classList.remove('hidden');
-            renderVaultItems();
-        }
-
-        function lockVault() {
-            vaultMasterKey = null;
-            const passInput = document.getElementById('vault-master-pass');
-            if (passInput) passInput.value = '';
-            document.getElementById('vault-unlocked-view')?.classList.add('hidden');
-            document.getElementById('vault-locked-view')?.classList.remove('hidden');
-        }
-
-        function openAddVaultItemModal() {
-            document.getElementById('vault-title').value = '';
-            document.getElementById('vault-username').value = '';
-            document.getElementById('vault-secret').value = '';
-            openModal('modal-vault-add');
-        }
-
-        async function saveVaultItem(e) {
-            e.preventDefault();
-            if (!vaultMasterKey || !currentUser) return;
-
-            const title = document.getElementById('vault-title').value.trim();
-            const username = document.getElementById('vault-username').value.trim();
-            const secret = document.getElementById('vault-secret').value;
-
-            const encrypted = await encryptSecret(secret, vaultMasterKey);
-
-            await db.collection('vault').add({
-                title,
-                username,
-                cipher: encrypted.cipher,
-                salt: encrypted.salt,
-                iv: encrypted.iv,
-                owner: currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        function initAdminUsersListener() {
+            db.collection('users').onSnapshot(snapshot => {
+                allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAdminUserList();
+            }, err => {
+                console.error("Fehler beim Laden der Benutzerliste:", err);
             });
-
-            closeModal('modal-vault-add');
         }
 
-        async function renderVaultItems() {
-            const list = document.getElementById('vault-items-list');
-            if (!list || !vaultMasterKey) return;
-            if (!rawVaultItems.length) {
-                list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Einträge hinterlegt.</div>';
-                return;
+        async function updateUserData(u, data, msg) {
+            try {
+                await db.collection('users').doc(u.id).update(data);
+                logSystemEvent('admin', msg, { ziel: u.email });
+            } catch (err) {
+                alert('Fehlgeschlagen: ' + err.message);
             }
+        }
 
-            const frag = document.createDocumentFragment();
-            let wrongPassCount = 0;
+        function guardSelf(u, text) {
+            if (u.id === currentUser.uid) {
+                alert(`Du kannst dich nicht selbst ${text}.`);
+                return true;
+            }
+            return false;
+        }
 
-            for (const item of rawVaultItems) {
-                let secret = null;
-                try {
-                    secret = await decryptSecret(item.cipher, item.salt, item.iv, vaultMasterKey);
-                } catch (err) {
-                    wrongPassCount++;
-                }
+        function guardLastAdmin(u, text) {
+            if (u.role === 'admin' && adminCount() <= 1) {
+                alert(`Der letzte Admin kann nicht ${text} werden.`);
+                return true;
+            }
+            return false;
+        }
+
+        function toggleUserPerm(id, key, checked) {
+            const u = allUsers.find(x => x.id === id);
+            if (!u) return;
+            updateUserData(u, { [`permissions.${key}`]: checked }, `Recht "${key}" ${checked ? 'erteilt' : 'entzogen'}`);
+        }
+
+        function setRole(u, role) {
+            if (guardSelf(u, 'herabstufen') && role !== 'admin') return renderAdminUserList();
+            if (role !== 'admin' && guardLastAdmin(u, 'herabgestuft')) return renderAdminUserList();
+            updateUserData(u, { role, permissions: ROLES[role].perms }, `Rolle auf "${ROLES[role].label}" gesetzt`);
+        }
+
+        function setStatus(u, status) {
+            if (status !== 'active' && (guardSelf(u, 'sperren') || guardLastAdmin(u, 'gesperrt'))) return;
+            const text = { active: 'freigegeben / entsperrt', blocked: 'gesperrt' }[status];
+            updateUserData(u, { status }, `Benutzer ${text}`);
+        }
+
+        async function removeUser(u) {
+            if (guardSelf(u, 'löschen') || guardLastAdmin(u, 'gelöscht')) return;
+            if (!confirm(`Profil von ${u.email} löschen?\nDer Zugriff ist danach beendet. Das Login-Konto und seine Daten bleiben in Firebase bestehen und müssen dort separat gelöscht werden.`)) return;
+            try {
+                await db.collection('users').doc(u.id).delete();
+                logSystemEvent('admin', 'Benutzerprofil gelöscht', { ziel: u.email });
+            } catch (err) {
+                alert('Fehlgeschlagen: ' + err.message);
+            }
+        }
+
+        function ensureToolbar() {
+            if (document.getElementById('admin-toolbar')) return;
+            const list = document.getElementById('admin-user-list');
+            if (!list) return;
+
+            const bar = document.createElement('div');
+            bar.id = 'admin-toolbar';
+            bar.className = 'flex flex-wrap gap-2 mb-4';
+            bar.innerHTML = `
+                <input id="adm-search" placeholder="Suchen (Name, E-Mail)..." class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 w-56 focus:outline-none focus:border-amber-500">
+                <select id="adm-status" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none">
+                    <option value="all">Alle</option>
+                    <option value="pending">Wartet auf Freigabe</option>
+                    <option value="active">Aktiv</option>
+                    <option value="blocked">Gesperrt</option>
+                </select>
+            `;
+            list.parentNode.insertBefore(bar, list);
+
+            bar.querySelector('#adm-search').addEventListener('input', e => {
+                filterText = e.target.value.toLowerCase();
+                renderAdminUserList();
+            });
+            bar.querySelector('#adm-status').addEventListener('change', e => {
+                filterStatus = e.target.value;
+                renderAdminUserList();
+            });
+        }
+
+        const BADGE = {
+            active: ['Aktiv', 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'],
+            pending: ['Wartet auf Freigabe', 'bg-amber-500/10 text-amber-400 border-amber-500/20'],
+            blocked: ['Gesperrt', 'bg-rose-500/10 text-rose-400 border-rose-500/20']
+        };
+
+        const fmtDate = ts => ts?.toDate ? ts.toDate().toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) : '–';
+
+        function renderAdminUserList() {
+            const listEl = document.getElementById('admin-user-list');
+            if (!listEl) return;
+            ensureToolbar();
+
+            const pending = allUsers.filter(u => statusOf(u) === 'pending').length;
+            document.getElementById('user-count-badge').innerText =
+                `${allUsers.length} Benutzer${pending ? ` · ${pending} offen` : ''}`;
+
+            const rows = allUsers.filter(u =>
+                (filterStatus === 'all' || statusOf(u) === filterStatus) &&
+                (!filterText || `${u.displayName} ${u.email}`.toLowerCase().includes(filterText)))
+                .sort((a, b) => (statusOf(a) === 'pending' ? -1 : 1) - (statusOf(b) === 'pending' ? -1 : 1));
+
+            listEl.innerHTML = '';
+            rows.forEach(u => {
+                const self = u.id === currentUser.uid;
+                const st = statusOf(u);
+                const perms = u.permissions || {};
+                const [bl, bc] = BADGE[st] || BADGE.active;
 
                 const card = document.createElement('div');
-                card.className = "p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs";
+                card.className = 'bg-slate-950/40 border border-slate-800/80 rounded-2xl p-4 space-y-3';
                 card.innerHTML = `
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
-                            <i class="fa-solid fa-key"></i>
-                        </div>
+                    <div class="flex flex-wrap items-center justify-between gap-2">
                         <div>
-                            <span class="font-semibold text-slate-200 text-sm block">${esc(item.title)}</span>
-                            ${item.username ? `<span class="text-[11px] text-slate-400 block">${esc(item.username)}</span>` : ''}
+                            <div class="font-semibold text-slate-200 text-sm">
+                                ${esc(u.displayName || u.email)} ${self ? '<span class="text-[10px] text-slate-500 font-normal">(du)</span>' : ''}
+                            </div>
+                            <div class="text-xs text-slate-500">${esc(u.email)}</div>
+                            <div class="text-[10px] text-slate-600 mt-0.5">Registriert: ${fmtDate(u.createdAt)} · Letzter Login: ${fmtDate(u.lastLogin)}</div>
                         </div>
+                        <span class="text-[10px] border px-2 py-1 rounded-lg ${bc}">${bl}</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <div data-val class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-[11px] text-amber-300 truncate max-w-[200px]"></div>
-                        <button data-show class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''} title="Anzeigen / Maskieren">
-                            <i class="fa-regular fa-eye"></i>
-                        </button>
-                        <button data-copy class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''} title="Kopieren">
-                            <i class="fa-regular fa-copy"></i>
-                        </button>
-                        <button data-del class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl" title="Löschen">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <select data-role class="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none" ${self ? 'disabled' : ''}>
+                            ${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${u.role === k ? 'selected' : ''}>${r.label}</option>`).join('')}
+                        </select>
+                        ${Object.entries(MODULES).map(([k, l]) => `
+                            <label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${u.role === 'admin' ? 'opacity-50' : 'cursor-pointer'}">
+                                <input type="checkbox" data-perm="${k}" ${perms[k] !== false ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">
+                                ${l}
+                            </label>
+                        `).join('')}
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 text-xs pt-1">
+                        ${st !== 'active' ? '<button data-act="approve" class="px-3 py-1.5 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-600/30">Freigeben</button>' : ''}
+                        ${st === 'active' && !self ? '<button data-act="block" class="px-3 py-1.5 rounded-xl bg-amber-600/20 border border-amber-500/30 text-amber-300 hover:bg-amber-600/30">Sperren</button>' : ''}
+                        ${!self ? '<button data-act="delete" class="px-3 py-1.5 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-300 hover:bg-rose-600/30">Profil löschen</button>' : ''}
                     </div>
                 `;
 
-                const valEl = card.querySelector('[data-val]');
-                let isShown = false;
-                valEl.textContent = secret === null ? 'Falsches Master-Passwort' : '••••••••';
+                card.querySelector('[data-role]').addEventListener('change', e => setRole(u, e.target.value));
+                card.querySelectorAll('[data-perm]').forEach(i => i.addEventListener('change', e => toggleUserPerm(u.id, i.dataset.perm, e.target.checked)));
+                card.querySelector('[data-act="approve"]')?.addEventListener('click', () => setStatus(u, 'active'));
+                card.querySelector('[data-act="block"]')?.addEventListener('click', () => setStatus(u, 'blocked'));
+                card.querySelector('[data-act="delete"]')?.addEventListener('click', () => removeUser(u));
 
-                card.querySelector('[data-show]').addEventListener('click', () => {
-                    isShown = !isShown;
-                    valEl.textContent = isShown ? secret : '••••••••';
-                });
+                listEl.appendChild(card);
+            });
 
-                card.querySelector('[data-copy]').addEventListener('click', async () => {
-                    await navigator.clipboard.writeText(secret);
-                    setTimeout(() => navigator.clipboard.writeText('').catch(() => {}), 30000);
-                    alert('Kopiert! (Zwischenablage wird nach 30 Sekunden automatisch geleert)');
-                });
-
-                card.querySelector('[data-del]').addEventListener('click', () => {
-                    if (confirm('Eintrag wirklich löschen?')) deleteVaultItem(item.id);
-                });
-
-                frag.appendChild(card);
+            if (!rows.length) {
+                listEl.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Benutzer gefunden.</div>';
             }
-
-            list.innerHTML = '';
-            if (wrongPassCount && wrongPassCount === rawVaultItems.length) {
-                list.innerHTML = '<div class="text-xs text-rose-400 text-center py-2">Master-Passwort stimmt nicht. Bitte Safe sperren und neu entsperren.</div>';
-            }
-            list.appendChild(frag);
-        }
-
-        async function deleteVaultItem(id) {
-            await db.collection('vault').doc(id).delete();
-        }
-
-        // ==========================================
-        // PUSH & EINSTELLUNGEN
-        // ==========================================
-        function openSettingsModal() { openModal('modal-settings'); }
-
-        async function toggleMasterPush() {
-            if (!currentUser) return;
-            if (currentUser.notificationsEnabled) {
-                currentUser.notificationsEnabled = false;
-                await db.collection('users').doc(currentUser.uid).update({ notificationsEnabled: false });
-                alert('Push deaktiviert.');
-            } else {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    currentUser.notificationsEnabled = true;
-                    await db.collection('users').doc(currentUser.uid).update({ notificationsEnabled: true });
-                    alert('Push aktiviert!');
-                }
-            }
-        }
-
-        function sendLocalNotification(title, body) {
-            if (Notification.permission === 'granted') {
-                new Notification(title, { body, icon: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f6e1.png' });
-            }
-        }
-
-        async function saveNotificationPref(prefKey, isChecked) {
-            if (!currentUser) return;
-            currentUser.userPrefs = currentUser.userPrefs || {};
-            currentUser.userPrefs[prefKey] = isChecked;
-            await db.collection('users').doc(currentUser.uid).update({ [`userPrefs.${prefKey}`]: isChecked });
         }
 
         // ==========================================
@@ -2456,7 +2365,7 @@
                 return;
             }
 
-            filtered.forEach(log => {
+            tbody.innerHTML = filtered.map(log => {
                 let timeStr = '--:--:--';
                 if (log.timestamp && log.timestamp.toDate) {
                     const d = log.timestamp.toDate();
@@ -2464,17 +2373,16 @@
                 }
                 const det = [log.device, log.details && Object.keys(log.details).length ? JSON.stringify(log.details) : ''].filter(Boolean).join(' · ');
 
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-900/50 transition-colors";
-                row.innerHTML = `
-                    <td class="p-2.5 text-slate-400 whitespace-nowrap">${esc(timeStr)}</td>
-                    <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${esc(log.category || 'Info')}</span></td>
-                    <td class="p-2.5 text-slate-200">${esc(log.userName || 'Unbekannt')}</td>
-                    <td class="p-2.5 font-medium text-slate-200">${esc(log.action || '-')}</td>
-                    <td class="p-2.5 text-slate-400 truncate max-w-[180px]" title="${esc(det)}">${esc(det || '-')}</td>
+                return `
+                    <tr class="hover:bg-slate-900/50 transition-colors">
+                        <td class="p-2.5 text-slate-400 whitespace-nowrap">${esc(timeStr)}</td>
+                        <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${esc(log.category || 'Info')}</span></td>
+                        <td class="p-2.5 text-slate-200">${esc(log.userName || 'Unbekannt')}</td>
+                        <td class="p-2.5 font-medium text-slate-200">${esc(log.action || '-')}</td>
+                        <td class="p-2.5 text-slate-400 truncate max-w-[180px]" title="${esc(det)}">${esc(det || '-')}</td>
+                    </tr>
                 `;
-                tbody.appendChild(row);
-            });
+            }).join('');
         }
 
         async function clearSystemLogs() {
