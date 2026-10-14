@@ -151,6 +151,7 @@
         </footer>
     </div>
 
+
     <!-- ========================================== -->
     <!-- 2. HAUPT-DASHBOARD                         -->
     <!-- ========================================== -->
@@ -280,7 +281,7 @@
                         </div>
                         <div class="text-center py-2">
                             <div id="work-active-timer" class="text-3xl font-mono font-bold text-slate-100 tracking-wider">00:00:00</div>
-                            <div id="work-start-hint" class="text-xs text-slate-500 mt-1">Nicht eingestempelt (Pause: 60 Min)</div>
+                            <div id="work-start-hint" class="text-xs text-slate-500 mt-1">Nicht eingestempelt (Pause: 60 Min ab 6 Std.)</div>
                         </div>
                         <div class="pt-3">
                             <button id="btn-toggle-work" onclick="toggleWorkSession()" class="w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20">
@@ -320,9 +321,7 @@
                                 <i class="fa-solid fa-file-invoice text-amber-400"></i> Stundenzettel-Export
                             </span>
                         </div>
-                        <p class="text-xs text-slate-400 mb-2">
-                            Monatlicher Nachweis zur Vorlage beim Arbeitgeber.
-                        </p>
+                        <p class="text-xs text-slate-400 mb-2">Monatlicher Nachweis zur Vorlage beim Arbeitgeber.</p>
                         <div class="space-y-2">
                             <button onclick="exportWorkCSV()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-colors">
                                 <i class="fa-solid fa-file-csv text-emerald-400"></i>
@@ -654,12 +653,12 @@
                     </div>
                 </div>
             </div>
-            <div class="text-[11px] text-slate-500 text-center">Familie-Mainz Hub &bull; v3.4 (Security Enhanced)</div>
+            <div class="text-[11px] text-slate-500 text-center">Familie-Mainz Hub &bull; v3.4</div>
         </div>
     </aside>
 
     <!-- ========================================== -->
-    <!-- 4. MODALS                                  -->
+    <!-- 4. MODALS (ARBEITSZEITEN, FINANZEN, SAFE)  -->
     <!-- ========================================== -->
     <div id="modal-work-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
@@ -901,16 +900,31 @@
         </div>
     </div>
 
+
     <!-- ========================================== -->
     <!-- LOGIK & VOLLSTÄNDIGER FIREBASE CODE        -->
     <!-- ========================================== -->
     <script>
-        // ---------- Globale Helfer (XSS-Schutz & Lokales Datum) ----------
+        // ---------- Globale Helfer ----------
         window.esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
             ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         
         window.localDate = (d = new Date()) =>
             `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+        // ---------- Rollen- & Modul-Definitionen ----------
+        const ROLES = {
+            admin: { label: 'Admin', perms: { kalender: true, zeit: true, finanzen: true, tresor: true, admin: true } },
+            user:  { label: 'Familie', perms: { kalender: true, zeit: true, finanzen: true, tresor: true, admin: false } },
+            guest: { label: 'Gast', perms: { kalender: true, zeit: false, finanzen: false, tresor: false, admin: false } }
+        };
+        const MODULES = { kalender: 'Kalender & Pinnwand', zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe' };
+        const NAV = { zeit: 'worktime', finanzen: 'finanzen', tresor: 'vault' };
+        let filterText = '', filterStatus = 'all';
+
+        const can = (u, key) => u && (u.role === 'admin' || (u.permissions || {})[key] !== false);
+        const statusOf = u => u?.status || 'active';
+        const adminCount = () => allUsers.filter(u => u.role === 'admin' && statusOf(u) === 'active').length;
 
         const firebaseConfig = {
             apiKey: "AIzaSyCfKWWHQ17-ujYGJcHw6efFBESArA8uY0Q",
@@ -994,11 +1008,6 @@
             } catch (err) {}
         }
 
-        function getDefaultPermissions(role) {
-            if (role === 'admin') return { finanzen: true, kalender: true, admin: true };
-            return { finanzen: true, kalender: true, admin: false };
-        }
-
         function toggleSideMenu(open) {
             const drawer = document.getElementById('side-drawer');
             const backdrop = document.getElementById('menu-backdrop');
@@ -1029,12 +1038,25 @@
         setInterval(updateClock, 1000);
         updateClock();
 
+        // Dynamisches Tab-Umschalten inklusive Rechteprüfung
         function switchTab(tabId) {
+            // Sichtbarkeit der Menüpunkte prüfen
+            Object.entries(NAV).forEach(([perm, id]) => {
+                document.getElementById('nav-btn-' + id)?.classList.toggle('hidden', !can(currentUser, perm));
+            });
+
+            const need = Object.entries(NAV).find(([, id]) => id === tabId)?.[0];
+            if (need && !can(currentUser, need)) {
+                alert('Dafür hast du keine Berechtigung.');
+                tabId = 'start';
+            }
+
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/20');
                 btn.classList.add('text-slate-300');
             });
+
             const activeTab = document.getElementById('tab-' + tabId);
             const activeBtn = document.getElementById('nav-btn-' + tabId);
             if (activeTab) activeTab.classList.remove('hidden');
@@ -1042,6 +1064,7 @@
                 activeBtn.classList.remove('text-slate-300');
                 activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/20');
             }
+
             if (tabId === 'start') renderCalendar();
             else if (tabId === 'worktime') renderWorkTimeTable();
             else if (tabId === 'finanzen') renderFinanceData();
@@ -1089,6 +1112,7 @@
             }
         }
 
+        // Registrierung mit Freigabe-Status (status: 'pending')
         async function handleSignUp(e) {
             e.preventDefault();
             hideAlert();
@@ -1101,18 +1125,15 @@
             btn.innerText = 'Erstelle Benutzer...';
 
             try {
-                const userCred = await auth.createUserWithEmailAndPassword(email, password);
-                await db.collection('users').doc(userCred.user.uid).set({
-                    firstName: firstName,
-                    lastName: lastName,
-                    displayName: `${firstName} ${lastName}`,
-                    email: email,
-                    role: 'user', // Niemals Admin per E-Mail-Prüfung
-                    permissions: getDefaultPermissions('user'),
+                const cred = await auth.createUserWithEmailAndPassword(email, password);
+                await db.collection('users').doc(cred.user.uid).set({
+                    firstName, lastName, displayName: `${firstName} ${lastName}`, email,
+                    role: 'user',
+                    status: 'pending', // Wartet auf Admin-Freigabe
+                    permissions: ROLES.user.perms,
                     userPrefs: { notifyWork: true, notifyEvents: true },
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                logSystemEvent('auth', 'Neuer Benutzer registriert', { email, name: `${firstName} ${lastName}` });
             } catch (err) {
                 showAlert(err.code === 'auth/email-already-in-use' ? 'Diese E-Mail ist bereits registriert.'
                     : err.code === 'auth/weak-password' ? 'Passwort zu schwach (min. 6 Zeichen).'
@@ -1125,18 +1146,46 @@
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                const doc = await db.collection('users').doc(user.uid).get();
+                const docRef = db.collection('users').doc(user.uid);
+                const doc = await docRef.get();
                 let displayName = user.email.split('@')[0];
                 let userRole = 'user';
-                let permissions = getDefaultPermissions('user');
+                let permissions = ROLES.user.perms;
                 let userPrefs = { notifyWork: true, notifyEvents: true };
+                let userStatus = 'active';
 
                 if (doc.exists) {
                     const data = doc.data();
+                    userStatus = data.status || 'active';
+
+                    // Prüfen, ob Konto freigegeben ist
+                    if (userStatus !== 'active') {
+                        await auth.signOut();
+                        showAlert(userStatus === 'pending'
+                            ? 'Dein Konto wartet noch auf Freigabe durch einen Admin.'
+                            : 'Dein Konto wurde gesperrt.');
+                        return;
+                    }
+
+                    // Letzten Login erfassen
+                    docRef.update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
+
                     if (data.firstName) displayName = data.firstName;
                     if (data.role) userRole = data.role;
                     if (data.permissions) permissions = data.permissions;
                     if (data.userPrefs) userPrefs = { ...userPrefs, ...data.userPrefs };
+                } else {
+                    // Fallback beim ersten Admin-Account
+                    await docRef.set({
+                        displayName, email: user.email,
+                        role: 'admin', status: 'active',
+                        permissions: ROLES.admin.perms,
+                        userPrefs,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    userRole = 'admin';
+                    permissions = ROLES.admin.perms;
                 }
 
                 currentUser = { 
@@ -1144,6 +1193,7 @@
                     email: user.email, 
                     name: displayName, 
                     role: userRole, 
+                    status: userStatus,
                     permissions: permissions,
                     userPrefs: userPrefs
                 };
@@ -1177,7 +1227,6 @@
                 initFinanceListener();
                 loadWeather();
             } else {
-                // Listener abbestellen und Zustand leeren
                 unsubs.forEach(u => { try { u(); } catch (e) {} });
                 unsubs = [];
                 allUsers = []; calendarEvents = []; familyNotes = []; familyTodos = [];
@@ -1202,7 +1251,7 @@
         }
 
         // ==========================================
-        // ZEITERFASSUNG (Pausenlogik & Doppel-Klick-Schutz)
+        // ZEITERFASSUNG
         // ==========================================
         function initWorkTimeListener() {
             if (!currentUser) return;
@@ -1281,7 +1330,6 @@
                     const start = activeWorkSession.startTime ? activeWorkSession.startTime.toDate() : new Date();
                     const end = new Date();
                     const totalMinutes = Math.max(0, Math.round((end - start) / 60000));
-                    // 60 Min Pause erst ab 6 Stunden Arbeitszeit
                     const pauseMin = totalMinutes >= 360 ? 60 : 0;
                     const t = d => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
@@ -2114,7 +2162,7 @@
             const salt = crypto.getRandomValues(new Uint8Array(16));
             const iv = crypto.getRandomValues(new Uint8Array(12));
             const key = await deriveKey(password, salt);
-            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(secret));
+            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, enc.encode(secret));
             return {
                 cipher: btoa(String.fromCharCode(...new Uint8Array(cipher))),
                 salt: btoa(String.fromCharCode(...salt)),
@@ -2127,7 +2175,7 @@
             const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
             const cipher = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
             const key = await deriveKey(password, salt);
-            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
+            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, cipher);
             return new TextDecoder().decode(decrypted);
         }
 
@@ -2305,19 +2353,10 @@
         // KALENDER, PINNWAND, TO-DOS
         // ==========================================
         function initCalendarListener() {
-            let pub = [], mine = [];
-            const merge = () => {
-                const map = new Map();
-                [...pub, ...mine].forEach(e => map.set(e.id, e));
-                calendarEvents = [...map.values()];
+            db.collection('events').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                calendarEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderCalendar();
-            };
-            const toList = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
-
-            db.collection('events').where('isPublic', '==', true)
-                .onSnapshot(s => { pub = toList(s); merge(); });
-            db.collection('events').where('owner', '==', currentUser.email)
-                .onSnapshot(s => { mine = toList(s); merge(); });
+            });
         }
 
         function renderCalendar() {
@@ -2378,7 +2417,6 @@
             }
         }
 
-        // Wechselt auf den 1. des Monats, um Sprünge an 31er-Tagen zu verhindern
         function changeCalendarMonth(delta) {
             currentCalendarDate.setDate(1);
             currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
@@ -2518,7 +2556,7 @@
         async function deleteTodo(id) { await db.collection('todos').doc(id).delete(); }
 
         // ==========================================
-        // ADMIN & RECHTE (Selbstschutz gegen Selbstdepotenzierung)
+        // ADMIN & RECHTESYSTEM (mit Toolbar, Status, Rollen & Schutz)
         // ==========================================
         function initAdminUsersListener() {
             db.collection('users').onSnapshot(snapshot => {
@@ -2527,60 +2565,167 @@
             });
         }
 
-        function renderAdminUserList() {
-            const listEl = document.getElementById('admin-user-list');
-            const badgeEl = document.getElementById('user-count-badge');
-            if (!listEl) return;
-            badgeEl.innerText = `${allUsers.length} Benutzer`;
-            listEl.innerHTML = '';
+        async function updateUserData(u, data, msg) {
+            try {
+                await db.collection('users').doc(u.id).update(data);
+                logSystemEvent('admin', msg, { ziel: u.email });
+            } catch (err) {
+                alert('Fehlgeschlagen: ' + err.message);
+            }
+        }
 
-            allUsers.forEach(u => {
-                const perms = u.permissions || getDefaultPermissions(u.role || 'user');
-                const isAdmin = u.role === 'admin' || perms.admin;
-                const isSelf = currentUser && u.id === currentUser.uid;
-                const nameDisplay = u.displayName || u.email.split('@')[0];
+        function guardSelf(u, text) {
+            if (u.id === currentUser.uid) {
+                alert(`Du kannst dich nicht selbst ${text}.`);
+                return true;
+            }
+            return false;
+        }
 
-                const card = document.createElement('div');
-                card.className = "bg-slate-950/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4";
-                card.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-2xl ${isAdmin ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400'} flex items-center justify-center font-bold text-sm">
-                            <i class="${isAdmin ? 'fa-solid fa-shield-halved' : 'fa-solid fa-user'}"></i>
-                        </div>
-                        <div>
-                            <div class="font-semibold text-slate-200 text-sm">${esc(nameDisplay)}</div>
-                            <div class="text-xs text-slate-500">${esc(u.email)}</div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <label class="flex items-center space-x-2 bg-slate-900 border border-slate-800/80 px-3 py-1.5 rounded-xl text-xs ${isSelf ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}">
-                            <input type="checkbox" ${isAdmin ? 'checked' : ''} ${isSelf ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 text-amber-500 w-3.5 h-3.5">
-                            <span class="text-amber-300 font-medium">Admin</span>
-                        </label>
-                    </div>
-                `;
-                card.querySelector('input').addEventListener('change', e => toggleUserPerm(u.id, 'admin', e.target.checked));
-                listEl.appendChild(card);
+        function guardLastAdmin(u, text) {
+            if (u.role === 'admin' && adminCount() <= 1) {
+                alert(`Der letzte Admin kann nicht ${text} werden.`);
+                return true;
+            }
+            return false;
+        }
+
+        function toggleUserPerm(id, key, checked) {
+            const u = allUsers.find(x => x.id === id);
+            if (!u) return;
+            updateUserData(u, { [`permissions.${key}`]: checked }, `Recht "${key}" ${checked ? 'erteilt' : 'entzogen'}`);
+        }
+
+        function setRole(u, role) {
+            if (guardSelf(u, 'herabstufen') && role !== 'admin') return renderAdminUserList();
+            if (role !== 'admin' && guardLastAdmin(u, 'herabgestuft')) return renderAdminUserList();
+            updateUserData(u, { role, permissions: ROLES[role].perms }, `Rolle auf "${ROLES[role].label}" gesetzt`);
+        }
+
+        function setStatus(u, status) {
+            if (status !== 'active' && (guardSelf(u, 'sperren') || guardLastAdmin(u, 'gesperrt'))) return;
+            const text = { active: 'freigegeben / entsperrt', blocked: 'gesperrt' }[status];
+            updateUserData(u, { status }, `Benutzer ${text}`);
+        }
+
+        async function removeUser(u) {
+            if (guardSelf(u, 'löschen') || guardLastAdmin(u, 'gelöscht')) return;
+            if (!confirm(`Profil von ${u.email} löschen?\nDer Zugriff ist danach beendet. Das Login-Konto und seine Daten bleiben in Firebase bestehen und müssen dort separat gelöscht werden.`)) return;
+            try {
+                await db.collection('users').doc(u.id).delete();
+                logSystemEvent('admin', 'Benutzerprofil gelöscht', { ziel: u.email });
+            } catch (err) {
+                alert('Fehlgeschlagen: ' + err.message);
+            }
+        }
+
+        function ensureToolbar() {
+            if (document.getElementById('admin-toolbar')) return;
+            const list = document.getElementById('admin-user-list');
+            if (!list) return;
+
+            const bar = document.createElement('div');
+            bar.id = 'admin-toolbar';
+            bar.className = 'flex flex-wrap gap-2 mb-4';
+            bar.innerHTML = `
+                <input id="adm-search" placeholder="Suchen (Name, E-Mail)..." class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 w-56 focus:outline-none focus:border-amber-500">
+                <select id="adm-status" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none">
+                    <option value="all">Alle</option>
+                    <option value="pending">Wartet auf Freigabe</option>
+                    <option value="active">Aktiv</option>
+                    <option value="blocked">Gesperrt</option>
+                </select>
+            `;
+            list.parentNode.insertBefore(bar, list);
+
+            bar.querySelector('#adm-search').addEventListener('input', e => {
+                filterText = e.target.value.toLowerCase();
+                renderAdminUserList();
+            });
+            bar.querySelector('#adm-status').addEventListener('change', e => {
+                filterStatus = e.target.value;
+                renderAdminUserList();
             });
         }
 
-        async function toggleUserPerm(userId, permKey, isChecked) {
-            if (currentUser && userId === currentUser.uid && permKey === 'admin' && !isChecked) {
-                alert('Du kannst dir deine eigenen Admin-Rechte nicht entziehen.');
-                renderAdminUserList();
-                return;
+        const BADGE = {
+            active: ['Aktiv', 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'],
+            pending: ['Wartet auf Freigabe', 'bg-amber-500/10 text-amber-400 border-amber-500/20'],
+            blocked: ['Gesperrt', 'bg-rose-500/10 text-rose-400 border-rose-500/20']
+        };
+
+        const fmtDate = ts => ts?.toDate ? ts.toDate().toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) : '–';
+
+        function renderAdminUserList() {
+            const listEl = document.getElementById('admin-user-list');
+            if (!listEl) return;
+            ensureToolbar();
+
+            const pending = allUsers.filter(u => statusOf(u) === 'pending').length;
+            document.getElementById('user-count-badge').innerText =
+                `${allUsers.length} Benutzer${pending ? ` · ${pending} offen` : ''}`;
+
+            const rows = allUsers.filter(u =>
+                (filterStatus === 'all' || statusOf(u) === filterStatus) &&
+                (!filterText || `${u.displayName} ${u.email}`.toLowerCase().includes(filterText)))
+                .sort((a, b) => (statusOf(a) === 'pending' ? -1 : 1) - (statusOf(b) === 'pending' ? -1 : 1));
+
+            listEl.innerHTML = '';
+            rows.forEach(u => {
+                const self = u.id === currentUser.uid;
+                const st = statusOf(u);
+                const perms = u.permissions || {};
+                const [bl, bc] = BADGE[st] || BADGE.active;
+
+                const card = document.createElement('div');
+                card.className = 'bg-slate-950/40 border border-slate-800/80 rounded-2xl p-4 space-y-3';
+                card.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <div class="font-semibold text-slate-200 text-sm">
+                                ${esc(u.displayName || u.email)} ${self ? '<span class="text-[10px] text-slate-500 font-normal">(du)</span>' : ''}
+                            </div>
+                            <div class="text-xs text-slate-500">${esc(u.email)}</div>
+                            <div class="text-[10px] text-slate-600 mt-0.5">Registriert: ${fmtDate(u.createdAt)} · Letzter Login: ${fmtDate(u.lastLogin)}</div>
+                        </div>
+                        <span class="text-[10px] border px-2 py-1 rounded-lg ${bc}">${bl}</span>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <select data-role class="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none" ${self ? 'disabled' : ''}>
+                            ${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${u.role === k ? 'selected' : ''}>${r.label}</option>`).join('')}
+                        </select>
+                        ${Object.entries(MODULES).map(([k, l]) => `
+                            <label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${u.role === 'admin' ? 'opacity-50' : 'cursor-pointer'}">
+                                <input type="checkbox" data-perm="${k}" ${perms[k] !== false ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">
+                                ${l}
+                            </label>
+                        `).join('')}
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 text-xs pt-1">
+                        ${st !== 'active' ? '<button data-act="approve" class="px-3 py-1.5 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-600/30">Freigeben</button>' : ''}
+                        ${st === 'active' && !self ? '<button data-act="block" class="px-3 py-1.5 rounded-xl bg-amber-600/20 border border-amber-500/30 text-amber-300 hover:bg-amber-600/30">Sperren</button>' : ''}
+                        ${!self ? '<button data-act="delete" class="px-3 py-1.5 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-300 hover:bg-rose-600/30">Profil löschen</button>' : ''}
+                    </div>
+                `;
+
+                card.querySelector('[data-role]').addEventListener('change', e => setRole(u, e.target.value));
+                card.querySelectorAll('[data-perm]').forEach(i => i.addEventListener('change', e => toggleUserPerm(u.id, i.dataset.perm, e.target.checked)));
+                card.querySelector('[data-act="approve"]')?.addEventListener('click', () => setStatus(u, 'active'));
+                card.querySelector('[data-act="block"]')?.addEventListener('click', () => setStatus(u, 'blocked'));
+                card.querySelector('[data-act="delete"]')?.addEventListener('click', () => removeUser(u));
+
+                listEl.appendChild(card);
+            });
+
+            if (!rows.length) {
+                listEl.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Benutzer gefunden.</div>';
             }
-            const target = allUsers.find(u => u.id === userId);
-            if (!target) return;
-            const updatedPerms = { ...(target.permissions || getDefaultPermissions(target.role || 'user')) };
-            updatedPerms[permKey] = isChecked;
-            const updateData = { permissions: updatedPerms };
-            if (permKey === 'admin') updateData.role = isChecked ? 'admin' : 'user';
-            await db.collection('users').doc(userId).update(updateData);
         }
 
         // ==========================================
-        // SYSTEM LOGS (Details-Spalte & Chunking)
+        // SYSTEM LOGS
         // ==========================================
         function initSystemLogsListener() {
             db.collection('system_logs').orderBy('timestamp', 'desc').limit(200).onSnapshot(snapshot => {
@@ -2609,23 +2754,25 @@
                 return;
             }
 
-            tbody.innerHTML = filtered.map(log => {
+            filtered.forEach(log => {
                 let timeStr = '--:--:--';
                 if (log.timestamp && log.timestamp.toDate) {
                     const d = log.timestamp.toDate();
                     timeStr = `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`;
                 }
                 const det = [log.device, log.details && Object.keys(log.details).length ? JSON.stringify(log.details) : ''].filter(Boolean).join(' · ');
-                return `
-                    <tr class="hover:bg-slate-900/50">
-                        <td class="p-2.5 text-slate-400 whitespace-nowrap">${esc(timeStr)}</td>
-                        <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${esc(log.category || 'Info')}</span></td>
-                        <td class="p-2.5 text-slate-200">${esc(log.userName || 'Unbekannt')}</td>
-                        <td class="p-2.5 font-medium text-slate-200">${esc(log.action || '-')}</td>
-                        <td class="p-2.5 text-slate-400 truncate max-w-[180px]" title="${esc(det)}">${esc(det || '-')}</td>
-                    </tr>
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-900/50 transition-colors";
+                row.innerHTML = `
+                    <td class="p-2.5 text-slate-400 whitespace-nowrap">${esc(timeStr)}</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${esc(log.category || 'Info')}</span></td>
+                    <td class="p-2.5 text-slate-200">${esc(log.userName || 'Unbekannt')}</td>
+                    <td class="p-2.5 font-medium text-slate-200">${esc(log.action || '-')}</td>
+                    <td class="p-2.5 text-slate-400 truncate max-w-[180px]" title="${esc(det)}">${esc(det || '-')}</td>
                 `;
-            }).join('');
+                tbody.appendChild(row);
+            });
         }
 
         async function clearSystemLogs() {
