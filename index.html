@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Julian-Mainz.de</title>
+    <title>J.Mainz Dashboard</title>
 
     <!-- PWA / App Manifest & Metatags -->
     <link rel="manifest" href="/manifest.json">
@@ -11,7 +11,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Mainz Hub">
+    <meta name="apple-mobile-web-app-title" content="J.Mainz Dashboard">
     <link rel="apple-touch-icon" href="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f6e1.png">
     
     <!-- Tailwind CSS CDN -->
@@ -82,7 +82,7 @@
 
         <header class="text-center pt-8">
             <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-slate-100">
-                Willkommen im Dashboard von Julian Mainz
+                Willkommen im J.Mainz Dashboard
             </h1>
         </header>
 
@@ -96,7 +96,7 @@
                 <form id="form-login" onsubmit="handleSignIn(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail</label>
-                        <input type="email" id="login-email" required placeholder="name@familie-mainz.de" 
+                        <input type="email" id="login-email" required placeholder="name@julian-mainz.de" 
                             class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                     </div>
                     <div>
@@ -127,7 +127,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail</label>
-                        <input type="email" id="reg-email" required placeholder="name@familie-mainz.de" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                        <input type="email" id="reg-email" required placeholder="name@julian-mainz.de" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort (min. 6 Zeichen)</label>
@@ -147,7 +147,7 @@
         </main>
 
         <footer class="text-center text-xs text-slate-600 pb-2">
-            Familie Mainz Hub &bull; Cloud Security
+            J.Mainz Dashboard &bull; Cloud Security
         </footer>
     </div>
 
@@ -243,7 +243,7 @@
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
                         <div class="flex items-center space-x-3">
                             <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
-                            <h2 class="text-base font-bold text-slate-200">Familien-Kalender</h2>
+                            <h2 class="text-base font-bold text-slate-200">Kalender</h2>
                         </div>
                         <div class="flex items-center justify-between w-full sm:w-auto gap-2">
                             <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
@@ -579,7 +579,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- 3. MENÜ-DRAWER                             -->
+    <!-- 3. MENÜ-DRAWER (J.Mainz Dashboard & Status)-->
     <!-- ========================================== -->
     <div id="menu-backdrop" onclick="toggleSideMenu(false)" class="fixed inset-0 bg-slate-950/70 z-50"></div>
     
@@ -590,7 +590,7 @@
                     <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-xs">
                         <i class="fa-solid fa-house"></i>
                     </div>
-                    <span class="font-bold text-sm tracking-wide text-slate-200">Menü</span>
+                    <span class="font-bold text-sm tracking-wide text-slate-200">J.Mainz Dashboard</span>
                 </div>
                 <button onclick="toggleSideMenu(false)" class="text-slate-400 hover:text-slate-200 p-1.5 transition-colors">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -635,24 +635,72 @@
             </nav>
         </div>
 
-        <div class="space-y-4 pt-4 border-t border-slate-800/80">
+        <!-- DETAIL-STATUSANZEIGEN (ONLINE/OFFLINE) -->
+        <div class="space-y-3 pt-4 border-t border-slate-800/80">
             <div>
-                <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-2.5 flex items-center gap-2">
-                    <i class="fa-solid fa-server text-indigo-400 text-xs"></i> Status des Systems
+                <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-server text-indigo-400 text-xs"></i> System- & Netzwerk-Status
                 </div>
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
+                
+                <div class="space-y-1.5">
+                    <!-- Internet Connection Status -->
+                    <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
                         <div class="flex items-center gap-2 text-slate-300">
-                            <i class="fa-solid fa-cloud text-slate-500 text-[11px]"></i>
+                            <i class="fa-solid fa-wifi text-slate-500 text-[11px]"></i>
+                            <span>Internet</span>
+                        </div>
+                        <span id="stat-conn-status" class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Online
+                        </span>
+                    </div>
+
+                    <!-- Firestore DB Status -->
+                    <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
+                        <div class="flex items-center gap-2 text-slate-300">
+                            <i class="fa-solid fa-database text-slate-500 text-[11px]"></i>
                             <span>Firestore DB</span>
                         </div>
-                        <span class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live
+                        <span id="stat-db-status" class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Verbunden
+                        </span>
+                    </div>
+
+                    <!-- Firebase Auth Status -->
+                    <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
+                        <div class="flex items-center gap-2 text-slate-300">
+                            <i class="fa-solid fa-shield-halved text-slate-500 text-[11px]"></i>
+                            <span>Firebase Auth</span>
+                        </div>
+                        <span id="stat-auth-status" class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Bereit
+                        </span>
+                    </div>
+
+                    <!-- Push Status -->
+                    <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
+                        <div class="flex items-center gap-2 text-slate-300">
+                            <i class="fa-solid fa-bell text-slate-500 text-[11px]"></i>
+                            <span>Push Alarm</span>
+                        </div>
+                        <span id="badge-fcm-status" class="flex items-center gap-1.5 text-slate-400 font-medium text-[11px]">
+                            Inaktiv
+                        </span>
+                    </div>
+
+                    <!-- Service Worker Status -->
+                    <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
+                        <div class="flex items-center gap-2 text-slate-300">
+                            <i class="fa-solid fa-microchip text-slate-500 text-[11px]"></i>
+                            <span>Service Worker</span>
+                        </div>
+                        <span id="stat-sw-status" class="flex items-center gap-1.5 text-slate-400 font-medium text-[11px]">
+                            Lädt...
                         </span>
                     </div>
                 </div>
             </div>
-            <div class="text-[11px] text-slate-500 text-center">Familie-Mainz Hub &bull; v3.5</div>
+
+            <div class="text-[11px] text-slate-500 text-center font-medium">J.Mainz Dashboard &bull; v3.6</div>
         </div>
     </aside>
 
@@ -937,6 +985,49 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // ---------- System & Netzwerk-Status Tracking ----------
+        function updateConnectionStatus() {
+            const el = document.getElementById('stat-conn-status');
+            if (!el) return;
+            if (navigator.onLine) {
+                el.className = 'flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]';
+                el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Online';
+            } else {
+                el.className = 'flex items-center gap-1.5 text-rose-400 font-medium text-[11px]';
+                el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Offline';
+            }
+        }
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        updateConnectionStatus();
+
+        // Service Worker Status
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                    .then(() => {
+                        const swEl = document.getElementById('stat-sw-status');
+                        if (swEl) {
+                            swEl.className = 'flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]';
+                            swEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Aktiv';
+                        }
+                    })
+                    .catch(() => {
+                        const swEl = document.getElementById('stat-sw-status');
+                        if (swEl) {
+                            swEl.className = 'flex items-center gap-1.5 text-slate-500 font-medium text-[11px]';
+                            swEl.innerText = 'Nicht registriert';
+                        }
+                    });
+            });
+        } else {
+            const swEl = document.getElementById('stat-sw-status');
+            if (swEl) {
+                swEl.className = 'flex items-center gap-1.5 text-slate-500 font-medium text-[11px]';
+                swEl.innerText = 'Nicht unterstützt';
+            }
+        }
+
         // ---------- Listener-Cleanup Automatisierung ----------
         let unsubs = [];
         const wrapListener = proto => {
@@ -949,12 +1040,6 @@
         };
         wrapListener(firebase.firestore.Query.prototype);
         wrapListener(firebase.firestore.DocumentReference.prototype);
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(err => {});
-            });
-        }
 
         let messaging = null;
         try {
@@ -1672,7 +1757,7 @@
                     <div class="header-box">
                         <div>
                             <h1>MONATLICHER STUNDENZETTEL</h1>
-                            <div style="font-size: 14px; font-weight: 600; color: #2563eb;">Familie Mainz Hub &bull; Zeiterfassung</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #2563eb;">J.Mainz Dashboard &bull; Zeiterfassung</div>
                         </div>
                         <div style="text-align: right;">
                             <div class="meta-item"><span class="meta-label">Mitarbeiter:</span> ${esc(employeeName)}</div>
@@ -2339,389 +2424,6 @@
             currentUser.userPrefs = currentUser.userPrefs || {};
             currentUser.userPrefs[prefKey] = isChecked;
             await db.collection('users').doc(currentUser.uid).update({ [`userPrefs.${prefKey}`]: isChecked });
-        }
-
-        // ==========================================
-        // KALENDER (Dedup & getrennte Listener)
-        // ==========================================
-        function initCalendarListener() {
-            let pub = [], mine = [];
-            const merge = () => {
-                const map = new Map();
-                [...pub, ...mine].forEach(e => map.set(e.id, e));
-                calendarEvents = [...map.values()];
-                renderCalendar();
-            };
-            const toList = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
-            db.collection('events').where('isPublic', '==', true)
-                .onSnapshot(s => { pub = toList(s); merge(); });
-            db.collection('events').where('owner', '==', currentUser.email)
-                .onSnapshot(s => { mine = toList(s); merge(); });
-        }
-
-        function renderCalendar() {
-            const grid = document.getElementById('calendar-days-grid');
-            const title = document.getElementById('calendar-month-year');
-            if (!grid || !title) return;
-            grid.innerHTML = '';
-
-            const year = currentCalendarDate.getFullYear();
-            const month = currentCalendarDate.getMonth();
-            title.innerText = new Date(year, month, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
-
-            const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            for (let i = 0; i < firstDayIndex; i++) {
-                const empty = document.createElement('div');
-                empty.className = 'h-20 md:h-24 bg-slate-900/20 border border-slate-800/30 rounded-2xl opacity-20';
-                grid.appendChild(empty);
-            }
-
-            const today = new Date();
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
-
-                const dayCell = document.createElement('div');
-                dayCell.className = `h-20 md:h-24 p-1.5 md:p-2 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col justify-between overflow-hidden`;
-
-                dayCell.innerHTML = `
-                    <div class="flex items-center justify-between text-[11px] mb-1">
-                        <span class="${isToday ? 'font-bold text-indigo-400 bg-indigo-500/20 px-1.5 py-0.5 rounded-md' : 'text-slate-400'}">${day}</span>
-                        <button data-add class="text-slate-500 hover:text-indigo-400 text-[10px]"><i class="fa-solid fa-plus"></i></button>
-                    </div>
-                    <div data-evs class="space-y-1 overflow-y-auto max-h-12 md:max-h-16 pr-0.5"></div>
-                `;
-
-                dayCell.querySelector('[data-add]').addEventListener('click', () => openEventModal(dayDateStr));
-                const box = dayCell.querySelector('[data-evs]');
-
-                calendarEvents
-                    .filter(ev => ev.date === dayDateStr)
-                    .forEach(ev => {
-                        const isMine = currentUser && ev.owner === currentUser.email;
-                        const el = document.createElement('div');
-                        el.className = `text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}`;
-                        el.title = ev.title;
-                        el.innerHTML = `
-                            <span class="truncate">${esc(ev.title)}</span>
-                            ${isMine ? '<button data-del class="text-slate-400 hover:text-rose-400 ml-1"><i class="fa-solid fa-xmark text-[9px]"></i></button>' : ''}
-                        `;
-                        el.querySelector('[data-del]')?.addEventListener('click', () => deleteCalendarEvent(ev.id));
-                        box.appendChild(el);
-                    });
-
-                grid.appendChild(dayCell);
-            }
-        }
-
-        function changeCalendarMonth(delta) {
-            currentCalendarDate.setDate(1);
-            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
-            renderCalendar();
-        }
-
-        function openEventModal(defaultDate = '') {
-            document.getElementById('ev-title').value = '';
-            document.getElementById('ev-date').value = defaultDate || localDate();
-            document.getElementById('ev-public').checked = true;
-            openModal('modal-event');
-        }
-
-        async function saveCalendarEvent(e) {
-            e.preventDefault();
-            const title = document.getElementById('ev-title').value.trim();
-            const date = document.getElementById('ev-date').value;
-            const isPublic = document.getElementById('ev-public').checked;
-            if (!title || !date || !currentUser) return;
-
-            await db.collection('events').add({
-                title, date, isPublic,
-                owner: currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            closeModal('modal-event');
-        }
-
-        async function deleteCalendarEvent(id) {
-            await db.collection('events').doc(id).delete();
-        }
-
-        function initNotesListener() {
-            db.collection('notes').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                familyNotes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderNotes();
-            });
-        }
-
-        function renderNotes() {
-            const list = document.getElementById('notes-list');
-            const count = document.getElementById('note-count');
-            if (!list) return;
-            count.innerText = familyNotes.length;
-            list.innerHTML = '';
-
-            if (familyNotes.length === 0) {
-                list.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-2">Keine Notizen.</div>';
-                return;
-            }
-
-            familyNotes.forEach(n => {
-                const isOwner = currentUser && (n.owner === currentUser.email || currentUser.role === 'admin');
-                const item = document.createElement('div');
-                item.className = "flex items-start justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
-                item.innerHTML = `
-                    <div class="flex flex-col">
-                        <span class="text-slate-200 text-[11px]">${esc(n.text)}</span>
-                        <span class="text-[9px] text-slate-500">${esc(n.author || 'Familie')}</span>
-                    </div>
-                    ${isOwner ? `<button data-del class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
-                `;
-                item.querySelector('[data-del]')?.addEventListener('click', () => deleteNote(n.id));
-                list.appendChild(item);
-            });
-        }
-
-        async function saveNewNote(e) {
-            e.preventDefault();
-            const input = document.getElementById('new-note-input');
-            const text = input.value.trim();
-            if (!text || !currentUser) return;
-            await db.collection('notes').add({
-                text,
-                author: currentUser.name,
-                owner: currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            input.value = '';
-        }
-
-        async function deleteNote(id) { await db.collection('notes').doc(id).delete(); }
-
-        function initTodosListener() {
-            db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                familyTodos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderTodos();
-            });
-        }
-
-        function renderTodos() {
-            const list = document.getElementById('todos-list');
-            const count = document.getElementById('todo-count');
-            if (!list) return;
-            const openTodos = familyTodos.filter(t => !t.done);
-            count.innerText = openTodos.length;
-            list.innerHTML = '';
-
-            if (familyTodos.length === 0) {
-                list.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-2">Alles erledigt! 🎉</div>';
-                return;
-            }
-
-            familyTodos.forEach(t => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
-                item.innerHTML = `
-                    <label class="flex items-center gap-2 cursor-pointer truncate">
-                        <input type="checkbox" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-emerald-500 w-3.5 h-3.5">
-                        <span class="text-[11px] truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${esc(t.text)}</span>
-                    </label>
-                    <button data-del class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-xmark text-[10px]"></i></button>
-                `;
-                item.querySelector('input').addEventListener('change', e => toggleTodo(t.id, e.target.checked));
-                item.querySelector('[data-del]').addEventListener('click', () => deleteTodo(t.id));
-                list.appendChild(item);
-            });
-        }
-
-        async function saveNewTodo(e) {
-            e.preventDefault();
-            const input = document.getElementById('new-todo-input');
-            const text = input.value.trim();
-            if (!text || !currentUser) return;
-            await db.collection('todos').add({
-                text,
-                done: false,
-                author: currentUser.name,
-                owner: currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            input.value = '';
-        }
-
-        async function toggleTodo(id, done) { await db.collection('todos').doc(id).update({ done }); }
-        async function deleteTodo(id) { await db.collection('todos').doc(id).delete(); }
-
-        // ==========================================
-        // ADMIN & RECHTESYSTEM
-        // ==========================================
-        function initAdminUsersListener() {
-            db.collection('users').onSnapshot(snapshot => {
-                allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderAdminUserList();
-            });
-        }
-
-        async function updateUserData(u, data, msg) {
-            try {
-                await db.collection('users').doc(u.id).update(data);
-                logSystemEvent('admin', msg, { ziel: u.email });
-            } catch (err) {
-                alert('Fehlgeschlagen: ' + err.message);
-            }
-        }
-
-        function guardSelf(u, text) {
-            if (u.id === currentUser.uid) {
-                alert(`Du kannst dich nicht selbst ${text}.`);
-                return true;
-            }
-            return false;
-        }
-
-        function guardLastAdmin(u, text) {
-            if (u.role === 'admin' && adminCount() <= 1) {
-                alert(`Der letzte Admin kann nicht ${text} werden.`);
-                return true;
-            }
-            return false;
-        }
-
-        function toggleUserPerm(id, key, checked) {
-            const u = allUsers.find(x => x.id === id);
-            if (!u) return;
-            updateUserData(u, { [`permissions.${key}`]: checked }, `Recht "${key}" ${checked ? 'erteilt' : 'entzogen'}`);
-        }
-
-        function setRole(u, role) {
-            if (guardSelf(u, 'herabstufen') && role !== 'admin') return renderAdminUserList();
-            if (role !== 'admin' && guardLastAdmin(u, 'herabgestuft')) return renderAdminUserList();
-            updateUserData(u, { role, permissions: ROLES[role].perms }, `Rolle auf "${ROLES[role].label}" gesetzt`);
-        }
-
-        function setStatus(u, status) {
-            if (status !== 'active' && (guardSelf(u, 'sperren') || guardLastAdmin(u, 'gesperrt'))) return;
-            const text = { active: 'freigegeben / entsperrt', blocked: 'gesperrt' }[status];
-            updateUserData(u, { status }, `Benutzer ${text}`);
-        }
-
-        async function removeUser(u) {
-            if (guardSelf(u, 'löschen') || guardLastAdmin(u, 'gelöscht')) return;
-            if (!confirm(`Profil von ${u.email} löschen?\nDer Zugriff ist danach beendet. Das Login-Konto und seine Daten bleiben in Firebase bestehen und müssen dort separat gelöscht werden.`)) return;
-            try {
-                await db.collection('users').doc(u.id).delete();
-                logSystemEvent('admin', 'Benutzerprofil gelöscht', { ziel: u.email });
-            } catch (err) {
-                alert('Fehlgeschlagen: ' + err.message);
-            }
-        }
-
-        function ensureToolbar() {
-            if (document.getElementById('admin-toolbar')) return;
-            const list = document.getElementById('admin-user-list');
-            if (!list) return;
-
-            const bar = document.createElement('div');
-            bar.id = 'admin-toolbar';
-            bar.className = 'flex flex-wrap gap-2 mb-4';
-            bar.innerHTML = `
-                <input id="adm-search" placeholder="Suchen (Name, E-Mail)..." class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 w-56 focus:outline-none focus:border-amber-500">
-                <select id="adm-status" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none">
-                    <option value="all">Alle</option>
-                    <option value="pending">Wartet auf Freigabe</option>
-                    <option value="active">Aktiv</option>
-                    <option value="blocked">Gesperrt</option>
-                </select>
-            `;
-            list.parentNode.insertBefore(bar, list);
-
-            bar.querySelector('#adm-search').addEventListener('input', e => {
-                filterText = e.target.value.toLowerCase();
-                renderAdminUserList();
-            });
-            bar.querySelector('#adm-status').addEventListener('change', e => {
-                filterStatus = e.target.value;
-                renderAdminUserList();
-            });
-        }
-
-        const BADGE = {
-            active: ['Aktiv', 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'],
-            pending: ['Wartet auf Freigabe', 'bg-amber-500/10 text-amber-400 border-amber-500/20'],
-            blocked: ['Gesperrt', 'bg-rose-500/10 text-rose-400 border-rose-500/20']
-        };
-
-        const fmtDate = ts => ts?.toDate ? ts.toDate().toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) : '–';
-
-        function renderAdminUserList() {
-            const listEl = document.getElementById('admin-user-list');
-            if (!listEl) return;
-            ensureToolbar();
-
-            const pending = allUsers.filter(u => statusOf(u) === 'pending').length;
-            document.getElementById('user-count-badge').innerText =
-                `${allUsers.length} Benutzer${pending ? ` · ${pending} offen` : ''}`;
-
-            const rows = allUsers.filter(u =>
-                (filterStatus === 'all' || statusOf(u) === filterStatus) &&
-                (!filterText || `${u.displayName} ${u.email}`.toLowerCase().includes(filterText)))
-                .sort((a, b) => (statusOf(a) === 'pending' ? -1 : 1) - (statusOf(b) === 'pending' ? -1 : 1));
-
-            listEl.innerHTML = '';
-            rows.forEach(u => {
-                const self = u.id === currentUser.uid;
-                const st = statusOf(u);
-                const perms = u.permissions || {};
-                const [bl, bc] = BADGE[st] || BADGE.active;
-
-                const card = document.createElement('div');
-                card.className = 'bg-slate-950/40 border border-slate-800/80 rounded-2xl p-4 space-y-3';
-                card.innerHTML = `
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                            <div class="font-semibold text-slate-200 text-sm">
-                                ${esc(u.displayName || u.email)} ${self ? '<span class="text-[10px] text-slate-500 font-normal">(du)</span>' : ''}
-                            </div>
-                            <div class="text-xs text-slate-500">${esc(u.email)}</div>
-                            <div class="text-[10px] text-slate-600 mt-0.5">Registriert: ${fmtDate(u.createdAt)} · Letzter Login: ${fmtDate(u.lastLogin)}</div>
-                        </div>
-                        <span class="text-[10px] border px-2 py-1 rounded-lg ${bc}">${bl}</span>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-3">
-                        <select data-role class="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none" ${self ? 'disabled' : ''}>
-                            ${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${u.role === k ? 'selected' : ''}>${r.label}</option>`).join('')}
-                        </select>
-                        ${Object.entries(MODULES).map(([k, l]) => `
-                            <label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${u.role === 'admin' ? 'opacity-50' : 'cursor-pointer'}">
-                                <input type="checkbox" data-perm="${k}" ${perms[k] !== false ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">
-                                ${l}
-                            </label>
-                        `).join('')}
-                    </div>
-
-                    <div class="flex flex-wrap gap-2 text-xs pt-1">
-                        ${st !== 'active' ? '<button data-act="approve" class="px-3 py-1.5 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-600/30">Freigeben</button>' : ''}
-                        ${st === 'active' && !self ? '<button data-act="block" class="px-3 py-1.5 rounded-xl bg-amber-600/20 border border-amber-500/30 text-amber-300 hover:bg-amber-600/30">Sperren</button>' : ''}
-                        ${!self ? '<button data-act="delete" class="px-3 py-1.5 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-300 hover:bg-rose-600/30">Profil löschen</button>' : ''}
-                    </div>
-                `;
-
-                card.querySelector('[data-role]').addEventListener('change', e => setRole(u, e.target.value));
-                card.querySelectorAll('[data-perm]').forEach(i => i.addEventListener('change', e => toggleUserPerm(u.id, i.dataset.perm, e.target.checked)));
-                card.querySelector('[data-act="approve"]')?.addEventListener('click', () => setStatus(u, 'active'));
-                card.querySelector('[data-act="block"]')?.addEventListener('click', () => setStatus(u, 'blocked'));
-                card.querySelector('[data-act="delete"]')?.addEventListener('click', () => removeUser(u));
-
-                listEl.appendChild(card);
-            });
-
-            if (!rows.length) {
-                listEl.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Benutzer gefunden.</div>';
-            }
         }
 
         // ==========================================
