@@ -11,44 +11,222 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
     <script src="/js/drawer.js"></script>
-    <style>body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }</style>
+    <style>
+        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        .border-panel { border-color: #1e293b; }
+    </style>
 </head>
 <body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
     <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
         <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
             <i class="fa-solid fa-bars text-indigo-400"></i> Menü
         </button>
-        <h1 class="text-sm font-bold text-slate-100"><i class="fa-solid fa-shield-halved text-amber-400 mr-1.5"></i> Passwort-Safe</h1>
+        <h1 class="text-sm font-bold text-slate-100"><i class="fa-solid fa-shield-halved text-amber-400 mr-1.5"></i> Passwort- & Dokumenten-Safe</h1>
         <button onclick="handleLogout()" class="bg-slate-900 border border-slate-800 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">Ausloggen</button>
     </header>
+
     <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto">
-        <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 shadow-lg flex-1 flex flex-col items-center justify-center text-center">
-            <div id="vault-locked-view" class="max-w-xs space-y-3">
-                <h2 class="text-lg font-bold text-slate-100">Tresor gesperrt</h2>
-                <form onsubmit="unlockVault(event)" class="space-y-3">
-                    <input type="password" id="vault-master-pass" required placeholder="Master-Passwort" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-center text-sm text-slate-100 focus:outline-none focus:border-amber-500">
-                    <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-2xl text-xs">Entsperren 🔓</button>
+        <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
+            <div id="vault-locked-view" class="flex-1 flex flex-col items-center justify-center p-6 text-center my-auto">
+                <div class="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl mb-4 shadow-xl">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h2 class="text-lg md:text-xl font-bold text-slate-100">Passwort- & Dokumenten-Safe</h2>
+                <p class="text-xs text-slate-400 max-w-sm mt-1 mb-6">Deine Daten sind durch ein Master-Passwort per AES-256 direkt im Browser verschlüsselt.</p>
+                <form onsubmit="unlockVault(event)" class="w-full max-w-xs space-y-3">
+                    <input type="password" id="vault-master-pass" required placeholder="Master-Passwort eingeben" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-center text-sm text-slate-100 focus:outline-none focus:border-amber-500 tracking-widest">
+                    <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-2xl text-xs transition-all">Safe entsperren 🔓</button>
                 </form>
             </div>
-            <div id="vault-unlocked-view" class="hidden w-full flex-1 flex flex-col overflow-hidden text-left">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
-                    <h3 class="text-sm font-bold text-slate-100">Einträge</h3>
-                    <button onclick="lockVault()" class="bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold">Sperren</button>
+
+            <div id="vault-unlocked-view" class="hidden flex-1 flex flex-col overflow-hidden">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <h3 class="text-sm font-bold text-slate-100">Tresor entsperrt</h3>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openAddVaultItemModal()" class="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus"></i> <span>Eintrag hinzufügen</span>
+                        </button>
+                        <button onclick="lockVault()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5">
+                            <i class="fa-solid fa-lock"></i> <span>Sperren</span>
+                        </button>
+                    </div>
                 </div>
-                <div id="vault-items-list" class="flex-1 overflow-y-auto space-y-2"></div>
+                <div class="flex-1 overflow-y-auto space-y-2.5 pr-1" id="vault-items-list">
+                    <div class="text-xs text-slate-500 text-center py-6">Keine Passwörter hinterlegt.</div>
+                </div>
             </div>
         </div>
     </main>
+
+    <!-- Modal: Eintrag hinzufügen -->
+    <div id="modal-vault-add" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-slate-100">Passwort sichern</h3>
+                <button onclick="closeModal('modal-vault-add')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveVaultItem(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Titel / Dienst</label>
+                    <input type="text" id="vault-title" required placeholder="z. B. Netflix, WLAN" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Benutzername (optional)</label>
+                    <input type="text" id="vault-username" placeholder="z. B. mail@domain.de" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Passwort / PIN</label>
+                    <textarea id="vault-secret" required rows="3" placeholder="Geheimes Passwort..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-mono"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-3">
+                    <button type="button" onclick="closeModal('modal-vault-add')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-amber-600 text-slate-950 hover:bg-amber-500 font-bold">Verschlüsselt sichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         let vaultMasterKey = null;
-        initAuthGuard(user => { if (user) renderDrawer(); });
+        let rawVaultItems = [];
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        initAuthGuard(user => {
+            if (!user) return;
+            renderDrawer();
+            db.collection('vault').where('owner', '==', currentUser.email).onSnapshot(snapshot => {
+                rawVaultItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (vaultMasterKey) renderVaultItems();
+            });
+        });
+
+        async function deriveKey(password, salt) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
+            return crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+            );
+        }
+
+        async function encryptSecret(secret, password) {
+            const enc = new TextEncoder();
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const key = await deriveKey(password, salt);
+            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(secret));
+            return {
+                cipher: btoa(String.fromCharCode(...new Uint8Array(cipher))),
+                salt: btoa(String.fromCharCode(...salt)),
+                iv: btoa(String.fromCharCode(...iv))
+            };
+        }
+
+        async function decryptSecret(cipherB64, saltB64, ivB64, password) {
+            const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+            const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
+            const cipher = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
+            const key = await deriveKey(password, salt);
+            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
+            return new TextDecoder().decode(decrypted);
+        }
+
         async function unlockVault(e) {
             e.preventDefault();
-            vaultMasterKey = document.getElementById('vault-master-pass').value;
+            const pass = document.getElementById('vault-master-pass').value;
+            if (!pass) return;
+            vaultMasterKey = pass;
             document.getElementById('vault-locked-view').classList.add('hidden');
             document.getElementById('vault-unlocked-view').classList.remove('hidden');
+            renderVaultItems();
         }
-        function lockVault() { vaultMasterKey = null; document.getElementById('vault-unlocked-view').classList.add('hidden'); document.getElementById('vault-locked-view').classList.remove('hidden'); }
+
+        function lockVault() {
+            vaultMasterKey = null;
+            document.getElementById('vault-master-pass').value = '';
+            document.getElementById('vault-unlocked-view').classList.add('hidden');
+            document.getElementById('vault-locked-view').classList.remove('hidden');
+        }
+
+        function openAddVaultItemModal() {
+            document.getElementById('vault-title').value = '';
+            document.getElementById('vault-username').value = '';
+            document.getElementById('vault-secret').value = '';
+            openModal('modal-vault-add');
+        }
+
+        async function saveVaultItem(e) {
+            e.preventDefault();
+            if (!vaultMasterKey || !currentUser) return;
+            const title = document.getElementById('vault-title').value.trim();
+            const username = document.getElementById('vault-username').value.trim();
+            const secret = document.getElementById('vault-secret').value;
+            const encrypted = await encryptSecret(secret, vaultMasterKey);
+
+            await db.collection('vault').add({
+                title, username,
+                cipher: encrypted.cipher, salt: encrypted.salt, iv: encrypted.iv,
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            closeModal('modal-vault-add');
+        }
+
+        async function renderVaultItems() {
+            const list = document.getElementById('vault-items-list');
+            if (!list || !vaultMasterKey) return;
+            if (!rawVaultItems.length) {
+                list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Passwörter hinterlegt.</div>';
+                return;
+            }
+            list.innerHTML = '';
+            for (const item of rawVaultItems) {
+                let secret = null;
+                try {
+                    secret = await decryptSecret(item.cipher, item.salt, item.iv, vaultMasterKey);
+                } catch (err) {}
+
+                const card = document.createElement('div');
+                card.className = "p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs";
+                card.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center font-bold"><i class="fa-solid fa-key"></i></div>
+                        <div>
+                            <span class="font-semibold text-slate-200 text-sm block">${esc(item.title)}</span>
+                            ${item.username ? `<span class="text-[11px] text-slate-400 block">${esc(item.username)}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div data-val class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-[11px] text-amber-300 truncate max-w-[200px]">${secret === null ? 'Falsches Passwort' : '••••••••'}</div>
+                        <button data-show class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''}><i class="fa-regular fa-eye"></i></button>
+                        <button data-copy class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''}><i class="fa-regular fa-copy"></i></button>
+                        <button data-del class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+                let isShown = false;
+                const valEl = card.querySelector('[data-val]');
+                card.querySelector('[data-show]').addEventListener('click', () => {
+                    isShown = !isShown;
+                    valEl.textContent = isShown ? secret : '••••••••';
+                });
+                card.querySelector('[data-copy]').addEventListener('click', async () => {
+                    await navigator.clipboard.writeText(secret);
+                    alert('In die Zwischenablage kopiert!');
+                });
+                card.querySelector('[data-del]').addEventListener('click', async () => {
+                    if (confirm('Eintrag wirklich löschen?')) await db.collection('vault').doc(item.id).delete();
+                });
+                list.appendChild(card);
+            }
+        }
     </script>
 </body>
 </html>
