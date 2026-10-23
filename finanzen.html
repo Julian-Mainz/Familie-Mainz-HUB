@@ -3,28 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finanzen – J.Mainz Dashboard</title>
+    <title>Finanzen & Sparkasse – J.Mainz Dashboard</title>
 
     <meta name="theme-color" content="#080c14">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-    <!-- Basis-Skripte -->
     <script src="/js/firebase-init.js"></script>
     <script src="/js/drawer.js"></script>
 
     <style>
-        body {
-            background-color: #080c14;
-            color: #f8fafc;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
         .border-panel { border-color: #1e293b; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -32,7 +25,6 @@
 </head>
 <body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
 
-    <!-- Header -->
     <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
         <div class="flex items-center gap-2">
             <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
@@ -51,83 +43,56 @@
         </button>
     </header>
 
-    <!-- Hauptinhalt -->
     <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-        
-        <!-- Kacheln: Monatsbilanz & Filter -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
-                <span class="text-xs text-slate-400 flex items-center gap-1.5">
-                    <i class="fa-regular fa-calendar text-indigo-400"></i> Aktiver Monat
-                </span>
+                <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-regular fa-calendar text-indigo-400"></i> Aktiver Monat</span>
                 <select id="finance-filter-month" onchange="renderFinanceData()" class="mt-2 bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500 font-medium">
                     <option value="">Keine Daten vorhanden</option>
                 </select>
             </div>
-
             <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
                 <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-arrow-down text-emerald-400"></i> Einnahmen</span>
                 <div id="fin-stat-income" class="text-xl font-bold text-emerald-400 mt-1">0,00 €</div>
             </div>
-
             <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
                 <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-arrow-up text-rose-400"></i> Ausgaben</span>
                 <div id="fin-stat-expenses" class="text-xl font-bold text-rose-400 mt-1">0,00 €</div>
             </div>
-
             <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
                 <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-wallet text-indigo-400"></i> Saldo / Überschuss</span>
                 <div id="fin-stat-balance" class="text-xl font-bold text-slate-100 mt-1">0,00 €</div>
             </div>
         </div>
 
-        <!-- Import & Upload Buttons -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Sparkasse CSV Import -->
             <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                    <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-file-csv text-red-500"></i> Sparkasse CSV-Umsätze importieren
-                    </span>
+                    <span class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-file-csv text-red-500"></i> Sparkasse CSV-Umsätze importieren</span>
                 </div>
-                <p class="text-xs text-slate-400 mb-3">
-                    Lade deine exportierte Umsatz-CSV aus dem Online-Banking hoch.
-                </p>
+                <p class="text-xs text-slate-400 mb-3">Lade deine exportierte Umsatz-CSV aus dem Online-Banking hoch.</p>
                 <label class="py-2.5 px-3 bg-red-600/10 hover:bg-red-600/20 border border-red-500/30 text-red-400 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all">
                     <i class="fa-solid fa-upload"></i>
                     <span>CSV-Datei auswählen</span>
                     <input type="file" id="sparkasse-csv-input" accept=".csv" class="hidden" onchange="handleSparkasseCSV(event)">
                 </label>
             </div>
-
-            <!-- Lohnabrechnung Upload -->
             <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                    <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> Lohnabrechnung ablegen
-                    </span>
+                    <span class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> Lohnabrechnung ablegen</span>
                 </div>
-                <p class="text-xs text-slate-400 mb-3">
-                    Lohnzettel als PDF oder Foto direkt in deiner Cloud ablegen.
-                </p>
+                <p class="text-xs text-slate-400 mb-3">Lohnzettel als PDF oder Foto direkt in deiner Cloud ablegen.</p>
                 <button onclick="openPayslipModal()" class="w-full py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Neue Abrechnung hochladen</span>
+                    <i class="fa-solid fa-plus"></i><span>Neue Abrechnung hochladen</span>
                 </button>
             </div>
         </div>
 
-        <!-- Umsätze & Dokumente Tabelle -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 overflow-hidden min-h-[300px]">
-            <!-- Buchungen (2/3) -->
             <div class="lg:col-span-2 bg-slate-900/60 border border-panel rounded-3xl p-4 shadow-lg flex flex-col overflow-hidden">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-2.5">
-                    <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-list text-indigo-400"></i> Buchungen & Umsätze
-                    </h3>
-                    <button onclick="openManualTransactionModal()" class="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
-                        <i class="fa-solid fa-plus"></i> Manuell hinzufügen
-                    </button>
+                    <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-list text-indigo-400"></i> Buchungen & Umsätze</h3>
+                    <button onclick="openManualTransactionModal()" class="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1"><i class="fa-solid fa-plus"></i> Manuell hinzufügen</button>
                 </div>
                 <div class="flex-1 overflow-y-auto">
                     <table class="w-full text-left text-xs">
@@ -147,12 +112,9 @@
                 </div>
             </div>
 
-            <!-- Lohnabrechnungen (1/3) -->
             <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 shadow-lg flex flex-col overflow-hidden">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-2.5">
-                    <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-folder-open text-amber-400"></i> Lohnabrechnungen
-                    </h3>
+                    <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-folder-open text-amber-400"></i> Lohnabrechnungen</h3>
                     <span id="payslip-count-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
                 </div>
                 <div id="payslip-list" class="flex-1 overflow-y-auto space-y-2 pr-1">
@@ -162,101 +124,33 @@
         </div>
     </main>
 
-    <!-- Modal: Manuelle Buchung -->
+    <!-- Modals für Finanzen -->
     <div id="modal-finance-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-slate-100">Manuelle Buchung anlegen</h3>
-                <button onclick="closeModal('modal-finance-manual')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
+            <div class="flex justify-between items-center mb-4"><h3 class="text-base font-bold text-slate-100">Manuelle Buchung</h3><button onclick="closeModal('modal-finance-manual')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
             <form onsubmit="saveManualTransaction(event)" class="space-y-3.5">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Datum</label>
-                    <input type="date" id="fin-man-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Begünstigter / Empfänger</label>
-                    <input type="text" id="fin-man-partner" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
-                </div>
+                <div><label class="block text-xs text-slate-400 mb-1">Datum</label><input type="date" id="fin-man-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Partner</label><input type="text" id="fin-man-partner" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none"></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Kategorie</label>
-                        <select id="fin-man-cat" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
-                            <option value="Supermarkt">Supermarkt</option>
-                            <option value="Gehalt">Gehalt</option>
-                            <option value="Miete / Wohnen">Miete / Wohnen</option>
-                            <option value="Tanken / Auto">Tanken / Auto</option>
-                            <option value="Freizeit / Abo">Freizeit / Abo</option>
-                            <option value="Sonstiges">Sonstiges</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Betrag (€)</label>
-                        <input type="number" step="0.01" id="fin-man-amount" required placeholder="-45.50 oder +100" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
-                    </div>
+                    <div><label class="block text-xs text-slate-400 mb-1">Kategorie</label><select id="fin-man-cat" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100"><option value="Supermarkt">Supermarkt</option><option value="Gehalt">Gehalt</option><option value="Sonstiges">Sonstiges</option></select></div>
+                    <div><label class="block text-xs text-slate-400 mb-1">Betrag (€)</label><input type="number" step="0.01" id="fin-man-amount" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100"></div>
                 </div>
-                <div class="flex justify-end space-x-2 pt-2">
-                    <button type="button" onclick="closeModal('modal-finance-manual')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button>
-                </div>
+                <div class="flex justify-end space-x-2 pt-2"><button type="button" onclick="closeModal('modal-finance-manual')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button></div>
             </form>
         </div>
     </div>
 
-    <!-- Modal: Lohnabrechnung Upload -->
-    <div id="modal-payslip-add" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-slate-100">Lohnabrechnung ablegen</h3>
-                <button onclick="closeModal('modal-payslip-add')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="savePayslip(event)" class="space-y-3.5">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Abrechnungsmonat</label>
-                    <input type="month" id="payslip-month" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Netto-Gehalt (€)</label>
-                        <input type="number" step="0.01" id="payslip-netto" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Brutto (€, optional)</label>
-                        <input type="number" step="0.01" id="payslip-brutto" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Datei (PDF oder Bild, max. 700 KB)</label>
-                    <input type="file" id="payslip-file" required accept=".pdf,image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:bg-emerald-600/20 file:text-emerald-300">
-                </div>
-                <div class="flex justify-end space-x-2 pt-2">
-                    <button type="button" onclick="closeModal('modal-payslip-add')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
-                    <button type="submit" id="btn-save-payslip" class="px-4 py-2 rounded-xl text-xs bg-emerald-600 text-white font-medium">Speichern</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modul-Logik -->
     <script>
-        let rawTransactions = [];
-        let rawPayslips = [];
+        let rawTransactions = [], rawPayslips = [];
         let todayStr = localDate().slice(0, 7);
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
         function formatMonthLabel(ymStr) {
             const parts = ymStr.split('-');
             if (parts.length < 2) return ymStr;
-            const date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, 1);
-            return date.toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
         }
-
-        const hashString = async s => {
-            const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
-            return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('').slice(0, 32);
-        };
 
         initAuthGuard(user => {
             if (!user) return;
@@ -265,312 +159,107 @@
         });
 
         function initFinanceListener() {
-            db.collection('finance_transactions')
-                .where('owner', '==', currentUser.email)
-                .onSnapshot(snapshot => {
-                    rawTransactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderFinanceData();
-                });
-
-            db.collection('payslips')
-                .where('owner', '==', currentUser.email)
-                .onSnapshot(snapshot => {
-                    rawPayslips = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderPayslips();
-                    renderFinanceData();
-                });
+            db.collection('finance_transactions').where('owner', '==', currentUser.email).onSnapshot(s => {
+                rawTransactions = s.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderFinanceData();
+            });
+            db.collection('payslips').where('owner', '==', currentUser.email).onSnapshot(s => {
+                rawPayslips = s.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderPayslips();
+                renderFinanceData();
+            });
         }
 
         function updateFinanceMonthDropdown() {
             const selectEl = document.getElementById('finance-filter-month');
             if (!selectEl) return;
-
-            const monthsSet = new Set();
-            rawTransactions.forEach(t => { if (t.date?.length >= 7) monthsSet.add(t.date.slice(0, 7)); });
-            rawPayslips.forEach(p => { if (p.month?.length >= 7) monthsSet.add(p.month.slice(0, 7)); });
-
-            const sortedMonths = Array.from(monthsSet).sort((a, b) => b.localeCompare(a));
-            const prevSelected = selectEl.value;
-
+            const months = new Set([todayStr]);
+            rawTransactions.forEach(t => { if (t.date?.length >= 7) months.add(t.date.slice(0, 7)); });
+            rawPayslips.forEach(p => { if (p.month?.length >= 7) months.add(p.month.slice(0, 7)); });
+            const sorted = Array.from(months).sort((a, b) => b.localeCompare(a));
             selectEl.innerHTML = '';
-            if (sortedMonths.length === 0) {
-                selectEl.innerHTML = `<option value="${todayStr}">${formatMonthLabel(todayStr)} (Keine Daten)</option>`;
-                return;
-            }
-
-            sortedMonths.forEach(m => {
+            sorted.forEach(m => {
                 const opt = document.createElement('option');
-                opt.value = m;
-                opt.innerText = formatMonthLabel(m);
+                opt.value = m; opt.innerText = formatMonthLabel(m);
                 selectEl.appendChild(opt);
             });
-
-            selectEl.value = sortedMonths.includes(prevSelected) ? prevSelected : sortedMonths[0];
         }
 
         function renderFinanceData() {
             const selectEl = document.getElementById('finance-filter-month');
             if (!selectEl) return;
-
             updateFinanceMonthDropdown();
             const filterMonth = selectEl.value;
             const tbody = document.getElementById('finance-table-body');
-            if (!tbody) return;
+            tbody.innerHTML = '';
 
             const filtered = rawTransactions.filter(t => t.date && t.date.startsWith(filterMonth));
             filtered.sort((a, b) => b.date.localeCompare(a.date));
 
-            let totalIncome = 0;
-            let totalExpenses = 0;
-            tbody.innerHTML = '';
-
+            let inc = 0, exp = 0;
             if (filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-500">Keine Buchungen vorhanden.</td></tr>';
             } else {
                 filtered.forEach(t => {
-                    const isIncome = t.amount > 0;
-                    if (isIncome) totalIncome += t.amount;
-                    else totalExpenses += Math.abs(t.amount);
-
-                    const amountStr = (isIncome ? '+' : '') + t.amount.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
-
+                    const isInc = t.amount > 0;
+                    if (isInc) inc += t.amount; else exp += Math.abs(t.amount);
                     const row = document.createElement('tr');
                     row.className = "hover:bg-slate-900/40 transition-colors";
                     row.innerHTML = `
                         <td class="p-2 text-slate-400 font-mono text-[11px]">${esc(t.date)}</td>
-                        <td class="p-2 font-medium text-slate-200 truncate max-w-[180px]" title="${esc(t.purpose || '')}">${esc(t.partner)}</td>
+                        <td class="p-2 font-medium text-slate-200 truncate max-w-[180px]">${esc(t.partner)}</td>
                         <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${esc(t.category || 'Sonstiges')}</span></td>
-                        <td class="p-2 text-right font-bold ${isIncome ? 'text-emerald-400' : 'text-rose-400'} font-mono">${esc(amountStr)}</td>
-                        <td class="p-2 text-right">
-                            <button data-del class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
+                        <td class="p-2 text-right font-bold ${isInc ? 'text-emerald-400' : 'text-rose-400'} font-mono">${(isInc ? '+' : '') + t.amount.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</td>
+                        <td class="p-2 text-right"><button data-del class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash-can"></i></button></td>
                     `;
-                    row.querySelector('[data-del]').addEventListener('click', () => deleteTransaction(t.id));
+                    row.querySelector('[data-del]').addEventListener('click', () => db.collection('finance_transactions').doc(t.id).delete());
                     tbody.appendChild(row);
                 });
             }
-
-            const balance = totalIncome - totalExpenses;
-            document.getElementById('fin-stat-income').innerText = totalIncome.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
-            document.getElementById('fin-stat-expenses').innerText = totalExpenses.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
-            
+            const bal = inc - exp;
+            document.getElementById('fin-stat-income').innerText = inc.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+            document.getElementById('fin-stat-expenses').innerText = exp.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
             const balEl = document.getElementById('fin-stat-balance');
-            balEl.innerText = (balance >= 0 ? '+' : '') + balance.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
-            balEl.className = 'text-xl font-bold mt-1 ' + (balance >= 0 ? 'text-emerald-400' : 'text-rose-400');
-        }
-
-        async function deleteTransaction(id) {
-            if (!confirm('Diese Buchung wirklich löschen?')) return;
-            await db.collection('finance_transactions').doc(id).delete();
-        }
-
-        function openManualTransactionModal() {
-            document.getElementById('fin-man-date').value = localDate();
-            document.getElementById('fin-man-partner').value = '';
-            document.getElementById('fin-man-amount').value = '';
-            openModal('modal-finance-manual');
-        }
-
-        async function saveManualTransaction(e) {
-            e.preventDefault();
-            const date = document.getElementById('fin-man-date').value;
-            const partner = document.getElementById('fin-man-partner').value.trim();
-            const category = document.getElementById('fin-man-cat').value;
-            const amount = parseFloat(document.getElementById('fin-man-amount').value);
-
-            await db.collection('finance_transactions').add({
-                date, partner, purpose: 'Manuelle Buchung', amount, category,
-                owner: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            closeModal('modal-finance-manual');
-        }
-
-        function parseCsvLine(line) {
-            const out = []; let cur = '', q = false;
-            for (let i = 0; i < line.length; i++) {
-                const c = line[i];
-                if (c === '"') { if (q && line[i + 1] === '"') { cur += '"'; i++; } else q = !q; }
-                else if (c === ';' && !q) { out.push(cur.trim()); cur = ''; }
-                else cur += c;
-            }
-            out.push(cur.trim());
-            return out;
-        }
-
-        function decodeCsv(buf) {
-            try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); }
-            catch (e) { return new TextDecoder('windows-1252').decode(buf); }
-        }
-
-        function handleSparkasseCSV(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(evt) {
-                const text = decodeCsv(evt.target.result);
-                const lines = text.split(/\r\n|\n/);
-                const itemsToInsert = [];
-                const seen = {};
-                let colDate = -1, colPartner = -1, colPurpose = -1, colAmount = -1;
-
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    const parts = parseCsvLine(line);
-
-                    if (colDate === -1) {
-                        for (let j = 0; j < parts.length; j++) {
-                            const header = parts[j].toLowerCase();
-                            if (header.includes('buchungstag') || header.includes('datum')) colDate = j;
-                            if (header.includes('begünstigter') || header.includes('zahlungspflichtiger') || header.includes('name')) colPartner = j;
-                            if (header.includes('verwendungszweck')) colPurpose = j;
-                            if (header.includes('betrag')) colAmount = j;
-                        }
-                        continue;
-                    }
-
-                    if (colDate !== -1 && colAmount !== -1 && parts.length > Math.max(colDate, colAmount)) {
-                        const rawDate = parts[colDate];
-                        const partner = parts[colPartner] || 'Unbekannt';
-                        const purpose = parts[colPurpose] || '';
-                        let rawAmount = parts[colAmount];
-
-                        if (!rawDate || !rawAmount) continue;
-
-                        let dateStr = rawDate;
-                        const dateParts = rawDate.split('.');
-                        if (dateParts.length === 3) {
-                            let y = dateParts[2].length === 2 ? '20' + dateParts[2] : dateParts[2];
-                            dateStr = `${y}-${dateParts[1].padStart(2, '0')}-${dateParts[0].padStart(2, '0')}`;
-                        }
-
-                        rawAmount = rawAmount.replace(/\./g, '').replace(',', '.');
-                        const amount = parseFloat(rawAmount);
-                        if (isNaN(amount)) continue;
-
-                        let category = 'Sonstiges';
-                        const matchText = (partner + ' ' + purpose).toLowerCase();
-                        if (matchText.includes('gehalt') || matchText.includes('lohn') || (amount > 1000 && !matchText.includes('miete'))) category = 'Gehalt';
-                        else if (matchText.includes('rewe') || matchText.includes('edeka') || matchText.includes('aldi') || matchText.includes('lidl')) category = 'Supermarkt';
-                        else if (matchText.includes('miete') || matchText.includes('wohnen')) category = 'Miete / Wohnen';
-                        else if (matchText.includes('aral') || matchText.includes('shell') || matchText.includes('tanken')) category = 'Tanken / Auto';
-                        else if (matchText.includes('netflix') || matchText.includes('spotify') || matchText.includes('amazon')) category = 'Freizeit / Abo';
-
-                        itemsToInsert.push({
-                            date: dateStr, partner, purpose, amount, category,
-                            owner: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    }
-                }
-
-                if (itemsToInsert.length > 0) {
-                    for (let i = 0; i < itemsToInsert.length; i += 400) {
-                        const batch = db.batch();
-                        for (const data of itemsToInsert.slice(i, i + 400)) {
-                            const baseKey = [currentUser.email, data.date, data.partner, data.amount, data.purpose].join('|');
-                            seen[baseKey] = (seen[baseKey] || 0) + 1;
-                            const docId = await hashString(baseKey + '|' + seen[baseKey]);
-                            batch.set(db.collection('finance_transactions').doc(docId), data);
-                        }
-                        await batch.commit();
-                    }
-                    alert(`${itemsToInsert.length} Buchungen importiert!`);
-                } else {
-                    alert('Keine Buchungszeilen gefunden.');
-                }
-                e.target.value = '';
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function openPayslipModal() {
-            document.getElementById('payslip-month').value = todayStr;
-            document.getElementById('payslip-netto').value = '';
-            document.getElementById('payslip-brutto').value = '';
-            document.getElementById('payslip-file').value = '';
-            openModal('modal-payslip-add');
-        }
-
-        async function savePayslip(e) {
-            e.preventDefault();
-            const month = document.getElementById('payslip-month').value;
-            const netto = parseFloat(document.getElementById('payslip-netto').value);
-            const brutto = parseFloat(document.getElementById('payslip-brutto').value) || 0;
-            const file = document.getElementById('payslip-file').files[0];
-            const btn = document.getElementById('btn-save-payslip');
-
-            if (!month || isNaN(netto) || !file) return;
-            if (file.size > 700 * 1024) return alert('Datei zu groß (max. ca. 700 KB). Bitte verkleinern.');
-
-            btn.disabled = true; btn.innerText = 'Wird gespeichert...';
-
-            const reader = new FileReader();
-            reader.onload = async function(evt) {
-                try {
-                    const txRef = db.collection('finance_transactions').doc();
-                    await db.collection('payslips').add({
-                        txId: txRef.id, month, netto, brutto,
-                        fileName: file.name, fileData: evt.target.result,
-                        owner: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    await txRef.set({
-                        date: `${month}-01`, partner: 'Arbeitgeber (Gehalt)',
-                        purpose: `Lohnabrechnung ${month}`, amount: netto, category: 'Gehalt',
-                        owner: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    closeModal('modal-payslip-add');
-                } catch (err) {
-                    alert('Fehler: ' + err.message);
-                } finally {
-                    btn.disabled = false; btn.innerText = 'Speichern';
-                }
-            };
-            reader.readAsDataURL(file);
+            balEl.innerText = (bal >= 0 ? '+' : '') + bal.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+            balEl.className = 'text-xl font-bold mt-1 ' + (bal >= 0 ? 'text-emerald-400' : 'text-rose-400');
         }
 
         function renderPayslips() {
             const list = document.getElementById('payslip-list');
             const badge = document.getElementById('payslip-count-badge');
             if (!list) return;
-
             badge.innerText = rawPayslips.length;
-            list.innerHTML = '';
-            if (rawPayslips.length === 0) {
-                list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Lohnabrechnungen hinterlegt.</div>';
-                return;
-            }
-
-            rawPayslips.sort((a, b) => b.month.localeCompare(a.month));
+            list.innerHTML = rawPayslips.length ? '' : '<div class="text-xs text-slate-500 text-center py-6">Keine Lohnabrechnungen hinterlegt.</div>';
             rawPayslips.forEach(p => {
                 const item = document.createElement('div');
                 item.className = "p-3 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex items-center justify-between gap-2 text-xs";
                 item.innerHTML = `
                     <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
-                            <i class="fa-solid fa-file-pdf"></i>
-                        </div>
-                        <div>
-                            <span class="font-bold text-slate-200 block">${esc(p.month)}</span>
-                            <span class="text-[10px] text-emerald-400 font-mono">${p.netto.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € Netto</span>
-                        </div>
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold"><i class="fa-solid fa-file-pdf"></i></div>
+                        <div><span class="font-bold text-slate-200 block">${esc(p.month)}</span><span class="text-[10px] text-emerald-400 font-mono">${p.netto.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € Netto</span></div>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                        <a href="${p.fileData}" download="Lohn_${esc(p.month)}_${esc(p.fileName)}" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl"><i class="fa-solid fa-download"></i></a>
-                        <button data-del class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
+                    <div class="flex items-center gap-1.5"><a href="${p.fileData}" download="Lohn_${esc(p.month)}.pdf" class="p-2 bg-slate-800 text-slate-300 rounded-xl"><i class="fa-solid fa-download"></i></a><button data-del class="p-2 bg-slate-800 text-slate-400 hover:text-rose-400 rounded-xl"><i class="fa-solid fa-trash-can"></i></button></div>
                 `;
-                item.querySelector('[data-del]').addEventListener('click', () => deletePayslip(p.id));
+                item.querySelector('[data-del]').addEventListener('click', () => db.collection('payslips').doc(p.id).delete());
                 list.appendChild(item);
             });
         }
 
-        async function deletePayslip(id) {
-            if (!confirm('Abrechnung und zugehörige Gehaltsbuchung löschen?')) return;
-            const p = rawPayslips.find(x => x.id === id);
-            await db.collection('payslips').doc(id).delete();
-            if (p?.txId) await db.collection('finance_transactions').doc(p.txId).delete().catch(() => {});
+        function openManualTransactionModal() { openModal('modal-finance-manual'); }
+        async function saveManualTransaction(e) {
+            e.preventDefault();
+            await db.collection('finance_transactions').add({
+                date: document.getElementById('fin-man-date').value,
+                partner: document.getElementById('fin-man-partner').value,
+                category: document.getElementById('fin-man-cat').value,
+                amount: parseFloat(document.getElementById('fin-man-amount').value),
+                purpose: 'Manuelle Buchung',
+                owner: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            closeModal('modal-finance-manual');
         }
+        function openPayslipModal() {}
     </script>
 </body>
 </html>
