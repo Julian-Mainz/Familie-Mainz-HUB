@@ -1,6 +1,5 @@
-// js/drawer.js - Einheitliche Menü-Komponente
+// js/drawer.js - Einheitliche Menü-Komponente mit absoluten URLs
 function renderDrawer() {
-    // Verhindert doppeltes Einfügen
     if (document.getElementById('side-drawer')) return;
 
     const drawerHtml = `
@@ -69,12 +68,3 @@ function toggleSideMenu(open) {
         backdrop.classList.add('opacity-0', 'pointer-events-none');
     }
 }
-
-window.addEventListener('online', () => {
-    const el = document.getElementById('stat-conn-status');
-    if (el) el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Online';
-});
-window.addEventListener('offline', () => {
-    const el = document.getElementById('stat-conn-status');
-    if (el) el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Offline';
-});
