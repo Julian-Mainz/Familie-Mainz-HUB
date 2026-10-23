@@ -5,941 +5,178 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>J.Mainz Dashboard</title>
 
-    <!-- PWA / App Manifest & Metatags -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#080c14">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="J.Mainz Dashboard">
     <link rel="apple-touch-icon" href="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f6e1.png">
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK Compat -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 
+    <script src="/js/firebase-init.js"></script>
+    <script src="/js/drawer.js"></script>
+
     <style>
-        body {
-            background-color: #080c14;
-            color: #f8fafc;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .border-panel {
-            border-color: #1e293b;
-        }
-        #side-drawer {
-            transform: translate3d(-100%, 0, 0);
-            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-            will-change: transform;
-        }
-        #side-drawer.drawer-open {
-            transform: translate3d(0, 0, 0);
-        }
-        #menu-backdrop {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease-out;
-        }
-        #menu-backdrop.backdrop-active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
+        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        .border-panel { border-color: #1e293b; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden">
+<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
 
-    <!-- ========================================== -->
-    <!-- 1. LOGIN & REGISTRIERUNG OVERLAY           -->
-    <!-- ========================================== -->
+    <!-- LOGIN OVERLAY -->
     <div id="view-auth" class="fixed inset-0 z-50 bg-[#080c14] flex flex-col justify-between p-6 overflow-y-auto">
-        <div class="absolute top-6 right-6 flex items-center gap-3 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-2xl shadow-xl">
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-xs font-medium text-slate-300">Cloud</span>
-            </div>
-            <span class="text-slate-700">|</span>
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-xs font-medium text-slate-300">Auth System</span>
-            </div>
-        </div>
-
         <header class="text-center pt-8">
-            <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-slate-100">
-                Willkommen im J.Mainz Dashboard
-            </h1>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-slate-100">Willkommen im J.Mainz Dashboard</h1>
         </header>
-
         <main class="flex-1 flex items-center justify-center p-4">
             <div class="w-full max-w-md bg-slate-900/90 border border-slate-800/80 rounded-3xl p-8 shadow-2xl">
                 <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs text-center flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    <span id="auth-alert-text"></span>
+                    <i class="fa-solid fa-circle-exclamation"></i><span id="auth-alert-text"></span>
                 </div>
-
                 <form id="form-login" onsubmit="handleSignIn(event)" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail</label>
-                        <input type="email" id="login-email" required placeholder="name@julian-mainz.de" 
-                            class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">E-Mail</label>
+                        <input type="email" id="login-email" required placeholder="name@julian-mainz.de" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort</label>
-                        <input type="password" id="login-password" required placeholder="••••••••" 
-                            class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Passwort</label>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                     </div>
                     <div class="pt-3 space-y-3">
-                        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 text-sm">
-                            Anmelden
-                        </button>
-                        <button type="button" onclick="showRegisterView(true)" class="w-full bg-slate-800/60 hover:bg-slate-800 text-slate-300 font-medium py-3 rounded-2xl transition-all border border-slate-700/60 text-sm">
-                            Registrieren
-                        </button>
-                    </div>
-                </form>
-
-                <form id="form-register" onsubmit="handleSignUp(event)" class="space-y-4 hidden">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Vorname</label>
-                            <input type="text" id="reg-firstname" required placeholder="Julian" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Nachname</label>
-                            <input type="text" id="reg-lastname" required placeholder="Mainz" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail</label>
-                        <input type="email" id="reg-email" required placeholder="name@julian-mainz.de" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort (min. 6 Zeichen)</label>
-                        <input type="password" id="reg-password" required minlength="6" placeholder="••••••••" 
-                            class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div class="pt-2 space-y-3">
-                        <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 text-sm">
-                            Benutzer jetzt erstellen
-                        </button>
-                        <button type="button" onclick="showRegisterView(false)" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1 transition-colors text-center">
-                            &larr; Zurück zum Login
-                        </button>
+                        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 text-sm">Anmelden</button>
                     </div>
                 </form>
             </div>
         </main>
-
-        <footer class="text-center text-xs text-slate-600 pb-2">
-            J.Mainz Dashboard &bull; Cloud Security
-        </footer>
+        <footer class="text-center text-xs text-slate-600 pb-2">J.Mainz Dashboard &bull; Cloud Security</footer>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 2. HAUPT-DASHBOARD                         -->
-    <!-- ========================================== -->
-    <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full min-h-screen md:min-h-0 p-3 md:p-6 overflow-hidden">
+    <!-- DASHBOARD VIEW -->
+    <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full min-h-screen md:min-h-0 overflow-hidden">
         <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
             <div class="flex items-center gap-2">
                 <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
                     <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
-                    <span class="hidden sm:inline">Menü</span>
+                    <span>Menü</span>
                 </button>
             </div>
-
-            <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide text-center truncate px-2">
+            <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide">
                 Hallo, <span id="user-display-name" class="text-indigo-400 font-semibold"></span> 👋
             </h1>
-
             <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span class="hidden sm:inline">Ausloggen</span>
             </button>
         </header>
 
+        <!-- HAUPTINHALT: Startseite mit Kalender & Widgets -->
         <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-            
-            <!-- TAB 1: START MENÜ -->
-            <div id="tab-start" class="tab-pane flex-1 flex flex-col gap-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col items-center justify-center text-center shadow-lg">
-                        <div id="dash-time" class="text-3xl font-mono font-bold tracking-wider text-slate-100">00:00:00</div>
-                        <div id="dash-date" class="text-xs font-medium text-indigo-400 uppercase tracking-widest mt-2">Lade Datum...</div>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col items-center justify-center text-center shadow-lg">
+                    <div id="dash-time" class="text-3xl font-mono font-bold tracking-wider text-slate-100">00:00:00</div>
+                    <div id="dash-date" class="text-xs font-medium text-indigo-400 uppercase tracking-widest mt-2">Lade Datum...</div>
+                </div>
 
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg relative overflow-hidden">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                            <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5 truncate">
-                                <i class="fa-solid fa-location-dot text-rose-400"></i>
-                                <span id="weather-location">Standort...</span>
-                            </span>
-                            <button onclick="loadWeather()" class="text-slate-400 hover:text-indigo-400 text-xs p-1"><i class="fa-solid fa-rotate"></i></button>
-                        </div>
-                        <div class="flex items-center justify-between my-auto">
-                            <div class="flex items-center gap-3">
-                                <i id="weather-icon" class="fa-solid fa-cloud-sun text-3xl text-amber-400"></i>
-                                <div>
-                                    <div id="weather-temp" class="text-2xl font-bold text-slate-100">--°C</div>
-                                    <div id="weather-condition" class="text-[11px] text-slate-400">Lade Wetter...</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center text-[10px] text-slate-500 pt-2 border-t border-slate-800/60">
-                            <span>Wind: <span id="weather-wind" class="text-slate-300">-- km/h</span></span>
-                            <span>Feuchte: <span id="weather-rain" class="text-slate-300">-- %</span></span>
+                <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i> <span id="weather-location">Standort...</span></span>
+                        <button onclick="loadWeather()" class="text-slate-400 hover:text-indigo-400 text-xs"><i class="fa-solid fa-rotate"></i></button>
+                    </div>
+                    <div class="flex items-center gap-3 my-auto">
+                        <i id="weather-icon" class="fa-solid fa-cloud-sun text-3xl text-amber-400"></i>
+                        <div>
+                            <div id="weather-temp" class="text-2xl font-bold text-slate-100">--°C</div>
+                            <div id="weather-condition" class="text-[11px] text-slate-400">Lade Wetter...</div>
                         </div>
                     </div>
-
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                                <i class="fa-solid fa-note-sticky text-amber-400"></i> Pinnwand
-                            </span>
-                            <span id="note-count" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
-                        </div>
-                        <div id="notes-list" class="flex-1 overflow-y-auto max-h-24 space-y-1.5 pr-1">
-                            <div class="text-[11px] text-slate-500 text-center py-2">Keine Notizen vorhanden.</div>
-                        </div>
-                        <form onsubmit="saveNewNote(event)" class="mt-2 flex gap-1.5">
-                            <input type="text" id="new-note-input" required placeholder="Notiz anpinnen..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                            <button type="submit" class="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 text-xs px-2.5 py-1.5 rounded-xl"><i class="fa-solid fa-paper-plane"></i></button>
-                        </form>
-                    </div>
-
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                                <i class="fa-solid fa-list-check text-emerald-400"></i> Aufgaben & Einkauf
-                            </span>
-                            <span id="todo-count" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
-                        </div>
-                        <div id="todos-list" class="flex-1 overflow-y-auto max-h-24 space-y-1.5 pr-1">
-                            <div class="text-[11px] text-slate-500 text-center py-2">Alles erledigt! 🎉</div>
-                        </div>
-                        <form onsubmit="saveNewTodo(event)" class="mt-2 flex gap-1.5">
-                            <input type="text" id="new-todo-input" required placeholder="Aufgabe..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                            <button type="submit" class="bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 text-xs px-2.5 py-1.5 rounded-xl"><i class="fa-solid fa-plus"></i></button>
-                        </form>
+                    <div class="flex justify-between text-[10px] text-slate-500 pt-2 border-t border-slate-800/60">
+                        <span>Wind: <span id="weather-wind" class="text-slate-300">-- km/h</span></span>
+                        <span>Feuchte: <span id="weather-rain" class="text-slate-300">-- %</span></span>
                     </div>
                 </div>
 
-                <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 flex flex-col shadow-lg">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
-                            <h2 class="text-base font-bold text-slate-200">Kalender</h2>
-                        </div>
-                        <div class="flex items-center justify-between w-full sm:w-auto gap-2">
-                            <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
-                                <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
-                                <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-28 sm:w-36 text-center truncate"></span>
-                                <button onclick="changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-400 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
-                            </div>
-                            <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-1.5 whitespace-nowrap">
-                                <i class="fa-solid fa-plus"></i>
-                                <span>Termin</span>
-                            </button>
-                        </div>
+                <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-note-sticky text-amber-400 mr-1.5"></i> Pinnwand</span>
+                        <span id="note-count" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
                     </div>
-                    <div class="flex-1 overflow-x-auto pb-2">
-                        <div class="min-w-[620px]">
-                            <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
-                                <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
-                            </div>
-                            <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2"></div>
-                        </div>
+                    <div id="notes-list" class="flex-1 overflow-y-auto max-h-24 space-y-1.5 pr-1 text-[11px]">Keine Notizen.</div>
+                    <form onsubmit="saveNewNote(event)" class="mt-2 flex gap-1.5">
+                        <input type="text" id="new-note-input" required placeholder="Notiz anpinnen..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none">
+                        <button type="submit" class="bg-amber-500/20 text-amber-300 px-2.5 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-paper-plane"></i></button>
+                    </form>
+                </div>
+
+                <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-list-check text-emerald-400 mr-1.5"></i> Aufgaben</span>
+                        <span id="todo-count" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
                     </div>
+                    <div id="todos-list" class="flex-1 overflow-y-auto max-h-24 space-y-1.5 pr-1 text-[11px]">Alles erledigt! 🎉</div>
+                    <form onsubmit="saveNewTodo(event)" class="mt-2 flex gap-1.5">
+                        <input type="text" id="new-todo-input" required placeholder="Aufgabe..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none">
+                        <button type="submit" class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-plus"></i></button>
+                    </form>
                 </div>
             </div>
 
-            <!-- TAB 2: ZEITERFASSUNG -->
-            <div id="tab-worktime" class="tab-pane hidden flex-1 flex flex-col gap-4">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                                <i class="fa-solid fa-stopwatch text-emerald-400"></i> Digitale Stempeluhr
-                            </span>
-                            <span id="work-status-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">Inaktiv</span>
-                        </div>
-                        <div class="text-center py-2">
-                            <div id="work-active-timer" class="text-3xl font-mono font-bold text-slate-100 tracking-wider">00:00:00</div>
-                            <div id="work-start-hint" class="text-xs text-slate-500 mt-1">Nicht eingestempelt (Pause: 60 Min ab 6 Std.)</div>
-                        </div>
-                        <div class="pt-3">
-                            <button id="btn-toggle-work" onclick="toggleWorkSession()" class="w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20">
-                                <i class="fa-solid fa-play"></i>
-                                <span>Arbeit beginnen</span>
-                            </button>
-                        </div>
+            <!-- Kalender Widget -->
+            <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 flex flex-col shadow-lg">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
+                        <h2 class="text-base font-bold text-slate-200">Kalender</h2>
                     </div>
-
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                                <i class="fa-solid fa-chart-pie text-indigo-400"></i> Monatsstatistik
-                            </span>
-                            <select id="work-filter-month" onchange="filterWorkMonth()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-indigo-500 font-medium">
-                                <option value="">Lade Monate...</option>
-                            </select>
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
+                            <button onclick="changeCalendarMonth(-1)" class="p-1 text-slate-400 hover:text-indigo-400"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-28 text-center"></span>
+                            <button onclick="changeCalendarMonth(1)" class="p-1 text-slate-400 hover:text-indigo-400"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-center my-auto py-2">
-                            <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl">
-                                <span class="text-[11px] text-slate-400 block">Gesamtzeit</span>
-                                <span id="stat-total-hours" class="text-xl font-bold text-indigo-300">0.0 Std</span>
-                            </div>
-                            <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl">
-                                <span class="text-[11px] text-slate-400 block">Arbeitstage</span>
-                                <span id="stat-total-days" class="text-xl font-bold text-slate-100">0</span>
-                            </div>
-                        </div>
-                        <div class="text-[11px] text-slate-500 text-center pt-2">
-                            Durchschnitt: <span id="stat-avg-hours" class="text-slate-300 font-medium">0.0 Std / Tag</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-                        <div class="border-b border-slate-800 pb-2 mb-2">
-                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                                <i class="fa-solid fa-file-invoice text-amber-400"></i> Stundenzettel-Export
-                            </span>
-                        </div>
-                        <p class="text-xs text-slate-400 mb-2">Monatlicher Nachweis zur Vorlage beim Arbeitgeber.</p>
-                        <div class="space-y-2">
-                            <button onclick="exportWorkCSV()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-colors">
-                                <i class="fa-solid fa-file-csv text-emerald-400"></i>
-                                <span>Excel-Stundenzettel (CSV)</span>
-                            </button>
-                            <button onclick="printWorkTimesheet()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow transition-all">
-                                <i class="fa-solid fa-print"></i>
-                                <span>Stundenzettel drucken / als PDF</span>
-                            </button>
-                            <button onclick="openManualWorkModal()" class="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-colors">
-                                <i class="fa-solid fa-plus"></i>
-                                <span>Zeit manuell erfassen</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-                        <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-slate-400"></i> Erfasste Arbeitszeiten
-                        </h3>
-                        <span id="work-table-count" class="text-xs text-slate-500">0 Einträge</span>
-                    </div>
-                    <div class="flex-1 overflow-x-auto overflow-y-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800">
-                                <tr>
-                                    <th class="p-2.5">Datum</th>
-                                    <th class="p-2.5">Beginn</th>
-                                    <th class="p-2.5">Ende</th>
-                                    <th class="p-2.5">Pause</th>
-                                    <th class="p-2.5">Netto-Dauer</th>
-                                    <th class="p-2.5">Tätigkeit / Notiz</th>
-                                    <th class="p-2.5 text-right">Aktionen</th>
-                                </tr>
-                            </thead>
-                            <tbody id="worktime-table-body" class="divide-y divide-slate-800/60 text-slate-200">
-                                <tr><td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten gefunden.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 3: FINANZEN -->
-            <div id="tab-finanzen" class="tab-pane hidden flex-1 flex flex-col gap-4">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
-                        <span class="text-xs text-slate-400 flex items-center gap-1.5">
-                            <i class="fa-regular fa-calendar text-indigo-400"></i> Aktiver Monat
-                        </span>
-                        <select id="finance-filter-month" onchange="renderFinanceData()" class="mt-2 bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500 font-medium">
-                            <option value="">Keine Daten vorhanden</option>
-                        </select>
-                    </div>
-
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
-                        <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-arrow-down text-emerald-400"></i> Einnahmen</span>
-                        <div id="fin-stat-income" class="text-xl font-bold text-emerald-400 mt-1">0,00 €</div>
-                    </div>
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
-                        <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-arrow-up text-rose-400"></i> Ausgaben</span>
-                        <div id="fin-stat-expenses" class="text-xl font-bold text-rose-400 mt-1">0,00 €</div>
-                    </div>
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
-                        <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-wallet text-indigo-400"></i> Saldo / Überschuss</span>
-                        <div id="fin-stat-balance" class="text-xl font-bold text-slate-100 mt-1">0,00 €</div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                                <i class="fa-solid fa-file-csv text-red-500"></i> Sparkasse CSV-Umsätze importieren
-                            </span>
-                        </div>
-                        <p class="text-xs text-slate-400 mb-3">
-                            Lade deine exportierte Umsatz-CSV aus dem Sparkassen-Online-Banking hoch.
-                        </p>
-                        <div class="flex items-center gap-2">
-                            <label class="flex-1 py-2.5 px-3 bg-red-600/10 hover:bg-red-600/20 border border-red-500/30 text-red-400 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all">
-                                <i class="fa-solid fa-upload"></i>
-                                <span>CSV-Datei auswählen</span>
-                                <input type="file" id="sparkasse-csv-input" accept=".csv" class="hidden" onchange="handleSparkasseCSV(event)">
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                                <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> Lohnabrechnung ablegen
-                            </span>
-                        </div>
-                        <p class="text-xs text-slate-400 mb-3">
-                            Lohnzettel als PDF oder Foto direkt in deiner Cloud ablegen.
-                        </p>
-                        <button onclick="openPayslipModal()" class="w-full py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Neue Abrechnung hochladen</span>
+                        <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-plus"></i><span>Termin</span>
                         </button>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 overflow-hidden min-h-[300px]">
-                    <div class="lg:col-span-2 bg-slate-900/60 border border-panel rounded-3xl p-4 shadow-lg flex flex-col overflow-hidden">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-2.5">
-                            <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                                <i class="fa-solid fa-list text-indigo-400"></i> Buchungen & Umsätze
-                            </h3>
-                            <button onclick="openManualTransactionModal()" class="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
-                                <i class="fa-solid fa-plus"></i> Manuell hinzufügen
-                            </button>
+                <div class="flex-1 overflow-x-auto pb-2">
+                    <div class="min-w-[620px]">
+                        <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
+                            <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
                         </div>
-                        <div class="flex-1 overflow-y-auto">
-                            <table class="w-full text-left text-xs">
-                                <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800">
-                                    <tr>
-                                        <th class="p-2">Datum</th>
-                                        <th class="p-2">Begünstigter / Partner</th>
-                                        <th class="p-2">Kategorie</th>
-                                        <th class="p-2 text-right">Betrag</th>
-                                        <th class="p-2 text-right">Aktion</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="finance-table-body" class="divide-y divide-slate-800/60 text-slate-200">
-                                    <tr><td colspan="5" class="text-center py-6 text-slate-500">Keine Umsätze für diesen Monat gefunden.</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 shadow-lg flex flex-col overflow-hidden">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-2.5">
-                            <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                                <i class="fa-solid fa-folder-open text-amber-400"></i> Lohnabrechnungen
-                            </h3>
-                            <span id="payslip-count-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
-                        </div>
-                        <div id="payslip-list" class="flex-1 overflow-y-auto space-y-2 pr-1">
-                            <div class="text-xs text-slate-500 text-center py-6">Keine Lohnabrechnungen hinterlegt.</div>
-                        </div>
+                        <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2"></div>
                     </div>
                 </div>
             </div>
-
-            <!-- TAB 4: PASSWORT- & DOKUMENTEN-SAFE -->
-            <div id="tab-vault" class="tab-pane hidden flex-1 flex flex-col gap-4">
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
-                    <div id="vault-locked-view" class="flex-1 flex flex-col items-center justify-center p-6 text-center my-auto">
-                        <div class="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl mb-4 shadow-xl">
-                            <i class="fa-solid fa-shield-halved"></i>
-                        </div>
-                        <h2 class="text-lg md:text-xl font-bold text-slate-100">Passwort- & Dokumenten-Safe</h2>
-                        <p class="text-xs text-slate-400 max-w-sm mt-1 mb-6">
-                            Deine Daten sind durch ein Master-Passwort per AES-256 direkt im Browser verschlüsselt.
-                        </p>
-                        <form onsubmit="unlockVault(event)" class="w-full max-w-xs space-y-3">
-                            <input type="password" id="vault-master-pass" required placeholder="Master-Passwort eingeben" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-center text-sm text-slate-100 focus:outline-none focus:border-amber-500 tracking-widest">
-                            <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-2xl text-xs transition-all shadow-lg shadow-amber-600/20">
-                                Safe entsperren 🔓
-                            </button>
-                        </form>
-                    </div>
-
-                    <div id="vault-unlocked-view" class="hidden flex-1 flex flex-col overflow-hidden">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-                            <div class="flex items-center gap-2.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                <h3 class="text-sm font-bold text-slate-100">Tresor entsperrt</h3>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="openAddVaultItemModal()" class="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5">
-                                    <i class="fa-solid fa-plus"></i>
-                                    <span>Eintrag hinzufügen</span>
-                                </button>
-                                <button onclick="lockVault()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5">
-                                    <i class="fa-solid fa-lock"></i>
-                                    <span>Sperren</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="flex-1 overflow-y-auto space-y-2.5 pr-1" id="vault-items-list">
-                            <div class="text-xs text-slate-500 text-center py-6">Keine Passwörter im Tresor hinterlegt.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 5: ADMIN RECHTE -->
-            <div id="tab-admin" class="tab-pane hidden flex-1 flex flex-col gap-4">
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-2">
-                        <div>
-                            <h2 class="text-lg md:text-xl font-bold text-amber-400 flex items-center gap-2">
-                                <i class="fa-solid fa-user-shield"></i> Admin- & Rechtesystem
-                            </h2>
-                            <p class="text-xs text-slate-400 mt-0.5">Verwalte die Zugriffsrechte aller registrierten Mitglieder.</p>
-                        </div>
-                        <span id="user-count-badge" class="self-start sm:self-center text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1.5 rounded-xl">0 Benutzer</span>
-                    </div>
-                    <div id="admin-user-list" class="space-y-3"></div>
-                </div>
-            </div>
-
-            <!-- TAB 6: ADMIN SYSTEM-LOGS -->
-            <div id="tab-logs" class="tab-pane hidden flex-1 flex flex-col gap-4">
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
-                    <div class="flex flex-col lg:flex-row lg:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-3">
-                        <div>
-                            <h2 class="text-lg md:text-xl font-bold text-cyan-400 flex items-center gap-2">
-                                <i class="fa-solid fa-timeline"></i> System- & Aktivitäts-Logs
-                            </h2>
-                            <p class="text-xs text-slate-400 mt-0.5">Audit-Trail über alle Aktionen.</p>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <div class="relative">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-                                <input type="text" id="log-search-input" oninput="renderLogsTable()" placeholder="Logs filtern..." class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl pl-8 pr-3 py-2 focus:outline-none focus:border-cyan-500 w-40 sm:w-48">
-                            </div>
-                            <select id="log-category-filter" onchange="renderLogsTable()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none">
-                                <option value="all">Alle Aktivitäten</option>
-                                <option value="visit">Seitenbesuche</option>
-                                <option value="auth">Logins / Auth</option>
-                                <option value="data">Datenänderungen</option>
-                                <option value="admin">Sicherheit & Rechte</option>
-                            </select>
-                            <button onclick="clearSystemLogs()" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-xs px-3 py-2 rounded-xl transition-all flex items-center gap-1.5">
-                                <i class="fa-solid fa-trash-can"></i>
-                                <span class="hidden sm:inline">Bereinigen</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="flex-1 overflow-x-auto overflow-y-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800">
-                                <tr>
-                                    <th class="p-2.5">Zeitpunkt</th>
-                                    <th class="p-2.5">Kategorie</th>
-                                    <th class="p-2.5">Benutzer</th>
-                                    <th class="p-2.5">Ereignis</th>
-                                    <th class="p-2.5">Details</th>
-                                </tr>
-                            </thead>
-                            <tbody id="logs-table-body" class="divide-y divide-slate-800/60 text-slate-200 font-mono text-[11px]">
-                                <tr><td colspan="5" class="text-center py-6 text-slate-500 font-sans">Lade System-Logs...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
         </main>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 3. MENÜ-DRAWER                             -->
-    <!-- ========================================== -->
-    <div id="menu-backdrop" onclick="toggleSideMenu(false)" class="fixed inset-0 bg-slate-950/70 z-50"></div>
-    
-    <aside id="side-drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 z-50 p-6 flex flex-col justify-between shadow-2xl">
-        <div>
-            <div class="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-6">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-xs">
-                        <i class="fa-solid fa-house"></i>
-                    </div>
-                    <span class="font-bold text-sm tracking-wide text-slate-200">J.Mainz Dashboard</span>
-                </div>
-                <button onclick="toggleSideMenu(false)" class="text-slate-400 hover:text-slate-200 p-1.5 transition-colors">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <nav class="space-y-2">
-                <button onclick="switchTab('start'); toggleSideMenu(false);" id="nav-btn-start" class="nav-btn w-full flex items-center gap-3 bg-indigo-600 text-white px-4 py-3 rounded-2xl text-sm font-medium shadow-lg shadow-indigo-600/20 transition-all text-left">
-                    <i class="fa-solid fa-border-all w-5"></i>
-                    <span>Start Menü</span>
-                </button>
-
-                <button onclick="switchTab('worktime'); toggleSideMenu(false);" id="nav-btn-worktime" class="nav-btn w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
-                    <i class="fa-solid fa-business-time w-5 text-emerald-400"></i>
-                    <span class="text-emerald-300">Zeiterfassung</span>
-                </button>
-
-                <button onclick="switchTab('finanzen'); toggleSideMenu(false);" id="nav-btn-finanzen" class="nav-btn w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
-                    <i class="fa-solid fa-coins w-5 text-yellow-400"></i>
-                    <span class="text-yellow-300">Finanzen & Sparkasse</span>
-                </button>
-
-                <button onclick="switchTab('vault'); toggleSideMenu(false);" id="nav-btn-vault" class="nav-btn w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
-                    <i class="fa-solid fa-shield-halved w-5 text-amber-400"></i>
-                    <span class="text-amber-300">Passwort-Safe</span>
-                </button>
-
-                <button onclick="switchTab('admin'); toggleSideMenu(false);" id="nav-btn-admin" class="nav-btn hidden w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
-                    <i class="fa-solid fa-user-shield w-5 text-indigo-400"></i>
-                    <span class="text-indigo-300">Admin & Rechte</span>
-                </button>
-
-                <button onclick="switchTab('logs'); toggleSideMenu(false);" id="nav-btn-logs" class="nav-btn hidden w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left">
-                    <i class="fa-solid fa-timeline w-5 text-cyan-400"></i>
-                    <span class="text-cyan-300">System-Logs</span>
-                </button>
-
-                <button onclick="openSettingsModal(); toggleSideMenu(false);" class="w-full flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left border border-slate-800">
-                    <i class="fa-solid fa-gear w-5 text-slate-400"></i>
-                    <span class="text-slate-200">Einstellungen & Alarm</span>
-                </button>
-            </nav>
-        </div>
-
-        <!-- DETAIL-STATUSANZEIGEN (ONLINE/OFFLINE) -->
-        <div class="space-y-3 pt-4 border-t border-slate-800/80">
-            <div>
-                <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-server text-indigo-400 text-xs"></i> System- & Netzwerk-Status
-                </div>
-                
-                <div class="space-y-1.5">
-                    <!-- Internet Connection Status -->
-                    <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
-                        <div class="flex items-center gap-2 text-slate-300">
-                            <i class="fa-solid fa-wifi text-slate-500 text-[11px]"></i>
-                            <span>Internet</span>
-                        </div>
-                        <span id="stat-conn-status" class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Online
-                        </span>
-                    </div>
-
-                    <!-- Firestore DB Status -->
-                    <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
-                        <div class="flex items-center gap-2 text-slate-300">
-                            <i class="fa-solid fa-database text-slate-500 text-[11px]"></i>
-                            <span>Firestore DB</span>
-                        </div>
-                        <span id="stat-db-status" class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Verbunden
-                        </span>
-                    </div>
-
-                    <!-- Firebase Auth Status -->
-                    <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
-                        <div class="flex items-center gap-2 text-slate-300">
-                            <i class="fa-solid fa-shield-halved text-slate-500 text-[11px]"></i>
-                            <span>Firebase Auth</span>
-                        </div>
-                        <span id="stat-auth-status" class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Bereit
-                        </span>
-                    </div>
-
-                    <!-- Push Status -->
-                    <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
-                        <div class="flex items-center gap-2 text-slate-300">
-                            <i class="fa-solid fa-bell text-slate-500 text-[11px]"></i>
-                            <span>Push Alarm</span>
-                        </div>
-                        <span id="badge-fcm-status" class="flex items-center gap-1.5 text-slate-400 font-medium text-[11px]">
-                            Inaktiv
-                        </span>
-                    </div>
-
-                    <!-- Service Worker Status -->
-                    <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
-                        <div class="flex items-center gap-2 text-slate-300">
-                            <i class="fa-solid fa-microchip text-slate-500 text-[11px]"></i>
-                            <span>Service Worker</span>
-                        </div>
-                        <span id="stat-sw-status" class="flex items-center gap-1.5 text-slate-400 font-medium text-[11px]">
-                            Lädt...
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-[11px] text-slate-500 text-center font-medium">J.Mainz Dashboard &bull; v3.6</div>
-        </div>
-    </aside>
-
-    <!-- ========================================== -->
-    <!-- 4. MODALS (ARBEITSZEITEN, FINANZEN, SAFE)  -->
-    <!-- ========================================== -->
-    <div id="modal-work-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-slate-100">Arbeitszeit erfassen</h3>
-                <button onclick="closeModal('modal-work-manual')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="saveManualWorkTime(event)" class="space-y-3.5">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Datum</label>
-                    <input type="date" id="man-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Startzeit</label>
-                        <input type="time" id="man-start" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Endzeit</label>
-                        <input type="time" id="man-end" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Pause (Minuten)</label>
-                    <input type="number" id="man-pause" min="0" value="60" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 font-semibold text-emerald-400">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Tätigkeit / Beschreibung</label>
-                    <input type="text" id="man-note" placeholder="Reguläre Arbeitszeit" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                </div>
-                <div class="flex justify-end space-x-3 pt-3">
-                    <button type="button" onclick="closeModal('modal-work-manual')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-emerald-600 text-white font-medium shadow-lg shadow-emerald-600/30">Speichern</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-work-edit" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-pen-to-square text-indigo-400 text-sm"></i>
-                    <h3 class="text-base font-bold text-slate-100">Arbeitszeit bearbeiten</h3>
-                </div>
-                <button onclick="closeModal('modal-work-edit')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="saveEditedWorkTime(event)" class="space-y-3.5">
-                <input type="hidden" id="edit-work-id">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Datum</label>
-                    <input type="date" id="edit-work-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Startzeit</label>
-                        <input type="time" id="edit-work-start" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Endzeit</label>
-                        <input type="time" id="edit-work-end" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Pause (Minuten)</label>
-                    <input type="number" id="edit-work-pause" min="0" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Tätigkeit / Beschreibung</label>
-                    <input type="text" id="edit-work-note" placeholder="Tätigkeit" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                </div>
-                <div class="flex justify-end space-x-3 pt-3">
-                    <button type="button" onclick="closeModal('modal-work-edit')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium shadow-lg shadow-indigo-600/30">Änderungen speichern</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-payslip-add" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-slate-100">Lohnabrechnung ablegen</h3>
-                <button onclick="closeModal('modal-payslip-add')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="savePayslip(event)" class="space-y-3.5">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Abrechnungsmonat</label>
-                    <input type="month" id="payslip-month" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Netto-Gehalt (€)</label>
-                        <input type="number" step="0.01" id="payslip-netto" required placeholder="z. B. 2450.00" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Brutto (€, optional)</label>
-                        <input type="number" step="0.01" id="payslip-brutto" placeholder="z. B. 3800.00" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Datei (PDF oder Foto auswählen)</label>
-                    <input type="file" id="payslip-file" required accept=".pdf,image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-600/20 file:text-emerald-300 hover:file:bg-emerald-600/30">
-                </div>
-                <div class="flex justify-end space-x-3 pt-3">
-                    <button type="button" onclick="closeModal('modal-payslip-add')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
-                    <button type="submit" id="btn-save-payslip" class="px-4 py-2 rounded-xl text-xs bg-emerald-600 text-white font-medium">In Cloud speichern</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-finance-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-slate-100">Manuelle Buchung anlegen</h3>
-                <button onclick="closeModal('modal-finance-manual')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="saveManualTransaction(event)" class="space-y-3.5">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Datum</label>
-                    <input type="date" id="fin-man-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Begünstigter / Empfänger / Quelle</label>
-                    <input type="text" id="fin-man-partner" required placeholder="z. B. Rewe, Tankstelle, Gehalt" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Kategorie</label>
-                        <select id="fin-man-cat" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
-                            <option value="Supermarkt">Supermarkt / Essen</option>
-                            <option value="Gehalt">Gehalt / Einnahme</option>
-                            <option value="Miete / Wohnen">Miete / Wohnen</option>
-                            <option value="Tanken / Auto">Tanken / Auto</option>
-                            <option value="Freizeit / Abo">Freizeit / Abo</option>
-                            <option value="Sonstiges">Sonstiges</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Betrag (€, z.B. -45.50)</label>
-                        <input type="number" step="0.01" id="fin-man-amount" required placeholder="-45.50 oder +100" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                    </div>
-                </div>
-                <div class="flex justify-end space-x-3 pt-3">
-                    <button type="button" onclick="closeModal('modal-finance-manual')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-settings" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
-                <h3 class="text-base font-bold text-slate-100">Einstellungen</h3>
-                <button onclick="closeModal('modal-settings')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div class="p-3.5 bg-slate-950/60 border border-slate-800 rounded-2xl flex items-center justify-between gap-3">
-                    <div>
-                        <div class="text-xs font-semibold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-bell text-yellow-400"></i> Push-Mitteilungen
-                        </div>
-                        <div class="text-[10px] text-slate-400 mt-0.5" id="master-push-subtext">Status: Inaktiv</div>
-                    </div>
-                    <button id="btn-master-push" onclick="toggleMasterPush()" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-indigo-600 hover:bg-indigo-500 text-white">
-                        Aktivieren
-                    </button>
-                </div>
-                <div class="space-y-2.5">
-                    <label class="flex items-center justify-between p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl cursor-pointer">
-                        <span class="text-xs font-medium text-slate-200">Stempeluhr-Alarm</span>
-                        <input type="checkbox" id="pref-notify-work" onchange="saveNotificationPref('notifyWork', this.checked)" class="rounded bg-slate-800 border-slate-700 text-emerald-500 w-4 h-4 cursor-pointer">
-                    </label>
-                    <label class="flex items-center justify-between p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl cursor-pointer">
-                        <span class="text-xs font-medium text-slate-200">Termin-Bestätigung</span>
-                        <input type="checkbox" id="pref-notify-events" onchange="saveNotificationPref('notifyEvents', this.checked)" class="rounded bg-slate-800 border-slate-700 text-indigo-500 w-4 h-4 cursor-pointer">
-                    </label>
-                </div>
-                <div class="pt-3 border-t border-slate-800 text-right">
-                    <button onclick="closeModal('modal-settings')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Schließen</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-vault-add" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-slate-100">Passwort sichern</h3>
-                <button onclick="closeModal('modal-vault-add')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="saveVaultItem(event)" class="space-y-3.5">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Titel / Dienst</label>
-                    <input type="text" id="vault-title" required placeholder="z. B. WLAN, Netflix" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Benutzername (optional)</label>
-                    <input type="text" id="vault-username" placeholder="z. B. benutzername@email.de" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Passwort / PIN</label>
-                    <textarea id="vault-secret" required rows="3" placeholder="Wird verschlüsselt gespeichert..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-mono"></textarea>
-                </div>
-                <div class="flex justify-end space-x-3 pt-3">
-                    <button type="button" onclick="closeModal('modal-vault-add')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-amber-600 text-slate-950 hover:bg-amber-500 font-bold">Verschlüsselt sichern</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
+    <!-- Termin Modal -->
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-base font-bold text-slate-100">Neuen Termin eintragen</h3>
                 <button onclick="closeModal('modal-event')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form onsubmit="saveCalendarEvent(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">Titel / Anlass</label>
-                    <input type="text" id="ev-title" required placeholder="z.B. Geburtstag" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                    <label class="block text-xs text-slate-400 mb-1">Titel</label>
+                    <input type="text" id="ev-title" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Datum</label>
-                    <input type="date" id="ev-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                    <input type="date" id="ev-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
                 </div>
-                <div class="flex items-center space-x-2 pt-1">
-                    <input type="checkbox" id="ev-public" class="rounded bg-slate-800 border-slate-700 text-indigo-600 w-4 h-4">
-                    <label for="ev-public" class="text-xs text-slate-300">Öffentlich für alle sichtbar</label>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="ev-public" class="rounded bg-slate-800 border-slate-700 text-indigo-600">
+                    <label for="ev-public" class="text-xs text-slate-300">Öffentlich sichtbar</label>
                 </div>
-                <div class="flex justify-end space-x-3 pt-3">
+                <div class="flex justify-end space-x-2 pt-2">
                     <button type="button" onclick="closeModal('modal-event')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
                     <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button>
                 </div>
@@ -947,1612 +184,68 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- LOGIK & VOLLSTÄNDIGER FIREBASE CODE        -->
-    <!-- ========================================== -->
+    <!-- Startseiten-Skript -->
     <script>
-        // ---------- Globale Helfer ----------
-        window.esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
-            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-        
-        window.localDate = (d = new Date()) =>
-            `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-
-        // ---------- Rollen- & Modul-Definitionen ----------
-        const ROLES = {
-            admin: { label: 'Admin', perms: { kalender: true, zeit: true, finanzen: true, tresor: true, admin: true } },
-            user:  { label: 'Familie', perms: { kalender: true, zeit: true, finanzen: true, tresor: true, admin: false } },
-            guest: { label: 'Gast', perms: { kalender: true, zeit: false, finanzen: false, tresor: false, admin: false } }
-        };
-        const MODULES = { kalender: 'Kalender & Pinnwand', zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe' };
-        const NAV = { zeit: 'worktime', finanzen: 'finanzen', tresor: 'vault' };
-        let filterText = '', filterStatus = 'all';
-
-        const can = (u, key) => u && (u.role === 'admin' || (u.permissions || {})[key] !== false);
-        const statusOf = u => u?.status || 'active';
-        const adminCount = () => allUsers.filter(u => u.role === 'admin' && statusOf(u) === 'active').length;
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCfKWWHQ17-ujYGJcHw6efFBESArA8uY0Q",
-            authDomain: "familie-mainz-netzwerk.firebaseapp.com",
-            projectId: "familie-mainz-netzwerk",
-            storageBucket: "familie-mainz-netzwerk.firebasestorage.app",
-            messagingSenderId: "361922663455",
-            appId: "1:361922663455:web:ed3eb8d34103ce89be312a"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // ---------- System & Netzwerk-Status Tracking ----------
-        function updateConnectionStatus() {
-            const el = document.getElementById('stat-conn-status');
-            if (!el) return;
-            if (navigator.onLine) {
-                el.className = 'flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]';
-                el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Online';
-            } else {
-                el.className = 'flex items-center gap-1.5 text-rose-400 font-medium text-[11px]';
-                el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Offline';
-            }
-        }
-        window.addEventListener('online', updateConnectionStatus);
-        window.addEventListener('offline', updateConnectionStatus);
-        updateConnectionStatus();
-
-        // Service Worker Status
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/firebase-messaging-sw.js')
-                    .then(() => {
-                        const swEl = document.getElementById('stat-sw-status');
-                        if (swEl) {
-                            swEl.className = 'flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]';
-                            swEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Aktiv';
-                        }
-                    })
-                    .catch(() => {
-                        const swEl = document.getElementById('stat-sw-status');
-                        if (swEl) {
-                            swEl.className = 'flex items-center gap-1.5 text-slate-500 font-medium text-[11px]';
-                            swEl.innerText = 'Nicht registriert';
-                        }
-                    });
-            });
-        } else {
-            const swEl = document.getElementById('stat-sw-status');
-            if (swEl) {
-                swEl.className = 'flex items-center gap-1.5 text-slate-500 font-medium text-[11px]';
-                swEl.innerText = 'Nicht unterstützt';
-            }
-        }
-
-        // ---------- Listener-Cleanup Automatisierung ----------
-        let unsubs = [];
-        const wrapListener = proto => {
-            const orig = proto.onSnapshot;
-            proto.onSnapshot = function (...a) {
-                const u = orig.apply(this, a);
-                unsubs.push(u);
-                return u;
-            };
-        };
-        wrapListener(firebase.firestore.Query.prototype);
-        wrapListener(firebase.firestore.DocumentReference.prototype);
-
-        let messaging = null;
-        try {
-            if (firebase.messaging.isSupported()) messaging = firebase.messaging();
-        } catch (e) {}
-
-        const FCM_VAPID_KEY = 'BPEpGDjLNQG4JpIwPgr2_WtdKDE5G8GE5S33LKLJmxfNPrAfxBXW6wpeHj0dQOhENsmYbUWOh669HoSJ18w18Lk';
-
-        let signingUp = false;
-        let currentUser = null;
-        let allUsers = [];
-        let calendarEvents = [];
-        let familyNotes = [];
-        let familyTodos = [];
-        let workEntries = [];
-        let systemLogs = [];
-        let rawVaultItems = [];
-        let rawTransactions = [];
-        let rawPayslips = [];
-        let activeWorkSession = null;
-        let workTimerInterval = null;
+        let calendarEvents = [], familyNotes = [], familyTodos = [];
         let currentCalendarDate = new Date();
-        let vaultMasterKey = null;
-        let workBusy = false;
-
-        let todayStr = localDate().slice(0, 7);
-        setInterval(() => { todayStr = localDate().slice(0, 7); }, 60000);
-
-        function getDeviceType() {
-            const ua = navigator.userAgent;
-            if (/tablet|ipad/i.test(ua)) return 'Tablet';
-            if (/mobile/i.test(ua)) return 'Smartphone';
-            return 'Desktop / PC';
-        }
-
-        async function logSystemEvent(category, action, details = {}) {
-            try {
-                const userEmail = currentUser ? currentUser.email : (details.attemptedEmail || 'Gast / Anonym');
-                const userName = currentUser ? currentUser.name : (details.name || 'Nicht eingeloggt');
-                await db.collection('system_logs').add({
-                    category: category,
-                    action: action,
-                    userEmail: userEmail,
-                    userName: userName,
-                    device: getDeviceType(),
-                    userAgent: navigator.userAgent,
-                    url: window.location.href,
-                    details: details,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            } catch (err) {}
-        }
-
-        function toggleSideMenu(open) {
-            const drawer = document.getElementById('side-drawer');
-            const backdrop = document.getElementById('menu-backdrop');
-            if (open) {
-                backdrop.classList.add('backdrop-active');
-                drawer.classList.add('drawer-open');
-            } else {
-                drawer.classList.remove('drawer-open');
-                backdrop.classList.remove('backdrop-active');
-            }
-        }
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        function updateClock() {
-            const now = new Date();
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-            const s = String(now.getSeconds()).padStart(2, '0');
-            const timeEl = document.getElementById('dash-time');
-            if (timeEl) timeEl.innerText = `${h}:${m}:${s}`;
-            const dateEl = document.getElementById('dash-date');
-            if (dateEl) {
-                dateEl.innerText = now.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
-            }
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        function switchTab(tabId) {
-            Object.entries(NAV).forEach(([perm, id]) => {
-                document.getElementById('nav-btn-' + id)?.classList.toggle('hidden', !can(currentUser, perm));
-            });
-
-            const need = Object.entries(NAV).find(([, id]) => id === tabId)?.[0];
-            if (need && !can(currentUser, need)) {
-                alert('Dafür hast du keine Berechtigung.');
-                tabId = 'start';
-            }
-
-            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/20');
-                btn.classList.add('text-slate-300');
-            });
-
-            const activeTab = document.getElementById('tab-' + tabId);
-            const activeBtn = document.getElementById('nav-btn-' + tabId);
-            if (activeTab) activeTab.classList.remove('hidden');
-            if (activeBtn) {
-                activeBtn.classList.remove('text-slate-300');
-                activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/20');
-            }
-
-            if (tabId === 'start') renderCalendar();
-            else if (tabId === 'worktime') renderWorkTimeTable();
-            else if (tabId === 'finanzen') renderFinanceData();
-            else if (tabId === 'logs') renderLogsTable();
-            else if (tabId === 'vault' && vaultMasterKey) renderVaultItems();
-        }
-
-        function showRegisterView(show) {
-            hideAlert();
-            if (show) {
-                document.getElementById('form-login').classList.add('hidden');
-                document.getElementById('form-register').classList.remove('hidden');
+        initAuthGuard(user => {
+            const authView = document.getElementById('view-auth');
+            const dashView = document.getElementById('view-dashboard');
+            if (user) {
+                authView.classList.add('hidden');
+                dashView.classList.remove('hidden');
+                renderDrawer();
+                initCalendarListener();
+                initNotesListener();
+                initTodosListener();
+                loadWeather();
             } else {
-                document.getElementById('form-register').classList.add('hidden');
-                document.getElementById('form-login').classList.remove('hidden');
-            }
-        }
-
-        function showAlert(msg) {
-            const alertBox = document.getElementById('auth-alert');
-            const alertText = document.getElementById('auth-alert-text');
-            alertText.innerText = msg;
-            alertBox.classList.remove('hidden');
-        }
-
-        function hideAlert() { document.getElementById('auth-alert').classList.add('hidden'); }
-
-        async function handleSignIn(e) {
-            e.preventDefault();
-            hideAlert();
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            const btn = document.getElementById('btn-login');
-            btn.disabled = true;
-            btn.innerText = 'Wird angemeldet...';
-
-            try {
-                await auth.signInWithEmailAndPassword(email, password);
-                logSystemEvent('auth', 'Erfolgreicher Login', { email });
-            } catch (err) {
-                btn.disabled = false;
-                btn.innerText = 'Anmelden';
-                logSystemEvent('auth', 'Fehlgeschlagener Login-Versuch', { attemptedEmail: email, reason: err.message });
-                showAlert('Anmeldung fehlgeschlagen. Bitte E-Mail und Passwort prüfen.');
-            }
-        }
-
-        async function handleSignUp(e) {
-            e.preventDefault();
-            hideAlert();
-            const firstName = document.getElementById('reg-firstname').value.trim();
-            const lastName = document.getElementById('reg-lastname').value.trim();
-            const email = document.getElementById('reg-email').value.trim();
-            const password = document.getElementById('reg-password').value;
-            const btn = document.getElementById('btn-register');
-            btn.disabled = true;
-            btn.innerText = 'Erstelle Benutzer...';
-            signingUp = true;
-            let cred = null;
-            try {
-                cred = await auth.createUserWithEmailAndPassword(email, password);
-                await db.collection('users').doc(cred.user.uid).set({
-                    firstName, lastName, displayName: `${firstName} ${lastName}`, email,
-                    role: 'user', status: 'pending',
-                    permissions: ROLES.user.perms,
-                    userPrefs: { notifyWork: true, notifyEvents: true },
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                await auth.signOut();
-                showRegisterView(false);
-                showAlert('Registrierung erfolgreich! Ein Admin muss dein Konto noch freigeben.');
-            } catch (err) {
-                if (cred?.user) await cred.user.delete().catch(() => {});
-                showAlert(err.code === 'auth/email-already-in-use' ? 'Diese E-Mail ist bereits registriert.'
-                    : err.code === 'auth/weak-password' ? 'Passwort zu schwach (min. 6 Zeichen).'
-                    : 'Registrierung fehlgeschlagen: ' + err.message);
-            } finally {
-                signingUp = false;
-                btn.disabled = false;
-                btn.innerText = 'Benutzer jetzt erstellen';
-            }
-        }
-
-        auth.onAuthStateChanged(async (user) => {
-            const btn = document.getElementById('btn-login');
-            try {
-                if (user) {
-                    const docRef = db.collection('users').doc(user.uid);
-                    const doc = await docRef.get();
-                    let displayName = user.email.split('@')[0];
-                    let userRole = 'user';
-                    let permissions = ROLES.user.perms;
-                    let userPrefs = { notifyWork: true, notifyEvents: true };
-                    let userStatus = 'active';
-                    let notifOn = false;
-
-                    if (doc.exists) {
-                        const data = doc.data();
-                        userStatus = data.status || 'active';
-
-                        if (userStatus !== 'active') {
-                            await auth.signOut();
-                            showAlert(userStatus === 'pending'
-                                ? 'Dein Konto wartet noch auf Freigabe durch einen Admin.'
-                                : 'Dein Konto wurde gesperrt.');
-                            if (btn) { btn.disabled = false; btn.innerText = 'Anmelden'; }
-                            return;
-                        }
-
-                        docRef.update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
-
-                        if (data.firstName) displayName = data.firstName;
-                        if (data.role) userRole = data.role;
-                        if (data.permissions) permissions = data.permissions;
-                        if (data.userPrefs) userPrefs = { ...userPrefs, ...data.userPrefs };
-                        notifOn = !!data.notificationsEnabled;
-                    } else {
-                        if (signingUp) return;
-                        await auth.signOut();
-                        showAlert('Für dieses Konto existiert kein Profil. Bitte wende dich an einen Admin.');
-                        if (btn) { btn.disabled = false; btn.innerText = 'Anmelden'; }
-                        return;
-                    }
-
-                    currentUser = { 
-                        uid: user.uid, 
-                        email: user.email, 
-                        name: displayName, 
-                        role: userRole, 
-                        status: userStatus,
-                        permissions: permissions,
-                        userPrefs: userPrefs,
-                        notificationsEnabled: notifOn
-                    };
-
-                    document.getElementById('user-display-name').innerText = displayName;
-
-                    const navAdmin = document.getElementById('nav-btn-admin');
-                    const navLogs = document.getElementById('nav-btn-logs');
-                    const isUserAdmin = currentUser.role === 'admin' || (currentUser.permissions && currentUser.permissions.admin);
-
-                    if (isUserAdmin) {
-                        navAdmin.classList.remove('hidden');
-                        navLogs.classList.remove('hidden');
-                        initAdminUsersListener();
-                        initSystemLogsListener();
-                    } else {
-                        navAdmin.classList.add('hidden');
-                        navLogs.classList.add('hidden');
-                    }
-
-                    document.getElementById('view-auth').classList.add('hidden');
-                    document.getElementById('view-dashboard').classList.remove('hidden');
-
-                    if (btn) { btn.disabled = false; btn.innerText = 'Anmelden'; }
-
-                    switchTab('start');
-                    
-                    initCalendarListener();
-                    initNotesListener();
-                    initTodosListener();
-                    initWorkTimeListener();
-                    initVaultListener();
-                    initFinanceListener();
-                    refreshPushUI();
-                    loadWeather();
-                } else {
-                    unsubs.forEach(u => { try { u(); } catch (e) {} });
-                    unsubs = [];
-                    allUsers = []; calendarEvents = []; familyNotes = []; familyTodos = [];
-                    workEntries = []; systemLogs = []; rawVaultItems = [];
-                    rawTransactions = []; rawPayslips = []; activeWorkSession = null;
-                    stopLiveTimer();
-
-                    currentUser = null;
-                    document.getElementById('view-dashboard').classList.add('hidden');
-                    document.getElementById('view-auth').classList.remove('hidden');
-                    document.getElementById('form-login').reset();
-                    if (btn) { btn.disabled = false; btn.innerText = 'Anmelden'; }
-                    lockVault();
-                    toggleSideMenu(false);
-                }
-            } catch (err) {
-                console.error("Fehler beim Laden des Benutzerprofils:", err);
-                showAlert("Fehler beim Laden der Benutzerdaten: " + err.message);
-                if (btn) { btn.disabled = false; btn.innerText = 'Anmelden'; }
+                dashView.classList.add('hidden');
+                authView.classList.remove('hidden');
             }
         });
 
-        async function handleLogout() {
-            if (currentUser) logSystemEvent('auth', 'Benutzer abgemeldet', { email: currentUser.email });
-            auth.signOut();
-        }
-
-        // ==========================================
-        // ZEITERFASSUNG
-        // ==========================================
-        function initWorkTimeListener() {
-            if (!currentUser) return;
-            db.collection('worktime')
-                .where('owner', '==', currentUser.email)
-                .onSnapshot(snapshot => {
-                    workEntries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderWorkTimeTable();
-                });
-
-            db.collection('active_work').doc(currentUser.uid).onSnapshot(doc => {
-                if (doc.exists) {
-                    activeWorkSession = doc.data();
-                    if (activeWorkSession.startTime) startLiveTimer(activeWorkSession.startTime.toDate());
-                    updateWorkBtnUI(true);
-                } else {
-                    activeWorkSession = null;
-                    stopLiveTimer();
-                    updateWorkBtnUI(false);
-                }
-            });
-        }
-
-        function updateWorkBtnUI(isActive) {
-            const btn = document.getElementById('btn-toggle-work');
-            const badge = document.getElementById('work-status-badge');
-            const hint = document.getElementById('work-start-hint');
-            if (!btn || !badge) return;
-
-            if (isActive) {
-                badge.innerText = 'Aktiv am Arbeiten';
-                badge.className = 'text-[10px] bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full animate-pulse';
-                btn.className = 'w-full py-3 rounded-2xl font-semibold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/20';
-                btn.innerHTML = '<i class="fa-solid fa-stop"></i><span>Arbeit beenden (Ausstempeln)</span>';
-            } else {
-                badge.innerText = 'Inaktiv';
-                badge.className = 'text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full';
-                if (hint) hint.innerText = 'Nicht eingestempelt (Pause: 60 Min ab 6 Std.)';
-                const timerEl = document.getElementById('work-active-timer');
-                if (timerEl) timerEl.innerText = '00:00:00';
-                btn.className = 'w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20';
-                btn.innerHTML = '<i class="fa-solid fa-play"></i><span>Arbeit beginnen (Einstempeln)</span>';
-            }
-        }
-
-        function startLiveTimer(startDate) {
-            stopLiveTimer();
-            const hint = document.getElementById('work-start-hint');
-            if (hint) hint.innerText = `Eingestempelt seit: ${startDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr`;
-
-            const updateTimer = () => {
-                const diffMs = new Date() - startDate;
-                const hours = Math.floor(diffMs / 3600000);
-                const minutes = Math.floor((diffMs % 3600000) / 60000);
-                const seconds = Math.floor((diffMs % 60000) / 1000);
-                const timerEl = document.getElementById('work-active-timer');
-                if (timerEl) timerEl.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            };
-            updateTimer();
-            workTimerInterval = setInterval(updateTimer, 1000);
-        }
-
-        function stopLiveTimer() {
-            if (workTimerInterval) clearInterval(workTimerInterval);
-            workTimerInterval = null;
-        }
-
-        async function toggleWorkSession() {
-            if (!currentUser || workBusy) return;
-            workBusy = true;
-            const btn = document.getElementById('btn-toggle-work');
-            if (btn) btn.disabled = true;
-
+        async function handleSignIn(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('btn-login');
+            btn.disabled = true; btn.innerText = 'Wird angemeldet...';
             try {
-                if (activeWorkSession) {
-                    const start = activeWorkSession.startTime ? activeWorkSession.startTime.toDate() : new Date();
-                    const end = new Date();
-                    const totalMinutes = Math.max(0, Math.round((end - start) / 60000));
-                    const pauseMin = totalMinutes >= 360 ? 60 : 0;
-                    const t = d => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-
-                    await db.collection('worktime').add({
-                        date: localDate(start),
-                        start: t(start),
-                        end: t(end),
-                        pauseMinutes: pauseMin,
-                        netMinutes: Math.max(0, totalMinutes - pauseMin),
-                        note: 'Live erfasst',
-                        owner: currentUser.email,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    await db.collection('active_work').doc(currentUser.uid).delete();
-                } else {
-                    await db.collection('active_work').doc(currentUser.uid).set({
-                        startTime: firebase.firestore.FieldValue.serverTimestamp(),
-                        owner: currentUser.email
-                    });
-                }
+                await auth.signInWithEmailAndPassword(email, password);
             } catch (err) {
-                alert('Aktion fehlgeschlagen: ' + err.message);
-            } finally {
-                workBusy = false;
-                if (btn) btn.disabled = false;
+                btn.disabled = false; btn.innerText = 'Anmelden';
+                const alertEl = document.getElementById('auth-alert');
+                document.getElementById('auth-alert-text').innerText = 'Anmeldung fehlgeschlagen.';
+                alertEl.classList.remove('hidden');
             }
         }
 
-        function updateWorkMonthDropdown() {
-            const selectEl = document.getElementById('work-filter-month');
-            if (!selectEl) return;
-
-            const monthsSet = new Set();
-            workEntries.forEach(w => {
-                if (w.date && w.date.length >= 7) monthsSet.add(w.date.slice(0, 7));
-            });
-            monthsSet.add(todayStr);
-
-            const sortedMonths = Array.from(monthsSet).sort((a, b) => b.localeCompare(a));
-            const prevSelected = selectEl.value;
-
-            selectEl.innerHTML = '';
-            sortedMonths.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m;
-                opt.innerText = formatMonthLabel(m);
-                selectEl.appendChild(opt);
-            });
-
-            if (sortedMonths.includes(prevSelected)) {
-                selectEl.value = prevSelected;
-            } else {
-                selectEl.value = sortedMonths[0];
-            }
+        function updateClock() {
+            const now = new Date();
+            const timeEl = document.getElementById('dash-time');
+            if (timeEl) timeEl.innerText = now.toLocaleTimeString('de-DE');
+            const dateEl = document.getElementById('dash-date');
+            if (dateEl) dateEl.innerText = now.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
         }
+        setInterval(updateClock, 1000); updateClock();
 
-        function filterWorkMonth() { 
-            renderWorkTimeTable(false); 
-        }
-
-        function renderWorkTimeTable(updateDropdown = true) {
-            const selectEl = document.getElementById('work-filter-month');
-            if (!selectEl) return;
-
-            if (updateDropdown) updateWorkMonthDropdown();
-
-            const filterMonth = selectEl.value || todayStr;
-            const tbody = document.getElementById('worktime-table-body');
-            const countEl = document.getElementById('work-table-count');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
-            filtered.sort((a, b) => b.date.localeCompare(a.date));
-            if (countEl) countEl.innerText = `${filtered.length} Einträge`;
-
-            let totalMinutes = 0;
-            const uniqueDays = new Set();
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten für diesen Monat gefunden.</td></tr>';
-            } else {
-                filtered.forEach(entry => {
-                    totalMinutes += (entry.netMinutes || 0);
-                    uniqueDays.add(entry.date);
-                    const netH = Math.floor((entry.netMinutes || 0) / 60);
-                    const netM = (entry.netMinutes || 0) % 60;
-
-                    const row = document.createElement('tr');
-                    row.className = "hover:bg-slate-900/40 transition-colors";
-                    row.innerHTML = `
-                        <td class="p-2.5 font-medium text-slate-200">${esc(entry.date)}</td>
-                        <td class="p-2.5 text-slate-400 font-mono">${esc(entry.start || '--:--')}</td>
-                        <td class="p-2.5 text-slate-400 font-mono">${esc(entry.end || '--:--')}</td>
-                        <td class="p-2.5 text-slate-400">${Number(entry.pauseMinutes) || 0} Min</td>
-                        <td class="p-2.5 font-semibold text-emerald-400 font-mono">${netH} Std ${netM} Min</td>
-                        <td class="p-2.5 text-slate-400 truncate max-w-[150px]">${esc(entry.note || '-')}</td>
-                        <td class="p-2.5 text-right whitespace-nowrap">
-                            <button data-edit class="text-slate-400 hover:text-indigo-400 p-1.5 rounded-lg hover:bg-slate-800 transition-colors mr-1" title="Eintrag bearbeiten">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button data-del class="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-800 transition-colors" title="Eintrag löschen">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </td>
-                    `;
-                    row.querySelector('[data-edit]').addEventListener('click', () => openEditWorkModal(entry.id));
-                    row.querySelector('[data-del]').addEventListener('click', () => deleteWorkEntry(entry.id));
-                    tbody.appendChild(row);
-                });
-            }
-
-            const totalHours = (totalMinutes / 60).toFixed(1);
-            const totalDaysCount = uniqueDays.size;
-            const avgHours = totalDaysCount > 0 ? (totalMinutes / 60 / totalDaysCount).toFixed(1) : '0.0';
-
-            const statHoursEl = document.getElementById('stat-total-hours');
-            const statDaysEl = document.getElementById('stat-total-days');
-            const statAvgEl = document.getElementById('stat-avg-hours');
-            if (statHoursEl) statHoursEl.innerText = `${totalHours} Std`;
-            if (statDaysEl) statDaysEl.innerText = totalDaysCount;
-            if (statAvgEl) statAvgEl.innerText = `${avgHours} Std / Tag`;
-        }
-
-        function openManualWorkModal() {
-            document.getElementById('man-date').value = localDate();
-            document.getElementById('man-start').value = '08:00';
-            document.getElementById('man-end').value = '17:00';
-            document.getElementById('man-pause').value = '60';
-            document.getElementById('man-note').value = 'Reguläre Arbeitszeit';
-            openModal('modal-work-manual');
-        }
-
-        async function saveManualWorkTime(e) {
-            e.preventDefault();
-            const date = document.getElementById('man-date').value;
-            const start = document.getElementById('man-start').value;
-            const end = document.getElementById('man-end').value;
-            const pause = parseInt(document.getElementById('man-pause').value || 0, 10);
-            const note = document.getElementById('man-note').value.trim();
-            if (!date || !start || !end || !currentUser) return;
-
-            const [sH, sM] = start.split(':').map(Number);
-            const [eH, eM] = end.split(':').map(Number);
-            let diff = (eH * 60 + eM) - (sH * 60 + sM);
-            if (diff < 0) diff += 24 * 60;
-            const netMinutes = Math.max(0, diff - pause);
-
-            await db.collection('worktime').add({
-                date, start, end,
-                pauseMinutes: pause,
-                netMinutes, note,
-                owner: currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            closeModal('modal-work-manual');
-            logSystemEvent('data', 'Arbeitszeit manuell erfasst', { date, netMinutes });
-        }
-
-        function openEditWorkModal(id) {
-            const entry = workEntries.find(w => w.id === id);
-            if (!entry) return;
-
-            document.getElementById('edit-work-id').value = id;
-            document.getElementById('edit-work-date').value = entry.date || '';
-            document.getElementById('edit-work-start').value = entry.start || '08:00';
-            document.getElementById('edit-work-end').value = entry.end || '17:00';
-            document.getElementById('edit-work-pause').value = entry.pauseMinutes ?? 60;
-            document.getElementById('edit-work-note').value = entry.note || '';
-
-            openModal('modal-work-edit');
-        }
-
-        async function saveEditedWorkTime(e) {
-            e.preventDefault();
-            const id = document.getElementById('edit-work-id').value;
-            const date = document.getElementById('edit-work-date').value;
-            const start = document.getElementById('edit-work-start').value;
-            const end = document.getElementById('edit-work-end').value;
-            const pause = parseInt(document.getElementById('edit-work-pause').value || 0, 10);
-            const note = document.getElementById('edit-work-note').value.trim();
-
-            if (!id || !date || !start || !end || !currentUser) return;
-
-            const [sH, sM] = start.split(':').map(Number);
-            const [eH, eM] = end.split(':').map(Number);
-            let diff = (eH * 60 + eM) - (sH * 60 + sM);
-            if (diff < 0) diff += 24 * 60;
-            const netMinutes = Math.max(0, diff - pause);
-
-            await db.collection('worktime').doc(id).update({
-                date, start, end,
-                pauseMinutes: pause,
-                netMinutes, note,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            closeModal('modal-work-edit');
-            logSystemEvent('data', 'Arbeitszeit bearbeitet', { id, date, netMinutes });
-        }
-
-        async function deleteWorkEntry(id) {
-            if (confirm('Diesen Arbeitseintrag wirklich löschen?')) {
-                await db.collection('worktime').doc(id).delete();
-                logSystemEvent('data', 'Arbeitszeit gelöscht', { id });
-            }
-        }
-
-        function csvCell(v) {
-            let s = String(v ?? '');
-            if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
-            return '"' + s.replace(/"/g, '""') + '"';
-        }
-
-        function exportWorkCSV() {
-            const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
-            const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
-            if (filtered.length === 0) return alert('Keine Einträge für den ausgewählten Monat vorhanden.');
-
-            filtered.sort((a, b) => a.date.localeCompare(b.date));
-            const monthFormatted = formatMonthLabel(filterMonth);
-            const employeeName = currentUser.name || currentUser.email;
-
-            let csv = "\uFEFF";
-            csv += "ARBEITSZEITNACHWEIS / STUNDENZETTEL\r\n";
-            csv += "Mitarbeiter:;" + csvCell(employeeName) + "\r\n";
-            csv += "Abrechnungsmonat:;" + monthFormatted + "\r\n";
-            csv += "Erstellt am:;" + new Date().toLocaleDateString('de-DE') + " um " + new Date().toLocaleTimeString('de-DE') + " Uhr\r\n\r\n";
-            csv += "Wochentag;Datum;Beginn;Ende;Pause (Min);Netto-Arbeitszeit;Stunden (Dezimal);Tätigkeit / Projekt\r\n";
-            
-            let totalMinutes = 0;
-            const weekdays = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-
-            filtered.forEach(item => {
-                const d = new Date(item.date);
-                const weekday = !isNaN(d) ? weekdays[d.getDay()] : '-';
-                const dateParts = item.date.split('-');
-                const germanDate = dateParts.length === 3 ? `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}` : item.date;
-
-                const netM = item.netMinutes || 0;
-                totalMinutes += netM;
-
-                const h = Math.floor(netM / 60);
-                const m = netM % 60;
-                const hhmm = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-                const hoursDec = (netM / 60).toFixed(2).replace('.', ',');
-
-                csv += `"${weekday}";"${germanDate}";"${item.start || ''}";"${item.end || ''}";"${item.pauseMinutes ?? 60}";"${hhmm}";"${hoursDec}";${csvCell(item.note)}\r\n`;
-            });
-
-            const totalHoursDec = (totalMinutes / 60).toFixed(2).replace('.', ',');
-            const totalH = Math.floor(totalMinutes / 60);
-            const totalM = totalMinutes % 60;
-            const totalHHMM = `${totalH} Std ${totalM} Min`;
-            const uniqueDays = new Set(filtered.map(f => f.date)).size;
-            const avgHours = uniqueDays > 0 ? ((totalMinutes / 60) / uniqueDays).toFixed(2).replace('.', ',') : '0,00';
-
-            csv += "\r\n";
-            csv += `;;;;"GESAMT;";"${totalHHMM}";"${totalHoursDec}";\r\n`;
-            csv += `;;;;"ARBEITSTAGE;";"${uniqueDays} Tage";;\r\n`;
-            csv += `;;;;"DURCHSCHNITT;";"${avgHours} Std / Tag";;\r\n\r\n\r\n`;
-            csv += "Bestätigung der Arbeitszeiten:\r\n\r\n";
-            csv += "__________________________________________;;\t\t\t\t;__________________________________________\r\n";
-            csv += "Unterschrift Arbeitnehmer;;\t\t\t\t;Unterschrift Arbeitgeber\r\n";
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `Stundenzettel_${employeeName.replace(/\s+/g, '_')}_${filterMonth}.csv`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            logSystemEvent('data', 'Stundenzettel als CSV exportiert', { monat: filterMonth });
-        }
-
-        function printWorkTimesheet() {
-            const filterMonth = document.getElementById('work-filter-month')?.value || todayStr;
-            const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
-            if (filtered.length === 0) return alert('Keine Einträge für den ausgewählten Monat vorhanden.');
-
-            filtered.sort((a, b) => b.date.localeCompare(a.date));
-            const monthFormatted = formatMonthLabel(filterMonth);
-            const employeeName = currentUser.name || currentUser.email;
-
-            const weekdays = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-            let totalMinutes = 0;
-            let rowsHtml = '';
-
-            filtered.forEach(item => {
-                const d = new Date(item.date);
-                const weekday = !isNaN(d) ? weekdays[d.getDay()] : '-';
-                const dateParts = item.date.split('-');
-                const germanDate = dateParts.length === 3 ? `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}` : item.date;
-
-                const netM = item.netMinutes || 0;
-                totalMinutes += netM;
-                const h = Math.floor(netM / 60);
-                const m = netM % 60;
-                const hoursDec = (netM / 60).toFixed(2);
-
-                rowsHtml += `
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 8px 10px;">${weekday}</td>
-                        <td style="padding: 8px 10px; font-weight: 600;">${germanDate}</td>
-                        <td style="padding: 8px 10px; font-family: monospace;">${esc(item.start || '--:--')}</td>
-                        <td style="padding: 8px 10px; font-family: monospace;">${esc(item.end || '--:--')}</td>
-                        <td style="padding: 8px 10px;">${item.pauseMinutes ?? 60} Min</td>
-                        <td style="padding: 8px 10px; font-weight: bold; font-family: monospace;">${h}h ${m}m (${hoursDec}h)</td>
-                        <td style="padding: 8px 10px; color: #475569;">${esc(item.note || '-')}</td>
-                    </tr>
-                `;
-            });
-
-            const totalH = Math.floor(totalMinutes / 60);
-            const totalM = totalMinutes % 60;
-            const totalDec = (totalMinutes / 60).toFixed(2);
-            const uniqueDays = new Set(filtered.map(f => f.date)).size;
-
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html lang="de">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Stundenzettel_${esc(employeeName)}_${esc(filterMonth)}</title>
-                    <style>
-                        body { font-family: system-ui, -apple-system, sans-serif; color: #0f172a; padding: 30px; margin: 0; }
-                        h1 { margin: 0 0 4px 0; font-size: 24px; }
-                        .header-box { display: flex; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 25px; }
-                        .meta-item { margin-bottom: 4px; font-size: 13px; }
-                        .meta-label { font-weight: bold; color: #64748b; }
-                        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 30px; }
-                        th { background: #f1f5f9; padding: 10px; text-align: left; font-weight: 700; border-bottom: 2px solid #cbd5e1; }
-                        .summary-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px 20px; display: flex; justify-content: space-around; margin-bottom: 40px; }
-                        .sum-card { text-align: center; }
-                        .sum-title { font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 4px; font-weight: 600; }
-                        .sum-val { font-size: 20px; font-weight: bold; color: #0f172a; }
-                        .signatures { display: flex; justify-content: space-between; margin-top: 60px; font-size: 12px; }
-                        .sign-line { width: 220px; border-top: 1px solid #0f172a; padding-top: 6px; text-align: center; }
-                        @media print {
-                            body { padding: 0; }
-                            button { display: none !important; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div style="margin-bottom: 15px;">
-                        <button onclick="window.print()" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer;">Drucken / Als PDF speichern</button>
-                    </div>
-                    <div class="header-box">
-                        <div>
-                            <h1>MONATLICHER STUNDENZETTEL</h1>
-                            <div style="font-size: 14px; font-weight: 600; color: #2563eb;">J.Mainz Dashboard &bull; Zeiterfassung</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div class="meta-item"><span class="meta-label">Mitarbeiter:</span> ${esc(employeeName)}</div>
-                            <div class="meta-item"><span class="meta-label">Abrechnungsmonat:</span> ${esc(monthFormatted)}</div>
-                            <div class="meta-item"><span class="meta-label">Gedruckt am:</span> ${new Date().toLocaleDateString('de-DE')}</div>
-                        </div>
-                    </div>
-                    <div class="summary-box">
-                        <div class="sum-card">
-                            <div class="sum-title">Gesamtarbeitszeit</div>
-                            <div class="sum-val">${totalH}h ${totalM}m (${totalDec} Std)</div>
-                        </div>
-                        <div class="sum-card">
-                            <div class="sum-title">Geleistete Arbeitstage</div>
-                            <div class="sum-val">${uniqueDays} Tage</div>
-                        </div>
-                        <div class="sum-card">
-                            <div class="sum-title">Schnitt pro Tag</div>
-                            <div class="sum-val">${uniqueDays > 0 ? (totalMinutes / 60 / uniqueDays).toFixed(1) : '0.0'} Std</div>
-                        </div>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Wochentag</th>
-                                <th>Datum</th>
-                                <th>Kommen</th>
-                                <th>Gehen</th>
-                                <th>Pause</th>
-                                <th>Nettozeit</th>
-                                <th>Tätigkeit / Notiz</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rowsHtml}</tbody>
-                    </table>
-                    <div class="signatures">
-                        <div><div class="sign-line">Datum, Unterschrift Arbeitnehmer</div></div>
-                        <div><div class="sign-line">Datum, Unterschrift Arbeitgeber</div></div>
-                    </div>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-        }
-
-        // ==========================================
-        // 11. FINANZEN & DEDUPLIZIERTER SPARKASSEN-IMPORT
-        // ==========================================
-        function initFinanceListener() {
-            if (!currentUser) return;
-
-            db.collection('finance_transactions')
-                .where('owner', '==', currentUser.email)
-                .onSnapshot(snapshot => {
-                    rawTransactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderFinanceData();
-                });
-
-            db.collection('payslips')
-                .where('owner', '==', currentUser.email)
-                .onSnapshot(snapshot => {
-                    rawPayslips = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderPayslips();
-                    renderFinanceData();
-                });
-        }
-
-        const hashString = async s => {
-            const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
-            return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('').slice(0, 32);
-        };
-
-        function parseCsvLine(line) {
-            const out = []; let cur = '', q = false;
-            for (let i = 0; i < line.length; i++) {
-                const c = line[i];
-                if (c === '"') { if (q && line[i + 1] === '"') { cur += '"'; i++; } else q = !q; }
-                else if (c === ';' && !q) { out.push(cur.trim()); cur = ''; }
-                else cur += c;
-            }
-            out.push(cur.trim());
-            return out;
-        }
-
-        function decodeCsv(buf) {
-            try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); }
-            catch (e) { return new TextDecoder('windows-1252').decode(buf); }
-        }
-
-        function handleSparkasseCSV(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(evt) {
-                const text = decodeCsv(evt.target.result);
-                const lines = text.split(/\r\n|\n/);
-                const itemsToInsert = [];
-                const seen = {};
-
-                let colDate = -1, colPartner = -1, colPurpose = -1, colAmount = -1;
-
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    const parts = parseCsvLine(line);
-
-                    if (colDate === -1) {
-                        for (let j = 0; j < parts.length; j++) {
-                            const header = parts[j].toLowerCase();
-                            if (header.includes('buchungstag') || header.includes('datum')) colDate = j;
-                            if (header.includes('begünstigter') || header.includes('beguenstigter') || header.includes('zahlungspflichtiger') || header.includes('auftragskonto') || header.includes('name')) colPartner = j;
-                            if (header.includes('verwendungszweck')) colPurpose = j;
-                            if (header.includes('betrag')) colAmount = j;
-                        }
-                        continue;
-                    }
-
-                    if (colDate !== -1 && colAmount !== -1 && parts.length > Math.max(colDate, colAmount)) {
-                        const rawDate = parts[colDate];
-                        const partner = parts[colPartner] || 'Unbekannt';
-                        const purpose = parts[colPurpose] || '';
-                        let rawAmount = parts[colAmount];
-
-                        if (!rawDate || !rawAmount) continue;
-
-                        let dateStr = '';
-                        const dateParts = rawDate.split('.');
-                        if (dateParts.length === 3) {
-                            let y = dateParts[2];
-                            if (y.length === 2) y = '20' + y;
-                            dateStr = `${y}-${dateParts[1].padStart(2, '0')}-${dateParts[0].padStart(2, '0')}`;
-                        } else {
-                            dateStr = rawDate;
-                        }
-
-                        rawAmount = rawAmount.replace(/\./g, '').replace(',', '.');
-                        const amount = parseFloat(rawAmount);
-                        if (isNaN(amount)) continue;
-
-                        let category = 'Sonstiges';
-                        const matchText = (partner + ' ' + purpose).toLowerCase();
-
-                        if (matchText.includes('gehalt') || matchText.includes('lohn') || matchText.includes('bezüge') || (amount > 1000 && !matchText.includes('miete'))) category = 'Gehalt';
-                        else if (matchText.includes('rewe') || matchText.includes('edeka') || matchText.includes('aldi') || matchText.includes('lidl') || matchText.includes('kaufland')) category = 'Supermarkt';
-                        else if (matchText.includes('miete') || matchText.includes('wohnen') || matchText.includes('nebenkosten')) category = 'Miete / Wohnen';
-                        else if (matchText.includes('aral') || matchText.includes('shell') || matchText.includes('total') || matchText.includes('tanken')) category = 'Tanken / Auto';
-                        else if (matchText.includes('netflix') || matchText.includes('spotify') || matchText.includes('amazon') || matchText.includes('disney')) category = 'Freizeit / Abo';
-
-                        itemsToInsert.push({
-                            date: dateStr,
-                            partner,
-                            purpose,
-                            amount,
-                            category,
-                            owner: currentUser.email,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    }
-                }
-
-                if (itemsToInsert.length > 0) {
-                    try {
-                        for (let i = 0; i < itemsToInsert.length; i += 400) {
-                            const batch = db.batch();
-                            for (const data of itemsToInsert.slice(i, i + 400)) {
-                                const baseKey = [currentUser.email, data.date, data.partner, data.amount, data.purpose].join('|');
-                                seen[baseKey] = (seen[baseKey] || 0) + 1;
-                                const docId = await hashString(baseKey + '|' + seen[baseKey]);
-                                batch.set(db.collection('finance_transactions').doc(docId), data);
-                            }
-                            await batch.commit();
-                        }
-                        alert(`${itemsToInsert.length} Buchungen synchronisiert (Duplikate automatisch zusammengeführt)!`);
-                        logSystemEvent('data', 'Sparkassen-CSV importiert', { anzahl: itemsToInsert.length });
-                    } catch (batchErr) {
-                        alert('Fehler beim Speichern: ' + batchErr.message);
-                    }
-                } else {
-                    alert('Konnte keine gültigen Buchungszeilen in der CSV finden.');
-                }
-                e.target.value = '';
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function formatMonthLabel(ymStr) {
-            const parts = ymStr.split('-');
-            if (parts.length < 2) return ymStr;
-            const date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, 1);
-            return date.toLocaleString('de-DE', { month: 'long', year: 'numeric' });
-        }
-
-        function updateFinanceMonthDropdown() {
-            const selectEl = document.getElementById('finance-filter-month');
-            if (!selectEl) return;
-
-            const monthsSet = new Set();
-            rawTransactions.forEach(t => {
-                if (t.date && t.date.length >= 7) monthsSet.add(t.date.slice(0, 7));
-            });
-            rawPayslips.forEach(p => {
-                if (p.month && p.month.length >= 7) monthsSet.add(p.month.slice(0, 7));
-            });
-
-            const sortedMonths = Array.from(monthsSet).sort((a, b) => b.localeCompare(a));
-            const prevSelected = selectEl.value;
-
-            selectEl.innerHTML = '';
-
-            if (sortedMonths.length === 0) {
-                const opt = document.createElement('option');
-                opt.value = todayStr;
-                opt.innerText = `${formatMonthLabel(todayStr)} (Keine Daten)`;
-                selectEl.appendChild(opt);
-                return;
-            }
-
-            sortedMonths.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m;
-                opt.innerText = formatMonthLabel(m);
-                selectEl.appendChild(opt);
-            });
-
-            if (sortedMonths.includes(prevSelected)) {
-                selectEl.value = prevSelected;
-            } else {
-                selectEl.value = sortedMonths[0];
-            }
-        }
-
-        function renderFinanceData() {
-            const selectEl = document.getElementById('finance-filter-month');
-            if (!selectEl) return;
-
-            updateFinanceMonthDropdown();
-
-            const filterMonth = selectEl.value;
-            const tbody = document.getElementById('finance-table-body');
-            if (!tbody) return;
-
-            const filtered = rawTransactions.filter(t => t.date && t.date.startsWith(filterMonth));
-            filtered.sort((a, b) => b.date.localeCompare(a.date));
-
-            let totalIncome = 0;
-            let totalExpenses = 0;
-
-            tbody.innerHTML = '';
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-500">Keine Buchungen für diesen Monat vorhanden.</td></tr>';
-            } else {
-                filtered.forEach(t => {
-                    const isIncome = t.amount > 0;
-                    if (isIncome) totalIncome += t.amount;
-                    else totalExpenses += Math.abs(t.amount);
-
-                    const amountStr = (isIncome ? '+' : '') + t.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-
-                    const row = document.createElement('tr');
-                    row.className = "hover:bg-slate-900/40 transition-colors";
-                    row.innerHTML = `
-                        <td class="p-2 whitespace-nowrap text-slate-400 font-mono text-[11px]">${esc(t.date)}</td>
-                        <td class="p-2 font-medium text-slate-200 truncate max-w-[180px]" title="${esc(t.purpose || '')}">${esc(t.partner)}</td>
-                        <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${esc(t.category || 'Sonstiges')}</span></td>
-                        <td class="p-2 text-right font-bold ${isIncome ? 'text-emerald-400' : 'text-rose-400'} font-mono">${esc(amountStr)}</td>
-                        <td class="p-2 text-right">
-                            <button data-del class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
-                    `;
-                    row.querySelector('[data-del]').addEventListener('click', () => deleteTransaction(t.id));
-                    tbody.appendChild(row);
-                });
-            }
-
-            const balance = totalIncome - totalExpenses;
-            document.getElementById('fin-stat-income').innerText = totalIncome.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-            document.getElementById('fin-stat-expenses').innerText = totalExpenses.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-            
-            const balEl = document.getElementById('fin-stat-balance');
-            balEl.innerText = (balance >= 0 ? '+' : '') + balance.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-            balEl.className = 'text-xl font-bold mt-1 ' + (balance >= 0 ? 'text-emerald-400' : 'text-rose-400');
-        }
-
-        async function deleteTransaction(id) {
-            if (!confirm('Diese Buchung wirklich löschen?')) return;
-            try {
-                await db.collection('finance_transactions').doc(id).delete();
-            } catch (err) {
-                alert('Löschen fehlgeschlagen: ' + err.message);
-            }
-        }
-
-        function openManualTransactionModal() {
-            document.getElementById('fin-man-date').value = localDate();
-            document.getElementById('fin-man-partner').value = '';
-            document.getElementById('fin-man-amount').value = '';
-            openModal('modal-finance-manual');
-        }
-
-        async function saveManualTransaction(e) {
-            e.preventDefault();
-            const date = document.getElementById('fin-man-date').value;
-            const partner = document.getElementById('fin-man-partner').value.trim();
-            const category = document.getElementById('fin-man-cat').value;
-            const amount = parseFloat(document.getElementById('fin-man-amount').value);
-
-            if (!date || !partner || isNaN(amount) || !currentUser) return;
-
-            await db.collection('finance_transactions').add({
-                date, partner,
-                purpose: 'Manuelle Buchung',
-                amount, category,
-                owner: currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            closeModal('modal-finance-manual');
-        }
-
-        function openPayslipModal() {
-            document.getElementById('payslip-month').value = todayStr;
-            document.getElementById('payslip-netto').value = '';
-            document.getElementById('payslip-brutto').value = '';
-            document.getElementById('payslip-file').value = '';
-            openModal('modal-payslip-add');
-        }
-
-        async function savePayslip(e) {
-            e.preventDefault();
-            const month = document.getElementById('payslip-month').value;
-            const netto = parseFloat(document.getElementById('payslip-netto').value);
-            const brutto = parseFloat(document.getElementById('payslip-brutto').value) || 0;
-            const file = document.getElementById('payslip-file').files[0];
-            const btn = document.getElementById('btn-save-payslip');
-
-            if (!month || isNaN(netto) || !file || !currentUser) return;
-            if (file.size > 700 * 1024) return alert('Datei zu groß (max. ca. 700 KB wegen des Firestore-Limits). Bitte verkleinern.');
-
-            btn.disabled = true;
-            btn.innerText = 'Wird gespeichert...';
-
-            const reader = new FileReader();
-            reader.onerror = () => {
-                alert('Datei konnte nicht gelesen werden.');
-                btn.disabled = false;
-                btn.innerText = 'In Cloud speichern';
-            };
-            reader.onload = async function(evt) {
-                const base64Data = evt.target.result;
-                try {
-                    const txRef = db.collection('finance_transactions').doc();
-                    await db.collection('payslips').add({
-                        txId: txRef.id,
-                        month, netto, brutto,
-                        fileName: file.name,
-                        fileData: base64Data,
-                        owner: currentUser.email,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    await txRef.set({
-                        date: `${month}-01`,
-                        partner: 'Arbeitgeber (Gehalt)',
-                        purpose: `Lohnabrechnung ${month}`,
-                        amount: netto,
-                        category: 'Gehalt',
-                        owner: currentUser.email,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    closeModal('modal-payslip-add');
-                    logSystemEvent('data', 'Lohnabrechnung abgelegt', { monat: month, netto });
-                } catch (err) {
-                    alert('Speichern fehlgeschlagen: ' + err.message);
-                } finally {
-                    btn.disabled = false;
-                    btn.innerText = 'In Cloud speichern';
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function renderPayslips() {
-            const list = document.getElementById('payslip-list');
-            const badge = document.getElementById('payslip-count-badge');
-            if (!list) return;
-
-            badge.innerText = rawPayslips.length;
-            list.innerHTML = '';
-
-            if (rawPayslips.length === 0) {
-                list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Lohnabrechnungen hinterlegt.</div>';
-                return;
-            }
-
-            rawPayslips.sort((a, b) => b.month.localeCompare(a.month));
-
-            rawPayslips.forEach(p => {
-                const item = document.createElement('div');
-                item.className = "p-3 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex items-center justify-between gap-2 text-xs";
-                item.innerHTML = `
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
-                            <i class="fa-solid fa-file-pdf"></i>
-                        </div>
-                        <div>
-                            <span class="font-bold text-slate-200 block">${esc(p.month)}</span>
-                            <span class="text-[10px] text-emerald-400 font-mono">${p.netto.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € Netto</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <a href="${p.fileData}" download="Lohnabrechnung_${esc(p.month)}_${esc(p.fileName)}" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" title="Herunterladen">
-                            <i class="fa-solid fa-download"></i>
-                        </a>
-                        <button data-del class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl" title="Löschen">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                `;
-                item.querySelector('[data-del]').addEventListener('click', () => deletePayslip(p.id));
-                list.appendChild(item);
-            });
-        }
-
-        async function deletePayslip(id) {
-            if (!confirm('Diese Lohnabrechnung wirklich löschen? Die zugehörige Gehaltsbuchung wird mit entfernt.')) return;
-            const p = rawPayslips.find(x => x.id === id);
-            await db.collection('payslips').doc(id).delete();
-            if (p?.txId) await db.collection('finance_transactions').doc(p.txId).delete().catch(() => {});
-        }
-
-        // ==========================================
-        // WETTER WIDGET
-        // ==========================================
-        async function loadWeather() {
-            const locEl = document.getElementById('weather-location');
-            const tempEl = document.getElementById('weather-temp');
-            const condEl = document.getElementById('weather-condition');
-            const windEl = document.getElementById('weather-wind');
-            const rainEl = document.getElementById('weather-rain');
-            const iconEl = document.getElementById('weather-icon');
-            if (!locEl || !tempEl) return;
-
-            let lat = 50.8021;
-            let lon = 6.4836;
-            let cityName = 'Düren';
-
-            const fetchWeatherData = async (latitude, longitude, name) => {
-                try {
-                    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`);
-                    const data = await res.json();
-                    const current = data.current;
-
-                    locEl.innerText = name;
-                    tempEl.innerText = `${Math.round(current.temperature_2m)}°C`;
-                    windEl.innerText = `${Math.round(current.wind_speed_10m)} km/h`;
-                    rainEl.innerText = `${current.relative_humidity_2m} %`;
-
-                    const code = current.weather_code;
-                    let desc = 'Heiter';
-                    let iconClass = 'fa-solid fa-sun text-amber-400';
-
-                    if (code === 0) { desc = 'Klar'; iconClass = 'fa-solid fa-sun text-amber-400'; }
-                    else if (code >= 1 && code <= 3) { desc = 'Leicht bewölkt'; iconClass = 'fa-solid fa-cloud-sun text-amber-300'; }
-                    else if (code >= 45 && code <= 48) { desc = 'Nebelig'; iconClass = 'fa-solid fa-smog text-slate-400'; }
-                    else if (code >= 51 && code <= 67) { desc = 'Regnerisch'; iconClass = 'fa-solid fa-cloud-rain text-cyan-400'; }
-                    else if (code >= 71 && code <= 77) { desc = 'Schnee'; iconClass = 'fa-solid fa-snowflake text-indigo-300'; }
-                    else if (code >= 95) { desc = 'Gewitter'; iconClass = 'fa-solid fa-cloud-bolt text-amber-500'; }
-
-                    condEl.innerText = desc;
-                    iconEl.className = `${iconClass} text-3xl`;
-                } catch (e) {
-                    condEl.innerText = 'Wetter offline';
-                }
-            };
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async (pos) => {
-                        lat = pos.coords.latitude;
-                        lon = pos.coords.longitude;
-                        try {
-                            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-                            const geoData = await geoRes.json();
-                            cityName = geoData.address.city || geoData.address.town || 'Mein Standort';
-                        } catch (e) { cityName = 'Mein Standort'; }
-                        fetchWeatherData(lat, lon, cityName);
-                    },
-                    () => { fetchWeatherData(lat, lon, cityName); },
-                    { timeout: 5000 }
-                );
-            } else {
-                fetchWeatherData(lat, lon, cityName);
-            }
-        }
-
-        // ==========================================
-        // PASSWORT-SAFE
-        // ==========================================
-        async function deriveKey(password, salt) {
-            const enc = new TextEncoder();
-            const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
-            return crypto.subtle.deriveKey(
-                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
-                keyMaterial,
-                { name: 'AES-GCM', length: 256 },
-                false,
-                ['encrypt', 'decrypt']
-            );
-        }
-
-        async function encryptSecret(secret, password) {
-            const enc = new TextEncoder();
-            const salt = crypto.getRandomValues(new Uint8Array(16));
-            const iv = crypto.getRandomValues(new Uint8Array(12));
-            const key = await deriveKey(password, salt);
-            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(secret));
-            return {
-                cipher: btoa(String.fromCharCode(...new Uint8Array(cipher))),
-                salt: btoa(String.fromCharCode(...salt)),
-                iv: btoa(String.fromCharCode(...iv))
-            };
-        }
-
-        async function decryptSecret(cipherB64, saltB64, ivB64, password) {
-            const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
-            const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
-            const cipher = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
-            const key = await deriveKey(password, salt);
-            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
-            return new TextDecoder().decode(decrypted);
-        }
-
-        function initVaultListener() {
-            if (!currentUser) return;
-            db.collection('vault')
-                .where('owner', '==', currentUser.email)
-                .onSnapshot(snapshot => {
-                    rawVaultItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    if (vaultMasterKey) renderVaultItems();
-                });
-        }
-
-        async function unlockVault(e) {
-            e.preventDefault();
-            const pass = document.getElementById('vault-master-pass').value;
-            if (!pass) return;
-            vaultMasterKey = pass;
-            document.getElementById('vault-locked-view').classList.add('hidden');
-            document.getElementById('vault-unlocked-view').classList.remove('hidden');
-            renderVaultItems();
-        }
-
-        function lockVault() {
-            vaultMasterKey = null;
-            const passInput = document.getElementById('vault-master-pass');
-            if (passInput) passInput.value = '';
-            document.getElementById('vault-unlocked-view')?.classList.add('hidden');
-            document.getElementById('vault-locked-view')?.classList.remove('hidden');
-        }
-
-        function openAddVaultItemModal() {
-            document.getElementById('vault-title').value = '';
-            document.getElementById('vault-username').value = '';
-            document.getElementById('vault-secret').value = '';
-            openModal('modal-vault-add');
-        }
-
-        async function saveVaultItem(e) {
-            e.preventDefault();
-            if (!vaultMasterKey || !currentUser) return;
-
-            const title = document.getElementById('vault-title').value.trim();
-            const username = document.getElementById('vault-username').value.trim();
-            const secret = document.getElementById('vault-secret').value;
-
-            const encrypted = await encryptSecret(secret, vaultMasterKey);
-
-            await db.collection('vault').add({
-                title,
-                username,
-                cipher: encrypted.cipher,
-                salt: encrypted.salt,
-                iv: encrypted.iv,
-                owner: currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            closeModal('modal-vault-add');
-        }
-
-        async function renderVaultItems() {
-            const list = document.getElementById('vault-items-list');
-            if (!list || !vaultMasterKey) return;
-            if (!rawVaultItems.length) {
-                list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Einträge hinterlegt.</div>';
-                return;
-            }
-
-            const frag = document.createDocumentFragment();
-            let wrongPassCount = 0;
-
-            for (const item of rawVaultItems) {
-                let secret = null;
-                try {
-                    secret = await decryptSecret(item.cipher, item.salt, item.iv, vaultMasterKey);
-                } catch (err) {
-                    wrongPassCount++;
-                }
-
-                const card = document.createElement('div');
-                card.className = "p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs";
-                card.innerHTML = `
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
-                            <i class="fa-solid fa-key"></i>
-                        </div>
-                        <div>
-                            <span class="font-semibold text-slate-200 text-sm block">${esc(item.title)}</span>
-                            ${item.username ? `<span class="text-[11px] text-slate-400 block">${esc(item.username)}</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div data-val class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-[11px] text-amber-300 truncate max-w-[200px]"></div>
-                        <button data-show class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''} title="Anzeigen / Maskieren">
-                            <i class="fa-regular fa-eye"></i>
-                        </button>
-                        <button data-copy class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''} title="Kopieren">
-                            <i class="fa-regular fa-copy"></i>
-                        </button>
-                        <button data-del class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl" title="Löschen">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                `;
-
-                const valEl = card.querySelector('[data-val]');
-                let isShown = false;
-                valEl.textContent = secret === null ? 'Falsches Master-Passwort' : '••••••••';
-
-                card.querySelector('[data-show]').addEventListener('click', () => {
-                    isShown = !isShown;
-                    valEl.textContent = isShown ? secret : '••••••••';
-                });
-
-                card.querySelector('[data-copy]').addEventListener('click', async () => {
-                    await navigator.clipboard.writeText(secret);
-                    setTimeout(() => navigator.clipboard.writeText('').catch(() => {}), 30000);
-                    alert('Kopiert! (Zwischenablage wird nach 30 Sekunden automatisch geleert)');
-                });
-
-                card.querySelector('[data-del]').addEventListener('click', () => {
-                    if (confirm('Eintrag wirklich löschen?')) deleteVaultItem(item.id);
-                });
-
-                frag.appendChild(card);
-            }
-
-            list.innerHTML = '';
-            if (wrongPassCount && wrongPassCount === rawVaultItems.length) {
-                list.innerHTML = '<div class="text-xs text-rose-400 text-center py-2">Master-Passwort stimmt nicht. Bitte Safe sperren und neu entsperren.</div>';
-            }
-            list.appendChild(frag);
-        }
-
-        async function deleteVaultItem(id) {
-            await db.collection('vault').doc(id).delete();
-        }
-
-        // ==========================================
-        // PUSH & EINSTELLUNGEN
-        // ==========================================
-        function openSettingsModal() { openModal('modal-settings'); }
-
-        function refreshPushUI() {
-            if (!currentUser) return;
-            const on = !!currentUser.notificationsEnabled && 'Notification' in window && Notification.permission === 'granted';
-            const btn = document.getElementById('btn-master-push');
-            const sub = document.getElementById('master-push-subtext');
-            const badge = document.getElementById('badge-fcm-status');
-            if (btn) {
-                btn.innerText = on ? 'Deaktivieren' : 'Aktivieren';
-                btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all text-white ' + (on ? 'bg-rose-600 hover:bg-rose-500' : 'bg-indigo-600 hover:bg-indigo-500');
-            }
-            if (sub) sub.innerText = 'Status: ' + (on ? 'Aktiv' : 'Inaktiv');
-            if (badge) {
-                badge.className = 'flex items-center gap-1.5 font-medium text-[11px] ' + (on ? 'text-emerald-400' : 'text-slate-400');
-                badge.innerText = on ? 'Aktiv' : 'Inaktiv';
-            }
-            const p = currentUser.userPrefs || {};
-            const w = document.getElementById('pref-notify-work');
-            const e = document.getElementById('pref-notify-events');
-            if (w) w.checked = p.notifyWork !== false;
-            if (e) e.checked = p.notifyEvents !== false;
-        }
-
-        async function toggleMasterPush() {
-            if (!currentUser) return;
-            const userRef = db.collection('users').doc(currentUser.uid);
-            try {
-                if (currentUser.notificationsEnabled) {
-                    if (messaging) await messaging.deleteToken().catch(() => {});
-                    currentUser.notificationsEnabled = false;
-                    await userRef.update({ notificationsEnabled: false, fcmToken: firebase.firestore.FieldValue.delete() });
-                } else {
-                    if (!messaging || !('Notification' in window)) return alert('Push wird von diesem Browser nicht unterstützt.');
-                    const permission = await Notification.requestPermission();
-                    if (permission !== 'granted') return alert('Benachrichtigungen wurden nicht erlaubt.');
-                    const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-                    const token = await messaging.getToken({ vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
-                    if (!token) throw new Error('Kein Token erhalten');
-                    currentUser.notificationsEnabled = true;
-                    await userRef.update({ notificationsEnabled: true, fcmToken: token });
-                }
-            } catch (err) {
-                alert('Push fehlgeschlagen: ' + err.message);
-            }
-            refreshPushUI();
-        }
-
-        if (messaging) messaging.onMessage(p => sendLocalNotification(p.notification?.title || 'Hinweis', p.notification?.body || ''));
-
-        function sendLocalNotification(title, body) {
-            if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification(title, { body, icon: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f6e1.png' });
-            }
-        }
-
-        async function saveNotificationPref(prefKey, isChecked) {
-            if (!currentUser) return;
-            currentUser.userPrefs = currentUser.userPrefs || {};
-            currentUser.userPrefs[prefKey] = isChecked;
-            await db.collection('users').doc(currentUser.uid).update({ [`userPrefs.${prefKey}`]: isChecked });
-        }
-
-        // ==========================================
-        // KALENDER (Dedup & Fehlertolerante Listener)
-        // ==========================================
         function initCalendarListener() {
             if (!currentUser) return;
             let pub = [], mine = [];
-            
             const merge = () => {
                 const map = new Map();
                 [...pub, ...mine].forEach(e => map.set(e.id, e));
                 calendarEvents = [...map.values()];
                 renderCalendar();
             };
-
             const toList = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
-
-            // 1. Öffentliche Termine
-            db.collection('events')
-                .where('isPublic', '==', true)
-                .onSnapshot(
-                    s => { pub = toList(s); merge(); },
-                    err => {
-                        console.warn("Konnte öffentliche Termine nicht abrufen:", err);
-                        renderCalendar();
-                    }
-                );
-
-            // 2. Eigene Termine
-            if (currentUser.email) {
-                db.collection('events')
-                    .where('owner', '==', currentUser.email)
-                    .onSnapshot(
-                        s => { mine = toList(s); merge(); },
-                        err => {
-                            console.warn("Konnte eigene Termine nicht abrufen:", err);
-                            renderCalendar();
-                        }
-                    );
-            }
+            db.collection('events').where('isPublic', '==', true).onSnapshot(s => { pub = toList(s); merge(); }, () => renderCalendar());
+            db.collection('events').where('owner', '==', currentUser.email).onSnapshot(s => { mine = toList(s); merge(); }, () => renderCalendar());
         }
 
         function renderCalendar() {
@@ -2560,71 +253,46 @@
             const title = document.getElementById('calendar-month-year');
             if (!grid || !title) return;
             grid.innerHTML = '';
-
-            const year = currentCalendarDate.getFullYear();
-            const month = currentCalendarDate.getMonth();
+            const year = currentCalendarDate.getFullYear(), month = currentCalendarDate.getMonth();
             title.innerText = new Date(year, month, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
-
-            const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            for (let i = 0; i < firstDayIndex; i++) {
-                const empty = document.createElement('div');
-                empty.className = 'h-20 md:h-24 bg-slate-900/20 border border-slate-800/30 rounded-2xl opacity-20';
-                grid.appendChild(empty);
+            const first = (new Date(year, month, 1).getDay() + 6) % 7;
+            const days = new Date(year, month + 1, 0).getDate();
+            for (let i = 0; i < first; i++) {
+                grid.appendChild(Object.assign(document.createElement('div'), { className: 'h-20 bg-slate-900/20 border border-slate-800/30 rounded-2xl opacity-20' }));
             }
-
             const today = new Date();
-
-            for (let day = 1; day <= daysInMonth; day++) {
+            for (let day = 1; day <= days; day++) {
                 const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
-
-                const dayCell = document.createElement('div');
-                dayCell.className = `h-20 md:h-24 p-1.5 md:p-2 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col justify-between overflow-hidden`;
-
-                dayCell.innerHTML = `
+                const cell = document.createElement('div');
+                cell.className = `h-20 p-1.5 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col justify-between overflow-hidden`;
+                cell.innerHTML = `
                     <div class="flex items-center justify-between text-[11px] mb-1">
-                        <span class="${isToday ? 'font-bold text-indigo-400 bg-indigo-500/20 px-1.5 py-0.5 rounded-md' : 'text-slate-400'}">${day}</span>
-                        <button data-add class="text-slate-500 hover:text-indigo-400 text-[10px] p-0.5" title="Termin hinzufügen"><i class="fa-solid fa-plus"></i></button>
+                        <span class="${isToday ? 'font-bold text-indigo-400' : 'text-slate-400'}">${day}</span>
+                        <button onclick="openEventModal('${dayDateStr}')" class="text-slate-500 hover:text-indigo-400 text-[10px]"><i class="fa-solid fa-plus"></i></button>
                     </div>
-                    <div data-evs class="space-y-1 overflow-y-auto max-h-12 md:max-h-16 pr-0.5"></div>
+                    <div class="space-y-1 overflow-y-auto max-h-12 pr-0.5">
+                        ${calendarEvents.filter(e => e.date === dayDateStr).map(e => `
+                            <div class="text-[9px] px-1 py-0.5 rounded flex items-center justify-between ${e.isPublic ? 'bg-indigo-600/20 text-indigo-300' : 'bg-slate-800 text-slate-300'}">
+                                <span class="truncate">${esc(e.title)}</span>
+                                ${e.owner === currentUser.email ? `<button onclick="deleteCalendarEvent('${e.id}')" class="text-slate-400 hover:text-rose-400 ml-1"><i class="fa-solid fa-xmark"></i></button>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
                 `;
-
-                dayCell.querySelector('[data-add]').addEventListener('click', () => openEventModal(dayDateStr));
-                const box = dayCell.querySelector('[data-evs]');
-
-                calendarEvents
-                    .filter(ev => ev.date === dayDateStr)
-                    .forEach(ev => {
-                        const isMine = currentUser && ev.owner === currentUser.email;
-                        const el = document.createElement('div');
-                        el.className = `text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between gap-1 ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}`;
-                        el.title = ev.title;
-                        el.innerHTML = `
-                            <span class="truncate">${esc(ev.title)}</span>
-                            ${isMine ? '<button data-del class="text-slate-400 hover:text-rose-400 p-0.5 ml-1"><i class="fa-solid fa-xmark text-[9px]"></i></button>' : ''}
-                        `;
-                        el.querySelector('[data-del]')?.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            deleteCalendarEvent(ev.id);
-                        });
-                        box.appendChild(el);
-                    });
-
-                grid.appendChild(dayCell);
+                grid.appendChild(cell);
             }
         }
 
-        function changeCalendarMonth(delta) {
+        function changeCalendarMonth(d) {
             currentCalendarDate.setDate(1);
-            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + d);
             renderCalendar();
         }
 
-        function openEventModal(defaultDate = '') {
+        function openEventModal(d = '') {
             document.getElementById('ev-title').value = '';
-            document.getElementById('ev-date').value = defaultDate || localDate();
+            document.getElementById('ev-date').value = d || localDate();
             document.getElementById('ev-public').checked = true;
             openModal('modal-event');
         }
@@ -2634,370 +302,74 @@
             const title = document.getElementById('ev-title').value.trim();
             const date = document.getElementById('ev-date').value;
             const isPublic = document.getElementById('ev-public').checked;
-            if (!title || !date || !currentUser) return;
-
-            try {
-                await db.collection('events').add({
-                    title, date, isPublic,
-                    owner: currentUser.email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                closeModal('modal-event');
-                logSystemEvent('data', 'Termin erstellt', { title, date, isPublic });
-            } catch (err) {
-                alert("Fehler beim Speichern: " + err.message);
-            }
+            await db.collection('events').add({ title, date, isPublic, owner: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            closeModal('modal-event');
         }
 
         async function deleteCalendarEvent(id) {
-            if (!confirm('Diesen Termin wirklich löschen?')) return;
-            try {
-                await db.collection('events').doc(id).delete();
-                logSystemEvent('data', 'Termin gelöscht', { id });
-            } catch (err) {
-                alert("Fehler beim Löschen: " + err.message);
-            }
+            if (confirm('Termin löschen?')) await db.collection('events').doc(id).delete();
         }
 
         function initNotesListener() {
-            db.collection('notes').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                familyNotes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderNotes();
-            });
-        }
-
-        function renderNotes() {
-            const list = document.getElementById('notes-list');
-            const count = document.getElementById('note-count');
-            if (!list) return;
-            count.innerText = familyNotes.length;
-            list.innerHTML = '';
-
-            if (familyNotes.length === 0) {
-                list.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-2">Keine Notizen.</div>';
-                return;
-            }
-
-            familyNotes.forEach(n => {
-                const isOwner = currentUser && (n.owner === currentUser.email || currentUser.role === 'admin');
-                const item = document.createElement('div');
-                item.className = "flex items-start justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
-                item.innerHTML = `
-                    <div class="flex flex-col">
-                        <span class="text-slate-200 text-[11px]">${esc(n.text)}</span>
-                        <span class="text-[9px] text-slate-500">${esc(n.author || 'Familie')}</span>
+            db.collection('notes').orderBy('createdAt', 'desc').onSnapshot(s => {
+                familyNotes = s.docs.map(d => ({ id: d.id, ...d.data() }));
+                const list = document.getElementById('notes-list');
+                document.getElementById('note-count').innerText = familyNotes.length;
+                list.innerHTML = familyNotes.length ? familyNotes.map(n => `
+                    <div class="flex items-start justify-between bg-slate-950/50 border border-slate-800 p-1.5 rounded-xl">
+                        <span>${esc(n.text)}</span>
+                        ${n.owner === currentUser.email ? `<button onclick="db.collection('notes').doc('${n.id}').delete()" class="text-slate-500 hover:text-rose-400 ml-1"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
                     </div>
-                    ${isOwner ? `<button data-del class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}
-                `;
-                item.querySelector('[data-del]')?.addEventListener('click', () => deleteNote(n.id));
-                list.appendChild(item);
+                `).join('') : 'Keine Notizen.';
             });
         }
 
         async function saveNewNote(e) {
             e.preventDefault();
             const input = document.getElementById('new-note-input');
-            const text = input.value.trim();
-            if (!text || !currentUser) return;
-            await db.collection('notes').add({
-                text,
-                author: currentUser.name,
-                owner: currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            input.value = '';
+            if (input.value.trim()) {
+                await db.collection('notes').add({ text: input.value.trim(), owner: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                input.value = '';
+            }
         }
-
-        async function deleteNote(id) { await db.collection('notes').doc(id).delete(); }
 
         function initTodosListener() {
-            db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                familyTodos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderTodos();
-            });
-        }
-
-        function renderTodos() {
-            const list = document.getElementById('todos-list');
-            const count = document.getElementById('todo-count');
-            if (!list) return;
-            const openTodos = familyTodos.filter(t => !t.done);
-            count.innerText = openTodos.length;
-            list.innerHTML = '';
-
-            if (familyTodos.length === 0) {
-                list.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-2">Alles erledigt! 🎉</div>';
-                return;
-            }
-
-            familyTodos.forEach(t => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-2 rounded-xl text-xs";
-                item.innerHTML = `
-                    <label class="flex items-center gap-2 cursor-pointer truncate">
-                        <input type="checkbox" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 text-emerald-500 w-3.5 h-3.5">
-                        <span class="text-[11px] truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${esc(t.text)}</span>
-                    </label>
-                    <button data-del class="text-slate-500 hover:text-rose-400 p-0.5"><i class="fa-solid fa-xmark text-[10px]"></i></button>
-                `;
-                item.querySelector('input').addEventListener('change', e => toggleTodo(t.id, e.target.checked));
-                item.querySelector('[data-del]').addEventListener('click', () => deleteTodo(t.id));
-                list.appendChild(item);
+            db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(s => {
+                familyTodos = s.docs.map(d => ({ id: d.id, ...d.data() }));
+                const openT = familyTodos.filter(t => !t.done);
+                document.getElementById('todo-count').innerText = openT.length;
+                const list = document.getElementById('todos-list');
+                list.innerHTML = familyTodos.length ? familyTodos.map(t => `
+                    <div class="flex items-center justify-between bg-slate-950/50 border border-slate-800 p-1.5 rounded-xl">
+                        <label class="flex items-center gap-1.5 cursor-pointer truncate">
+                            <input type="checkbox" onchange="db.collection('todos').doc('${t.id}').update({done: this.checked})" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700">
+                            <span class="${t.done ? 'line-through text-slate-500' : 'text-slate-200'} truncate">${esc(t.text)}</span>
+                        </label>
+                        <button onclick="db.collection('todos').doc('${t.id}').delete()" class="text-slate-500 hover:text-rose-400 ml-1"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                    </div>
+                `).join('') : 'Alles erledigt! 🎉';
             });
         }
 
         async function saveNewTodo(e) {
             e.preventDefault();
             const input = document.getElementById('new-todo-input');
-            const text = input.value.trim();
-            if (!text || !currentUser) return;
-            await db.collection('todos').add({
-                text,
-                done: false,
-                author: currentUser.name,
-                owner: currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            input.value = '';
+            if (input.value.trim()) {
+                await db.collection('todos').add({ text: input.value.trim(), done: false, owner: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                input.value = '';
+            }
         }
 
-        async function toggleTodo(id, done) { await db.collection('todos').doc(id).update({ done }); }
-        async function deleteTodo(id) { await db.collection('todos').doc(id).delete(); }
-
-        // ==========================================
-        // ADMIN & RECHTESYSTEM
-        // ==========================================
-        function initAdminUsersListener() {
-            db.collection('users').onSnapshot(snapshot => {
-                allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderAdminUserList();
-            }, err => {
-                console.error("Fehler beim Laden der Benutzerliste:", err);
-            });
-        }
-
-        async function updateUserData(u, data, msg) {
+        async function loadWeather() {
             try {
-                await db.collection('users').doc(u.id).update(data);
-                logSystemEvent('admin', msg, { ziel: u.email });
-            } catch (err) {
-                alert('Fehlgeschlagen: ' + err.message);
-            }
-        }
-
-        function guardSelf(u, text) {
-            if (u.id === currentUser.uid) {
-                alert(`Du kannst dich nicht selbst ${text}.`);
-                return true;
-            }
-            return false;
-        }
-
-        function guardLastAdmin(u, text) {
-            if (u.role === 'admin' && adminCount() <= 1) {
-                alert(`Der letzte Admin kann nicht ${text} werden.`);
-                return true;
-            }
-            return false;
-        }
-
-        function toggleUserPerm(id, key, checked) {
-            const u = allUsers.find(x => x.id === id);
-            if (!u) return;
-            updateUserData(u, { [`permissions.${key}`]: checked }, `Recht "${key}" ${checked ? 'erteilt' : 'entzogen'}`);
-        }
-
-        function setRole(u, role) {
-            if (guardSelf(u, 'herabstufen') && role !== 'admin') return renderAdminUserList();
-            if (role !== 'admin' && guardLastAdmin(u, 'herabgestuft')) return renderAdminUserList();
-            updateUserData(u, { role, permissions: ROLES[role].perms }, `Rolle auf "${ROLES[role].label}" gesetzt`);
-        }
-
-        function setStatus(u, status) {
-            if (status !== 'active' && (guardSelf(u, 'sperren') || guardLastAdmin(u, 'gesperrt'))) return;
-            const text = { active: 'freigegeben / entsperrt', blocked: 'gesperrt' }[status];
-            updateUserData(u, { status }, `Benutzer ${text}`);
-        }
-
-        async function removeUser(u) {
-            if (guardSelf(u, 'löschen') || guardLastAdmin(u, 'gelöscht')) return;
-            if (!confirm(`Profil von ${u.email} löschen?\nDer Zugriff ist danach beendet. Das Login-Konto und seine Daten bleiben in Firebase bestehen und müssen dort separat gelöscht werden.`)) return;
-            try {
-                await db.collection('users').doc(u.id).delete();
-                logSystemEvent('admin', 'Benutzerprofil gelöscht', { ziel: u.email });
-            } catch (err) {
-                alert('Fehlgeschlagen: ' + err.message);
-            }
-        }
-
-        function ensureToolbar() {
-            if (document.getElementById('admin-toolbar')) return;
-            const list = document.getElementById('admin-user-list');
-            if (!list) return;
-
-            const bar = document.createElement('div');
-            bar.id = 'admin-toolbar';
-            bar.className = 'flex flex-wrap gap-2 mb-4';
-            bar.innerHTML = `
-                <input id="adm-search" placeholder="Suchen (Name, E-Mail)..." class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 w-56 focus:outline-none focus:border-amber-500">
-                <select id="adm-status" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none">
-                    <option value="all">Alle</option>
-                    <option value="pending">Wartet auf Freigabe</option>
-                    <option value="active">Aktiv</option>
-                    <option value="blocked">Gesperrt</option>
-                </select>
-            `;
-            list.parentNode.insertBefore(bar, list);
-
-            bar.querySelector('#adm-search').addEventListener('input', e => {
-                filterText = e.target.value.toLowerCase();
-                renderAdminUserList();
-            });
-            bar.querySelector('#adm-status').addEventListener('change', e => {
-                filterStatus = e.target.value;
-                renderAdminUserList();
-            });
-        }
-
-        const BADGE = {
-            active: ['Aktiv', 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'],
-            pending: ['Wartet auf Freigabe', 'bg-amber-500/10 text-amber-400 border-amber-500/20'],
-            blocked: ['Gesperrt', 'bg-rose-500/10 text-rose-400 border-rose-500/20']
-        };
-
-        const fmtDate = ts => ts?.toDate ? ts.toDate().toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) : '–';
-
-        function renderAdminUserList() {
-            const listEl = document.getElementById('admin-user-list');
-            if (!listEl) return;
-            ensureToolbar();
-
-            const pending = allUsers.filter(u => statusOf(u) === 'pending').length;
-            document.getElementById('user-count-badge').innerText =
-                `${allUsers.length} Benutzer${pending ? ` · ${pending} offen` : ''}`;
-
-            const rows = allUsers.filter(u =>
-                (filterStatus === 'all' || statusOf(u) === filterStatus) &&
-                (!filterText || `${u.displayName} ${u.email}`.toLowerCase().includes(filterText)))
-                .sort((a, b) => (statusOf(a) === 'pending' ? -1 : 1) - (statusOf(b) === 'pending' ? -1 : 1));
-
-            listEl.innerHTML = '';
-            rows.forEach(u => {
-                const self = u.id === currentUser.uid;
-                const st = statusOf(u);
-                const perms = u.permissions || {};
-                const [bl, bc] = BADGE[st] || BADGE.active;
-
-                const card = document.createElement('div');
-                card.className = 'bg-slate-950/40 border border-slate-800/80 rounded-2xl p-4 space-y-3';
-                card.innerHTML = `
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                            <div class="font-semibold text-slate-200 text-sm">
-                                ${esc(u.displayName || u.email)} ${self ? '<span class="text-[10px] text-slate-500 font-normal">(du)</span>' : ''}
-                            </div>
-                            <div class="text-xs text-slate-500">${esc(u.email)}</div>
-                            <div class="text-[10px] text-slate-600 mt-0.5">Registriert: ${fmtDate(u.createdAt)} · Letzter Login: ${fmtDate(u.lastLogin)}</div>
-                        </div>
-                        <span class="text-[10px] border px-2 py-1 rounded-lg ${bc}">${bl}</span>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-3">
-                        <select data-role class="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none" ${self ? 'disabled' : ''}>
-                            ${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${u.role === k ? 'selected' : ''}>${r.label}</option>`).join('')}
-                        </select>
-                        ${Object.entries(MODULES).map(([k, l]) => `
-                            <label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${u.role === 'admin' ? 'opacity-50' : 'cursor-pointer'}">
-                                <input type="checkbox" data-perm="${k}" ${perms[k] !== false ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">
-                                ${l}
-                            </label>
-                        `).join('')}
-                    </div>
-
-                    <div class="flex flex-wrap gap-2 text-xs pt-1">
-                        ${st !== 'active' ? '<button data-act="approve" class="px-3 py-1.5 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-600/30">Freigeben</button>' : ''}
-                        ${st === 'active' && !self ? '<button data-act="block" class="px-3 py-1.5 rounded-xl bg-amber-600/20 border border-amber-500/30 text-amber-300 hover:bg-amber-600/30">Sperren</button>' : ''}
-                        ${!self ? '<button data-act="delete" class="px-3 py-1.5 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-300 hover:bg-rose-600/30">Profil löschen</button>' : ''}
-                    </div>
-                `;
-
-                card.querySelector('[data-role]').addEventListener('change', e => setRole(u, e.target.value));
-                card.querySelectorAll('[data-perm]').forEach(i => i.addEventListener('change', e => toggleUserPerm(u.id, i.dataset.perm, e.target.checked)));
-                card.querySelector('[data-act="approve"]')?.addEventListener('click', () => setStatus(u, 'active'));
-                card.querySelector('[data-act="block"]')?.addEventListener('click', () => setStatus(u, 'blocked'));
-                card.querySelector('[data-act="delete"]')?.addEventListener('click', () => removeUser(u));
-
-                listEl.appendChild(card);
-            });
-
-            if (!rows.length) {
-                listEl.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Benutzer gefunden.</div>';
-            }
-        }
-
-        // ==========================================
-        // SYSTEM LOGS
-        // ==========================================
-        function initSystemLogsListener() {
-            db.collection('system_logs').orderBy('timestamp', 'desc').limit(200).onSnapshot(snapshot => {
-                systemLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderLogsTable();
-            });
-        }
-
-        function renderLogsTable() {
-            const tbody = document.getElementById('logs-table-body');
-            const searchVal = (document.getElementById('log-search-input')?.value || '').toLowerCase();
-            const catVal = document.getElementById('log-category-filter')?.value || 'all';
-            if (!tbody) return;
-
-            let filtered = systemLogs.filter(log => {
-                if (catVal !== 'all' && log.category !== catVal) return false;
-                if (!searchVal) return true;
-                return (log.userName || '').toLowerCase().includes(searchVal) ||
-                       (log.userEmail || '').toLowerCase().includes(searchVal) ||
-                       (log.action || '').toLowerCase().includes(searchVal);
-            });
-
-            tbody.innerHTML = '';
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-500">Keine Logs gefunden.</td></tr>';
-                return;
-            }
-
-            filtered.forEach(log => {
-                let timeStr = '--:--:--';
-                if (log.timestamp && log.timestamp.toDate) {
-                    const d = log.timestamp.toDate();
-                    timeStr = `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`;
-                }
-                const det = [log.device, log.details && Object.keys(log.details).length ? JSON.stringify(log.details) : ''].filter(Boolean).join(' · ');
-
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-900/50 transition-colors";
-                row.innerHTML = `
-                    <td class="p-2.5 text-slate-400 whitespace-nowrap">${esc(timeStr)}</td>
-                    <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${esc(log.category || 'Info')}</span></td>
-                    <td class="p-2.5 text-slate-200">${esc(log.userName || 'Unbekannt')}</td>
-                    <td class="p-2.5 font-medium text-slate-200">${esc(log.action || '-')}</td>
-                    <td class="p-2.5 text-slate-400 truncate max-w-[180px]" title="${esc(det)}">${esc(det || '-')}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        async function clearSystemLogs() {
-            if (!confirm('Alle Logs unwiderruflich löschen?')) return;
-            try {
-                const snap = await db.collection('system_logs').get();
-                for (let i = 0; i < snap.docs.length; i += 400) {
-                    const b = db.batch();
-                    snap.docs.slice(i, i + 400).forEach(d => b.delete(d.ref));
-                    await b.commit();
-                }
-            } catch (err) {
-                alert('Fehler beim Bereinigen: ' + err.message);
-            }
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=50.8021&longitude=6.4836&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`);
+                const data = await res.json();
+                document.getElementById('weather-location').innerText = 'Düren';
+                document.getElementById('weather-temp').innerText = `${Math.round(data.current.temperature_2m)}°C`;
+                document.getElementById('weather-wind').innerText = `${Math.round(data.current.wind_speed_10m)} km/h`;
+                document.getElementById('weather-rain').innerText = `${data.current.relative_humidity_2m} %`;
+                document.getElementById('weather-condition').innerText = 'Aktuell';
+            } catch (e) {}
         }
     </script>
 </body>
