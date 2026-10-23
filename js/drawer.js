@@ -1,4 +1,4 @@
-// js/drawer.js - Vollständiges Menü mit allen Modulen
+// js/drawer.js - Aktualisiertes Menü mit Status-Modul
 function renderDrawer() {
     if (document.getElementById('side-drawer')) return;
 
@@ -42,6 +42,10 @@ function renderDrawer() {
                 <a href="/logs.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
                     <i class="fa-solid fa-timeline w-5 text-cyan-400"></i>
                     <span class="text-cyan-300">System-Logs</span>
+                </a>
+                <a href="/status.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all border border-indigo-500/20 bg-indigo-600/10">
+                    <i class="fa-solid fa-server w-5 text-indigo-400"></i>
+                    <span class="text-indigo-300 font-semibold">System-Status & Limits</span>
                 </a>
             </nav>
         </div>
