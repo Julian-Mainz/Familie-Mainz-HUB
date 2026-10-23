@@ -22,41 +22,42 @@ const db = firebase.firestore();
 
 let currentUser = null;
 
-// Auth Guard: Überprüft auf jeder Unterseite den Login-Status
+// Prüft, ob wir auf der Login-/Startseite sind
+function isRootPage() {
+    const p = window.location.pathname.replace(/\/index\.html$/, '').replace(/\/$/, '');
+    return p === '' || p === '/Familie-Mainz-HUB';
+}
+
 function initAuthGuard(onReadyCallback) {
     auth.onAuthStateChanged(async (user) => {
-        const isLoginPage = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
-        
         if (user) {
             try {
                 const doc = await db.collection('users').doc(user.uid).get();
-                if (!doc.exists || (doc.data().status && doc.data().status !== 'active')) {
+                if (doc.exists && doc.data().status && doc.data().status !== 'active') {
                     await auth.signOut();
-                    if (!isLoginPage) window.location.href = '/';
+                    if (!isRootPage()) window.location.href = '/';
                     return;
                 }
-                const data = doc.data();
+                const data = doc.exists ? doc.data() : {};
                 currentUser = {
                     uid: user.uid,
                     email: user.email,
-                    name: data.firstName ? `${data.firstName} ${data.lastName}` : user.email.split('@')[0],
+                    name: data.firstName ? `${data.firstName} ${data.lastName || ''}`.trim() : user.email.split('@')[0],
                     role: data.role || 'user',
                     permissions: data.permissions || {}
                 };
 
-                // Name im Header aktualisieren (falls Element vorhanden)
                 const nameEl = document.getElementById('user-display-name');
                 if (nameEl) nameEl.innerText = data.firstName || currentUser.name;
 
                 if (onReadyCallback) onReadyCallback(currentUser);
             } catch (e) {
-                console.error("Auth-Error:", e);
-                if (!isLoginPage) window.location.href = '/';
+                console.error("Auth-Fehler:", e);
+                if (onReadyCallback) onReadyCallback(currentUser);
             }
         } else {
             currentUser = null;
-            // Wenn nicht eingeloggt und nicht auf der Startseite: Zurück zum Login
-            if (!isLoginPage) {
+            if (!isRootPage()) {
                 window.location.href = '/';
             } else if (onReadyCallback) {
                 onReadyCallback(null);
