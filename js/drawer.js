@@ -1,4 +1,4 @@
-// js/drawer.js - Einheitliche Menü-Komponente mit absoluten URLs
+// js/drawer.js - Einheitliche Menü-Komponente mit direkten Dateinamen
 function renderDrawer() {
     if (document.getElementById('side-drawer')) return;
 
@@ -23,11 +23,11 @@ function renderDrawer() {
                     <i class="fa-solid fa-border-all w-5 text-indigo-400"></i>
                     <span>Start Menü</span>
                 </a>
-                <a href="/zeiterfassung/" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+                <a href="/zeiterfassung.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
                     <i class="fa-solid fa-business-time w-5 text-emerald-400"></i>
                     <span class="text-emerald-300">Zeiterfassung</span>
                 </a>
-                <a href="/finanzen/" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+                <a href="/finanzen.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
                     <i class="fa-solid fa-coins w-5 text-yellow-400"></i>
                     <span class="text-yellow-300">Finanzen & Sparkasse</span>
                 </a>
