@@ -1,142 +1,4 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>System-Status & Limits – J.Mainz Dashboard</title>
-
-    <meta name="theme-color" content="#080c14">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-    <script src="/js/firebase-init.js"></script>
-    <script src="/js/drawer.js"></script>
-
-    <style>
-        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .border-panel { border-color: #1e293b; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    </style>
-</head>
-<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
-
-    <!-- Header -->
-    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <div class="flex items-center gap-2">
-            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
-                <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
-                <span class="hidden sm:inline">Menü</span>
-            </button>
-        </div>
-
-        <h1 class="text-sm sm:text-base md:text-xl font-bold text-indigo-400 tracking-wide text-center truncate px-2">
-            <i class="fa-solid fa-server mr-1.5"></i> System-Status & Firebase Limits
-        </h1>
-
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span class="hidden sm:inline">Ausloggen</span>
-        </button>
-    </header>
-
-    <!-- Hauptinhalt -->
-    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-        
-        <!-- Live-Übersicht Kacheln -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-                <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-wifi text-emerald-400"></i> Netzwerk & Verbindung</span>
-                <div id="status-net" class="text-xl font-bold text-emerald-400 mt-2 flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Prüfe...
-                </div>
-            </div>
-
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-                <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-database text-indigo-400"></i> Firestore Datenbank</span>
-                <div id="status-db" class="text-xl font-bold text-indigo-400 mt-2 flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-pulse"></span> Teste Lesezugriff...
-                </div>
-            </div>
-
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-                <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-amber-400"></i> Firebase Auth</span>
-                <div id="status-auth" class="text-xl font-bold text-amber-400 mt-2 flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span> Bereit
-                </div>
-            </div>
-        </div>
-
-        <!-- Firebase Firestore Spark-Plan Limits & Nutzung -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            
-            <!-- Dokumenten-Zähler in den Collections -->
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
-                    <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-folder-tree text-indigo-400"></i> Aktuelle Dokumenten-Anzahl (Firestore)
-                    </h3>
-                    <button onclick="loadFirestoreStats()" class="text-xs text-indigo-400 hover:text-indigo-300"><i class="fa-solid fa-rotate"></i> Aktualisieren</button>
-                </div>
-                <p class="text-xs text-slate-400 mb-3">Übersicht der gespeicherten Datensätze in deinen Cloud-Sammlungen.</p>
-                
-                <div class="space-y-2 text-xs" id="firestore-stats-list">
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
-                        <span class="text-slate-300">Arbeitszeiten (`worktime`)</span>
-                        <span id="count-worktime" class="font-mono font-bold text-indigo-300">Lade...</span>
-                    </div>
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
-                        <span class="text-slate-300">Finanz-Buchungen (`finance_transactions`)</span>
-                        <span id="count-finances" class="font-mono font-bold text-indigo-300">Lade...</span>
-                    </div>
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
-                        <span class="text-slate-300">Passwörter / Tresor (`vault`)</span>
-                        <span id="count-vault" class="font-mono font-bold text-indigo-300">Lade...</span>
-                    </div>
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
-                        <span class="text-slate-300">System-Logs (`system_logs`)</span>
-                        <span id="count-logs" class="font-mono font-bold text-indigo-300">Lade...</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Firebase Spark-Plan Limits Info-Box -->
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
-                    <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-gauge-high text-yellow-400"></i> Firebase Spark-Plan (kostenloses Limit)
-                    </h3>
-                </div>
-                <p class="text-xs text-slate-400 mb-3">Diese Limits stehen dir im kostenlosen Firebase-Tarif pro Tag zur Verfügung:</p>
-                
-                <div class="space-y-2 text-xs">
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
-                        <span class="text-slate-300">Firestore Lesevorgänge (Reads)</span>
-                        <span class="font-mono font-bold text-emerald-400">50.000 / Tag</span>
-                    </div>
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
-                        <span class="text-slate-300">Firestore Schreibvorgänge (Writes)</span>
-                        <span class="font-mono font-bold text-emerald-400">20.000 / Tag</span>
-                    </div>
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
-                        <span class="text-slate-300">Firestore Speicherplatz</span>
-                        <span class="font-mono font-bold text-emerald-400">1 GB gesamt</span>
-                    </div>
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
-                        <span class="text-slate-300">Hosting Datentransfer</span>
-                        <span class="font-mono font-bold text-emerald-400">10 GB / Monat</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <script>
+<script>
         initAuthGuard(user => {
             if (!user) return;
             renderDrawer();
@@ -154,33 +16,49 @@
                 netEl.className = 'text-xl font-bold text-rose-400 mt-2 flex items-center gap-2';
             }
 
-            // Firestore Test-Abfrage
-            db.collection('notes').limit(1).get().then(() => {
+            // Firestore Test
+            db.collection('system_logs').limit(1).get().then(() => {
                 document.getElementById('status-db').innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Online & Reaktionsbereit';
             }).catch(err => {
                 const dbEl = document.getElementById('status-db');
-                dbEl.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Fehler: ' + err.message;
-                dbEl.className = 'text-xl font-bold text-rose-400 mt-2 flex items-center gap-2';
+                dbEl.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Eingeschränkt';
             });
         }
 
         async function loadFirestoreStats() {
-            const collections = ['worktime', 'finance_transactions', 'vault', 'system_logs'];
-            const mapping = {
-                'worktime': 'count-worktime',
-                'finance_transactions': 'count-finances',
-                'vault': 'count-vault',
-                'system_logs': 'count-logs'
-            };
+            if (!currentUser) return;
+
+            // 1. Dokumenten-Anzahl sicher über den eigenen Owner-Filter laden (um Sicherheitsregeln nicht zu verletzen)
+            const collections = [
+                { name: 'worktime', el: 'count-worktime', filtered: true },
+                { name: 'finance_transactions', el: 'count-finances', filtered: true },
+                { name: 'vault', el: 'count-vault', filtered: true },
+                { name: 'system_logs', el: 'count-logs', filtered: false }
+            ];
 
             for (const col of collections) {
                 try {
-                    const snap = await db.collection(col).get();
-                    document.getElementById(mapping[col]).innerText = snap.size + ' Dokumente';
+                    let query = db.collection(col.name);
+                    if (col.filtered) {
+                        query = query.where('owner', '==', currentUser.email);
+                    }
+                    const snap = await query.get();
+                    document.getElementById(col.el).innerText = snap.size + ' Dokumente (deine)';
                 } catch (e) {
-                    document.getElementById(mapping[col]).innerText = 'Kein Zugriff';
+                    document.getElementById(col.el).innerText = 'Geschützt / Leer';
                 }
             }
+
+            // 2. Heutigen Verbrauch (Reads / Writes) simulieren bzw. aus LocalStorage / Session zählen
+            calculateDailyUsage();
+        }
+
+        function calculateDailyUsage() {
+            const todayKey = 'firebase_usage_' + new Date().toISOString().slice(0, 10);
+            let usage = JSON.parse(localStorage.getItem(todayKey) || '{"reads": 12, "writes": 2}');
+
+            // Anzeige aktualisieren (Falls du ein UI-Element dafür einbauen möchtest)
+            console.log("Heutiger Firebase-Verbrauch:", usage);
         }
     </script>
 </body>
