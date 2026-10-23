@@ -1,5 +1,8 @@
 // js/drawer.js - Einheitliche Menü-Komponente
 function renderDrawer() {
+    // Verhindert doppeltes Einfügen
+    if (document.getElementById('side-drawer')) return;
+
     const drawerHtml = `
     <div id="menu-backdrop" onclick="toggleSideMenu(false)" class="fixed inset-0 bg-slate-950/70 z-50 opacity-0 pointer-events-none transition-opacity duration-200"></div>
     <aside id="side-drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 z-50 p-6 flex flex-col justify-between shadow-2xl -translate-x-full transition-transform duration-200 ease-out">
@@ -18,7 +21,7 @@ function renderDrawer() {
 
             <nav class="space-y-2">
                 <a href="/" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
-                    <i class="fa-solid fa-border-all w-5"></i>
+                    <i class="fa-solid fa-border-all w-5 text-indigo-400"></i>
                     <span>Start Menü</span>
                 </a>
                 <a href="/zeiterfassung/" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
@@ -29,17 +32,13 @@ function renderDrawer() {
                     <i class="fa-solid fa-coins w-5 text-yellow-400"></i>
                     <span class="text-yellow-300">Finanzen & Sparkasse</span>
                 </a>
-                <a href="/tresor/" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
-                    <i class="fa-solid fa-shield-halved w-5 text-amber-400"></i>
-                    <span class="text-amber-300">Passwort-Safe</span>
-                </a>
             </nav>
         </div>
 
         <div class="space-y-3 pt-4 border-t border-slate-800/80">
             <div>
                 <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-server text-indigo-400 text-xs"></i> Status
+                    <i class="fa-solid fa-server text-indigo-400 text-xs"></i> System-Status
                 </div>
                 <div class="space-y-1.5">
                     <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
@@ -71,7 +70,6 @@ function toggleSideMenu(open) {
     }
 }
 
-// Netzwerk-Check initialisieren
 window.addEventListener('online', () => {
     const el = document.getElementById('stat-conn-status');
     if (el) el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Online';
