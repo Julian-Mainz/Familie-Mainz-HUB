@@ -1,4 +1,4 @@
-// js/drawer.js - Aktualisiertes Menü mit Status-Modul
+// js/drawer.js - Bereinigtes Menü ohne den alten System-Status unten
 function renderDrawer() {
     if (document.getElementById('side-drawer')) return;
 
@@ -50,21 +50,8 @@ function renderDrawer() {
             </nav>
         </div>
 
-        <div class="space-y-3 pt-4 border-t border-slate-800/80">
-            <div>
-                <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-server text-indigo-400 text-xs"></i> System-Status
-                </div>
-                <div class="space-y-1.5">
-                    <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/50 border border-slate-800/60 text-xs">
-                        <span class="text-slate-300">Netzwerk</span>
-                        <span id="stat-conn-status" class="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Online
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="text-[11px] text-slate-500 text-center font-medium">J.Mainz Dashboard</div>
+        <div class="pt-4 border-t border-slate-800/80">
+            <div class="text-[11px] text-slate-500 text-center font-medium">J.Mainz Dashboard &bull; v3.6</div>
         </div>
     </aside>
     `;
