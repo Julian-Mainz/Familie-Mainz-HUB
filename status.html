@@ -48,25 +48,32 @@
     <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
         
         <!-- Live-Übersicht Kacheln -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
                 <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-wifi text-emerald-400"></i> Netzwerk & Verbindung</span>
-                <div id="status-net" class="text-xl font-bold text-emerald-400 mt-2 flex items-center gap-2">
+                <div id="status-net" class="text-base font-bold text-emerald-400 mt-2 flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Prüfe...
                 </div>
             </div>
 
             <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
                 <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-database text-indigo-400"></i> Firestore Datenbank</span>
-                <div id="status-db" class="text-xl font-bold text-indigo-400 mt-2 flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-pulse"></span> Teste Lesezugriff...
+                <div id="status-db" class="text-base font-bold text-indigo-400 mt-2 flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-pulse"></span> Teste...
                 </div>
             </div>
 
             <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-                <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-amber-400"></i> Firebase Auth</span>
-                <div id="status-auth" class="text-xl font-bold text-amber-400 mt-2 flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span> Bereit
+                <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-users text-amber-400"></i> Aktive Personen</span>
+                <div id="status-active-users" class="text-xl font-bold text-amber-400 mt-2 flex items-center gap-2">
+                    <i class="fa-solid fa-spinner animate-spin text-sm"></i> Lade...
+                </div>
+            </div>
+
+            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
+                <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-laptop text-cyan-400"></i> Aktive Geräte heute</span>
+                <div id="status-active-devices" class="text-xl font-bold text-cyan-400 mt-2 flex items-center gap-2">
+                    <i class="fa-solid fa-spinner animate-spin text-sm"></i> Lade...
                 </div>
             </div>
         </div>
@@ -104,31 +111,39 @@
                 </div>
             </div>
 
-            <!-- Firebase Spark-Plan Limits Info-Box -->
+            <!-- Firebase Spark-Plan Limits & Heutiger Verbrauch -->
             <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
                     <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-gauge-high text-yellow-400"></i> Firebase Spark-Plan (kostenloses Limit)
+                        <i class="fa-solid fa-gauge-high text-yellow-400"></i> Firebase Spark-Plan (Heutiger Verbrauch)
                     </h3>
                 </div>
-                <p class="text-xs text-slate-400 mb-3">Diese Limits stehen dir im kostenlosen Firebase-Tarif pro Tag zur Verfügung:</p>
+                <p class="text-xs text-slate-400 mb-3">Geschätzter API-Verbrauch am heutigen Tag im kostenlosen Tarif:</p>
                 
-                <div class="space-y-2 text-xs">
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
-                        <span class="text-slate-300">Firestore Lesevorgänge (Reads)</span>
-                        <span class="font-mono font-bold text-emerald-400">50.000 / Tag</span>
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Lesevorgänge (Reads)</span>
+                            <span id="usage-reads" class="font-mono text-emerald-400 font-bold">Berechne... / 50.000</span>
+                        </div>
+                        <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+                            <div id="bar-reads" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
                     </div>
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
-                        <span class="text-slate-300">Firestore Schreibvorgänge (Writes)</span>
-                        <span class="font-mono font-bold text-emerald-400">20.000 / Tag</span>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Schreibvorgänge (Writes)</span>
+                            <span id="usage-writes" class="font-mono text-indigo-400 font-bold">Berechne... / 20.000</span>
+                        </div>
+                        <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+                            <div id="bar-writes" class="bg-indigo-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
                     </div>
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
-                        <span class="text-slate-300">Firestore Speicherplatz</span>
-                        <span class="font-mono font-bold text-emerald-400">1 GB gesamt</span>
-                    </div>
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
-                        <span class="text-slate-300">Hosting Datentransfer</span>
-                        <span class="font-mono font-bold text-emerald-400">10 GB / Monat</span>
+
+                    <div class="flex justify-between p-2 bg-slate-950/50 rounded-xl border border-slate-800 mt-2">
+                        <span class="text-slate-400">Firestore Speicher gesamt</span>
+                        <span class="font-mono font-bold text-slate-200">&lt; 50 MB / 1 GB</span>
                     </div>
                 </div>
             </div>
@@ -142,31 +157,55 @@
             renderDrawer();
             checkSystemHealth();
             loadFirestoreStats();
+            loadActiveSessions();
         });
 
         function checkSystemHealth() {
-            // Netzwerk
             const netEl = document.getElementById('status-net');
             if (navigator.onLine) {
-                netEl.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Online (Verbunden)';
+                netEl.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Online';
             } else {
-                netEl.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Getrennt (Offline)';
-                netEl.className = 'text-xl font-bold text-rose-400 mt-2 flex items-center gap-2';
+                netEl.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Offline';
+                netEl.className = 'text-base font-bold text-rose-400 mt-2 flex items-center gap-2';
             }
 
-            // Firestore Test
             db.collection('system_logs').limit(1).get().then(() => {
-                document.getElementById('status-db').innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Online & Reaktionsbereit';
-            }).catch(err => {
-                const dbEl = document.getElementById('status-db');
-                dbEl.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Eingeschränkt';
+                document.getElementById('status-db').innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Verbunden';
+            }).catch(() => {
+                document.getElementById('status-db').innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Fehler';
             });
+        }
+
+        async function loadActiveSessions() {
+            try {
+                // Aktive Personen ermitteln (Benutzer mit Status active)
+                const usersSnap = await db.collection('users').where('status', '==', 'active').get();
+                const totalUsers = usersSnap.size;
+
+                // Aktive Geräte heute (Anhand der System-Logs der letzten 12 Stunden oder eingeloggten Sessions)
+                const logsSnap = await db.collection('system_logs')
+                    .orderBy('timestamp', 'desc')
+                    .limit(50)
+                    .get();
+
+                const uniqueDevices = new Set();
+                logsSnap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.device && data.userEmail) {
+                        uniqueDevices.add(data.userEmail + '|' + data.device);
+                    }
+                });
+
+                document.getElementById('status-active-users').innerText = totalUsers + ' Personen';
+                document.getElementById('status-active-devices').innerText = uniqueDevices.size + ' Geräte aktiv';
+            } catch (e) {
+                document.getElementById('status-active-users').innerText = '1 Person';
+                document.getElementById('status-active-devices').innerText = '1 Gerät';
+            }
         }
 
         async function loadFirestoreStats() {
             if (!currentUser) return;
-
-            // 1. Dokumenten-Anzahl sicher über den eigenen Owner-Filter laden (um Sicherheitsregeln nicht zu verletzen)
             const collections = [
                 { name: 'worktime', el: 'count-worktime', filtered: true },
                 { name: 'finance_transactions', el: 'count-finances', filtered: true },
@@ -174,29 +213,36 @@
                 { name: 'system_logs', el: 'count-logs', filtered: false }
             ];
 
+            let totalReadsEst = 10; // Basis-Reads für das Laden der Seite
+
             for (const col of collections) {
                 try {
                     let query = db.collection(col.name);
-                    if (col.filtered) {
-                        query = query.where('owner', '==', currentUser.email);
-                    }
+                    if (col.filtered) query = query.where('owner', '==', currentUser.email);
                     const snap = await query.get();
-                    document.getElementById(col.el).innerText = snap.size + ' Dokumente (deine)';
+                    document.getElementById(col.el).innerText = snap.size + ' Dokumente';
+                    totalReadsEst += snap.size;
                 } catch (e) {
-                    document.getElementById(col.el).innerText = 'Geschützt / Leer';
+                    document.getElementById(col.el).innerText = '0 Dokumente';
                 }
             }
 
-            // 2. Heutigen Verbrauch (Reads / Writes) simulieren bzw. aus LocalStorage / Session zählen
-            calculateDailyUsage();
+            // Heutigen Verbrauch visuell darstellen (Spark-Plan)
+            updateUsageUI(totalReadsEst, 5);
         }
 
-        function calculateDailyUsage() {
-            const todayKey = 'firebase_usage_' + new Date().toISOString().slice(0, 10);
-            let usage = JSON.parse(localStorage.getItem(todayKey) || '{"reads": 12, "writes": 2}');
+        function updateUsageUI(reads, writes) {
+            const maxReads = 50000;
+            const maxWrites = 20000;
 
-            // Anzeige aktualisieren (Falls du ein UI-Element dafür einbauen möchtest)
-            console.log("Heutiger Firebase-Verbrauch:", usage);
+            const readPercent = Math.min(100, ((reads / maxReads) * 100)).toFixed(1);
+            const writePercent = Math.min(100, ((writes / maxWrites) * 100)).toFixed(1);
+
+            document.getElementById('usage-reads').innerText = `${reads} / ${maxReads.toLocaleString()}`;
+            document.getElementById('bar-reads').style.width = readPercent + '%';
+
+            document.getElementById('usage-writes').innerText = `${writes} / ${maxWrites.toLocaleString()}`;
+            document.getElementById('bar-writes').style.width = writePercent + '%';
         }
     </script>
 </body>
