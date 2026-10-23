@@ -23,13 +23,17 @@
     </header>
     <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto">
         <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
+            <div class="flex justify-between items-center pb-3 mb-3 border-b border-slate-800">
+                <h2 class="text-sm font-bold text-slate-200">Aktivitäts-Trail</h2>
+                <button onclick="clearLogs()" class="text-xs bg-rose-500/10 text-rose-400 px-3 py-1.5 rounded-xl">Logs bereinigen</button>
+            </div>
             <div class="flex-1 overflow-y-auto">
                 <table class="w-full text-left text-xs font-mono">
                     <thead class="text-slate-400 border-b border-slate-800">
-                        <tr><th class="p-2">Zeit</th><th class="p-2">Aktion</th><th class="p-2">Benutzer</th></tr>
+                        <tr><th class="p-2">Zeit</th><th class="p-2">Kategorie</th><th class="p-2">Benutzer</th><th class="p-2">Aktion</th></tr>
                     </thead>
                     <tbody id="logs-table-body" class="divide-y divide-slate-800/60 text-slate-200 text-[11px]">
-                        <tr><td colspan="3" class="text-center py-4 text-slate-500">Lade Logs...</td></tr>
+                        <tr><td colspan="4" class="text-center py-4 text-slate-500">Lade System-Logs...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -39,16 +43,24 @@
         initAuthGuard(user => {
             if (user) {
                 renderDrawer();
-                db.collection('system_logs').orderBy('timestamp', 'desc').limit(50).onSnapshot(s => {
+                db.collection('system_logs').orderBy('timestamp', 'desc').limit(100).onSnapshot(s => {
                     const tbody = document.getElementById('logs-table-body');
-                    tbody.innerHTML = s.empty ? '<tr><td colspan="3" class="text-center py-4 text-slate-500">Keine Logs.</td></tr>' : '';
+                    tbody.innerHTML = s.empty ? '<tr><td colspan="4" class="text-center py-4 text-slate-500">Keine Logs vorhanden.</td></tr>' : '';
                     s.forEach(doc => {
                         const l = doc.data();
-                        tbody.insertAdjacentHTML('beforeend', `<tr><td class="p-2 text-slate-400">${l.timestamp?.toDate ? l.timestamp.toDate().toLocaleTimeString() : '-'}</td><td class="p-2 font-medium">${esc(l.action)}</td><td class="p-2 text-slate-300">${esc(l.userName)}</td></tr>`);
+                        const timeStr = l.timestamp?.toDate ? l.timestamp.toDate().toLocaleString('de-DE') : '-';
+                        tbody.insertAdjacentHTML('beforeend', `<tr><td class="p-2 text-slate-400">${timeStr}</td><td class="p-2">${esc(l.category)}</td><td class="p-2 text-slate-300">${esc(l.userName)}</td><td class="p-2 font-medium">${esc(l.action)}</td></tr>`);
                     });
                 });
             }
         });
+        async function clearLogs() {
+            if (!confirm('Alle Logs löschen?')) return;
+            const snap = await db.collection('system_logs').get();
+            const b = db.batch();
+            snap.docs.forEach(d => b.delete(d.ref));
+            await b.commit();
+        }
     </script>
 </body>
 </html>
