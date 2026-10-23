@@ -23,27 +23,63 @@
     </header>
     <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto">
         <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 shadow-lg">
-            <h2 class="text-base font-bold text-slate-200 mb-4">Mitglieder-Verwaltung</h2>
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+                <h2 class="text-base font-bold text-slate-200">Mitglieder-Verwaltung</h2>
+                <span id="user-count-badge" class="text-xs bg-amber-500/10 text-amber-400 px-3 py-1 rounded-xl">0 Benutzer</span>
+            </div>
             <div id="admin-user-list" class="space-y-3">Lade Benutzer...</div>
         </div>
     </main>
     <script>
+        const ROLES = {
+            admin: { label: 'Admin', perms: { kalender: true, zeit: true, finanzen: true, tresor: true, admin: true } },
+            user:  { label: 'Familie', perms: { kalender: true, zeit: true, finanzen: true, tresor: true, admin: false } },
+            guest: { label: 'Gast', perms: { kalender: true, zeit: false, finanzen: false, tresor: false, admin: false } }
+        };
+        const MODULES = { kalender: 'Kalender', zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Safe' };
+        let allUsers = [];
+
         initAuthGuard(user => {
             if (user) {
                 renderDrawer();
                 db.collection('users').onSnapshot(snapshot => {
-                    const list = document.getElementById('admin-user-list');
-                    list.innerHTML = '';
-                    snapshot.docs.forEach(doc => {
-                        const u = doc.data();
-                        const card = document.createElement('div');
-                        card.className = "bg-slate-950/40 border border-slate-800 p-3 rounded-2xl text-xs flex justify-between items-center";
-                        card.innerHTML = `<div><span class="font-bold text-slate-200">${esc(u.displayName || u.email)}</span><div class="text-[10px] text-slate-500">${esc(u.email)} - Rolle: ${esc(u.role)}</div></div>`;
-                        list.appendChild(card);
-                    });
+                    allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderAdminUserList();
                 });
             }
         });
+
+        function renderAdminUserList() {
+            const listEl = document.getElementById('admin-user-list');
+            if (!listEl) return;
+            document.getElementById('user-count-badge').innerText = `${allUsers.length} Benutzer`;
+            listEl.innerHTML = '';
+            allUsers.forEach(u => {
+                const self = u.id === currentUser.uid;
+                const card = document.createElement('div');
+                card.className = "bg-slate-950/40 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-xs";
+                card.innerHTML = `
+                    <div>
+                        <div class="font-bold text-slate-200 text-sm">${esc(u.displayName || u.email)} ${self ? '(du)' : ''}</div>
+                        <div class="text-slate-500">${esc(u.email)}</div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <select onchange="updateRole('${u.id}', this.value)" class="bg-slate-900 border border-slate-800 text-slate-200 px-2.5 py-1.5 rounded-xl" ${self ? 'disabled' : ''}>
+                            ${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${u.role === k ? 'selected' : ''}>${r.label}</option>`).join('')}
+                        </select>
+                        ${!self ? `<button onclick="deleteUser('${u.id}')" class="px-3 py-1.5 bg-rose-500/20 text-rose-400 rounded-xl">Löschen</button>` : ''}
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+        }
+
+        async function updateRole(id, role) {
+            await db.collection('users').doc(id).update({ role, permissions: ROLES[role].perms });
+        }
+        async function deleteUser(id) {
+            if (confirm('Profil wirklich löschen?')) await db.collection('users').doc(id).delete();
+        }
     </script>
 </body>
 </html>
