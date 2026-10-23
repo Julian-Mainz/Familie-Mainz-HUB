@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin & Rechte – J.Mainz Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="/js/firebase-init.js"></script>
+    <script src="/js/drawer.js"></script>
+    <style>body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
+        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
+            <i class="fa-solid fa-bars text-indigo-400"></i> Menü
+        </button>
+        <h1 class="text-sm font-bold text-amber-400"><i class="fa-solid fa-user-shield mr-1.5"></i> Admin & Rechte</h1>
+        <button onclick="handleLogout()" class="bg-slate-900 border border-slate-800 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">Ausloggen</button>
+    </header>
+    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto">
+        <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 shadow-lg">
+            <h2 class="text-base font-bold text-slate-200 mb-4">Mitglieder-Verwaltung</h2>
+            <div id="admin-user-list" class="space-y-3">Lade Benutzer...</div>
+        </div>
+    </main>
+    <script>
+        initAuthGuard(user => {
+            if (user) {
+                renderDrawer();
+                db.collection('users').onSnapshot(snapshot => {
+                    const list = document.getElementById('admin-user-list');
+                    list.innerHTML = '';
+                    snapshot.docs.forEach(doc => {
+                        const u = doc.data();
+                        const card = document.createElement('div');
+                        card.className = "bg-slate-950/40 border border-slate-800 p-3 rounded-2xl text-xs flex justify-between items-center";
+                        card.innerHTML = `<div><span class="font-bold text-slate-200">${esc(u.displayName || u.email)}</span><div class="text-[10px] text-slate-500">${esc(u.email)} - Rolle: ${esc(u.role)}</div></div>`;
+                        list.appendChild(card);
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
