@@ -57,12 +57,20 @@
                     </span>
                     <span id="work-status-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">Inaktiv</span>
                 </div>
+                
                 <div class="text-center py-2">
                     <div id="work-active-timer" class="text-3xl font-mono font-bold text-slate-100 tracking-wider">00:00:00</div>
                     <div id="work-start-hint" class="text-xs text-slate-500 mt-1">Nicht eingestempelt (Pause: 60 Min ab 6 Std.)</div>
                 </div>
+
+                <!-- Eingabefeld für manuelle Startzeit (nur sichtbar, wenn inaktiv) -->
+                <div id="start-time-container" class="space-y-1.5 pt-2">
+                    <label class="block text-[11px] font-medium text-slate-400">Startzeit (Kommen):</label>
+                    <input type="time" id="custom-start-time" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 font-mono text-center">
+                </div>
+
                 <div class="pt-3">
-                    <button id="btn-toggle-work" onclick="toggleWorkSession()" class="w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20">
+                    <button id="btn-toggle-work" onclick="toggleWorkSession()" class="w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20 transition-all">
                         <i class="fa-solid fa-play"></i>
                         <span>Arbeit beginnen</span>
                     </button>
@@ -148,7 +156,7 @@
         </div>
     </main>
 
-    <!-- Modals für Zeiterfassung -->
+    <!-- Modal: Manuelle Zeit erfassen -->
     <div id="modal-work-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -183,6 +191,14 @@
             return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
         }
 
+        // Beim Laden das Startzeit-Feld mit der aktuellen Uhrzeit (HH:MM) füllen
+        window.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            const customStartInput = document.getElementById('custom-start-time');
+            if (customStartInput) customStartInput.value = timeStr;
+        });
+
         initAuthGuard(user => {
             if (!user) return;
             renderDrawer();
@@ -210,17 +226,21 @@
         function updateWorkBtnUI(isActive) {
             const btn = document.getElementById('btn-toggle-work');
             const badge = document.getElementById('work-status-badge');
+            const container = document.getElementById('start-time-container');
             if (!btn || !badge) return;
+
             if (isActive) {
                 badge.innerText = 'Aktiv am Arbeiten';
                 badge.className = 'text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full animate-pulse';
                 btn.className = 'w-full py-3 rounded-2xl font-semibold text-sm bg-rose-600 hover:bg-rose-500 text-white';
                 btn.innerHTML = '<i class="fa-solid fa-stop"></i><span>Arbeit beenden</span>';
+                if (container) container.classList.add('hidden'); // Eingabefeld verstecken, wenn eingestempelt
             } else {
                 badge.innerText = 'Inaktiv';
                 badge.className = 'text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full';
                 btn.className = 'w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white';
                 btn.innerHTML = '<i class="fa-solid fa-play"></i><span>Arbeit beginnen</span>';
+                if (container) container.classList.remove('hidden'); // Eingabefeld wieder anzeigen
             }
         }
 
@@ -258,7 +278,18 @@
                     });
                     await db.collection('active_work').doc(currentUser.uid).delete();
                 } else {
-                    await db.collection('active_work').doc(currentUser.uid).set({ startTime: firebase.firestore.FieldValue.serverTimestamp(), owner: currentUser.email });
+                    // Manuelle Startzeit auslesen oder aktuelle Zeit nehmen
+                    const customTimeVal = document.getElementById('custom-start-time').value;
+                    let startDate = new Date();
+                    if (customTimeVal) {
+                        const [h, m] = customTimeVal.split(':').map(Number);
+                        startDate.setHours(h, m, 0, 0);
+                    }
+
+                    await db.collection('active_work').doc(currentUser.uid).set({ 
+                        startTime: firebase.firestore.Timestamp.fromDate(startDate), 
+                        owner: currentUser.email 
+                    });
                 }
             } catch (err) { alert('Fehler: ' + err.message); } finally { workBusy = false; }
         }
