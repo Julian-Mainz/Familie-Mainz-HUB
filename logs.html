@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System-Logs – J.Mainz Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="/js/firebase-init.js"></script>
+    <script src="/js/drawer.js"></script>
+    <style>body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
+        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
+            <i class="fa-solid fa-bars text-indigo-400"></i> Menü
+        </button>
+        <h1 class="text-sm font-bold text-cyan-400"><i class="fa-solid fa-timeline mr-1.5"></i> System-Logs</h1>
+        <button onclick="handleLogout()" class="bg-slate-900 border border-slate-800 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">Ausloggen</button>
+    </header>
+    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto">
+        <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
+            <div class="flex-1 overflow-y-auto">
+                <table class="w-full text-left text-xs font-mono">
+                    <thead class="text-slate-400 border-b border-slate-800">
+                        <tr><th class="p-2">Zeit</th><th class="p-2">Aktion</th><th class="p-2">Benutzer</th></tr>
+                    </thead>
+                    <tbody id="logs-table-body" class="divide-y divide-slate-800/60 text-slate-200 text-[11px]">
+                        <tr><td colspan="3" class="text-center py-4 text-slate-500">Lade Logs...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <script>
+        initAuthGuard(user => {
+            if (user) {
+                renderDrawer();
+                db.collection('system_logs').orderBy('timestamp', 'desc').limit(50).onSnapshot(s => {
+                    const tbody = document.getElementById('logs-table-body');
+                    tbody.innerHTML = s.empty ? '<tr><td colspan="3" class="text-center py-4 text-slate-500">Keine Logs.</td></tr>' : '';
+                    s.forEach(doc => {
+                        const l = doc.data();
+                        tbody.insertAdjacentHTML('beforeend', `<tr><td class="p-2 text-slate-400">${l.timestamp?.toDate ? l.timestamp.toDate().toLocaleTimeString() : '-'}</td><td class="p-2 font-medium">${esc(l.action)}</td><td class="p-2 text-slate-300">${esc(l.userName)}</td></tr>`);
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
