@@ -4,28 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Passwort-Safe – J.Mainz Dashboard</title>
+
+    <meta name="theme-color" content="#080c14">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
     <script src="/js/firebase-init.js"></script>
     <script src="/js/drawer.js"></script>
+
     <style>
-        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
         .border-panel { border-color: #1e293b; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
 <body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+
     <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
-            <i class="fa-solid fa-bars text-indigo-400"></i> Menü
+        <div class="flex items-center gap-2">
+            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
+                <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
+                <span class="hidden sm:inline">Menü</span>
+            </button>
+        </div>
+
+        <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide text-center truncate px-2">
+            <i class="fa-solid fa-shield-halved text-amber-400 mr-1.5"></i> Passwort- & Dokumenten-Safe
+        </h1>
+
+        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span class="hidden sm:inline">Ausloggen</span>
         </button>
-        <h1 class="text-sm font-bold text-slate-100"><i class="fa-solid fa-shield-halved text-amber-400 mr-1.5"></i> Passwort- & Dokumenten-Safe</h1>
-        <button onclick="handleLogout()" class="bg-slate-900 border border-slate-800 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">Ausloggen</button>
     </header>
 
-    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto">
+    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
         <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
             <div id="vault-locked-view" class="flex-1 flex flex-col items-center justify-center p-6 text-center my-auto">
                 <div class="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl mb-4 shadow-xl">
@@ -35,7 +53,9 @@
                 <p class="text-xs text-slate-400 max-w-sm mt-1 mb-6">Deine Daten sind durch ein Master-Passwort per AES-256 direkt im Browser verschlüsselt.</p>
                 <form onsubmit="unlockVault(event)" class="w-full max-w-xs space-y-3">
                     <input type="password" id="vault-master-pass" required placeholder="Master-Passwort eingeben" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-center text-sm text-slate-100 focus:outline-none focus:border-amber-500 tracking-widest">
-                    <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-2xl text-xs transition-all">Safe entsperren 🔓</button>
+                    <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-2xl text-xs transition-all shadow-lg shadow-amber-600/20">
+                        Safe entsperren 🔓
+                    </button>
                 </form>
             </div>
 
@@ -47,15 +67,17 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="openAddVaultItemModal()" class="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5">
-                            <i class="fa-solid fa-plus"></i> <span>Eintrag hinzufügen</span>
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Eintrag hinzufügen</span>
                         </button>
                         <button onclick="lockVault()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5">
-                            <i class="fa-solid fa-lock"></i> <span>Sperren</span>
+                            <i class="fa-solid fa-lock"></i>
+                            <span>Sperren</span>
                         </button>
                     </div>
                 </div>
                 <div class="flex-1 overflow-y-auto space-y-2.5 pr-1" id="vault-items-list">
-                    <div class="text-xs text-slate-500 text-center py-6">Keine Passwörter hinterlegt.</div>
+                    <div class="text-xs text-slate-500 text-center py-6">Keine Passwörter im Tresor hinterlegt.</div>
                 </div>
             </div>
         </div>
@@ -71,15 +93,15 @@
             <form onsubmit="saveVaultItem(event)" class="space-y-3.5">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Titel / Dienst</label>
-                    <input type="text" id="vault-title" required placeholder="z. B. Netflix, WLAN" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                    <input type="text" id="vault-title" required placeholder="z. B. WLAN, Netflix" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Benutzername (optional)</label>
-                    <input type="text" id="vault-username" placeholder="z. B. mail@domain.de" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                    <input type="text" id="vault-username" placeholder="z. B. benutzername@email.de" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Passwort / PIN</label>
-                    <textarea id="vault-secret" required rows="3" placeholder="Geheimes Passwort..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-mono"></textarea>
+                    <textarea id="vault-secret" required rows="3" placeholder="Wird verschlüsselt gespeichert..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-mono"></textarea>
                 </div>
                 <div class="flex justify-end space-x-3 pt-3">
                     <button type="button" onclick="closeModal('modal-vault-add')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
@@ -90,8 +112,8 @@
     </div>
 
     <script>
-        let vaultMasterKey = null;
         let rawVaultItems = [];
+        let vaultMasterKey = null;
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
@@ -184,7 +206,7 @@
             const list = document.getElementById('vault-items-list');
             if (!list || !vaultMasterKey) return;
             if (!rawVaultItems.length) {
-                list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Passwörter hinterlegt.</div>';
+                list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Einträge hinterlegt.</div>';
                 return;
             }
             list.innerHTML = '';
@@ -205,7 +227,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <div data-val class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-[11px] text-amber-300 truncate max-w-[200px]">${secret === null ? 'Falsches Passwort' : '••••••••'}</div>
+                        <div data-val class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-[11px] text-amber-300 truncate max-w-[200px]">${secret === null ? 'Falsches Master-Passwort' : '••••••••'}</div>
                         <button data-show class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''}><i class="fa-regular fa-eye"></i></button>
                         <button data-copy class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''}><i class="fa-regular fa-copy"></i></button>
                         <button data-del class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl"><i class="fa-solid fa-trash-can"></i></button>
@@ -219,7 +241,7 @@
                 });
                 card.querySelector('[data-copy]').addEventListener('click', async () => {
                     await navigator.clipboard.writeText(secret);
-                    alert('In die Zwischenablage kopiert!');
+                    alert('Kopiert!');
                 });
                 card.querySelector('[data-del]').addEventListener('click', async () => {
                     if (confirm('Eintrag wirklich löschen?')) await db.collection('vault').doc(item.id).delete();
