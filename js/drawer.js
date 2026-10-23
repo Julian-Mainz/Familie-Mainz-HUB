@@ -1,4 +1,4 @@
-// js/drawer.js - Einheitliche Menü-Komponente mit direkten Dateinamen
+// js/drawer.js - Vollständiges Menü mit allen Modulen
 function renderDrawer() {
     if (document.getElementById('side-drawer')) return;
 
@@ -18,18 +18,30 @@ function renderDrawer() {
                 </button>
             </div>
 
-            <nav class="space-y-2">
-                <a href="/" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+            <nav class="space-y-1.5">
+                <a href="/" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
                     <i class="fa-solid fa-border-all w-5 text-indigo-400"></i>
                     <span>Start Menü</span>
                 </a>
-                <a href="/zeiterfassung.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+                <a href="/zeiterfassung.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
                     <i class="fa-solid fa-business-time w-5 text-emerald-400"></i>
                     <span class="text-emerald-300">Zeiterfassung</span>
                 </a>
-                <a href="/finanzen.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+                <a href="/finanzen.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
                     <i class="fa-solid fa-coins w-5 text-yellow-400"></i>
                     <span class="text-yellow-300">Finanzen & Sparkasse</span>
+                </a>
+                <a href="/passwort.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-shield-halved w-5 text-amber-400"></i>
+                    <span class="text-amber-300">Passwort-Safe</span>
+                </a>
+                <a href="/admin.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-user-shield w-5 text-indigo-400"></i>
+                    <span class="text-indigo-300">Admin & Rechte</span>
+                </a>
+                <a href="/logs.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-timeline w-5 text-cyan-400"></i>
+                    <span class="text-cyan-300">System-Logs</span>
                 </a>
             </nav>
         </div>
