@@ -91,6 +91,7 @@ function initAuthGuard(onReadyCallback, opts = {}) {
             const doc = await ref.get();
 
             if (!doc.exists) {
+                if (window.signingUp) return;   // Registrierung schreibt das Profil gerade
                 return denyAccess('Für dieses Konto existiert kein Profil. Bitte wende dich an einen Admin.');
             }
             const data = doc.data();
@@ -109,7 +110,8 @@ function initAuthGuard(onReadyCallback, opts = {}) {
                 role: data.role || 'user',
                 status,
                 permissions: data.permissions || {},
-                userPrefs: data.userPrefs || {}
+                userPrefs: data.userPrefs || {},
+                notificationsEnabled: !!data.notificationsEnabled
             };
 
             // Seitenrechte prüfen
