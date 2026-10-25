@@ -1,8 +1,37 @@
-// js/drawer.js - Bereinigtes Menü ohne den alten System-Status unten
+// js/drawer.js - Menü, blendet Punkte ohne Berechtigung aus und markiert die aktuelle Seite
+const DRAWER_LINKS = [
+    { href: '/',                    label: 'Start Menü',            icon: 'fa-border-all',     icon_c: 'text-indigo-400',  text_c: 'text-slate-200' },
+    { href: '/zeiterfassung.html',  label: 'Zeiterfassung',         icon: 'fa-business-time',  icon_c: 'text-emerald-400', text_c: 'text-emerald-300', perm: 'zeit' },
+    { href: '/finanzen.html',       label: 'Finanzen & Sparkasse',  icon: 'fa-coins',          icon_c: 'text-yellow-400',  text_c: 'text-yellow-300',  perm: 'finanzen' },
+    { href: '/passwort.html',       label: 'Passwort-Safe',         icon: 'fa-shield-halved',  icon_c: 'text-amber-400',   text_c: 'text-amber-300',   perm: 'tresor' },
+    { href: '/admin.html',          label: 'Admin & Rechte',        icon: 'fa-user-shield',    icon_c: 'text-indigo-400',  text_c: 'text-indigo-300',  admin: true },
+    { href: '/logs.html',           label: 'System-Logs',           icon: 'fa-timeline',       icon_c: 'text-cyan-400',    text_c: 'text-cyan-300',    admin: true },
+    { href: '/status.html',         label: 'System-Status & Limits', icon: 'fa-server',        icon_c: 'text-indigo-400',  text_c: 'text-indigo-300',  admin: true }
+];
+
+function normPath(p) {
+    return p.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1') || '/';
+}
+
 function renderDrawer() {
     if (document.getElementById('side-drawer')) return;
 
-    const drawerHtml = `
+    const here = normPath(window.location.pathname);
+    const user = (typeof currentUser !== 'undefined') ? currentUser : null;
+
+    const links = DRAWER_LINKS
+        .filter(l => !l.perm || (typeof can === 'function' && can(user, l.perm)))
+        .filter(l => !l.admin || (typeof isAdmin === 'function' && isAdmin(user)))
+        .map(l => {
+            const active = normPath(l.href) === here;
+            return `
+            <a href="${l.href}" class="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all hover:bg-slate-800/80 ${active ? 'bg-indigo-600/20 border border-indigo-500/30' : ''}">
+                <i class="fa-solid ${l.icon} w-5 ${l.icon_c}"></i>
+                <span class="${l.text_c}">${l.label}</span>
+            </a>`;
+        }).join('');
+
+    const html = `
     <div id="menu-backdrop" onclick="toggleSideMenu(false)" class="fixed inset-0 bg-slate-950/70 z-50 opacity-0 pointer-events-none transition-opacity duration-200"></div>
     <aside id="side-drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 z-50 p-6 flex flex-col justify-between shadow-2xl -translate-x-full transition-transform duration-200 ease-out">
         <div>
@@ -17,46 +46,15 @@ function renderDrawer() {
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-
-            <nav class="space-y-1.5">
-                <a href="/" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
-                    <i class="fa-solid fa-border-all w-5 text-indigo-400"></i>
-                    <span>Start Menü</span>
-                </a>
-                <a href="/zeiterfassung.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
-                    <i class="fa-solid fa-business-time w-5 text-emerald-400"></i>
-                    <span class="text-emerald-300">Zeiterfassung</span>
-                </a>
-                <a href="/finanzen.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
-                    <i class="fa-solid fa-coins w-5 text-yellow-400"></i>
-                    <span class="text-yellow-300">Finanzen & Sparkasse</span>
-                </a>
-                <a href="/passwort.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
-                    <i class="fa-solid fa-shield-halved w-5 text-amber-400"></i>
-                    <span class="text-amber-300">Passwort-Safe</span>
-                </a>
-                <a href="/admin.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
-                    <i class="fa-solid fa-user-shield w-5 text-indigo-400"></i>
-                    <span class="text-indigo-300">Admin & Rechte</span>
-                </a>
-                <a href="/logs.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all">
-                    <i class="fa-solid fa-timeline w-5 text-cyan-400"></i>
-                    <span class="text-cyan-300">System-Logs</span>
-                </a>
-                <a href="/status.html" class="flex items-center gap-3 text-slate-300 hover:bg-slate-800/80 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all border border-indigo-500/20 bg-indigo-600/10">
-                    <i class="fa-solid fa-server w-5 text-indigo-400"></i>
-                    <span class="text-indigo-300 font-semibold">System-Status & Limits</span>
-                </a>
-            </nav>
+            <nav class="space-y-1.5">${links}</nav>
         </div>
-
         <div class="pt-4 border-t border-slate-800/80">
-            <div class="text-[11px] text-slate-500 text-center font-medium">J.Mainz Dashboard &bull; v3.6</div>
+            <div class="text-[11px] text-slate-500 text-center font-medium">J.Mainz Dashboard &bull; v4.0</div>
         </div>
-    </aside>
-    `;
+    </aside>`;
 
-    document.body.insertAdjacentHTML('afterbegin', drawerHtml);
+    document.body.insertAdjacentHTML('afterbegin', html);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleSideMenu(false); });
 }
 
 function toggleSideMenu(open) {
