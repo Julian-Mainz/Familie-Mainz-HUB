@@ -2,177 +2,120 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zeiterfassung – J.Mainz Dashboard</title>
-
     <meta name="theme-color" content="#080c14">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-    <!-- Zentrale Basis-Skripte -->
     <script src="/js/firebase-init.js"></script>
     <script src="/js/drawer.js"></script>
-
     <style>
         body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .border-panel { border-color: #1e293b; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
+    <style type="text/tailwindcss">
+        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg; }
+        .inp  { @apply w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500; }
+        .lbl  { @apply block text-xs text-slate-400 mb-1; }
+        .btn  { @apply w-full py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-colors; }
+    </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
 
-    <!-- Header -->
     <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <div class="flex items-center gap-2">
-            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
-                <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
-                <span class="hidden sm:inline">Menü</span>
-            </button>
-        </div>
-
-        <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide text-center truncate px-2">
-            <i class="fa-solid fa-business-time text-emerald-400 mr-1.5"></i> Zeiterfassung
-        </h1>
-
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span class="hidden sm:inline">Ausloggen</span>
+        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
+            <i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span>
+        </button>
+        <h1 class="text-sm sm:text-base md:text-xl font-bold tracking-wide truncate px-2"><i class="fa-solid fa-business-time text-emerald-400 mr-1.5"></i>Zeiterfassung</h1>
+        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span>
         </button>
     </header>
 
-    <!-- Hauptbereich -->
     <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            
             <!-- Stempeluhr -->
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
+            <div class="card p-5 flex flex-col justify-between">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                    <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-stopwatch text-emerald-400"></i> Digitale Stempeluhr
-                    </span>
+                    <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-stopwatch text-emerald-400 mr-2"></i>Digitale Stempeluhr</span>
                     <span id="work-status-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">Inaktiv</span>
                 </div>
-                
                 <div class="text-center py-2">
-                    <div id="work-active-timer" class="text-3xl font-mono font-bold text-slate-100 tracking-wider">00:00:00</div>
+                    <div id="work-active-timer" class="text-3xl font-mono font-bold tracking-wider">00:00:00</div>
                     <div id="work-start-hint" class="text-xs text-slate-500 mt-1">Nicht eingestempelt (Pause: 60 Min ab 6 Std.)</div>
                 </div>
-
-                <!-- Eingabefeld für manuelle Startzeit (nur sichtbar, wenn inaktiv) -->
-                <div id="start-time-container" class="space-y-1.5 pt-2">
-                    <label class="block text-[11px] font-medium text-slate-400">Startzeit (Kommen):</label>
-                    <input type="time" id="custom-start-time" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 font-mono text-center">
+                <div id="start-time-container" class="pt-2">
+                    <label class="lbl">Startzeit (Kommen)</label>
+                    <input type="time" id="custom-start-time" class="inp text-center font-mono">
                 </div>
-
-                <div class="pt-3">
-                    <button id="btn-toggle-work" onclick="toggleWorkSession()" class="w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20 transition-all">
-                        <i class="fa-solid fa-play"></i>
-                        <span>Arbeit beginnen</span>
-                    </button>
-                </div>
+                <button id="btn-toggle-work" onclick="toggleWorkSession()" class="mt-3 w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white"></button>
             </div>
 
-            <!-- Monatsstatistik -->
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
+            <!-- Statistik -->
+            <div class="card p-5 flex flex-col justify-between">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                    <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-pie text-indigo-400"></i> Monatsstatistik
-                    </span>
-                    <select id="work-filter-month" onchange="renderWorkTimeTable(false)" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-indigo-500 font-medium">
-                        <option value="">Lade Monate...</option>
-                    </select>
+                    <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-chart-pie text-indigo-400 mr-2"></i>Monatsstatistik</span>
+                    <select id="work-filter-month" onchange="renderWorkTimeTable()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none"></select>
                 </div>
                 <div class="grid grid-cols-2 gap-2 text-center my-auto py-2">
-                    <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl">
-                        <span class="text-[11px] text-slate-400 block">Gesamtzeit</span>
-                        <span id="stat-total-hours" class="text-xl font-bold text-indigo-300">0.0 Std</span>
-                    </div>
-                    <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl">
-                        <span class="text-[11px] text-slate-400 block">Arbeitstage</span>
-                        <span id="stat-total-days" class="text-xl font-bold text-slate-100">0</span>
-                    </div>
+                    <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl"><span class="text-[11px] text-slate-400 block">Gesamtzeit</span><span id="stat-total-hours" class="text-xl font-bold text-indigo-300">0.0 Std</span></div>
+                    <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl"><span class="text-[11px] text-slate-400 block">Arbeitstage</span><span id="stat-total-days" class="text-xl font-bold">0</span></div>
                 </div>
-                <div class="text-[11px] text-slate-500 text-center pt-2">
-                    Durchschnitt: <span id="stat-avg-hours" class="text-slate-300 font-medium">0.0 Std / Tag</span>
-                </div>
+                <div class="text-[11px] text-slate-500 text-center pt-2">Durchschnitt: <span id="stat-avg-hours" class="text-slate-300 font-medium">0.0 Std / Tag</span></div>
             </div>
 
             <!-- Export -->
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-                <div class="border-b border-slate-800 pb-2 mb-2">
-                    <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-file-invoice text-amber-400"></i> Stundenzettel-Export
-                    </span>
-                </div>
+            <div class="card p-5 flex flex-col justify-between">
+                <div class="border-b border-slate-800 pb-2 mb-2"><span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-file-invoice text-amber-400 mr-2"></i>Stundenzettel-Export</span></div>
                 <p class="text-xs text-slate-400 mb-2">Monatlicher Nachweis zur Vorlage beim Arbeitgeber.</p>
                 <div class="space-y-2">
-                    <button onclick="exportWorkCSV()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-colors">
-                        <i class="fa-solid fa-file-csv text-emerald-400"></i>
-                        <span>Excel-Stundenzettel (CSV)</span>
-                    </button>
-                    <button onclick="printWorkTimesheet()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow transition-all">
-                        <i class="fa-solid fa-print"></i>
-                        <span>Stundenzettel drucken / als PDF</span>
-                    </button>
-                    <button onclick="openManualWorkModal()" class="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-colors">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Zeit manuell erfassen</span>
-                    </button>
+                    <button onclick="exportWorkCSV()" class="btn bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700"><i class="fa-solid fa-file-csv text-emerald-400"></i>Excel-Stundenzettel (CSV)</button>
+                    <button onclick="printWorkTimesheet()" class="btn bg-indigo-600 hover:bg-indigo-500 text-white"><i class="fa-solid fa-print"></i>Stundenzettel drucken / als PDF</button>
+                    <button onclick="openWorkModal()" class="btn bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-300 border border-indigo-500/30"><i class="fa-solid fa-plus"></i>Zeit manuell erfassen</button>
                 </div>
             </div>
         </div>
 
         <!-- Tabelle -->
-        <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
+        <div class="card p-4 md:p-6 flex-1 flex flex-col overflow-hidden">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-                    <i class="fa-solid fa-list-check text-slate-400"></i> Erfasste Arbeitszeiten
-                </h3>
+                <h3 class="text-sm font-bold text-slate-200"><i class="fa-solid fa-list-check text-slate-400 mr-2"></i>Erfasste Arbeitszeiten</h3>
                 <span id="work-table-count" class="text-xs text-slate-500">0 Einträge</span>
             </div>
-            <div class="flex-1 overflow-x-auto overflow-y-auto">
+            <div class="flex-1 overflow-auto">
                 <table class="w-full text-left text-xs">
-                    <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800">
-                        <tr>
-                            <th class="p-2.5">Datum</th>
-                            <th class="p-2.5">Beginn</th>
-                            <th class="p-2.5">Ende</th>
-                            <th class="p-2.5">Pause</th>
-                            <th class="p-2.5">Netto-Dauer</th>
-                            <th class="p-2.5">Tätigkeit / Notiz</th>
-                            <th class="p-2.5 text-right">Aktionen</th>
-                        </tr>
-                    </thead>
-                    <tbody id="worktime-table-body" class="divide-y divide-slate-800/60 text-slate-200">
-                        <tr><td colspan="7" class="text-center py-6 text-slate-500">Lade Arbeitszeiten...</td></tr>
-                    </tbody>
+                    <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800"><tr>
+                        <th class="p-2.5">Datum</th><th class="p-2.5">Beginn</th><th class="p-2.5">Ende</th><th class="p-2.5">Pause</th>
+                        <th class="p-2.5">Netto-Dauer</th><th class="p-2.5">Tätigkeit / Notiz</th><th class="p-2.5 text-right">Aktionen</th>
+                    </tr></thead>
+                    <tbody id="worktime-table-body" class="divide-y divide-slate-800/60 text-slate-200"></tbody>
                 </table>
             </div>
         </div>
     </main>
 
-    <!-- Modal: Manuelle Zeit erfassen -->
-    <div id="modal-work-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <!-- Modal: erfassen / bearbeiten -->
+    <div id="modal-work" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-slate-100">Arbeitszeit erfassen</h3>
-                <button onclick="closeModal('modal-work-manual')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+                <h3 id="work-modal-title" class="text-base font-bold text-slate-100">Arbeitszeit erfassen</h3>
+                <button onclick="closeModal('modal-work')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form onsubmit="saveManualWorkTime(event)" class="space-y-3.5">
-                <div><label class="block text-xs text-slate-400 mb-1">Datum</label><input type="date" id="man-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none"></div>
+            <form onsubmit="saveWorkTime(event)" class="space-y-3.5">
+                <input type="hidden" id="work-id">
+                <div><label class="lbl">Datum</label><input type="date" id="work-date" required class="inp"></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-xs text-slate-400 mb-1">Startzeit</label><input type="time" id="man-start" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none"></div>
-                    <div><label class="block text-xs text-slate-400 mb-1">Endzeit</label><input type="time" id="man-end" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none"></div>
+                    <div><label class="lbl">Startzeit</label><input type="time" id="work-start" required class="inp"></div>
+                    <div><label class="lbl">Endzeit</label><input type="time" id="work-end" required class="inp"></div>
                 </div>
-                <div><label class="block text-xs text-slate-400 mb-1">Pause (Minuten)</label><input type="number" id="man-pause" min="0" value="60" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none"></div>
-                <div><label class="block text-xs text-slate-400 mb-1">Tätigkeit</label><input type="text" id="man-note" placeholder="Reguläre Arbeitszeit" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none"></div>
-                <div class="flex justify-end space-x-3 pt-3">
-                    <button type="button" onclick="closeModal('modal-work-manual')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
+                <div><label class="lbl">Pause (Minuten)</label><input type="number" id="work-pause" min="0" class="inp"></div>
+                <div><label class="lbl">Tätigkeit / Beschreibung</label><input type="text" id="work-note" class="inp"></div>
+                <div class="flex justify-end gap-3 pt-3">
+                    <button type="button" onclick="closeModal('modal-work')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
                     <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-emerald-600 text-white font-medium">Speichern</button>
                 </div>
             </form>
@@ -180,186 +123,233 @@
     </div>
 
     <script>
-        let workEntries = [], activeWorkSession = null, workTimerInterval = null, workBusy = false;
+        const $ = id => document.getElementById(id);
+        const openModal = id => $(id).classList.remove('hidden');
+        const closeModal = id => $(id).classList.add('hidden');
+        const run = async fn => { try { await fn(); } catch (e) { alert('Fehler: ' + e.message); } };
+        const TS = () => firebase.firestore.FieldValue.serverTimestamp();
+        const fmtT = d => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        const monthLabel = ym => { const [y, m] = ym.split('-'); return new Date(+y, +m - 1, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' }); };
+        const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+        const netOf = (start, end, pause) => { let d = toMin(end) - toMin(start); if (d < 0) d += 1440; return Math.max(0, d - pause); };
+        const pauseOf = e => Number(e.pauseMinutes) || 0;
+
+        let workEntries = [], activeWorkSession = null, timerId = null, busy = false, started = false;
         let todayStr = localDate().slice(0, 7);
-
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-        function formatMonthLabel(ymStr) {
-            const parts = ymStr.split('-');
-            if (parts.length < 2) return ymStr;
-            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
-        }
-
-        // Beim Laden das Startzeit-Feld mit der aktuellen Uhrzeit (HH:MM) füllen
-        window.addEventListener('DOMContentLoaded', () => {
-            const now = new Date();
-            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-            const customStartInput = document.getElementById('custom-start-time');
-            if (customStartInput) customStartInput.value = timeStr;
-        });
+        setInterval(() => { todayStr = localDate().slice(0, 7); }, 60000);
 
         initAuthGuard(user => {
-            if (!user) return;
+            if (!user || started) return;
+            started = true;
             renderDrawer();
-            initWorkTimeListener();
-        });
-
-        function initWorkTimeListener() {
+            $('custom-start-time').value = fmtT(new Date());
+            updateWorkBtnUI(false);
             db.collection('worktime').where('owner', '==', currentUser.email).onSnapshot(s => {
-                workEntries = s.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                workEntries = s.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderWorkTimeTable();
             });
             db.collection('active_work').doc(currentUser.uid).onSnapshot(doc => {
-                if (doc.exists) {
-                    activeWorkSession = doc.data();
-                    if (activeWorkSession.startTime) startLiveTimer(activeWorkSession.startTime.toDate());
-                    updateWorkBtnUI(true);
-                } else {
-                    activeWorkSession = null;
-                    stopLiveTimer();
-                    updateWorkBtnUI(false);
-                }
+                activeWorkSession = doc.exists ? doc.data() : null;
+                if (activeWorkSession?.startTime) startLiveTimer(activeWorkSession.startTime.toDate());
+                else stopLiveTimer();
+                updateWorkBtnUI(!!activeWorkSession);
             });
-        }
+            $('worktime-table-body').addEventListener('click', e => {
+                const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
+                if (ed) openWorkModal(ed.dataset.edit);
+                if (del) deleteWorkEntry(del.dataset.del);
+            });
+        }, { perm: 'zeit' });
 
-        function updateWorkBtnUI(isActive) {
-            const btn = document.getElementById('btn-toggle-work');
-            const badge = document.getElementById('work-status-badge');
-            const container = document.getElementById('start-time-container');
-            if (!btn || !badge) return;
-
-            if (isActive) {
+        // ---------- Stempeluhr ----------
+        function updateWorkBtnUI(active) {
+            const btn = $('btn-toggle-work'), badge = $('work-status-badge');
+            $('start-time-container').classList.toggle('hidden', active);
+            if (active) {
                 badge.innerText = 'Aktiv am Arbeiten';
                 badge.className = 'text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full animate-pulse';
-                btn.className = 'w-full py-3 rounded-2xl font-semibold text-sm bg-rose-600 hover:bg-rose-500 text-white';
-                btn.innerHTML = '<i class="fa-solid fa-stop"></i><span>Arbeit beenden</span>';
-                if (container) container.classList.add('hidden'); // Eingabefeld verstecken, wenn eingestempelt
+                btn.className = 'mt-3 w-full py-3 rounded-2xl font-semibold text-sm bg-rose-600 hover:bg-rose-500 text-white';
+                btn.innerHTML = '<i class="fa-solid fa-stop mr-2"></i>Arbeit beenden (Ausstempeln)';
             } else {
                 badge.innerText = 'Inaktiv';
                 badge.className = 'text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full';
-                btn.className = 'w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white';
-                btn.innerHTML = '<i class="fa-solid fa-play"></i><span>Arbeit beginnen</span>';
-                if (container) container.classList.remove('hidden'); // Eingabefeld wieder anzeigen
+                btn.className = 'mt-3 w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white';
+                btn.innerHTML = '<i class="fa-solid fa-play mr-2"></i>Arbeit beginnen (Einstempeln)';
+                $('work-start-hint').innerText = 'Nicht eingestempelt (Pause: 60 Min ab 6 Std.)';
+                $('work-active-timer').innerText = '00:00:00';
             }
         }
 
-        function startLiveTimer(startDate) {
+        function startLiveTimer(start) {
             stopLiveTimer();
-            const updateTimer = () => {
-                const diffMs = new Date() - startDate;
-                const h = Math.floor(diffMs / 3600000), m = Math.floor((diffMs % 3600000) / 60000), s = Math.floor((diffMs % 60000) / 1000);
-                document.getElementById('work-active-timer').innerText = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            $('work-start-hint').innerText = `Eingestempelt seit: ${fmtT(start)} Uhr`;
+            const tick = () => {
+                const ms = Math.max(0, new Date() - start);
+                const p = n => String(n).padStart(2, '0');
+                $('work-active-timer').innerText = `${p(Math.floor(ms / 3600000))}:${p(Math.floor(ms % 3600000 / 60000))}:${p(Math.floor(ms % 60000 / 1000))}`;
             };
-            updateTimer();
-            workTimerInterval = setInterval(updateTimer, 1000);
+            tick();
+            timerId = setInterval(tick, 1000);
         }
-
-        function stopLiveTimer() { if (workTimerInterval) clearInterval(workTimerInterval); workTimerInterval = null; }
+        function stopLiveTimer() { clearInterval(timerId); timerId = null; }
 
         async function toggleWorkSession() {
-            if (!currentUser || workBusy) return;
-            workBusy = true;
-            try {
+            if (busy) return;
+            busy = true; $('btn-toggle-work').disabled = true;
+            await run(async () => {
                 if (activeWorkSession) {
                     const start = activeWorkSession.startTime ? activeWorkSession.startTime.toDate() : new Date();
                     const end = new Date();
-                    const totalM = Math.max(0, Math.round((end - start) / 60000));
-                    const pauseMin = totalM >= 360 ? 60 : 0;
+                    const total = Math.max(0, Math.round((end - start) / 60000));
+                    const pause = total >= 360 ? 60 : 0;
                     await db.collection('worktime').add({
-                        date: localDate(start),
-                        start: start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-                        end: end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-                        pauseMinutes: pauseMin,
-                        netMinutes: Math.max(0, totalM - pauseMin),
-                        note: 'Live erfasst',
-                        owner: currentUser.email,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        date: localDate(start), start: fmtT(start), end: fmtT(end),
+                        pauseMinutes: pause, netMinutes: Math.max(0, total - pause),
+                        note: 'Live erfasst', owner: currentUser.email, createdAt: TS()
                     });
                     await db.collection('active_work').doc(currentUser.uid).delete();
+                    logSystemEvent('data', 'Ausgestempelt', { netMinutes: Math.max(0, total - pause) });
                 } else {
-                    // Manuelle Startzeit auslesen oder aktuelle Zeit nehmen
-                    const customTimeVal = document.getElementById('custom-start-time').value;
-                    let startDate = new Date();
-                    if (customTimeVal) {
-                        const [h, m] = customTimeVal.split(':').map(Number);
-                        startDate.setHours(h, m, 0, 0);
-                    }
-
-                    await db.collection('active_work').doc(currentUser.uid).set({ 
-                        startTime: firebase.firestore.Timestamp.fromDate(startDate), 
-                        owner: currentUser.email 
+                    const start = new Date(), val = $('custom-start-time').value;
+                    if (val) { const [h, m] = val.split(':').map(Number); start.setHours(h, m, 0, 0); }
+                    if (start > new Date()) start.setTime(Date.now());      // keine Startzeit in der Zukunft
+                    await db.collection('active_work').doc(currentUser.uid).set({
+                        startTime: firebase.firestore.Timestamp.fromDate(start), owner: currentUser.email
                     });
+                    logSystemEvent('data', 'Eingestempelt', { start: fmtT(start) });
                 }
-            } catch (err) { alert('Fehler: ' + err.message); } finally { workBusy = false; }
+            });
+            busy = false; $('btn-toggle-work').disabled = false;
         }
 
-        function updateWorkMonthDropdown() {
-            const selectEl = document.getElementById('work-filter-month');
-            if (!selectEl) return;
+        // ---------- Tabelle & Statistik ----------
+        function selectedMonth() { return $('work-filter-month').value || todayStr; }
+
+        function updateMonthDropdown() {
+            const sel = $('work-filter-month'), prev = sel.value;
             const months = new Set([todayStr]);
             workEntries.forEach(w => { if (w.date?.length >= 7) months.add(w.date.slice(0, 7)); });
-            const sorted = Array.from(months).sort((a, b) => b.localeCompare(a));
-            selectEl.innerHTML = '';
-            sorted.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m; opt.innerText = formatMonthLabel(m);
-                selectEl.appendChild(opt);
+            const sorted = [...months].sort().reverse();
+            sel.innerHTML = sorted.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
+            sel.value = sorted.includes(prev) ? prev : sorted[0];
+        }
+
+        function renderWorkTimeTable(refreshMonths = true) {
+            if (refreshMonths && !event?.target?.matches?.('#work-filter-month')) updateMonthDropdown();
+            const month = selectedMonth();
+            const list = workEntries.filter(w => w.date?.startsWith(month)).sort((a, b) => b.date.localeCompare(a.date) || (b.start || '').localeCompare(a.start || ''));
+            $('work-table-count').innerText = `${list.length} Einträge`;
+            let total = 0; const days = new Set();
+            $('worktime-table-body').innerHTML = list.length ? list.map(e => {
+                const net = e.netMinutes || 0; total += net; days.add(e.date);
+                return `<tr class="hover:bg-slate-900/40">
+                    <td class="p-2.5 font-medium">${esc(e.date)}</td><td class="p-2.5 font-mono text-slate-400">${esc(e.start || '--:--')}</td>
+                    <td class="p-2.5 font-mono text-slate-400">${esc(e.end || '--:--')}</td><td class="p-2.5 text-slate-400">${pauseOf(e)} Min</td>
+                    <td class="p-2.5 font-semibold text-emerald-400 font-mono">${Math.floor(net / 60)} Std ${net % 60} Min</td>
+                    <td class="p-2.5 text-slate-400 max-w-[150px] truncate">${esc(e.note || '-')}</td>
+                    <td class="p-2.5 text-right whitespace-nowrap">
+                        <button data-edit="${esc(e.id)}" class="text-slate-400 hover:text-indigo-400 p-1.5" title="Bearbeiten"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button data-del="${esc(e.id)}" class="text-slate-500 hover:text-rose-400 p-1.5" title="Löschen"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
+            }).join('') : '<tr><td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten für diesen Monat gefunden.</td></tr>';
+            $('stat-total-hours').innerText = (total / 60).toFixed(1) + ' Std';
+            $('stat-total-days').innerText = days.size;
+            $('stat-avg-hours').innerText = (days.size ? total / 60 / days.size : 0).toFixed(1) + ' Std / Tag';
+        }
+
+        // ---------- Erfassen / Bearbeiten ----------
+        function openWorkModal(id = '') {
+            const e = id ? workEntries.find(w => w.id === id) : null;
+            $('work-modal-title').innerText = e ? 'Arbeitszeit bearbeiten' : 'Arbeitszeit erfassen';
+            $('work-id').value = e ? e.id : '';
+            $('work-date').value = e ? e.date : localDate();
+            $('work-start').value = e ? (e.start || '08:00') : '08:00';
+            $('work-end').value = e ? (e.end || '17:00') : '17:00';
+            $('work-pause').value = e ? pauseOf(e) : 60;
+            $('work-note').value = e ? (e.note || '') : 'Reguläre Arbeitszeit';
+            openModal('modal-work');
+        }
+
+        function saveWorkTime(ev) {
+            ev.preventDefault();
+            const id = $('work-id').value, date = $('work-date').value, start = $('work-start').value, end = $('work-end').value;
+            const pause = Math.max(0, parseInt($('work-pause').value || 0, 10)), note = $('work-note').value.trim();
+            const data = { date, start, end, pauseMinutes: pause, netMinutes: netOf(start, end, pause), note };
+            return run(async () => {
+                if (id) await db.collection('worktime').doc(id).update({ ...data, updatedAt: TS() });
+                else await db.collection('worktime').add({ ...data, owner: currentUser.email, createdAt: TS() });
+                closeModal('modal-work');
+                logSystemEvent('data', id ? 'Arbeitszeit bearbeitet' : 'Arbeitszeit manuell erfasst', { date, netMinutes: data.netMinutes });
             });
         }
 
-        function renderWorkTimeTable(updateDropdown = true) {
-            const selectEl = document.getElementById('work-filter-month');
-            if (!selectEl) return;
-            if (updateDropdown) updateWorkMonthDropdown();
-            const filterMonth = selectEl.value || todayStr;
-            const tbody = document.getElementById('worktime-table-body');
-            tbody.innerHTML = '';
-            const filtered = workEntries.filter(w => w.date && w.date.startsWith(filterMonth));
-            filtered.sort((a, b) => b.date.localeCompare(a.date));
-            document.getElementById('work-table-count').innerText = `${filtered.length} Einträge`;
-
-            let totalMin = 0; const days = new Set();
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-slate-500">Keine Arbeitszeiten gefunden.</td></tr>';
-            } else {
-                filtered.forEach(e => {
-                    totalMin += (e.netMinutes || 0);
-                    days.add(e.date);
-                    const h = Math.floor((e.netMinutes || 0) / 60), m = (e.netMinutes || 0) % 60;
-                    const row = document.createElement('tr');
-                    row.className = "hover:bg-slate-900/40 transition-colors";
-                    row.innerHTML = `
-                        <td class="p-2.5 font-medium">${esc(e.date)}</td>
-                        <td class="p-2.5 font-mono">${esc(e.start)}</td>
-                        <td class="p-2.5 font-mono">${esc(e.end)}</td>
-                        <td class="p-2.5">${e.pauseMinutes || 0} Min</td>
-                        <td class="p-2.5 font-semibold text-emerald-400 font-mono">${h} Std ${m} Min</td>
-                        <td class="p-2.5 text-slate-400">${esc(e.note || '-')}</td>
-                        <td class="p-2.5 text-right"><button data-del class="text-rose-400 p-1"><i class="fa-solid fa-trash-can"></i></button></td>
-                    `;
-                    row.querySelector('[data-del]').addEventListener('click', () => db.collection('worktime').doc(e.id).delete());
-                    tbody.appendChild(row);
-                });
-            }
-            document.getElementById('stat-total-hours').innerText = (totalMin / 60).toFixed(1) + ' Std';
-            document.getElementById('stat-total-days').innerText = days.size;
-            document.getElementById('stat-avg-hours').innerText = (days.size ? (totalMin / 60 / days.size).toFixed(1) : '0.0') + ' Std / Tag';
+        function deleteWorkEntry(id) {
+            if (!confirm('Diesen Arbeitseintrag wirklich löschen?')) return;
+            run(async () => { await db.collection('worktime').doc(id).delete(); logSystemEvent('data', 'Arbeitszeit gelöscht', { id }); });
         }
 
-        function openManualWorkModal() { openModal('modal-work-manual'); }
-        async function saveManualWorkTime(e) {
-            e.preventDefault();
-            const date = document.getElementById('man-date').value;
-            const start = document.getElementById('man-start').value;
-            const end = document.getElementById('man-end').value;
-            const pause = parseInt(document.getElementById('man-pause').value || 0, 10);
-            const note = document.getElementById('man-note').value;
-            const [sH, sM] = start.split(':').map(Number), [eH, eM] = end.split(':').map(Number);
-            let diff = (eH * 60 + eM) - (sH * 60 + sM);
-            if (diff < 0) diff += 1440;
-            await db.collection('worktime').add({ date, start, end, pauseMinutes: pause, netMinutes: Math.max(0, diff - pause), note, owner: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-            closeModal('modal-work-manual');
+        // ---------- Export ----------
+        function monthEntries() {
+            const month = selectedMonth();
+            return { month, list: workEntries.filter(w => w.date?.startsWith(month)).sort((a, b) => a.date.localeCompare(b.date) || (a.start || '').localeCompare(b.start || '')) };
+        }
+        const germanDate = d => d.split('-').reverse().join('.');
+        const csvCell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+
+        function exportWorkCSV() {
+            const { month, list } = monthEntries();
+            if (!list.length) return alert('Keine Einträge für den ausgewählten Monat vorhanden.');
+            const wd = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+            let total = 0;
+            let csv = '\uFEFFARBEITSZEITNACHWEIS / STUNDENZETTEL\r\n';
+            csv += `Mitarbeiter:;${csvCell(currentUser.name)}\r\nAbrechnungsmonat:;${monthLabel(month)}\r\n`;
+            csv += `Erstellt am:;${new Date().toLocaleDateString('de-DE')} um ${new Date().toLocaleTimeString('de-DE')} Uhr\r\n\r\n`;
+            csv += 'Wochentag;Datum;Beginn;Ende;Pause (Min);Netto-Arbeitszeit;Stunden (Dezimal);Tätigkeit / Projekt\r\n';
+            list.forEach(e => {
+                const net = e.netMinutes || 0; total += net;
+                const hhmm = `${String(Math.floor(net / 60)).padStart(2, '0')}:${String(net % 60).padStart(2, '0')}`;
+                csv += `${csvCell(wd[new Date(e.date).getDay()])};${csvCell(germanDate(e.date))};${csvCell(e.start)};${csvCell(e.end)};${pauseOf(e)};${csvCell(hhmm)};${(net / 60).toFixed(2).replace('.', ',')};${csvCell(e.note)}\r\n`;
+            });
+            const days = new Set(list.map(e => e.date)).size;
+            csv += `\r\n;;;;GESAMT;${Math.floor(total / 60)} Std ${total % 60} Min;${(total / 60).toFixed(2).replace('.', ',')}\r\n`;
+            csv += `;;;;ARBEITSTAGE;${days} Tage\r\n;;;;DURCHSCHNITT;${(total / 60 / days).toFixed(2).replace('.', ',')} Std / Tag\r\n\r\n\r\n`;
+            csv += 'Bestätigung der Arbeitszeiten:\r\n\r\n__________________________________;;;;__________________________________\r\nUnterschrift Arbeitnehmer;;;;Unterschrift Arbeitgeber\r\n';
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            a.download = `Stundenzettel_${currentUser.name.replace(/\s+/g, '_')}_${month}.csv`;
+            document.body.appendChild(a); a.click(); a.remove();
+            logSystemEvent('data', 'Stundenzettel als CSV exportiert', { monat: month });
+        }
+
+        function printWorkTimesheet() {
+            const { month, list } = monthEntries();
+            if (!list.length) return alert('Keine Einträge für den ausgewählten Monat vorhanden.');
+            const wd = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+            let total = 0;
+            const rows = list.map(e => {
+                const net = e.netMinutes || 0; total += net;
+                return `<tr><td>${wd[new Date(e.date).getDay()]}</td><td><b>${germanDate(e.date)}</b></td><td>${esc(e.start || '--:--')}</td><td>${esc(e.end || '--:--')}</td>
+                    <td>${pauseOf(e)} Min</td><td><b>${Math.floor(net / 60)}h ${net % 60}m (${(net / 60).toFixed(2)}h)</b></td><td>${esc(e.note || '-')}</td></tr>`;
+            }).join('');
+            const days = new Set(list.map(e => e.date)).size;
+            const w = window.open('', '_blank');
+            if (!w) return alert('Das Druckfenster wurde blockiert. Bitte Pop-ups für diese Seite erlauben.');
+            w.document.write(`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>Stundenzettel_${esc(currentUser.name)}_${esc(month)}</title>
+                <style>body{font-family:system-ui,sans-serif;color:#0f172a;padding:30px}h1{margin:0 0 4px;font-size:24px}
+                .head{display:flex;justify-content:space-between;border-bottom:2px solid #0f172a;padding-bottom:15px;margin-bottom:25px;font-size:13px}
+                table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:30px}th{background:#f1f5f9;padding:10px;text-align:left;border-bottom:2px solid #cbd5e1}
+                td{padding:8px 10px;border-bottom:1px solid #e2e8f0}.sum{display:flex;justify-content:space-around;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:15px;margin-bottom:40px;text-align:center}
+                .sum b{display:block;font-size:20px}.sum span{font-size:11px;text-transform:uppercase;color:#64748b}
+                .sig{display:flex;justify-content:space-between;margin-top:60px;font-size:12px}.sig div{width:220px;border-top:1px solid #0f172a;padding-top:6px;text-align:center}
+                @media print{button{display:none}body{padding:0}}</style></head><body>
+                <button onclick="window.print()" style="background:#2563eb;color:#fff;border:0;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;margin-bottom:15px">Drucken / Als PDF speichern</button>
+                <div class="head"><div><h1>MONATLICHER STUNDENZETTEL</h1><div style="color:#2563eb;font-weight:600">J.Mainz Dashboard &bull; Zeiterfassung</div></div>
+                <div style="text-align:right"><div><b>Mitarbeiter:</b> ${esc(currentUser.name)}</div><div><b>Abrechnungsmonat:</b> ${esc(monthLabel(month))}</div><div><b>Gedruckt am:</b> ${new Date().toLocaleDateString('de-DE')}</div></div></div>
+                <div class="sum"><div><span>Gesamtarbeitszeit</span><b>${Math.floor(total / 60)}h ${total % 60}m (${(total / 60).toFixed(2)} Std)</b></div>
+                <div><span>Arbeitstage</span><b>${days} Tage</b></div><div><span>Schnitt pro Tag</span><b>${(total / 60 / days).toFixed(1)} Std</b></div></div>
+                <table><thead><tr><th>Wochentag</th><th>Datum</th><th>Kommen</th><th>Gehen</th><th>Pause</th><th>Nettozeit</th><th>Tätigkeit / Notiz</th></tr></thead><tbody>${rows}</tbody></table>
+                <div class="sig"><div>Datum, Unterschrift Arbeitnehmer</div><div>Datum, Unterschrift Arbeitgeber</div></div></body></html>`);
+            w.document.close();
+            logSystemEvent('data', 'Stundenzettel gedruckt', { monat: month });
         }
     </script>
 </body>
