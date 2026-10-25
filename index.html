@@ -2,53 +2,61 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Start Menü – J.Mainz Dashboard</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#080c14">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
-
-    <!-- Zentrale Skripte -->
     <script src="/js/firebase-init.js"></script>
     <script src="/js/drawer.js"></script>
-
     <style>
         body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .border-panel { border-color: #1e293b; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
+    <style type="text/tailwindcss">
+        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg; }
+        .inp  { @apply w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500; }
+        .mini { @apply flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500; }
+        .row  { @apply flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-1.5 rounded-xl text-[11px]; }
+        .badge { @apply text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full; }
+    </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
 
-    <!-- LOGIN OVERLAY -->
+    <!-- LOGIN / REGISTRIERUNG -->
     <div id="view-auth" class="fixed inset-0 z-50 bg-[#080c14] flex flex-col justify-between p-6 overflow-y-auto hidden">
-        <header class="text-center pt-8">
-            <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-slate-100">Willkommen im J.Mainz Dashboard</h1>
-        </header>
+        <header class="text-center pt-8"><h1 class="text-2xl md:text-3xl font-bold tracking-wide text-slate-100">Willkommen im J.Mainz Dashboard</h1></header>
         <main class="flex-1 flex items-center justify-center p-4">
             <div class="w-full max-w-md bg-slate-900/90 border border-slate-800/80 rounded-3xl p-8 shadow-2xl">
                 <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs text-center flex items-center justify-center gap-2">
                     <i class="fa-solid fa-circle-exclamation"></i><span id="auth-alert-text"></span>
                 </div>
+
                 <form id="form-login" onsubmit="handleSignIn(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">E-Mail</label>
-                        <input type="email" id="login-email" required placeholder="name@julian-mainz.de" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Passwort</label>
-                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                    </div>
+                    <div><label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail</label>
+                        <input type="email" id="login-email" required placeholder="name@julian-mainz.de" class="inp"></div>
+                    <div><label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort</label>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="inp"></div>
                     <div class="pt-3 space-y-3">
-                        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 text-sm">Anmelden</button>
+                        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl shadow-lg shadow-indigo-600/20 text-sm">Anmelden</button>
+                        <button type="button" onclick="showRegisterView(true)" class="w-full bg-slate-800/60 hover:bg-slate-800 text-slate-300 font-medium py-3 rounded-2xl border border-slate-700/60 text-sm">Registrieren</button>
                     </div>
+                </form>
+
+                <form id="form-register" onsubmit="handleSignUp(event)" class="space-y-4 hidden">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="reg-firstname" required placeholder="Vorname" class="inp">
+                        <input type="text" id="reg-lastname" required placeholder="Nachname" class="inp">
+                    </div>
+                    <input type="email" id="reg-email" required placeholder="E-Mail" class="inp">
+                    <input type="password" id="reg-password" required minlength="6" placeholder="Passwort (min. 6 Zeichen)" class="inp">
+                    <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl text-sm">Benutzer jetzt erstellen</button>
+                    <button type="button" onclick="showRegisterView(false)" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1">&larr; Zurück zum Login</button>
                 </form>
             </div>
         </main>
@@ -56,84 +64,74 @@
     </div>
 
     <!-- DASHBOARD -->
-    <div id="view-dashboard" class="hidden flex-1 flex flex-col h-full min-h-screen md:min-h-0 overflow-hidden">
+    <div id="view-dashboard" class="hidden flex-1 flex flex-col min-h-screen md:min-h-0 overflow-hidden">
         <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-            <div class="flex items-center gap-2">
-                <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
-                    <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
-                    <span>Menü</span>
-                </button>
-            </div>
-            <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide">
-                Hallo, <span id="user-display-name" class="text-indigo-400 font-semibold"></span> 👋
-            </h1>
-            <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span class="hidden sm:inline">Ausloggen</span>
+            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
+                <i class="fa-solid fa-bars text-indigo-400"></i><span>Menü</span>
+            </button>
+            <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide truncate px-2">Hallo, <span id="user-display-name" class="text-indigo-400 font-semibold"></span> 👋</h1>
+            <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span>
             </button>
         </header>
 
         <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col items-center justify-center text-center shadow-lg">
-                    <div id="dash-time" class="text-3xl font-mono font-bold tracking-wider text-slate-100">00:00:00</div>
-                    <div id="dash-date" class="text-xs font-medium text-indigo-400 uppercase tracking-widest mt-2">Lade Datum...</div>
+                <div class="card p-5 flex flex-col items-center justify-center text-center">
+                    <div id="dash-time" class="text-3xl font-mono font-bold tracking-wider">00:00:00</div>
+                    <div id="dash-date" class="text-xs font-medium text-indigo-400 uppercase tracking-widest mt-2"></div>
                 </div>
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
+
+                <div class="card p-5 flex flex-col justify-between">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i> <span id="weather-location">Standort...</span></span>
-                        <button onclick="loadWeather()" class="text-slate-400 hover:text-indigo-400 text-xs"><i class="fa-solid fa-rotate"></i></button>
+                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i><span id="weather-location">Düren</span></span>
+                        <button onclick="loadWeather()" class="text-slate-400 hover:text-indigo-400 text-xs" title="Aktualisieren"><i class="fa-solid fa-rotate"></i></button>
                     </div>
                     <div class="flex items-center gap-3 my-auto">
                         <i id="weather-icon" class="fa-solid fa-cloud-sun text-3xl text-amber-400"></i>
-                        <div>
-                            <div id="weather-temp" class="text-2xl font-bold text-slate-100">--°C</div>
-                            <div id="weather-condition" class="text-[11px] text-slate-400">Lade Wetter...</div>
-                        </div>
+                        <div><div id="weather-temp" class="text-2xl font-bold">--°C</div><div id="weather-condition" class="text-[11px] text-slate-400">Lade Wetter...</div></div>
                     </div>
                     <div class="flex justify-between text-[10px] text-slate-500 pt-2 border-t border-slate-800/60">
                         <span>Wind: <span id="weather-wind" class="text-slate-300">-- km/h</span></span>
-                        <span>Feuchte: <span id="weather-rain" class="text-slate-300">-- %</span></span>
+                        <span>Feuchte: <span id="weather-hum" class="text-slate-300">-- %</span></span>
                     </div>
                 </div>
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
+
+                <div class="card p-4 flex flex-col justify-between">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-note-sticky text-amber-400 mr-1.5"></i> Pinnwand</span>
-                        <span id="note-count" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
+                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-note-sticky text-amber-400 mr-1.5"></i>Pinnwand</span>
+                        <span id="note-count" class="badge">0</span>
                     </div>
-                    <div id="notes-list" class="flex-1 overflow-y-auto max-h-24 space-y-1.5 pr-1 text-[11px]">Keine Notizen vorhanden.</div>
+                    <div id="notes-list" class="flex-1 overflow-y-auto max-h-24 space-y-1.5 pr-1 text-[11px] text-slate-500"></div>
                     <form onsubmit="saveNewNote(event)" class="mt-2 flex gap-1.5">
-                        <input type="text" id="new-note-input" required placeholder="Notiz anpinnen..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none">
+                        <input type="text" id="new-note-input" required placeholder="Notiz anpinnen..." class="mini">
                         <button type="submit" class="bg-amber-500/20 text-amber-300 px-2.5 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-paper-plane"></i></button>
                     </form>
                 </div>
-                <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 flex flex-col justify-between shadow-lg">
+
+                <div class="card p-4 flex flex-col justify-between">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-list-check text-emerald-400 mr-1.5"></i> Aufgaben</span>
-                        <span id="todo-count" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
+                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-list-check text-emerald-400 mr-1.5"></i>Aufgaben &amp; Einkauf</span>
+                        <span id="todo-count" class="badge">0</span>
                     </div>
-                    <div id="todos-list" class="flex-1 overflow-y-auto max-h-24 space-y-1.5 pr-1 text-[11px]">Alles erledigt! 🎉</div>
+                    <div id="todos-list" class="flex-1 overflow-y-auto max-h-24 space-y-1.5 pr-1 text-[11px] text-slate-500"></div>
                     <form onsubmit="saveNewTodo(event)" class="mt-2 flex gap-1.5">
-                        <input type="text" id="new-todo-input" required placeholder="Aufgabe..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none">
+                        <input type="text" id="new-todo-input" required placeholder="Aufgabe..." class="mini">
                         <button type="submit" class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-plus"></i></button>
                     </form>
                 </div>
             </div>
 
-            <!-- Kalender Widget -->
-            <div class="flex-1 bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 flex flex-col shadow-lg">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
-                    <div class="flex items-center space-x-3">
-                        <i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i>
-                        <h2 class="text-base font-bold text-slate-200">Kalender</h2>
-                    </div>
+            <div class="card flex-1 p-4 md:p-6 flex flex-col">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
+                    <div class="flex items-center gap-3"><i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i><h2 class="text-base font-bold text-slate-200">Kalender</h2></div>
                     <div class="flex items-center gap-2">
-                        <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 space-x-2">
-                            <button onclick="changeCalendarMonth(-1)" class="p-1 text-slate-400 hover:text-indigo-400"><i class="fa-solid fa-chevron-left"></i></button>
-                            <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-28 text-center"></span>
-                            <button onclick="changeCalendarMonth(1)" class="p-1 text-slate-400 hover:text-indigo-400"><i class="fa-solid fa-chevron-right"></i></button>
+                        <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 gap-2">
+                            <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-28 sm:w-36 text-center truncate"></span>
+                            <button onclick="changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-400"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
-                        <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow">
+                        <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
                             <i class="fa-solid fa-plus"></i><span>Termin</span>
                         </button>
                     </div>
@@ -150,7 +148,7 @@
         </main>
     </div>
 
-    <!-- Termin Modal -->
+    <!-- Termin-Modal -->
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -158,19 +156,10 @@
                 <button onclick="closeModal('modal-event')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form onsubmit="saveCalendarEvent(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Titel</label>
-                    <input type="text" id="ev-title" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Datum</label>
-                    <input type="date" id="ev-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
-                </div>
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="ev-public" class="rounded bg-slate-800 border-slate-700 text-indigo-600">
-                    <label for="ev-public" class="text-xs text-slate-300">Öffentlich sichtbar</label>
-                </div>
-                <div class="flex justify-end space-x-2 pt-2">
+                <div><label class="block text-xs text-slate-400 mb-1">Titel / Anlass</label><input type="text" id="ev-title" required class="inp"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Datum</label><input type="date" id="ev-date" required class="inp"></div>
+                <label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" id="ev-public" class="rounded bg-slate-800 border-slate-700"> Öffentlich für alle sichtbar</label>
+                <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeModal('modal-event')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
                     <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button>
                 </div>
@@ -179,85 +168,134 @@
     </div>
 
     <script>
-        let calendarEvents = [], familyNotes = [], familyTodos = [];
+        const $ = id => document.getElementById(id);
+        const openModal = id => $(id).classList.remove('hidden');
+        const closeModal = id => $(id).classList.add('hidden');
+        const run = async fn => { try { await fn(); } catch (e) { alert('Fehler: ' + e.message); } };
+        const TS = () => firebase.firestore.FieldValue.serverTimestamp();
+
+        let started = false;
+        let pubEvents = [], myEvents = [], calendarEvents = [], familyNotes = [], familyTodos = [];
         let currentCalendarDate = new Date();
 
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
         initAuthGuard(user => {
-            const authView = document.getElementById('view-auth');
-            const dashView = document.getElementById('view-dashboard');
-            if (user) {
-                authView.classList.add('hidden');
-                dashView.classList.remove('hidden');
-                renderDrawer();
-                initCalendarListener();
-                initNotesListener();
-                initTodosListener();
-                loadWeather();
-            } else {
-                dashView.classList.add('hidden');
-                authView.classList.remove('hidden');
-            }
+            $('view-auth').classList.toggle('hidden', !!user);
+            $('view-dashboard').classList.toggle('hidden', !user);
+            if (!user || started) return;
+            started = true;
+            renderDrawer();
+            initCalendar(); initNotes(); initTodos(); loadWeather();
         });
+
+        // ---------- Login / Registrierung ----------
+        function showAuthAlert(msg) {
+            $('auth-alert-text').innerText = msg;
+            $('auth-alert').classList.remove('hidden');
+        }
+        function showRegisterView(show) {
+            $('auth-alert').classList.add('hidden');
+            $('form-login').classList.toggle('hidden', show);
+            $('form-register').classList.toggle('hidden', !show);
+        }
 
         async function handleSignIn(e) {
             e.preventDefault();
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            try { await auth.signInWithEmailAndPassword(email, password); } 
-            catch (err) { alert('Anmeldung fehlgeschlagen: ' + err.message); }
+            $('auth-alert').classList.add('hidden');
+            const email = $('login-email').value.trim(), password = $('login-password').value;
+            const btn = $('btn-login');
+            btn.disabled = true; btn.innerText = 'Wird angemeldet...';
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                logSystemEvent('auth', 'Erfolgreicher Login', { attemptedEmail: email, name: email.split('@')[0] });
+            } catch (err) {
+                logSystemEvent('auth', 'Fehlgeschlagener Login-Versuch', { attemptedEmail: email, reason: err.code || err.message });
+                showAuthAlert('Anmeldung fehlgeschlagen. Bitte E-Mail und Passwort prüfen.');
+            } finally {
+                btn.disabled = false; btn.innerText = 'Anmelden';
+            }
         }
 
+        async function handleSignUp(e) {
+            e.preventDefault();
+            $('auth-alert').classList.add('hidden');
+            const firstName = $('reg-firstname').value.trim(), lastName = $('reg-lastname').value.trim();
+            const email = $('reg-email').value.trim(), password = $('reg-password').value;
+            const btn = $('btn-register');
+            btn.disabled = true; btn.innerText = 'Erstelle Benutzer...';
+            window.signingUp = true;
+            let cred = null;
+            try {
+                cred = await auth.createUserWithEmailAndPassword(email, password);
+                await db.collection('users').doc(cred.user.uid).set({
+                    firstName, lastName, displayName: `${firstName} ${lastName}`, email,
+                    role: 'user', status: 'pending',
+                    permissions: { kalender: true, zeit: true, finanzen: true, tresor: true, admin: false },
+                    userPrefs: { notifyWork: true, notifyEvents: true },
+                    createdAt: TS()
+                });
+                await auth.signOut();
+                setFlash('Registrierung erfolgreich! Ein Admin muss dein Konto noch freigeben.');
+                showRegisterView(false);
+                showFlash();
+            } catch (err) {
+                if (cred?.user) await cred.user.delete().catch(() => {});
+                showAuthAlert(err.code === 'auth/email-already-in-use' ? 'Diese E-Mail ist bereits registriert.'
+                    : err.code === 'auth/weak-password' ? 'Passwort zu schwach (min. 6 Zeichen).'
+                    : 'Registrierung fehlgeschlagen: ' + err.message);
+            } finally {
+                window.signingUp = false;
+                btn.disabled = false; btn.innerText = 'Benutzer jetzt erstellen';
+            }
+        }
+
+        // ---------- Uhr ----------
         function updateClock() {
             const now = new Date();
-            document.getElementById('dash-time').innerText = now.toLocaleTimeString('de-DE');
-            document.getElementById('dash-date').innerText = now.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+            $('dash-time').innerText = now.toLocaleTimeString('de-DE');
+            $('dash-date').innerText = now.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
         }
         setInterval(updateClock, 1000); updateClock();
 
-        function initCalendarListener() {
-            if (!currentUser) return;
-            db.collection('events').where('isPublic', '==', true).onSnapshot(s => {
-                calendarEvents = s.docs.map(d => ({ id: d.id, ...d.data() }));
+        // ---------- Kalender (öffentliche + eigene Termine) ----------
+        function initCalendar() {
+            const merge = () => {
+                const map = new Map();
+                [...pubEvents, ...myEvents].forEach(ev => map.set(ev.id, ev));
+                calendarEvents = [...map.values()];
                 renderCalendar();
-            }, () => {});
+            };
+            const list = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
+            db.collection('events').where('isPublic', '==', true).onSnapshot(s => { pubEvents = list(s); merge(); }, () => renderCalendar());
+            db.collection('events').where('owner', '==', currentUser.email).onSnapshot(s => { myEvents = list(s); merge(); }, () => renderCalendar());
+            $('calendar-days-grid').addEventListener('click', e => {
+                const add = e.target.closest('[data-add]'), del = e.target.closest('[data-del]');
+                if (add) openEventModal(add.dataset.add);
+                if (del) deleteEvent(del.dataset.del);
+            });
         }
 
         function renderCalendar() {
-            const grid = document.getElementById('calendar-days-grid');
-            const title = document.getElementById('calendar-month-year');
-            if (!grid || !title) return;
-            grid.innerHTML = '';
+            const grid = $('calendar-days-grid');
             const year = currentCalendarDate.getFullYear(), month = currentCalendarDate.getMonth();
-            title.innerText = new Date(year, month, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+            $('calendar-month-year').innerText = new Date(year, month, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
             const first = (new Date(year, month, 1).getDay() + 6) % 7;
             const days = new Date(year, month + 1, 0).getDate();
-            for (let i = 0; i < first; i++) {
-                grid.appendChild(Object.assign(document.createElement('div'), { className: 'h-20 bg-slate-900/20 border border-slate-800/30 rounded-2xl opacity-20' }));
+            const today = localDate();
+            let html = '<div class="h-20 md:h-24 rounded-2xl bg-slate-900/20 border border-slate-800/30 opacity-20"></div>'.repeat(first);
+            for (let d = 1; d <= days; d++) {
+                const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const isToday = ds === today;
+                const evs = calendarEvents.filter(ev => ev.date === ds).map(ev => {
+                    const mine = ev.owner === currentUser.email;
+                    return `<div class="text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between gap-1 ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}" title="${esc(ev.title)}">
+                        <span class="truncate">${esc(ev.title)}</span>${mine ? `<button data-del="${esc(ev.id)}" class="text-slate-400 hover:text-rose-400"><i class="fa-solid fa-xmark text-[9px]"></i></button>` : ''}</div>`;
+                }).join('');
+                html += `<div class="h-20 md:h-24 p-1.5 md:p-2 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col overflow-hidden">
+                    <div class="flex items-center justify-between text-[11px] mb-1"><span class="${isToday ? 'font-bold text-indigo-400' : 'text-slate-400'}">${d}</span>
+                    <button data-add="${ds}" class="text-slate-500 hover:text-indigo-400 text-[10px] p-0.5" title="Termin hinzufügen"><i class="fa-solid fa-plus"></i></button></div>
+                    <div class="space-y-1 overflow-y-auto">${evs}</div></div>`;
             }
-            const today = new Date();
-            for (let day = 1; day <= days; day++) {
-                const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
-                const cell = document.createElement('div');
-                cell.className = `h-20 p-1.5 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col justify-between overflow-hidden`;
-                cell.innerHTML = `
-                    <div class="flex items-center justify-between text-[11px] mb-1">
-                        <span class="${isToday ? 'font-bold text-indigo-400' : 'text-slate-400'}">${day}</span>
-                        <button onclick="openEventModal('${dayDateStr}')" class="text-slate-500 hover:text-indigo-400 text-[10px]"><i class="fa-solid fa-plus"></i></button>
-                    </div>
-                    <div class="space-y-1 overflow-y-auto max-h-12 pr-0.5">
-                        ${calendarEvents.filter(e => e.date === dayDateStr).map(e => `
-                            <div class="text-[9px] px-1 py-0.5 rounded flex items-center justify-between bg-indigo-600/20 text-indigo-300">
-                                <span class="truncate">${esc(e.title)}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                grid.appendChild(cell);
-            }
+            grid.innerHTML = html;
         }
 
         function changeCalendarMonth(d) {
@@ -265,74 +303,98 @@
             currentCalendarDate.setMonth(currentCalendarDate.getMonth() + d);
             renderCalendar();
         }
-
         function openEventModal(d = '') {
-            document.getElementById('ev-title').value = '';
-            document.getElementById('ev-date').value = d || localDate();
+            $('ev-title').value = '';
+            $('ev-date').value = d || localDate();
+            $('ev-public').checked = true;
             openModal('modal-event');
         }
-
-        async function saveCalendarEvent(e) {
+        function saveCalendarEvent(e) {
             e.preventDefault();
-            const title = document.getElementById('ev-title').value.trim();
-            const date = document.getElementById('ev-date').value;
-            const isPublic = document.getElementById('ev-public').checked;
-            await db.collection('events').add({ title, date, isPublic, owner: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-            closeModal('modal-event');
+            const title = $('ev-title').value.trim(), date = $('ev-date').value, isPublic = $('ev-public').checked;
+            return run(async () => {
+                await db.collection('events').add({ title, date, isPublic, owner: currentUser.email, createdAt: TS() });
+                closeModal('modal-event');
+                logSystemEvent('data', 'Termin erstellt', { title, date, isPublic });
+            });
+        }
+        function deleteEvent(id) {
+            if (!confirm('Diesen Termin wirklich löschen?')) return;
+            run(async () => { await db.collection('events').doc(id).delete(); logSystemEvent('data', 'Termin gelöscht', { id }); });
         }
 
-        function initNotesListener() {
+        // ---------- Pinnwand ----------
+        function initNotes() {
             db.collection('notes').orderBy('createdAt', 'desc').onSnapshot(s => {
                 familyNotes = s.docs.map(d => ({ id: d.id, ...d.data() }));
-                document.getElementById('note-count').innerText = familyNotes.length;
-                document.getElementById('notes-list').innerHTML = familyNotes.length ? familyNotes.map(n => `
-                    <div class="flex items-start justify-between bg-slate-950/50 border border-slate-800 p-1.5 rounded-xl">
-                        <span>${esc(n.text)}</span>
-                    </div>
-                `).join('') : 'Keine Notizen.';
+                $('note-count').innerText = familyNotes.length;
+                $('notes-list').innerHTML = familyNotes.length ? familyNotes.map(n => {
+                    const may = n.owner === currentUser.email || isAdmin(currentUser);
+                    return `<div class="row"><div class="flex flex-col min-w-0"><span class="text-slate-200">${esc(n.text)}</span>
+                        <span class="text-[9px] text-slate-500">${esc(n.author || 'Familie')}</span></div>
+                        ${may ? `<button data-del="${esc(n.id)}" class="text-slate-500 hover:text-rose-400"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}</div>`;
+                }).join('') : 'Keine Notizen vorhanden.';
+            });
+            $('notes-list').addEventListener('click', e => {
+                const del = e.target.closest('[data-del]');
+                if (del) run(() => db.collection('notes').doc(del.dataset.del).delete());
+            });
+        }
+        function saveNewNote(e) {
+            e.preventDefault();
+            const input = $('new-note-input'), text = input.value.trim();
+            if (!text) return;
+            return run(async () => {
+                await db.collection('notes').add({ text, author: currentUser.firstName, owner: currentUser.email, createdAt: TS() });
+                input.value = '';
             });
         }
 
-        async function saveNewNote(e) {
-            e.preventDefault();
-            const input = document.getElementById('new-note-input');
-            if (input.value.trim()) {
-                await db.collection('notes').add({ text: input.value.trim(), owner: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-                input.value = '';
-            }
-        }
-
-        function initTodosListener() {
+        // ---------- Aufgaben ----------
+        function initTodos() {
             db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(s => {
                 familyTodos = s.docs.map(d => ({ id: d.id, ...d.data() }));
-                document.getElementById('todo-count').innerText = familyTodos.filter(t => !t.done).length;
-                document.getElementById('todos-list').innerHTML = familyTodos.length ? familyTodos.map(t => `
-                    <div class="flex items-center justify-between bg-slate-950/50 border border-slate-800 p-1.5 rounded-xl">
-                        <span class="${t.done ? 'line-through text-slate-500' : 'text-slate-200'} truncate">${esc(t.text)}</span>
-                    </div>
-                `).join('') : 'Alles erledigt! 🎉';
+                $('todo-count').innerText = familyTodos.filter(t => !t.done).length;
+                $('todos-list').innerHTML = familyTodos.length ? familyTodos.map(t => `
+                    <div class="row"><label class="flex items-center gap-2 cursor-pointer min-w-0">
+                        <input type="checkbox" data-id="${esc(t.id)}" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">
+                        <span class="truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${esc(t.text)}</span></label>
+                        <button data-del="${esc(t.id)}" class="text-slate-500 hover:text-rose-400"><i class="fa-solid fa-xmark text-[10px]"></i></button></div>`).join('')
+                    : 'Alles erledigt! 🎉';
+            });
+            $('todos-list').addEventListener('change', e => {
+                if (e.target.dataset.id) run(() => db.collection('todos').doc(e.target.dataset.id).update({ done: e.target.checked }));
+            });
+            $('todos-list').addEventListener('click', e => {
+                const del = e.target.closest('[data-del]');
+                if (del) run(() => db.collection('todos').doc(del.dataset.del).delete());
+            });
+        }
+        function saveNewTodo(e) {
+            e.preventDefault();
+            const input = $('new-todo-input'), text = input.value.trim();
+            if (!text) return;
+            return run(async () => {
+                await db.collection('todos').add({ text, done: false, author: currentUser.firstName, owner: currentUser.email, createdAt: TS() });
+                input.value = '';
             });
         }
 
-        async function saveNewTodo(e) {
-            e.preventDefault();
-            const input = document.getElementById('new-todo-input');
-            if (input.value.trim()) {
-                await db.collection('todos').add({ text: input.value.trim(), done: false, owner: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-                input.value = '';
-            }
-        }
-
+        // ---------- Wetter (Düren) ----------
+        const WX = [[0, 'Klar', 'fa-sun text-amber-400'], [3, 'Leicht bewölkt', 'fa-cloud-sun text-amber-300'], [48, 'Nebelig', 'fa-smog text-slate-400'],
+            [67, 'Regnerisch', 'fa-cloud-rain text-cyan-400'], [77, 'Schnee', 'fa-snowflake text-indigo-300'], [82, 'Regenschauer', 'fa-cloud-showers-heavy text-cyan-400'],
+            [86, 'Schneeschauer', 'fa-snowflake text-indigo-300'], [99, 'Gewitter', 'fa-cloud-bolt text-amber-500']];
         async function loadWeather() {
             try {
-                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=50.8021&longitude=6.4836&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`);
-                const data = await res.json();
-                document.getElementById('weather-location').innerText = 'Düren';
-                document.getElementById('weather-temp').innerText = `${Math.round(data.current.temperature_2m)}°C`;
-                document.getElementById('weather-wind').innerText = `${Math.round(data.current.wind_speed_10m)} km/h`;
-                document.getElementById('weather-rain').innerText = `${data.current.relative_humidity_2m} %`;
-                document.getElementById('weather-condition').innerText = 'Aktuell';
-            } catch (e) {}
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.8021&longitude=6.4836&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto');
+                const c = (await res.json()).current;
+                const wx = WX.find(w => c.weather_code <= w[0]) || WX[WX.length - 1];
+                $('weather-temp').innerText = `${Math.round(c.temperature_2m)}°C`;
+                $('weather-wind').innerText = `${Math.round(c.wind_speed_10m)} km/h`;
+                $('weather-hum').innerText = `${c.relative_humidity_2m} %`;
+                $('weather-condition').innerText = wx[1];
+                $('weather-icon').className = `fa-solid ${wx[2]} text-3xl`;
+            } catch (e) { $('weather-condition').innerText = 'Wetter offline'; }
         }
     </script>
 </body>
