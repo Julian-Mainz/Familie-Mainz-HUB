@@ -46,7 +46,12 @@ function renderDrawer() {
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-            <nav class="space-y-1.5">${links}</nav>
+            <nav class="space-y-1.5">${links}
+                <button onclick="toggleSideMenu(false); if (typeof openSettingsModal === 'function') openSettingsModal();" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all hover:bg-slate-800/80 border border-slate-800 text-left">
+                    <i class="fa-solid fa-gear w-5 text-slate-400"></i>
+                    <span class="text-slate-200">Einstellungen &amp; Alarm</span>
+                </button>
+            </nav>
         </div>
         <div class="pt-4 border-t border-slate-800/80">
             <div class="text-[11px] text-slate-500 text-center font-medium">J.Mainz Dashboard &bull; v4.0</div>
@@ -54,6 +59,14 @@ function renderDrawer() {
     </aside>`;
 
     document.body.insertAdjacentHTML('afterbegin', html);
+
+    // Einstellungen & Push nachladen, damit auf den Seiten nichts ergänzt werden muss
+    if (!document.getElementById('settings-js')) {
+        const s = document.createElement('script');
+        s.id = 'settings-js';
+        s.src = '/js/settings.js';
+        document.head.appendChild(s);
+    }
     document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleSideMenu(false); });
 }
 
