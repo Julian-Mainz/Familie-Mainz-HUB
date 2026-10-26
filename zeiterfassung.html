@@ -59,7 +59,7 @@
             <div class="card p-5 flex flex-col justify-between">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                     <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-chart-pie text-indigo-400 mr-2"></i>Monatsstatistik</span>
-                    <select id="work-filter-month" onchange="renderWorkTimeTable()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none"></select>
+                    <select id="work-filter-month" onchange="renderWorkTimeTable(false)" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none"></select>
                 </div>
                 <div class="grid grid-cols-2 gap-2 text-center my-auto py-2">
                     <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl"><span class="text-[11px] text-slate-400 block">Gesamtzeit</span><span id="stat-total-hours" class="text-xl font-bold text-indigo-300">0.0 Std</span></div>
@@ -235,7 +235,7 @@
         }
 
         function renderWorkTimeTable(refreshMonths = true) {
-            if (refreshMonths && !event?.target?.matches?.('#work-filter-month')) updateMonthDropdown();
+            if (refreshMonths) updateMonthDropdown();
             const month = selectedMonth();
             const list = workEntries.filter(w => w.date?.startsWith(month)).sort((a, b) => b.date.localeCompare(a.date) || (b.start || '').localeCompare(a.start || ''));
             $('work-table-count').innerText = `${list.length} Einträge`;
