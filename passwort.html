@@ -2,108 +2,81 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Passwort-Safe – J.Mainz Dashboard</title>
-
     <meta name="theme-color" content="#080c14">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
     <script src="/js/firebase-init.js"></script>
     <script src="/js/drawer.js"></script>
-
     <style>
         body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .border-panel { border-color: #1e293b; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
+    <style type="text/tailwindcss">
+        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg; }
+        .inp  { @apply w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500; }
+        .lbl  { @apply block text-xs text-slate-400 mb-1; }
+        .ibtn { @apply p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl; }
+    </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
 
     <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <div class="flex items-center gap-2">
-            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
-                <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
-                <span class="hidden sm:inline">Menü</span>
-            </button>
-        </div>
-
-        <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide text-center truncate px-2">
-            <i class="fa-solid fa-shield-halved text-amber-400 mr-1.5"></i> Passwort- & Dokumenten-Safe
-        </h1>
-
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span class="hidden sm:inline">Ausloggen</span>
+        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
+            <i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span>
+        </button>
+        <h1 class="text-sm sm:text-base md:text-xl font-bold tracking-wide truncate px-2"><i class="fa-solid fa-shield-halved text-amber-400 mr-1.5"></i>Passwort-Safe</h1>
+        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span>
         </button>
     </header>
 
-    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-        <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
-            <div id="vault-locked-view" class="flex-1 flex flex-col items-center justify-center p-6 text-center my-auto">
-                <div class="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl mb-4 shadow-xl">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <h2 class="text-lg md:text-xl font-bold text-slate-100">Passwort- & Dokumenten-Safe</h2>
-                <p class="text-xs text-slate-400 max-w-sm mt-1 mb-6">Deine Daten sind durch ein Master-Passwort per AES-256 direkt im Browser verschlüsselt.</p>
+    <main class="flex-1 w-full flex flex-col overflow-y-auto pr-0 md:pr-1">
+        <div class="card p-4 md:p-6 flex-1 flex flex-col overflow-hidden">
+
+            <!-- gesperrt -->
+            <div id="vault-locked-view" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+                <div class="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl mb-4"><i class="fa-solid fa-shield-halved"></i></div>
+                <h2 class="text-lg md:text-xl font-bold">Passwort-Safe</h2>
+                <p id="vault-hint" class="text-xs text-slate-400 max-w-sm mt-1 mb-6">Lade Safe...</p>
                 <form onsubmit="unlockVault(event)" class="w-full max-w-xs space-y-3">
-                    <input type="password" id="vault-master-pass" required placeholder="Master-Passwort eingeben" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-center text-sm text-slate-100 focus:outline-none focus:border-amber-500 tracking-widest">
-                    <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-2xl text-xs transition-all shadow-lg shadow-amber-600/20">
-                        Safe entsperren 🔓
-                    </button>
+                    <input type="password" id="vault-master-pass" required autocomplete="off" placeholder="Master-Passwort" class="inp text-center tracking-widest py-3 rounded-2xl">
+                    <input type="password" id="vault-master-pass2" autocomplete="off" placeholder="Master-Passwort wiederholen" class="inp text-center tracking-widest py-3 rounded-2xl hidden">
+                    <button type="submit" id="btn-unlock" disabled class="w-full py-3 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-slate-950 font-bold rounded-2xl text-xs">Safe entsperren 🔓</button>
                 </form>
             </div>
 
+            <!-- entsperrt -->
             <div id="vault-unlocked-view" class="hidden flex-1 flex flex-col overflow-hidden">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-                    <div class="flex items-center gap-2.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <h3 class="text-sm font-bold text-slate-100">Tresor entsperrt</h3>
-                    </div>
+                    <div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <h3 class="text-sm font-bold">Tresor entsperrt</h3><span class="text-[10px] text-slate-500 hidden sm:inline">sperrt sich nach 5 Min. Inaktivität</span></div>
                     <div class="flex items-center gap-2">
-                        <button onclick="openAddVaultItemModal()" class="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Eintrag hinzufügen</span>
-                        </button>
-                        <button onclick="lockVault()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5">
-                            <i class="fa-solid fa-lock"></i>
-                            <span>Sperren</span>
-                        </button>
+                        <button onclick="openAddVaultItemModal()" class="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 px-3 py-1.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-plus mr-1.5"></i>Eintrag</button>
+                        <button onclick="lockVault()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-lock mr-1.5"></i>Sperren</button>
                     </div>
                 </div>
-                <div class="flex-1 overflow-y-auto space-y-2.5 pr-1" id="vault-items-list">
-                    <div class="text-xs text-slate-500 text-center py-6">Keine Passwörter im Tresor hinterlegt.</div>
-                </div>
+                <div id="vault-items-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1"></div>
             </div>
         </div>
     </main>
 
-    <!-- Modal: Eintrag hinzufügen -->
     <div id="modal-vault-add" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-slate-100">Passwort sichern</h3>
-                <button onclick="closeModal('modal-vault-add')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
+            <div class="flex justify-between items-center mb-4"><h3 class="text-base font-bold">Passwort sichern</h3>
+                <button onclick="closeModal('modal-vault-add')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
             <form onsubmit="saveVaultItem(event)" class="space-y-3.5">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Titel / Dienst</label>
-                    <input type="text" id="vault-title" required placeholder="z. B. WLAN, Netflix" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Benutzername (optional)</label>
-                    <input type="text" id="vault-username" placeholder="z. B. benutzername@email.de" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Passwort / PIN</label>
-                    <textarea id="vault-secret" required rows="3" placeholder="Wird verschlüsselt gespeichert..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-mono"></textarea>
-                </div>
-                <div class="flex justify-end space-x-3 pt-3">
+                <div><label class="lbl">Titel / Dienst</label><input type="text" id="vault-title" required placeholder="z. B. WLAN, Netflix" class="inp"></div>
+                <div><label class="lbl">Benutzername (optional)</label><input type="text" id="vault-username" autocomplete="off" class="inp"></div>
+                <div><div class="flex justify-between"><label class="lbl">Passwort / PIN</label>
+                    <button type="button" onclick="generatePassword()" class="text-[11px] text-amber-400 hover:text-amber-300"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Generieren</button></div>
+                    <textarea id="vault-secret" required rows="3" class="inp font-mono"></textarea></div>
+                <div class="flex justify-end gap-3 pt-3">
                     <button type="button" onclick="closeModal('modal-vault-add')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
                     <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-amber-600 text-slate-950 hover:bg-amber-500 font-bold">Verschlüsselt sichern</button>
                 </div>
@@ -112,142 +85,200 @@
     </div>
 
     <script>
-        let rawVaultItems = [];
-        let vaultMasterKey = null;
+        const $ = id => document.getElementById(id);
+        const openModal = id => $(id).classList.remove('hidden');
+        const closeModal = id => $(id).classList.add('hidden');
+        const run = async fn => { try { await fn(); } catch (e) { alert('Fehler: ' + e.message); } };
+        const TS = () => firebase.firestore.FieldValue.serverTimestamp();
 
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        // ---------- Kryptografie ----------
+        const ITER = 600000, LEGACY_ITER = 100000, MASK = '••••••••';
+        const enc = new TextEncoder(), dec = new TextDecoder();
+        const b64 = u8 => btoa(String.fromCharCode(...u8));
+        const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+        async function deriveKey(password, salt, iter) {
+            const km = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+            return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: iter, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+        }
+        async function encWith(key, text) {
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(text));
+            return { cipher: b64(new Uint8Array(ct)), iv: b64(iv) };
+        }
+        async function decWith(key, cipher, iv) {
+            return dec.decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(iv) }, key, unb64(cipher)));
+        }
+        async function legacyDecrypt(item, pass) {
+            return decWith(await deriveKey(pass, unb64(item.salt), LEGACY_ITER), item.cipher, item.iv);
+        }
+
+        // ---------- Zustand ----------
+        let vaultKey = null, checkDoc = null, items = [], started = false;
+        let failures = 0, lockoutUntil = 0, lastActivity = Date.now();
+        const secrets = new Map();       // id -> Klartext, nur im Speicher
 
         initAuthGuard(user => {
-            if (!user) return;
+            if (!user || started) return;
+            started = true;
             renderDrawer();
-            db.collection('vault').where('owner', '==', currentUser.email).onSnapshot(snapshot => {
-                rawVaultItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if (vaultMasterKey) renderVaultItems();
-            });
-        });
+            db.collection('vault').where('owner', '==', currentUser.email).onSnapshot(s => {
+                const all = s.docs.map(d => ({ id: d.id, ...d.data() }));
+                checkDoc = all.find(i => i.kind === 'check') || null;
+                items = all.filter(i => !i.kind);
+                updateUnlockMode();
+                if (vaultKey) renderVaultItems();
+            }, err => { $('vault-hint').innerText = 'Safe konnte nicht geladen werden: ' + err.message; });
+            $('vault-items-list').addEventListener('click', onListClick);
+            ['click', 'keydown', 'touchstart'].forEach(ev => document.addEventListener(ev, () => { lastActivity = Date.now(); }, { passive: true }));
+            setInterval(() => { if (vaultKey && Date.now() - lastActivity > 5 * 60 * 1000) lockVault(); }, 10000);
+        }, { perm: 'tresor' });
 
-        async function deriveKey(password, salt) {
-            const enc = new TextEncoder();
-            const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
-            return crypto.subtle.deriveKey(
-                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
-                keyMaterial,
-                { name: 'AES-GCM', length: 256 },
-                false,
-                ['encrypt', 'decrypt']
-            );
+        function updateUnlockMode() {
+            const setup = !checkDoc && items.length === 0;
+            $('vault-master-pass2').classList.toggle('hidden', !setup);
+            $('vault-master-pass2').required = setup;
+            $('btn-unlock').disabled = false;
+            $('btn-unlock').innerText = setup ? 'Safe einrichten' : 'Safe entsperren 🔓';
+            $('vault-hint').innerText = setup
+                ? 'Lege ein Master-Passwort fest (mind. 8 Zeichen). Es wird nirgends gespeichert. Wer es vergisst, verliert den Zugriff auf alle Einträge.'
+                : 'Deine Einträge sind per AES-256 direkt im Browser verschlüsselt. Ohne Master-Passwort sind sie unlesbar.';
         }
 
-        async function encryptSecret(secret, password) {
-            const enc = new TextEncoder();
+        // ---------- Entsperren / Sperren ----------
+        async function createCheck(pass) {
             const salt = crypto.getRandomValues(new Uint8Array(16));
-            const iv = crypto.getRandomValues(new Uint8Array(12));
-            const key = await deriveKey(password, salt);
-            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(secret));
-            return {
-                cipher: btoa(String.fromCharCode(...new Uint8Array(cipher))),
-                salt: btoa(String.fromCharCode(...salt)),
-                iv: btoa(String.fromCharCode(...iv))
-            };
+            const key = await deriveKey(pass, salt, ITER);
+            const { cipher, iv } = await encWith(key, 'vault-ok');
+            const doc = { kind: 'check', v: 2, salt: b64(salt), iter: ITER, cipher, iv, owner: currentUser.email };
+            await db.collection('vault').doc('meta-' + currentUser.uid).set({ ...doc, createdAt: TS() });
+            checkDoc = doc; vaultKey = key;
         }
 
-        async function decryptSecret(cipherB64, saltB64, ivB64, password) {
-            const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
-            const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
-            const cipher = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
-            const key = await deriveKey(password, salt);
-            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
-            return new TextDecoder().decode(decrypted);
+        // Alte Einträge (v1, 100.000 Iterationen, Titel im Klartext) einmalig neu verschlüsseln
+        async function migrateLegacy(pass) {
+            for (const it of items.filter(i => i.v !== 2)) {
+                try {
+                    const secret = await legacyDecrypt(it, pass);
+                    const { cipher, iv } = await encWith(vaultKey, JSON.stringify({ title: it.title || '', username: it.username || '', secret }));
+                    const del = firebase.firestore.FieldValue.delete();
+                    await db.collection('vault').doc(it.id).update({ v: 2, cipher, iv, title: del, username: del, salt: del });
+                } catch (e) { /* bleibt als "nicht lesbar" stehen */ }
+            }
         }
 
         async function unlockVault(e) {
             e.preventDefault();
-            const pass = document.getElementById('vault-master-pass').value;
+            if (Date.now() < lockoutUntil) return alert(`Bitte ${Math.ceil((lockoutUntil - Date.now()) / 1000)} Sekunden warten.`);
+            const pass = $('vault-master-pass').value;
             if (!pass) return;
-            vaultMasterKey = pass;
-            document.getElementById('vault-locked-view').classList.add('hidden');
-            document.getElementById('vault-unlocked-view').classList.remove('hidden');
-            renderVaultItems();
+            const btn = $('btn-unlock'), label = btn.innerText;
+            btn.disabled = true; btn.innerText = 'Prüfe...';
+            const fail = () => { failures++; lockoutUntil = Date.now() + Math.min(30000, 2000 * failures); alert('Falsches Master-Passwort.'); logSystemEvent('auth', 'Tresor: falsches Master-Passwort'); };
+            try {
+                const legacy = items.filter(i => i.v !== 2);
+                if (checkDoc) {
+                    const key = await deriveKey(pass, unb64(checkDoc.salt), checkDoc.iter || ITER);
+                    let ok = false;
+                    try { ok = (await decWith(key, checkDoc.cipher, checkDoc.iv)) === 'vault-ok'; } catch (err) {}
+                    if (!ok) return fail();
+                    vaultKey = key;
+                } else if (legacy.length) {
+                    try { await legacyDecrypt(legacy[0], pass); } catch (err) { return fail(); }
+                    await createCheck(pass);
+                } else {
+                    if (pass.length < 8) return alert('Das Master-Passwort braucht mindestens 8 Zeichen.');
+                    if (pass !== $('vault-master-pass2').value) return alert('Die beiden Passwörter stimmen nicht überein.');
+                    await createCheck(pass);
+                    logSystemEvent('data', 'Tresor eingerichtet');
+                }
+                failures = 0;
+                await migrateLegacy(pass);
+                lastActivity = Date.now();
+                $('vault-locked-view').classList.add('hidden');
+                $('vault-unlocked-view').classList.remove('hidden');
+                await renderVaultItems();
+            } catch (err) {
+                alert('Fehler: ' + err.message);
+            } finally {
+                $('vault-master-pass').value = ''; $('vault-master-pass2').value = '';
+                btn.disabled = false; btn.innerText = label;
+            }
         }
 
         function lockVault() {
-            vaultMasterKey = null;
-            document.getElementById('vault-master-pass').value = '';
-            document.getElementById('vault-unlocked-view').classList.add('hidden');
-            document.getElementById('vault-locked-view').classList.remove('hidden');
+            vaultKey = null; secrets.clear();
+            $('vault-items-list').innerHTML = '';
+            $('vault-unlocked-view').classList.add('hidden');
+            $('vault-locked-view').classList.remove('hidden');
+            updateUnlockMode();
+        }
+
+        // ---------- Einträge ----------
+        async function renderVaultItems() {
+            const list = $('vault-items-list');
+            if (!vaultKey) return;
+            secrets.clear();
+            const rows = [];
+            for (const it of items) {
+                if (it.v === 2) {
+                    try { rows.push({ id: it.id, ...JSON.parse(await decWith(vaultKey, it.cipher, it.iv)) }); }
+                    catch (e) { rows.push({ id: it.id, title: 'Nicht lesbar', username: 'Eintrag konnte nicht entschlüsselt werden', secret: null }); }
+                } else rows.push({ id: it.id, title: it.title || 'Alter Eintrag', username: 'Altes Format. Bitte Safe sperren und neu entsperren.', secret: null });
+            }
+            rows.sort((a, b) => a.title.localeCompare(b.title, 'de'));
+            rows.forEach(r => { if (r.secret !== null) secrets.set(r.id, r.secret); });
+            list.innerHTML = rows.length ? rows.map(r => `
+                <div class="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center"><i class="fa-solid fa-key"></i></div>
+                        <div><span class="font-semibold text-slate-200 text-sm block">${esc(r.title)}</span>${r.username ? `<span class="text-[11px] text-slate-400 block">${esc(r.username)}</span>` : ''}</div>
+                    </div>
+                    <div class="flex items-center gap-2" data-id="${esc(r.id)}">
+                        <div data-val class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-[11px] text-amber-300 truncate max-w-[200px]">${r.secret === null ? '—' : MASK}</div>
+                        <button data-act="show" class="ibtn" ${r.secret === null ? 'disabled' : ''} title="Anzeigen / Maskieren"><i class="fa-regular fa-eye"></i></button>
+                        <button data-act="copy" class="ibtn" ${r.secret === null ? 'disabled' : ''} title="Kopieren"><i class="fa-regular fa-copy"></i></button>
+                        <button data-act="del" class="ibtn hover:bg-rose-500/20 hover:text-rose-400" title="Löschen"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                </div>`).join('') : '<div class="text-xs text-slate-500 text-center py-6">Noch keine Einträge im Tresor.</div>';
+        }
+
+        function onListClick(e) {
+            const btn = e.target.closest('[data-act]');
+            if (!btn) return;
+            const box = btn.closest('[data-id]'), id = box.dataset.id, val = box.querySelector('[data-val]');
+            if (btn.dataset.act === 'show') val.textContent = val.textContent === MASK ? secrets.get(id) : MASK;
+            else if (btn.dataset.act === 'copy') run(async () => {
+                await navigator.clipboard.writeText(secrets.get(id));
+                setTimeout(() => navigator.clipboard.writeText('').catch(() => {}), 30000);
+                alert('Kopiert! Die Zwischenablage wird nach 30 Sekunden geleert.');
+            });
+            else if (btn.dataset.act === 'del' && confirm('Eintrag wirklich löschen?'))
+                run(async () => { await db.collection('vault').doc(id).delete(); logSystemEvent('data', 'Tresor-Eintrag gelöscht'); });
         }
 
         function openAddVaultItemModal() {
-            document.getElementById('vault-title').value = '';
-            document.getElementById('vault-username').value = '';
-            document.getElementById('vault-secret').value = '';
+            ['vault-title', 'vault-username', 'vault-secret'].forEach(id => $(id).value = '');
             openModal('modal-vault-add');
         }
 
-        async function saveVaultItem(e) {
-            e.preventDefault();
-            if (!vaultMasterKey || !currentUser) return;
-            const title = document.getElementById('vault-title').value.trim();
-            const username = document.getElementById('vault-username').value.trim();
-            const secret = document.getElementById('vault-secret').value;
-            const encrypted = await encryptSecret(secret, vaultMasterKey);
-
-            await db.collection('vault').add({
-                title, username,
-                cipher: encrypted.cipher, salt: encrypted.salt, iv: encrypted.iv,
-                owner: currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            closeModal('modal-vault-add');
+        function generatePassword() {
+            const set = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*?-_';
+            const limit = Math.floor(4294967296 / set.length) * set.length, out = [];
+            while (out.length < 20) { const [r] = crypto.getRandomValues(new Uint32Array(1)); if (r < limit) out.push(set[r % set.length]); }
+            $('vault-secret').value = out.join('');
         }
 
-        async function renderVaultItems() {
-            const list = document.getElementById('vault-items-list');
-            if (!list || !vaultMasterKey) return;
-            if (!rawVaultItems.length) {
-                list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Einträge hinterlegt.</div>';
-                return;
-            }
-            list.innerHTML = '';
-            for (const item of rawVaultItems) {
-                let secret = null;
-                try {
-                    secret = await decryptSecret(item.cipher, item.salt, item.iv, vaultMasterKey);
-                } catch (err) {}
-
-                const card = document.createElement('div');
-                card.className = "p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs";
-                card.innerHTML = `
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center font-bold"><i class="fa-solid fa-key"></i></div>
-                        <div>
-                            <span class="font-semibold text-slate-200 text-sm block">${esc(item.title)}</span>
-                            ${item.username ? `<span class="text-[11px] text-slate-400 block">${esc(item.username)}</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div data-val class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-[11px] text-amber-300 truncate max-w-[200px]">${secret === null ? 'Falsches Master-Passwort' : '••••••••'}</div>
-                        <button data-show class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''}><i class="fa-regular fa-eye"></i></button>
-                        <button data-copy class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl" ${secret === null ? 'disabled' : ''}><i class="fa-regular fa-copy"></i></button>
-                        <button data-del class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                `;
-                let isShown = false;
-                const valEl = card.querySelector('[data-val]');
-                card.querySelector('[data-show]').addEventListener('click', () => {
-                    isShown = !isShown;
-                    valEl.textContent = isShown ? secret : '••••••••';
-                });
-                card.querySelector('[data-copy]').addEventListener('click', async () => {
-                    await navigator.clipboard.writeText(secret);
-                    alert('Kopiert!');
-                });
-                card.querySelector('[data-del]').addEventListener('click', async () => {
-                    if (confirm('Eintrag wirklich löschen?')) await db.collection('vault').doc(item.id).delete();
-                });
-                list.appendChild(card);
-            }
+        function saveVaultItem(e) {
+            e.preventDefault();
+            if (!vaultKey) return;
+            const payload = JSON.stringify({ title: $('vault-title').value.trim(), username: $('vault-username').value.trim(), secret: $('vault-secret').value });
+            return run(async () => {
+                const { cipher, iv } = await encWith(vaultKey, payload);
+                await db.collection('vault').add({ v: 2, cipher, iv, owner: currentUser.email, createdAt: TS() });
+                closeModal('modal-vault-add');
+                logSystemEvent('data', 'Tresor-Eintrag angelegt');
+            });
         }
     </script>
 </body>
