@@ -1,12 +1,13 @@
 // js/drawer.js - Menü, blendet Punkte ohne Berechtigung aus und markiert die aktuelle Seite
 const DRAWER_LINKS = [
-    { href: '/',                    label: 'Start Menü',            icon: 'fa-border-all',     icon_c: 'text-indigo-400',  text_c: 'text-slate-200' },
-    { href: '/zeiterfassung.html',  label: 'Zeiterfassung',         icon: 'fa-business-time',  icon_c: 'text-emerald-400', text_c: 'text-emerald-300', perm: 'zeit' },
-    { href: '/finanzen.html',       label: 'Finanzen & Sparkasse',  icon: 'fa-coins',          icon_c: 'text-yellow-400',  text_c: 'text-yellow-300',  perm: 'finanzen' },
-    { href: '/passwort.html',       label: 'Passwort-Safe',         icon: 'fa-shield-halved',  icon_c: 'text-amber-400',   text_c: 'text-amber-300',   perm: 'tresor' },
-    { href: '/admin.html',          label: 'Admin & Rechte',        icon: 'fa-user-shield',    icon_c: 'text-indigo-400',  text_c: 'text-indigo-300',  admin: true },
-    { href: '/logs.html',           label: 'System-Logs',           icon: 'fa-timeline',       icon_c: 'text-cyan-400',    text_c: 'text-cyan-300',    admin: true },
-    { href: '/status.html',         label: 'System-Status & Limits', icon: 'fa-server',        icon_c: 'text-indigo-400',  text_c: 'text-indigo-300',  admin: true }
+    { href: '/',                        label: 'Start Menü',             icon: 'fa-border-all',     icon_c: 'text-indigo-400',  text_c: 'text-slate-200' },
+    { href: '/zeiterfassung.html',      label: 'Zeiterfassung',         icon: 'fa-business-time',  icon_c: 'text-emerald-400', text_c: 'text-emerald-300', perm: 'zeit' },
+    { href: '/finanzen.html',           label: 'Finanzen & Sparkasse',  icon: 'fa-coins',          icon_c: 'text-yellow-400',  text_c: 'text-yellow-300',  perm: 'finanzen' },
+    { href: '/passwort.html',           label: 'Passwort-Safe',         icon: 'fa-shield-halved',  icon_c: 'text-amber-400',   text_c: 'text-amber-300',   perm: 'tresor' },
+    { href: '/whatsapp.html',           label: 'WhatsApp Quick-Chat',   icon: 'fa-whatsapp',       icon_c: 'text-emerald-400', text_c: 'text-emerald-300', perm: 'tresor' }, // <-- HIER NEU EINGEFÜGT
+    { href: '/admin.html',              label: 'Admin & Rechte',        icon: 'fa-user-shield',    icon_c: 'text-indigo-400',  text_c: 'text-indigo-300',  admin: true },
+    { href: '/logs.html',               label: 'System-Logs',           icon: 'fa-timeline',       icon_c: 'text-cyan-400',    text_c: 'text-cyan-300',    admin: true },
+    { href: '/status.html',             label: 'System-Status & Limits', icon: 'fa-server',        icon_c: 'text-indigo-400',  text_c: 'text-indigo-300',  admin: true }
 ];
 
 function normPath(p) {
