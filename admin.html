@@ -2,176 +2,187 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin & Rechte – J.Mainz Dashboard</title>
-
     <meta name="theme-color" content="#080c14">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
     <script src="/js/firebase-init.js"></script>
     <script src="/js/drawer.js"></script>
-
     <style>
         body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .border-panel { border-color: #1e293b; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
+    <style type="text/tailwindcss">
+        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg; }
+        .fld  { @apply bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500; }
+        .act  { @apply px-3 py-1.5 rounded-xl border text-xs; }
+    </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
 
     <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <div class="flex items-center gap-2">
-            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
-                <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
-                <span class="hidden sm:inline">Menü</span>
-            </button>
-        </div>
-
-        <h1 class="text-sm sm:text-base md:text-xl font-bold text-amber-400 tracking-wide text-center truncate px-2">
-            <i class="fa-solid fa-user-shield mr-1.5"></i> Admin- & Rechtesystem
-        </h1>
-
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span class="hidden sm:inline">Ausloggen</span>
+        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
+            <i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span>
+        </button>
+        <h1 class="text-sm sm:text-base md:text-xl font-bold text-amber-400 tracking-wide truncate px-2"><i class="fa-solid fa-user-shield mr-1.5"></i>Admin- &amp; Rechtesystem</h1>
+        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span>
         </button>
     </header>
 
-    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-        <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg">
+    <main class="flex-1 w-full overflow-y-auto pr-0 md:pr-1">
+        <div class="card p-4 md:p-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-2">
                 <div>
-                    <h2 class="text-lg md:text-xl font-bold text-amber-400 flex items-center gap-2">
-                        <i class="fa-solid fa-user-shield"></i> Mitglieder-Verwaltung
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Verwalte die Zugriffsrechte aller registrierten Mitglieder.</p>
+                    <h2 class="text-lg md:text-xl font-bold text-amber-400"><i class="fa-solid fa-users-gear mr-2"></i>Mitglieder-Verwaltung</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Neue Registrierungen freigeben und Zugriffsrechte verwalten.</p>
                 </div>
                 <span id="user-count-badge" class="self-start sm:self-center text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1.5 rounded-xl">0 Benutzer</span>
             </div>
-            <div id="admin-user-list" class="space-y-3"></div>
+            <div class="flex flex-wrap gap-2 mb-4">
+                <input id="adm-search" placeholder="Suchen (Name, E-Mail)..." class="fld w-56">
+                <select id="adm-status" class="fld">
+                    <option value="all">Alle</option><option value="pending">Wartet auf Freigabe</option><option value="active">Aktiv</option><option value="blocked">Gesperrt</option>
+                </select>
+            </div>
+            <div id="admin-user-list" class="space-y-3"><div class="text-xs text-slate-500 text-center py-6">Lade Benutzer...</div></div>
         </div>
     </main>
 
     <script>
+        const $ = id => document.getElementById(id);
         const ROLES = {
-            admin: { label: 'Admin', perms: { kalender: true, zeit: true, finanzen: true, tresor: true, admin: true } },
-            user:  { label: 'Familie', perms: { kalender: true, zeit: true, finanzen: true, tresor: true, admin: false } },
-            guest: { label: 'Gast', perms: { kalender: true, zeit: false, finanzen: false, tresor: false, admin: false } }
+            admin: { label: 'Admin',   perms: { kalender: true, zeit: true,  finanzen: true,  tresor: true,  admin: true } },
+            user:  { label: 'Familie', perms: { kalender: true, zeit: true,  finanzen: true,  tresor: true,  admin: false } },
+            guest: { label: 'Gast',    perms: { kalender: true, zeit: false, finanzen: false, tresor: false, admin: false } }
         };
         const MODULES = { kalender: 'Kalender & Pinnwand', zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe' };
-        let allUsers = [];
-        let filterText = '', filterStatus = 'all';
-
-        const statusOf = u => u?.status || 'active';
-        const adminCount = () => allUsers.filter(u => u.role === 'admin' && statusOf(u) === 'active').length;
-
-        initAuthGuard(user => {
-            if (!user) return;
-            renderDrawer();
-            db.collection('users').onSnapshot(snapshot => {
-                allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderAdminUserList();
-            });
-        });
-
-        function ensureToolbar() {
-            if (document.getElementById('admin-toolbar')) return;
-            const list = document.getElementById('admin-user-list');
-            if (!list) return;
-
-            const bar = document.createElement('div');
-            bar.id = 'admin-toolbar';
-            bar.className = 'flex flex-wrap gap-2 mb-4';
-            bar.innerHTML = `
-                <input id="adm-search" placeholder="Suchen..." class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 w-56 focus:outline-none focus:border-amber-500">
-                <select id="adm-status" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none">
-                    <option value="all">Alle</option>
-                    <option value="pending">Wartet auf Freigabe</option>
-                    <option value="active">Aktiv</option>
-                    <option value="blocked">Gesperrt</option>
-                </select>
-            `;
-            list.parentNode.insertBefore(bar, list);
-
-            bar.querySelector('#adm-search').addEventListener('input', e => { filterText = e.target.value.toLowerCase(); renderAdminUserList(); });
-            bar.querySelector('#adm-status').addEventListener('change', e => { filterStatus = e.target.value; renderAdminUserList(); });
-        }
-
         const BADGE = {
-            active: ['Aktiv', 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'],
+            active:  ['Aktiv', 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'],
             pending: ['Wartet auf Freigabe', 'bg-amber-500/10 text-amber-400 border-amber-500/20'],
             blocked: ['Gesperrt', 'bg-rose-500/10 text-rose-400 border-rose-500/20']
         };
-
+        const st = u => u.status || 'active';
         const fmtDate = ts => ts?.toDate ? ts.toDate().toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) : '–';
+        const activeAdmins = () => allUsers.filter(u => isAdmin(u) && st(u) === 'active');
 
-        function renderAdminUserList() {
-            const listEl = document.getElementById('admin-user-list');
-            if (!listEl) return;
-            ensureToolbar();
+        let allUsers = [], fText = '', fStatus = 'all', started = false;
 
-            const pending = allUsers.filter(u => statusOf(u) === 'pending').length;
-            document.getElementById('user-count-badge').innerText = `${allUsers.length} Benutzer${pending ? ` · ${pending} offen` : ''}`;
+        initAuthGuard(user => {
+            if (!user || started) return;
+            started = true;
+            renderDrawer();
+            db.collection('users').onSnapshot(s => {
+                allUsers = s.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderUsers();
+            }, err => { $('admin-user-list').innerHTML = `<div class="text-xs text-rose-400 text-center py-6">Benutzer konnten nicht geladen werden: ${esc(err.message)}</div>`; });
 
-            const rows = allUsers.filter(u =>
-                (filterStatus === 'all' || statusOf(u) === filterStatus) &&
-                (!filterText || `${u.displayName} ${u.email}`.toLowerCase().includes(filterText)));
+            $('adm-search').addEventListener('input', e => { fText = e.target.value.toLowerCase(); renderUsers(); });
+            $('adm-status').addEventListener('change', e => { fStatus = e.target.value; renderUsers(); });
+            $('admin-user-list').addEventListener('change', e => {
+                const u = userOf(e.target);
+                if (!u) return;
+                if (e.target.dataset.role) setRole(u, e.target.value);
+                if (e.target.dataset.perm) togglePerm(u, e.target.dataset.perm, e.target.checked);
+            });
+            $('admin-user-list').addEventListener('click', e => {
+                const btn = e.target.closest('[data-act]'), u = btn && userOf(btn);
+                if (!u) return;
+                if (btn.dataset.act === 'approve') setStatus(u, 'active');
+                if (btn.dataset.act === 'block') setStatus(u, 'blocked');
+                if (btn.dataset.act === 'delete') removeUser(u);
+            });
+        }, { admin: true });
 
-            listEl.innerHTML = '';
-            rows.forEach(u => {
-                const self = u.id === currentUser.uid;
-                const st = statusOf(u);
-                const perms = u.permissions || {};
-                const [bl, bc] = BADGE[st] || BADGE.active;
+        const userOf = el => allUsers.find(u => u.id === el.closest('[data-uid]')?.dataset.uid);
 
-                const card = document.createElement('div');
-                card.className = 'bg-slate-950/40 border border-slate-800/80 rounded-2xl p-4 space-y-3 text-xs';
-                card.innerHTML = `
+        // ---------- Aktionen ----------
+        async function update(u, data, msg) {
+            try {
+                await db.collection('users').doc(u.id).update(data);
+                logSystemEvent('admin', msg, { ziel: u.email });
+            } catch (err) { alert('Fehlgeschlagen: ' + err.message); renderUsers(); }
+        }
+        // verhindert, dass niemand mehr Admin ist
+        function lastAdminBlocked(u, what) {
+            if (isAdmin(u) && st(u) === 'active' && activeAdmins().length <= 1) {
+                alert(`Der letzte aktive Admin kann nicht ${what} werden.`);
+                return true;
+            }
+            return false;
+        }
+        const isSelf = u => u.id === currentUser.uid;
+
+        function setRole(u, role) {
+            if (isSelf(u)) return renderUsers();
+            if (role !== 'admin' && lastAdminBlocked(u, 'herabgestuft')) return renderUsers();
+            const msg = role === 'admin' ? `${u.email} zum ADMIN machen? Admins haben Zugriff auf alle Bereiche, auch auf diese Seite.`
+                : `Rolle von ${u.email} auf „${ROLES[role].label}“ setzen? Die Einzelrechte werden dabei zurückgesetzt.`;
+            if (!confirm(msg)) return renderUsers();
+            update(u, { role, permissions: ROLES[role].perms }, `Rolle auf „${ROLES[role].label}“ gesetzt`);
+        }
+        function togglePerm(u, key, checked) {
+            if (isSelf(u)) return renderUsers();
+            update(u, { [`permissions.${key}`]: checked }, `Recht „${key}“ ${checked ? 'erteilt' : 'entzogen'}`);
+        }
+        function setStatus(u, status) {
+            if (status === 'blocked') {
+                if (isSelf(u)) return alert('Du kannst dich nicht selbst sperren.');
+                if (lastAdminBlocked(u, 'gesperrt')) return;
+                if (!confirm(`${u.email} sperren? Der Zugriff ist sofort beendet.`)) return;
+            }
+            update(u, { status }, status === 'active' ? 'Benutzer freigegeben / entsperrt' : 'Benutzer gesperrt');
+        }
+        async function removeUser(u) {
+            if (isSelf(u)) return alert('Du kannst dein eigenes Profil nicht löschen.');
+            if (lastAdminBlocked(u, 'gelöscht')) return;
+            if (!confirm(`Profil von ${u.email} löschen?\n\nDer Zugriff ist danach beendet. Das Login-Konto bleibt in Firebase (Authentication) bestehen und muss dort separat gelöscht werden.`)) return;
+            try {
+                await db.collection('users').doc(u.id).delete();
+                logSystemEvent('admin', 'Benutzerprofil gelöscht', { ziel: u.email });
+            } catch (err) { alert('Fehlgeschlagen: ' + err.message); }
+        }
+
+        // ---------- Anzeige ----------
+        function renderUsers() {
+            const pending = allUsers.filter(u => st(u) === 'pending').length;
+            $('user-count-badge').innerText = `${allUsers.length} Benutzer${pending ? ` · ${pending} offen` : ''}`;
+            const rows = allUsers
+                .filter(u => (fStatus === 'all' || st(u) === fStatus) && (!fText || `${u.displayName || ''} ${u.email}`.toLowerCase().includes(fText)))
+                .sort((a, b) => (st(b) === 'pending') - (st(a) === 'pending') || (a.displayName || a.email).localeCompare(b.displayName || b.email, 'de'));
+
+            $('admin-user-list').innerHTML = rows.length ? rows.map(u => {
+                const self = isSelf(u), s = st(u), perms = u.permissions || {}, admin = isAdmin(u), [bl, bc] = BADGE[s] || BADGE.active;
+                return `<div data-uid="${esc(u.id)}" class="bg-slate-950/40 border ${s === 'pending' ? 'border-amber-500/40' : 'border-slate-800/80'} rounded-2xl p-4 space-y-3 text-xs">
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <div>
-                            <div class="font-semibold text-slate-200 text-sm">${esc(u.displayName || u.email)} ${self ? '(du)' : ''}</div>
+                            <div class="font-semibold text-slate-200 text-sm">${esc(u.displayName || u.email)} ${self ? '<span class="text-[10px] text-slate-500 font-normal">(du)</span>' : ''}</div>
                             <div class="text-slate-500">${esc(u.email)}</div>
-                            <div class="text-[10px] text-slate-600 mt-0.5">Registriert: ${fmtDate(u.createdAt)}</div>
+                            <div class="text-[10px] text-slate-600 mt-0.5">Registriert: ${fmtDate(u.createdAt)} · Letzter Login: ${fmtDate(u.lastLogin)}</div>
                         </div>
                         <span class="text-[10px] border px-2 py-1 rounded-lg ${bc}">${bl}</span>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
-                        <select data-role class="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5" ${self ? 'disabled' : ''}>
-                            ${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${u.role === k ? 'selected' : ''}>${r.label}</option>`).join('')}
+                        <select data-role class="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 disabled:opacity-50" ${self ? 'disabled title="Eigene Rolle kann nicht geändert werden"' : ''}>
+                            ${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${(u.role || 'user') === k ? 'selected' : ''}>${r.label}</option>`).join('')}
                         </select>
                         ${Object.entries(MODULES).map(([k, l]) => `
-                            <label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${u.role === 'admin' ? 'opacity-50' : 'cursor-pointer'}">
-                                <input type="checkbox" data-perm="${k}" ${perms[k] !== false ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">
-                                ${l}
-                            </label>
-                        `).join('')}
+                            <label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${admin || self ? 'opacity-50' : 'cursor-pointer'}">
+                                <input type="checkbox" data-perm="${k}" ${perms[k] !== false ? 'checked' : ''} ${admin || self ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">${l}
+                            </label>`).join('')}
                     </div>
                     <div class="flex flex-wrap gap-2 pt-1">
-                        ${st !== 'active' ? '<button data-act="approve" class="px-3 py-1.5 rounded-xl bg-emerald-600/20 text-emerald-300">Freigeben</button>' : ''}
-                        ${st === 'active' && !self ? '<button data-act="block" class="px-3 py-1.5 rounded-xl bg-amber-600/20 text-amber-300">Sperren</button>' : ''}
-                        ${!self ? '<button data-act="delete" class="px-3 py-1.5 rounded-xl bg-rose-600/20 text-rose-300">Löschen</button>' : ''}
+                        ${s !== 'active' ? '<button data-act="approve" class="act bg-emerald-600/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-600/30">Freigeben</button>' : ''}
+                        ${s === 'active' && !self ? '<button data-act="block" class="act bg-amber-600/20 border-amber-500/30 text-amber-300 hover:bg-amber-600/30">Sperren</button>' : ''}
+                        ${!self ? '<button data-act="delete" class="act bg-rose-600/20 border-rose-500/30 text-rose-300 hover:bg-rose-600/30">Profil löschen</button>' : ''}
                     </div>
-                `;
-
-                card.querySelector('[data-role]').addEventListener('change', async e => {
-                    await db.collection('users').doc(u.id).update({ role: e.target.value, permissions: ROLES[e.target.value].perms });
-                });
-                card.querySelectorAll('[data-perm]').forEach(i => i.addEventListener('change', async e => {
-                    await db.collection('users').doc(u.id).update({ [`permissions.${i.dataset.perm}`]: e.target.checked });
-                }));
-                card.querySelector('[data-act="approve"]')?.addEventListener('click', async () => { await db.collection('users').doc(u.id).update({ status: 'active' }); });
-                card.querySelector('[data-act="block"]')?.addEventListener('click', async () => { await db.collection('users').doc(u.id).update({ status: 'blocked' }); });
-                card.querySelector('[data-act="delete"]')?.addEventListener('click', async () => { if(confirm('Löschen?')) await db.collection('users').doc(u.id).delete(); });
-
-                listEl.appendChild(card);
-            });
-            if (!rows.length) listEl.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Benutzer gefunden.</div>';
+                </div>`;
+            }).join('') : '<div class="text-xs text-slate-500 text-center py-6">Keine Benutzer gefunden.</div>';
         }
     </script>
 </body>
