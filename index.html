@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J.Mainz Dashboard – Secure Login</title>
+    <title>J.Mainz Dashboard – Secure Portal</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#080c14">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,104 +16,122 @@
     <script src="/js/firebase-init.js"></script>
 
     <style>
-        body { 
-            background-color: #030712; 
-            color: #f8fafc; 
-            font-family: system-ui, -apple-system, sans-serif; 
-            -webkit-tap-highlight-color: transparent; 
-        }
-        /* Dezenter Hintergrund-Glow */
-        .bg-glow {
-            background: radial-gradient(circle at 50% 30%, rgba(79, 70, 229, 0.12) 0%, rgba(3, 7, 18, 0) 70%);
-        }
-        .glass {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(51, 65, 85, 0.4);
-        }
+        body { background-color: #05080f; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .glow { box-shadow: 0 0 50px -10px rgba(99, 102, 241, 0.15); }
     </style>
     <style type="text/tailwindcss">
-        .inp { @apply w-full bg-slate-950/80 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition-all; }
+        .inp { @apply w-full bg-slate-900/80 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition-all; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-6 bg-glow bg-no-repeat bg-center">
+<body class="min-h-screen flex flex-col justify-between p-4 md:p-8 bg-[#05080f] overflow-x-hidden">
 
-    <!-- Top Status -->
-    <div class="max-w-md w-full mx-auto flex justify-between items-center pt-4">
-        <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-xs">
+    <!-- Top Bar -->
+    <div class="max-w-6xl w-full mx-auto flex justify-between items-center py-4">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <span class="font-bold text-sm tracking-wide text-slate-200">J.Mainz Portal</span>
+            <span class="font-bold text-slate-200 tracking-wide">J.Mainz Hub</span>
         </div>
-        <div class="flex items-center gap-2 bg-slate-900/60 border border-slate-800/80 px-3 py-1 rounded-full">
+        <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800/80 px-3.5 py-1.5 rounded-full shadow-lg">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="text-[11px] font-medium text-slate-300">Secure Cloud</span>
+            <span class="text-xs font-medium text-slate-300">System Online</span>
         </div>
     </div>
 
-    <!-- Main Centered Box -->
-    <main class="flex-1 flex items-center justify-center p-4">
-        <div class="w-full max-w-md glass rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-            
-            <!-- Dezenter Leuchtstreifen oben am Container -->
-            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-70"></div>
-
-            <div class="text-center mb-8">
-                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-slate-100">Willkommen zurück</h1>
-                <p class="text-xs text-slate-400 mt-1.5">Bitte melden Sie sich an, um auf das Dashboard zuzugreifen.</p>
+    <!-- Main Content: Zwei Spalten (Links Infos, Rechts Login) -->
+    <main class="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto py-8">
+        
+        <!-- Linke Spalte: Infos & Branding für Besucher -->
+        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
+                <i class="fa-solid fa-lock text-[10px]"></i> Geschützter Bereich
             </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-100 leading-tight">
+                Zentrales Verwaltungs- <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">&amp; Portal</span>
+            </h1>
+            <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                Willkommen auf der privaten Cloud-Plattform von Julian Mainz. Dieses System bündelt administrative Werkzeuge, Zeiterfassung, Finanzen und verschlüsselte Sicherheits-Safes in einer einheitlichen Anwendung.
+            </p>
 
-            <div id="auth-alert" class="hidden mb-4 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs text-center flex items-center justify-center gap-2">
-                <i class="fa-solid fa-circle-exclamation"></i><span id="auth-alert-text"></span>
+            <!-- Feature-Badges -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 max-w-lg mx-auto lg:mx-0">
+                <div class="bg-slate-900/40 border border-slate-800/80 p-3 rounded-2xl flex items-center gap-2.5">
+                    <i class="fa-solid fa-business-time text-emerald-400"></i>
+                    <span class="text-xs font-medium text-slate-300">Zeiterfassung</span>
+                </div>
+                <div class="bg-slate-900/40 border border-slate-800/80 p-3 rounded-2xl flex items-center gap-2.5">
+                    <i class="fa-solid fa-coins text-yellow-400"></i>
+                    <span class="text-xs font-medium text-slate-300">Finanz-Tools</span>
+                </div>
+                <div class="bg-slate-900/40 border border-slate-800/80 p-3 rounded-2xl flex items-center gap-2.5 col-span-2 sm:col-span-1">
+                    <i class="fa-solid fa-key text-amber-400"></i>
+                    <span class="text-xs font-medium text-slate-300">AES-256 Safe</span>
+                </div>
             </div>
-
-            <!-- Login Formular -->
-            <form id="form-login" onsubmit="handleSignIn(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail</label>
-                    <input type="email" id="login-email" required placeholder="name@julian-mainz.de" class="inp">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort</label>
-                    <input type="password" id="login-password" required placeholder="••••••••" class="inp">
-                </div>
-                <div class="pt-2 space-y-3">
-                    <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3.5 rounded-2xl shadow-lg shadow-indigo-600/25 text-sm transition-all">Anmelden</button>
-                    <button type="button" onclick="showRegisterView(true)" class="w-full bg-slate-900/60 hover:bg-slate-900 text-slate-300 font-medium py-3 rounded-2xl border border-slate-800 text-xs transition-all">Neues Konto beantragen</button>
-                </div>
-            </form>
-
-            <!-- Registrierungs Formular -->
-            <form id="form-register" onsubmit="handleSignUp(event)" class="space-y-3.5 hidden">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-100 mb-1">Konto registrieren</h2>
-                    <p class="text-[11px] text-slate-400">Das Konto muss nach Erstellung freigegeben werden.</p>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="reg-firstname" required placeholder="Vorname" class="inp text-xs py-2.5">
-                    <input type="text" id="reg-lastname" required placeholder="Nachname" class="inp text-xs py-2.5">
-                </div>
-                <input type="email" id="reg-email" required placeholder="E-Mail" class="inp text-xs py-2.5">
-                <input type="password" id="reg-password" required minlength="6" placeholder="Passwort (min. 6 Zeichen)" class="inp text-xs py-2.5">
-                <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl text-xs transition-all shadow-lg shadow-emerald-600/20">Konto anlegen</button>
-                <button type="button" onclick="showRegisterView(false)" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1 text-center">&larr; Zurück zum Login</button>
-            </form>
-
         </div>
+
+        <!-- Rechte Spalte: Das Login-Formular -->
+        <div class="lg:col-span-5 w-full max-w-md mx-auto">
+            <div class="bg-slate-900/80 backdrop-blur-xl border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl glow">
+                
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold text-slate-100">Anmelden</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Geben Sie Ihre Zugangsdaten ein.</p>
+                </div>
+
+                <div id="auth-alert" class="hidden mb-4 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs text-center flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i><span id="auth-alert-text"></span>
+                </div>
+
+                <!-- Login Formular -->
+                <form id="form-login" onsubmit="handleSignIn(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail-Adresse</label>
+                        <input type="email" id="login-email" required placeholder="name@julian-mainz.de" class="inp">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort</label>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="inp">
+                    </div>
+                    <div class="pt-2 space-y-3">
+                        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3.5 rounded-2xl shadow-lg shadow-indigo-600/25 text-sm transition-all">Anmelden</button>
+                        <button type="button" onclick="showRegisterView(true)" class="w-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 font-medium py-3 rounded-2xl border border-slate-700/60 text-xs transition-all">Neues Konto beantragen</button>
+                    </div>
+                </form>
+
+                <!-- Registrierungs Formular -->
+                <form id="form-register" onsubmit="handleSignUp(event)" class="space-y-3.5 hidden">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-100 mb-1">Konto registrieren</h2>
+                        <p class="text-[11px] text-slate-400">Nach der Erstellung wird das Konto von einem Administrator geprüft.</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="reg-firstname" required placeholder="Vorname" class="inp text-xs py-2.5">
+                        <input type="text" id="reg-lastname" required placeholder="Nachname" class="inp text-xs py-2.5">
+                    </div>
+                    <input type="email" id="reg-email" required placeholder="E-Mail" class="inp text-xs py-2.5">
+                    <input type="password" id="reg-password" required minlength="6" placeholder="Passwort (min. 6 Zeichen)" class="inp text-xs py-2.5">
+                    <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl text-xs transition-all shadow-lg shadow-emerald-600/20">Konto anlegen</button>
+                    <button type="button" onclick="showRegisterView(false)" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1 text-center">&larr; Zurück zum Login</button>
+                </form>
+
+            </div>
+        </div>
+
     </main>
 
     <!-- Footer -->
-    <footer class="text-center text-xs text-slate-600 pb-2">
-        J.Mainz Dashboard &bull; Cloud Security
+    <footer class="max-w-6xl w-full mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 py-4 border-t border-slate-900 gap-2">
+        <span>J.Mainz Dashboard &bull; Secured Cloud Environment</span>
+        <span>Nur für autorisierte Benutzer</span>
     </footer>
 
     <script>
         const $ = id => document.getElementById(id);
         const TS = () => firebase.firestore.FieldValue.serverTimestamp();
 
-        // Wenn bereits eingeloggt, direkt ins Menü weiterleiten
+        // Wenn eingeloggt, direkt ins Menü weiterleiten
         auth.onAuthStateChanged(user => {
             if (user) {
                 window.location.href = '/menu.html';
