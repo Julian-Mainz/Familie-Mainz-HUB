@@ -2,240 +2,161 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>System-Status & Limits – J.Mainz Dashboard</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System-Status – J.Mainz Dashboard</title>
     <meta name="theme-color" content="#080c14">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
     <script src="/js/firebase-init.js"></script>
     <script src="/js/drawer.js"></script>
-
     <style>
         body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .border-panel { border-color: #1e293b; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
+    <style type="text/tailwindcss">
+        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg p-5; }
+        .stat { @apply flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800 text-xs; }
+    </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
 
-    <!-- Header -->
     <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <div class="flex items-center gap-2">
-            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
-                <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
-                <span class="hidden sm:inline">Menü</span>
-            </button>
-        </div>
-
-        <h1 class="text-sm sm:text-base md:text-xl font-bold text-indigo-400 tracking-wide text-center truncate px-2">
-            <i class="fa-solid fa-server mr-1.5"></i> System-Status & Live-Geräte
-        </h1>
-
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span class="hidden sm:inline">Ausloggen</span>
+        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
+            <i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span>
+        </button>
+        <h1 class="text-sm sm:text-base md:text-xl font-bold text-indigo-400 tracking-wide truncate px-2"><i class="fa-solid fa-server mr-1.5"></i>System-Status</h1>
+        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span>
         </button>
     </header>
 
-    <!-- Hauptinhalt -->
     <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-        
-        <!-- Live-Übersicht Kacheln -->
+        <div class="flex items-center justify-between">
+            <span id="last-update" class="text-xs text-slate-500">Noch nicht geladen</span>
+            <button id="btn-refresh" onclick="loadAll()" class="text-xs bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-indigo-300 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-rotate mr-1.5"></i>Aktualisieren</button>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-                <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-wifi text-emerald-400"></i> Netzwerk & Verbindung</span>
-                <div id="status-net" class="text-base font-bold text-emerald-400 mt-2 flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Prüfe...
-                </div>
-            </div>
-
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-                <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-database text-indigo-400"></i> Firestore Datenbank</span>
-                <div id="status-db" class="text-base font-bold text-indigo-400 mt-2 flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-pulse"></span> Teste...
-                </div>
-            </div>
-
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-                <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-users text-amber-400"></i> Registrierte Personen</span>
-                <div id="status-active-users" class="text-xl font-bold text-amber-400 mt-2">
-                    <i class="fa-solid fa-spinner animate-spin text-sm"></i> Lade...
-                </div>
-            </div>
-
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-                <span class="text-xs text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-laptop text-cyan-400"></i> Aktive Geräte (Heute)</span>
-                <div id="status-active-devices" class="text-xl font-bold text-cyan-400 mt-2">
-                    <i class="fa-solid fa-spinner animate-spin text-sm"></i> Lade...
-                </div>
-            </div>
+            <div class="card"><span class="text-xs text-slate-400"><i class="fa-solid fa-wifi text-emerald-400 mr-1.5"></i>Verbindung</span><div id="st-net" class="text-base font-bold mt-2">–</div></div>
+            <div class="card"><span class="text-xs text-slate-400"><i class="fa-solid fa-database text-indigo-400 mr-1.5"></i>Datenbank (Antwortzeit)</span><div id="st-db" class="text-base font-bold mt-2">–</div></div>
+            <div class="card"><span class="text-xs text-slate-400"><i class="fa-solid fa-users text-amber-400 mr-1.5"></i>Mitglieder</span><div id="st-users" class="text-base font-bold mt-2">–</div><div id="st-users-sub" class="text-[11px] text-slate-500 mt-0.5"></div></div>
+            <div class="card"><span class="text-xs text-slate-400"><i class="fa-solid fa-laptop text-cyan-400 mr-1.5"></i>Heute aktiv</span><div id="st-today" class="text-base font-bold mt-2">–</div><div id="st-today-sub" class="text-[11px] text-slate-500 mt-0.5"></div></div>
         </div>
 
-        <!-- Detaillierte Liste der aktiven Geräte & Zugriffe -->
-        <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-                <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                    <i class="fa-solid fa-list-shield text-cyan-400"></i> Letzte aktive Geräte & Browser-Kennungen (Audit-Trail)
-                </h3>
-                <button onclick="loadActiveSessions()" class="text-xs text-indigo-400 hover:text-indigo-300"><i class="fa-solid fa-rotate"></i> Aktualisieren</button>
-            </div>
-            <div class="overflow-x-auto max-h-64 overflow-y-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800">
-                        <tr>
-                            <th class="p-2">Zeitpunkt</th>
-                            <th class="p-2">Benutzer</th>
-                            <th class="p-2">Gerätetyp</th>
-                            <th class="p-2">Browser / System (User-Agent)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="devices-table-body" class="divide-y divide-slate-800/60 text-slate-200 font-mono text-[11px]">
-                        <tr><td colspan="4" class="text-center py-4 text-slate-500 font-sans">Lade Geräte-Infos...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Firebase Spark-Plan Limits & Heutiger Verbrauch -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
-                    <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-folder-tree text-indigo-400"></i> Aktuelle Dokumenten-Anzahl (Firestore)
-                    </h3>
-                </div>
-                <div class="space-y-2 text-xs" id="firestore-stats-list">
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800"><span class="text-slate-300">Arbeitszeiten (`worktime`)</span><span id="count-worktime" class="font-mono font-bold text-indigo-300">Lade...</span></div>
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800"><span class="text-slate-300">Finanz-Buchungen (`finance_transactions`)</span><span id="count-finances" class="font-mono font-bold text-indigo-300">Lade...</span></div>
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800"><span class="text-slate-300">Passwörter / Tresor (`vault`)</span><span id="count-vault" class="font-mono font-bold text-indigo-300">Lade...</span></div>
-                    <div class="flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800"><span class="text-slate-300">System-Logs (`system_logs`)</span><span id="count-logs" class="font-mono font-bold text-indigo-300">Lade...</span></div>
+            <div class="card">
+                <h3 class="text-xs font-bold text-slate-200 border-b border-slate-800 pb-2.5 mb-3"><i class="fa-solid fa-folder-tree text-indigo-400 mr-2"></i>Dokumente in der Datenbank</h3>
+                <div id="col-stats" class="space-y-2"></div>
+            </div>
+            <div class="card">
+                <h3 class="text-xs font-bold text-slate-200 border-b border-slate-800 pb-2.5 mb-3"><i class="fa-solid fa-gauge-high text-yellow-400 mr-2"></i>Kontingent (Spark-Plan)</h3>
+                <div class="space-y-2 text-xs text-slate-400">
+                    <div class="stat"><span>Lesevorgänge pro Tag</span><span class="font-mono text-slate-200">50.000 frei</span></div>
+                    <div class="stat"><span>Schreibvorgänge pro Tag</span><span class="font-mono text-slate-200">20.000 frei</span></div>
+                    <div class="stat"><span>Speicher</span><span class="font-mono text-slate-200">1 GiB frei</span></div>
+                    <div class="stat"><span>Von dieser Seite verbraucht (Schätzung)</span><span id="reads-est" class="font-mono text-amber-300">–</span></div>
+                    <p class="text-[11px] leading-relaxed pt-1">Den tatsächlichen Tagesverbrauch zeigt nur Firebase selbst, die App kann ihn nicht auslesen.
+                        <a href="https://console.firebase.google.com/project/familie-mainz-netzwerk/usage" target="_blank" rel="noopener" class="text-indigo-400 hover:text-indigo-300 underline">Verbrauch in der Firebase-Konsole öffnen</a>.</p>
                 </div>
             </div>
+        </div>
 
-            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
-                    <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-gauge-high text-yellow-400"></i> Firebase Spark-Plan (Verbrauch)
-                    </h3>
-                </div>
-                <div class="space-y-3 text-xs">
-                    <div>
-                        <div class="flex justify-between mb-1"><span class="text-slate-300">Lesevorgänge (Reads)</span><span id="usage-reads" class="font-mono text-emerald-400 font-bold">0 / 50.000</span></div>
-                        <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800"><div id="bar-reads" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div></div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between mb-1"><span class="text-slate-300">Schreibvorgänge (Writes)</span><span id="usage-writes" class="font-mono text-indigo-400 font-bold">0 / 20.000</span></div>
-                        <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800"><div id="bar-writes" class="bg-indigo-500 h-2 rounded-full" style="width: 0%"></div></div>
-                    </div>
-                </div>
+        <div class="card">
+            <h3 class="text-xs font-bold text-slate-200 border-b border-slate-800 pb-2.5 mb-3"><i class="fa-solid fa-list-shield text-cyan-400 mr-2"></i>Letzte Aktivitäten mit Gerät</h3>
+            <div class="overflow-auto max-h-72">
+                <table class="w-full text-left text-xs">
+                    <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800"><tr><th class="p-2">Zeitpunkt</th><th class="p-2">Benutzer</th><th class="p-2">Ereignis</th><th class="p-2">Gerät</th><th class="p-2">Browser</th></tr></thead>
+                    <tbody id="devices-body" class="divide-y divide-slate-800/60 text-[11px]"></tbody>
+                </table>
             </div>
         </div>
     </main>
 
     <script>
-        initAuthGuard(user => {
-            if (!user) return;
-            renderDrawer();
-            checkSystemHealth();
-            loadFirestoreStats();
-            loadActiveSessions();
-        });
+        const $ = id => document.getElementById(id);
+        const COLS = [['users', 'Benutzer'], ['worktime', 'Arbeitszeiten'], ['finance_transactions', 'Finanz-Buchungen'], ['payslips', 'Lohnabrechnungen'],
+            ['vault', 'Tresor-Einträge'], ['events', 'Termine'], ['notes', 'Notizen'], ['todos', 'Aufgaben'], ['system_logs', 'System-Logs']];
+        let reads = 0, started = false;
 
-        function checkSystemHealth() {
-            if (navigator.onLine) {
-                document.getElementById('status-net').innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Online';
-            } else {
-                document.getElementById('status-net').innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Offline';
-            }
-            db.collection('system_logs').limit(1).get().then(() => {
-                document.getElementById('status-db').innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Verbunden';
-            }).catch(() => {
-                document.getElementById('status-db').innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Fehler';
-            });
+        initAuthGuard(user => { if (!user || started) return; started = true; renderDrawer(); loadAll(); }, { admin: true });
+        window.addEventListener('online', checkNet); window.addEventListener('offline', checkNet);
+
+        function checkNet() {
+            const on = navigator.onLine;
+            $('st-net').innerHTML = `<span class="inline-block w-2.5 h-2.5 rounded-full ${on ? 'bg-emerald-400' : 'bg-rose-400'} mr-2"></span>${on ? 'Online' : 'Offline'}`;
         }
 
-        async function loadActiveSessions() {
+        // Zählabfrage (1 Lesevorgang pro 1000 Treffer); Fallback: normales Lesen
+        async function countDocs(q) {
+            try { const n = (await q.count().get()).data().count; reads += Math.max(1, Math.ceil(n / 1000)); return n; }
+            catch (e) {
+                try { const s = await q.get(); reads += Math.max(1, s.size); return s.size; } catch (e2) { return null; }
+            }
+        }
+
+        async function loadAll() {
+            const btn = $('btn-refresh');
+            btn.disabled = true;
+            reads = 0;
+            checkNet();
+            await Promise.all([checkDb(), loadUsers(), loadColumns(), loadActivity()]);
+            $('reads-est').innerText = '≈ ' + reads + ' Lesevorgänge';
+            $('last-update').innerText = 'Zuletzt aktualisiert: ' + new Date().toLocaleTimeString('de-DE');
+            btn.disabled = false;
+        }
+
+        async function checkDb() {
             try {
-                const usersSnap = await db.collection('users').where('status', '==', 'active').get();
-                document.getElementById('status-active-users').innerText = usersSnap.size + ' Personen';
+                const t0 = performance.now();
+                await db.collection('users').doc(currentUser.uid).get({ source: 'server' });
+                reads++;
+                const ms = Math.round(performance.now() - t0);
+                $('st-db').innerHTML = `<span class="inline-block w-2.5 h-2.5 rounded-full ${ms < 1500 ? 'bg-emerald-400' : 'bg-amber-400'} mr-2"></span>${ms} ms`;
+            } catch (e) { $('st-db').innerHTML = '<span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-400 mr-2"></span>Fehler'; }
+        }
 
-                const logsSnap = await db.collection('system_logs')
-                    .orderBy('timestamp', 'desc')
-                    .limit(20)
-                    .get();
+        async function loadUsers() {
+            const users = db.collection('users');
+            const [total, pending, blocked, push] = await Promise.all([
+                countDocs(users), countDocs(users.where('status', '==', 'pending')),
+                countDocs(users.where('status', '==', 'blocked')), countDocs(users.where('notificationsEnabled', '==', true))
+            ]);
+            if (total === null) { $('st-users').innerText = '–'; return; }
+            $('st-users').innerText = total + (total === 1 ? ' Person' : ' Personen');
+            $('st-users-sub').innerText = `${total - (pending || 0) - (blocked || 0)} aktiv · ${pending || 0} offen · ${blocked || 0} gesperrt · ${push || 0} mit Push`;
+        }
 
-                const tbody = document.getElementById('devices-table-body');
-                tbody.innerHTML = '';
-                const uniqueDevices = new Set();
+        async function loadColumns() {
+            const counts = await Promise.all(COLS.map(([name]) => countDocs(db.collection(name))));
+            $('col-stats').innerHTML = COLS.map(([, label], i) =>
+                `<div class="stat"><span class="text-slate-300">${label}</span><span class="font-mono font-bold text-indigo-300">${counts[i] === null ? '–' : counts[i]}</span></div>`).join('');
+        }
 
-                logsSnap.forEach(doc => {
-                    const l = doc.data();
-                    if (l.userEmail && l.device) uniqueDevices.add(l.userEmail + '|' + l.userAgent);
-
-                    let timeStr = '--:--';
-                    if (l.timestamp?.toDate) {
-                        const d = l.timestamp.toDate();
-                        timeStr = `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`;
-                    }
-
-                    // Kürzen des User-Agents für eine saubere Darstellung
-                    let uaShort = l.userAgent || 'Unbekannt';
-                    if (uaShort.length > 65) uaShort = uaShort.slice(0, 65) + '...';
-
-                    tbody.insertAdjacentHTML('beforeend', `
-                        <tr class="hover:bg-slate-900/50 transition-colors">
-                            <td class="p-2 text-slate-400">${timeStr}</td>
-                            <td class="p-2 text-slate-200">${esc(l.userName || l.userEmail)}</td>
-                            <td class="p-2 text-cyan-400 font-semibold">${esc(l.device)}</td>
-                            <td class="p-2 text-slate-400" title="${esc(l.userAgent)}">${esc(uaShort)}</td>
-                        </tr>
-                    `);
-                });
-
-                document.getElementById('status-active-devices').innerText = uniqueDevices.size + ' Geräte';
+        async function loadActivity() {
+            try {
+                const start = new Date(); start.setHours(0, 0, 0, 0);
+                const snap = await db.collection('system_logs').where('timestamp', '>=', firebase.firestore.Timestamp.fromDate(start))
+                    .orderBy('timestamp', 'desc').limit(300).get();
+                reads += snap.size;
+                const logs = snap.docs.map(d => d.data());
+                const named = logs.filter(l => l.userEmail && l.userEmail !== 'Gast / Anonym');
+                $('st-today').innerText = new Set(named.map(l => l.userEmail)).size + ' Personen';
+                $('st-today-sub').innerText = new Set(named.map(l => l.userEmail + '|' + l.userAgent)).size + ' Geräte · ' + logs.length + ' Ereignisse';
+                $('devices-body').innerHTML = logs.slice(0, 25).map(l => {
+                    const d = l.timestamp?.toDate ? l.timestamp.toDate().toLocaleTimeString('de-DE') : '--';
+                    const ua = (l.userAgent || '').slice(0, 60);
+                    return `<tr class="hover:bg-slate-900/50"><td class="p-2 text-slate-400 whitespace-nowrap">${esc(d)}</td><td class="p-2 text-slate-200">${esc(l.userName || l.userEmail)}</td>
+                        <td class="p-2 text-slate-300">${esc(l.action || '-')}</td><td class="p-2 text-cyan-400 font-semibold">${esc(l.device || '-')}</td>
+                        <td class="p-2 text-slate-500 font-mono" title="${esc(l.userAgent || '')}">${esc(ua)}${(l.userAgent || '').length > 60 ? '…' : ''}</td></tr>`;
+                }).join('') || '<tr><td colspan="5" class="text-center py-4 text-slate-500">Heute noch keine Aktivität.</td></tr>';
             } catch (e) {
-                document.getElementById('status-active-users').innerText = '1 Person';
-                document.getElementById('status-active-devices').innerText = '1 Gerät';
+                $('st-today').innerText = '–';
+                $('devices-body').innerHTML = `<tr><td colspan="5" class="text-center py-4 text-rose-400">Aktivität konnte nicht geladen werden: ${esc(e.message)}</td></tr>`;
             }
-        }
-
-        async function loadFirestoreStats() {
-            if (!currentUser) return;
-            const collections = [
-                { name: 'worktime', el: 'count-worktime', filtered: true },
-                { name: 'finance_transactions', el: 'count-finances', filtered: true },
-                { name: 'vault', el: 'count-vault', filtered: true },
-                { name: 'system_logs', el: 'count-logs', filtered: false }
-            ];
-
-            let totalReadsEst = 15;
-            for (const col of collections) {
-                try {
-                    let query = db.collection(col.name);
-                    if (col.filtered) query = query.where('owner', '==', currentUser.email);
-                    const snap = await query.get();
-                    document.getElementById(col.el).innerText = snap.size + ' Dokumente';
-                    totalReadsEst += snap.size;
-                } catch (e) {
-                    document.getElementById(col.el).innerText = '0 Dokumente';
-                }
-            }
-            updateUsageUI(totalReadsEst, 4);
-        }
-
-        function updateUsageUI(reads, writes) {
-            const maxReads = 50000, maxWrites = 20000;
-            document.getElementById('usage-reads').innerText = `${reads} / ${maxReads.toLocaleString()}`;
-            document.getElementById('bar-reads').style.width = Math.min(100, (reads / maxReads) * 100).toFixed(1) + '%';
-            document.getElementById('usage-writes').innerText = `${writes} / ${maxWrites.toLocaleString()}`;
-            document.getElementById('bar-writes').style.width = Math.min(100, (writes / maxWrites) * 100).toFixed(1) + '%';
         }
     </script>
 </body>
