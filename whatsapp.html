@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WhatsApp Quick-Chat – J.Mainz Dashboard</title>
+
+    <meta name="theme-color" content="#080c14">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script src="/js/firebase-init.js"></script>
+    <script src="/js/drawer.js"></script>
+
+    <style>
+        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .border-panel { border-color: #1e293b; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+
+    <!-- Header -->
+    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
+        <div class="flex items-center gap-2">
+            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-emerald-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
+                <i class="fa-solid fa-bars text-emerald-400 group-hover:scale-110 transition-transform"></i>
+                <span class="hidden sm:inline">Menü</span>
+            </button>
+        </div>
+
+        <h1 class="text-sm sm:text-base md:text-xl font-bold text-emerald-400 tracking-wide text-center truncate px-2">
+            <i class="fa-brands fa-whatsapp mr-1.5 text-lg"></i> WhatsApp Quick-Chat
+        </h1>
+
+        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span class="hidden sm:inline">Ausloggen</span>
+        </button>
+    </header>
+
+    <!-- Hauptinhalt -->
+    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            
+            <!-- Linke Spalte: Direkt-Chat starten -->
+            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-4">
+                        <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane text-emerald-400"></i> Neuen Chat starten (ohne Einspeichern)
+                        </h3>
+                    </div>
+                    
+                    <form onsubmit="startWhatsAppChat(event)" class="space-y-3.5 text-xs">
+                        <div>
+                            <label class="block text-slate-400 mb-1">Handynummer (mit Landesvorwahl, z.B. +49...)</label>
+                            <input type="text" id="wa-phone" required placeholder="+49 170 12345678" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Nachricht (optional)</label>
+                            <textarea id="wa-message" rows="3" placeholder="Nachricht eingeben..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-base"></i> WhatsApp Web öffnen & Senden
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Schnelle Textvorlagen -->
+                <div class="mt-4 pt-3 border-t border-slate-800/80">
+                    <span class="text-[11px] text-slate-400 font-medium block mb-2">Schnell-Vorlagen:</span>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="setTemplate('Bin in 10 Minuten da.')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] px-2.5 py-1 rounded-lg">⏱️ In 10 Min da</button>
+                        <button onclick="setTemplate('Kann gerade nicht telefonieren, rufe später zurück.')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] px-2.5 py-1 rounded-lg">📞 Ruf zurück</button>
+                        <button onclick="setTemplate('Bitte kurz melden!')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] px-2.5 py-1 rounded-lg">🚨 Bitte melden</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rechte Spalte: Wichtige Kontakte (gespeichert in Firestore) -->
+            <div class="bg-slate-900/60 border border-panel rounded-3xl p-5 shadow-lg flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-4">
+                        <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-address-book text-indigo-400"></i> Häufige Kontakte
+                        </h3>
+                        <button onclick="openContactModal()" class="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Hinzufügen
+                        </button>
+                    </div>
+
+                    <div id="contacts-list" class="space-y-2 overflow-y-auto max-h-72 pr-1">
+                        <div class="text-xs text-slate-500 text-center py-6">Keine Kontakte gespeichert.</div>
+                    </div>
+                </div>
+
+                <div class="text-[11px] text-slate-500 text-center pt-3 border-t border-slate-800/80">
+                    Funktioniert an jedem PC über WhatsApp Web.
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal: Kontakt speichern -->
+    <div id="modal-contact" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-slate-100">WhatsApp Kontakt speichern</h3>
+                <button onclick="closeModal('modal-contact')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveContact(event)" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1">Name / Bezeichnung</label>
+                    <input type="text" id="contact-name" required placeholder="z.B. Familie, Arbeit" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Handynummer</label>
+                    <input type="text" id="contact-phone" required placeholder="+49..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none font-mono">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-contact')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-medium">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let savedContacts = [];
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        initAuthGuard(user => {
+            if (!user) return;
+            renderDrawer();
+            initContactsListener();
+        });
+
+        function setTemplate(text) {
+            document.getElementById('wa-message').value = text;
+        }
+
+        function startWhatsAppChat(e) {
+            e.preventDefault();
+            let phone = document.getElementById('wa-phone').value.trim();
+            const message = document.getElementById('wa-message').value;
+
+            // Nummer bereinigen (Leerzeichen, Klammern etc. entfernen)
+            phone = phone.replace(/[^0-9+]/g, '');
+
+            if (!phone) return alert('Bitte eine gültige Nummer eingeben.');
+
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+
+        function openContactModal() {
+            document.getElementById('contact-name').value = '';
+            document.getElementById('contact-phone').value = '';
+            openModal('modal-contact');
+        }
+
+        async function saveContact(e) {
+            e.preventDefault();
+            const name = document.getElementById('contact-name').value.trim();
+            const phone = document.getElementById('contact-phone').value.trim();
+
+            if (!name || !phone || !currentUser) return;
+
+            try {
+                await db.collection('whatsapp_contacts').add({
+                    name, phone,
+                    owner: currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                closeModal('modal-contact');
+            } catch (err) {
+                alert('Fehler beim Speichern: ' + err.message);
+            }
+        }
+
+        function initContactsListener() {
+            db.collection('whatsapp_contacts')
+                .where('owner', '==', currentUser.email)
+                .onSnapshot(snapshot => {
+                    savedContacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderContacts();
+                });
+        }
+
+        function renderContacts() {
+            const list = document.getElementById('contacts-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            if (savedContacts.length === 0) {
+                list.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Keine Kontakte gespeichert.</div>';
+                return;
+            }
+
+            savedContacts.forEach(c => {
+                const item = document.createElement('div');
+                item.className = "p-3 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex items-center justify-between gap-2 text-xs";
+                item.innerHTML = `
+                    <div class="flex items-center gap-2.5 truncate">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="truncate">
+                            <span class="font-bold text-slate-200 block truncate">${esc(c.name)}</span>
+                            <span class="text-[10px] text-slate-400 font-mono">${esc(c.phone)}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button data-chat class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl font-semibold flex items-center gap-1">
+                            <i class="fa-brands fa-whatsapp"></i> Chat
+                        </button>
+                        <button data-del class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl" title="Löschen">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+
+                item.querySelector('[data-chat]').addEventListener('click', () => {
+                    const msg = document.getElementById('wa-message').value;
+                    window.open(`https://wa.me/${c.phone.replace(/[^0-9+]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+                });
+
+                item.querySelector('[data-del]').addEventListener('click', async () => {
+                    if (confirm(`Kontakt "${c.name}" löschen?`)) {
+                        await db.collection('whatsapp_contacts').doc(c.id).delete();
+                    }
+                });
+
+                list.appendChild(item);
+            });
+        }
+    </script>
+</body>
+</html>
