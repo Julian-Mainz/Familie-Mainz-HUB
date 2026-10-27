@@ -2,82 +2,66 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System-Logs – J.Mainz Dashboard</title>
-
     <meta name="theme-color" content="#080c14">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
     <script src="/js/firebase-init.js"></script>
     <script src="/js/drawer.js"></script>
-
     <style>
         body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .border-panel { border-color: #1e293b; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
+    <style type="text/tailwindcss">
+        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg; }
+        .fld  { @apply bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500; }
+    </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col bg-[#080c14] overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
 
     <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <div class="flex items-center gap-2">
-            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow group">
-                <i class="fa-solid fa-bars text-indigo-400 group-hover:scale-110 transition-transform"></i>
-                <span class="hidden sm:inline">Menü</span>
-            </button>
-        </div>
-
-        <h1 class="text-sm sm:text-base md:text-xl font-bold text-cyan-400 tracking-wide text-center truncate px-2">
-            <i class="fa-solid fa-timeline mr-1.5"></i> System- & Aktivitäts-Logs
-        </h1>
-
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span class="hidden sm:inline">Ausloggen</span>
+        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
+            <i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span>
+        </button>
+        <h1 class="text-sm sm:text-base md:text-xl font-bold text-cyan-400 tracking-wide truncate px-2"><i class="fa-solid fa-timeline mr-1.5"></i>System- &amp; Aktivitäts-Logs</h1>
+        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span>
         </button>
     </header>
 
-    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-        <div class="bg-slate-900/60 border border-panel rounded-3xl p-4 md:p-6 shadow-lg flex-1 flex flex-col overflow-hidden">
+    <main class="flex-1 w-full flex flex-col overflow-y-auto pr-0 md:pr-1">
+        <div class="card p-4 md:p-6 flex-1 flex flex-col overflow-hidden">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-3">
                 <div>
-                    <h2 class="text-lg md:text-xl font-bold text-cyan-400 flex items-center gap-2">
-                        <i class="fa-solid fa-timeline"></i> Audit-Trail
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Übersicht aller Systemaktivitäten.</p>
+                    <h2 class="text-lg md:text-xl font-bold text-cyan-400"><i class="fa-solid fa-timeline mr-2"></i>Audit-Trail</h2>
+                    <p class="text-xs text-slate-400 mt-0.5"><span id="log-count">0</span> von <span id="log-total">0</span> Einträgen (die letzten 200 werden geladen)</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <input type="text" id="log-search-input" oninput="renderLogsTable()" placeholder="Logs filtern..." class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 w-40 sm:w-48">
-                    <select id="log-category-filter" onchange="renderLogsTable()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none">
+                    <input type="text" id="log-search-input" oninput="renderLogsTable()" placeholder="Logs filtern..." class="fld w-40 sm:w-48">
+                    <select id="log-category-filter" onchange="renderLogsTable()" class="fld">
                         <option value="all">Alle Aktivitäten</option>
+                        <option value="visit">Seitenbesuche</option>
                         <option value="auth">Logins / Auth</option>
                         <option value="data">Datenänderungen</option>
-                        <option value="admin">Sicherheit & Rechte</option>
+                        <option value="admin">Sicherheit &amp; Rechte</option>
                     </select>
-                    <button onclick="clearSystemLogs()" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-xs px-3 py-2 rounded-xl transition-all flex items-center gap-1.5">
-                        <i class="fa-solid fa-trash-can"></i>
-                        <span class="hidden sm:inline">Bereinigen</span>
+                    <button onclick="clearSystemLogs()" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-xs px-3 py-2 rounded-xl flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash-can"></i><span class="hidden sm:inline">Bereinigen</span>
                     </button>
                 </div>
             </div>
-            <div class="flex-1 overflow-x-auto overflow-y-auto">
+            <div class="flex-1 overflow-auto">
                 <table class="w-full text-left text-xs">
-                    <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800">
-                        <tr>
-                            <th class="p-2.5">Zeitpunkt</th>
-                            <th class="p-2.5">Kategorie</th>
-                            <th class="p-2.5">Benutzer</th>
-                            <th class="p-2.5">Ereignis</th>
-                        </tr>
-                    </thead>
+                    <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800"><tr>
+                        <th class="p-2.5">Zeitpunkt</th><th class="p-2.5">Kategorie</th><th class="p-2.5">Benutzer</th><th class="p-2.5">Ereignis</th><th class="p-2.5">Details</th>
+                    </tr></thead>
                     <tbody id="logs-table-body" class="divide-y divide-slate-800/60 text-slate-200 font-mono text-[11px]">
-                        <tr><td colspan="4" class="text-center py-6 text-slate-500 font-sans">Lade System-Logs...</td></tr>
+                        <tr><td colspan="5" class="text-center py-6 text-slate-500 font-sans">Lade System-Logs...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -85,57 +69,48 @@
     </main>
 
     <script>
-        let systemLogs = [];
+        const $ = id => document.getElementById(id);
+        const CAT_COLORS = { auth: 'text-indigo-300', data: 'text-emerald-300', admin: 'text-amber-300', visit: 'text-slate-400' };
+        let systemLogs = [], started = false;
 
         initAuthGuard(user => {
-            if (!user) return;
+            if (!user || started) return;
+            started = true;
             renderDrawer();
-            db.collection('system_logs').orderBy('timestamp', 'desc').limit(200).onSnapshot(snapshot => {
-                systemLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            db.collection('system_logs').orderBy('timestamp', 'desc').limit(200).onSnapshot(s => {
+                systemLogs = s.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderLogsTable();
-            });
-        });
+            }, err => { $('logs-table-body').innerHTML = `<tr><td colspan="5" class="text-center py-6 text-rose-400 font-sans">Logs konnten nicht geladen werden: ${esc(err.message)}</td></tr>`; });
+        }, { admin: true });
+
+        function detailsOf(log) {
+            const parts = [log.device];
+            if (log.details && Object.keys(log.details).length) parts.push(JSON.stringify(log.details));
+            return parts.filter(Boolean).join(' · ');
+        }
 
         function renderLogsTable() {
-            const tbody = document.getElementById('logs-table-body');
-            const searchVal = (document.getElementById('log-search-input')?.value || '').toLowerCase();
-            const catVal = document.getElementById('log-category-filter')?.value || 'all';
-            if (!tbody) return;
-
-            let filtered = systemLogs.filter(log => {
-                if (catVal !== 'all' && log.category !== catVal) return false;
-                if (!searchVal) return true;
-                return (log.userName || '').toLowerCase().includes(searchVal) ||
-                       (log.userEmail || '').toLowerCase().includes(searchVal) ||
-                       (log.action || '').toLowerCase().includes(searchVal);
-            });
-
-            tbody.innerHTML = '';
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-500 font-sans">Keine Logs gefunden.</td></tr>';
-                return;
-            }
-
-            filtered.forEach(log => {
-                let timeStr = '--:--:--';
-                if (log.timestamp && log.timestamp.toDate) {
-                    const d = log.timestamp.toDate();
-                    timeStr = `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`;
-                }
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-900/50 transition-colors";
-                row.innerHTML = `
-                    <td class="p-2.5 text-slate-400 whitespace-nowrap">${esc(timeStr)}</td>
-                    <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${esc(log.category || 'Info')}</span></td>
-                    <td class="p-2.5 text-slate-200">${esc(log.userName || 'Unbekannt')}</td>
-                    <td class="p-2.5 font-medium text-slate-200">${esc(log.action || '-')}</td>
-                `;
-                tbody.appendChild(row);
-            });
+            const q = ($('log-search-input').value || '').toLowerCase(), cat = $('log-category-filter').value;
+            const list = systemLogs.filter(l =>
+                (cat === 'all' || l.category === cat) &&
+                (!q || `${l.userName || ''} ${l.userEmail || ''} ${l.action || ''} ${detailsOf(l)}`.toLowerCase().includes(q)));
+            $('log-count').innerText = list.length;
+            $('log-total').innerText = systemLogs.length;
+            $('logs-table-body').innerHTML = list.length ? list.map(l => {
+                let t = '--:--:--';
+                if (l.timestamp?.toDate) { const d = l.timestamp.toDate(); t = `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`; }
+                const det = detailsOf(l);
+                return `<tr class="hover:bg-slate-900/50">
+                    <td class="p-2.5 text-slate-400 whitespace-nowrap">${esc(t)}</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 ${CAT_COLORS[l.category] || 'text-slate-400'}">${esc(l.category || 'info')}</span></td>
+                    <td class="p-2.5">${esc(l.userName || 'Unbekannt')}</td>
+                    <td class="p-2.5 font-medium">${esc(l.action || '-')}</td>
+                    <td class="p-2.5 text-slate-500 max-w-[260px] truncate" title="${esc(det)}">${esc(det || '-')}</td></tr>`;
+            }).join('') : '<tr><td colspan="5" class="text-center py-6 text-slate-500 font-sans">Keine Logs gefunden.</td></tr>';
         }
 
         async function clearSystemLogs() {
-            if (!confirm('Alle Logs unwiderruflich löschen?')) return;
+            if (!confirm('ALLE Logs unwiderruflich löschen?')) return;
             try {
                 const snap = await db.collection('system_logs').get();
                 for (let i = 0; i < snap.docs.length; i += 400) {
@@ -143,9 +118,8 @@
                     snap.docs.slice(i, i + 400).forEach(d => b.delete(d.ref));
                     await b.commit();
                 }
-            } catch (err) {
-                alert('Fehler beim Bereinigen: ' + err.message);
-            }
+                logSystemEvent('admin', 'System-Logs bereinigt', { geloescht: snap.size });
+            } catch (err) { alert('Fehler beim Bereinigen: ' + err.message); }
         }
     </script>
 </body>
