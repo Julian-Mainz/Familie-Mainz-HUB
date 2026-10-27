@@ -117,7 +117,7 @@ function initAuthGuard(onReadyCallback, opts = {}) {
             // Seitenrechte prüfen
             if ((opts.admin && !isAdmin(currentUser)) || (opts.perm && !can(currentUser, opts.perm))) {
                 alert('Dafür hast du keine Berechtigung.');
-                window.location.replace('/');
+                window.location.replace('/menu.html');
                 return;
             }
 
@@ -127,6 +127,7 @@ function initAuthGuard(onReadyCallback, opts = {}) {
             // lastLogin und Seitenbesuch nur einmal pro Sitzung bzw. Seite schreiben
             if (!safeStore(() => sessionStorage.getItem('lastLoginSet'))) {
                 safeStore(() => sessionStorage.setItem('lastLoginSet', '1'));
+                logSystemEvent('auth', 'Sitzung gestartet');
                 ref.update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
             }
             const visitKey = 'visit:' + window.location.pathname;
