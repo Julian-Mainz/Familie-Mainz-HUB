@@ -36,35 +36,44 @@
     </header>
 
     <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Statistik Kacheln -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div class="card p-4 flex flex-col justify-between">
                 <span class="text-xs text-slate-400"><i class="fa-regular fa-calendar text-indigo-400 mr-1.5"></i>Aktiver Monat</span>
                 <select id="finance-filter-month" onchange="renderFinanceData(false)" class="mt-2 bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none"></select>
             </div>
             <div class="card p-4"><span class="text-xs text-slate-400"><i class="fa-solid fa-arrow-down text-emerald-400 mr-1.5"></i>Einnahmen</span><div id="fin-stat-income" class="text-xl font-bold text-emerald-400 mt-1">0,00 €</div></div>
             <div class="card p-4"><span class="text-xs text-slate-400"><i class="fa-solid fa-arrow-up text-rose-400 mr-1.5"></i>Ausgaben</span><div id="fin-stat-expenses" class="text-xl font-bold text-rose-400 mt-1">0,00 €</div></div>
+            <div class="card p-4"><span class="text-xs text-slate-400"><i class="fa-solid fa-file-invoice-dollar text-amber-400 mr-1.5"></i>Fixkosten (Monat)</span><div id="fin-stat-fixed" class="text-xl font-bold text-amber-400 mt-1">0,00 €</div></div>
             <div class="card p-4"><span class="text-xs text-slate-400"><i class="fa-solid fa-wallet text-indigo-400 mr-1.5"></i>Saldo / Überschuss</span><div id="fin-stat-balance" class="text-xl font-bold mt-1">0,00 €</div></div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="card p-5 flex flex-col justify-between">
-                <div class="border-b border-slate-800 pb-2 mb-3"><span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-file-csv text-red-500 mr-2"></i>Sparkasse CSV-Umsätze importieren</span></div>
-                <p class="text-xs text-slate-400 mb-3">Lade deine exportierte Umsatz-CSV aus dem Sparkassen-Online-Banking hoch. Doppelte Buchungen werden erkannt.</p>
-                <label class="py-2.5 px-3 bg-red-600/10 hover:bg-red-600/20 border border-red-500/30 text-red-400 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-upload"></i><span>CSV-Datei auswählen</span>
+        <!-- Aktions-Leiste (CSV, Fixkosten verwalten, Lohnabrechnung) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="card p-4 flex flex-col justify-between">
+                <div class="border-b border-slate-800 pb-2 mb-2"><span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-file-csv text-red-500 mr-2"></i>Sparkasse CSV-Import</span></div>
+                <label class="py-2 px-3 bg-red-600/10 hover:bg-red-600/20 border border-red-500/30 text-red-400 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all">
+                    <i class="fa-solid fa-upload"></i><span>CSV-Umsätze hochladen</span>
                     <input type="file" accept=".csv" class="hidden" onchange="handleSparkasseCSV(event)">
                 </label>
             </div>
-            <div class="card p-5 flex flex-col justify-between">
-                <div class="border-b border-slate-800 pb-2 mb-3"><span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-file-invoice-dollar text-emerald-400 mr-2"></i>Lohnabrechnung ablegen</span></div>
-                <p class="text-xs text-slate-400 mb-3">Lohnzettel als PDF oder Foto (max. ca. 700 KB) in deiner Cloud ablegen.</p>
-                <button onclick="openPayslipModal()" class="w-full py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-plus"></i><span>Neue Abrechnung hochladen</span>
+            <div class="card p-4 flex flex-col justify-between">
+                <div class="border-b border-slate-800 pb-2 mb-2"><span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-receipt text-amber-400 mr-2"></i>Fixkosten &amp; Abos</span></div>
+                <button onclick="openFixedCostModal()" class="w-full py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-sliders"></i><span>Fixkosten verwalten &amp; buchen</span>
+                </button>
+            </div>
+            <div class="card p-4 flex flex-col justify-between">
+                <div class="border-b border-slate-800 pb-2 mb-2"><span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-file-invoice-dollar text-emerald-400 mr-2"></i>Lohnabrechnung</span></div>
+                <button onclick="openPayslipModal()" class="w-full py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-plus"></i><span>Abrechnung ablegen</span>
                 </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 min-h-[300px]">
+        <!-- Hauptbereich: Buchungstabelle & Lohnabrechnungen / Fixkosten -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 min-h-[350px]">
+            <!-- Buchungstabelle -->
             <div class="lg:col-span-2 card p-4 flex flex-col overflow-hidden">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-2.5">
                     <h3 class="text-xs font-bold text-slate-200"><i class="fa-solid fa-list text-indigo-400 mr-2"></i>Buchungen &amp; Umsätze</h3>
@@ -79,17 +88,29 @@
                     </table>
                 </div>
             </div>
-            <div class="card p-4 flex flex-col overflow-hidden">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-2.5">
-                    <h3 class="text-xs font-bold text-slate-200"><i class="fa-solid fa-folder-open text-amber-400 mr-2"></i>Lohnabrechnungen</h3>
-                    <span id="payslip-count-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
+
+            <!-- Rechte Spalte: Lohnabrechnungen & Fixkosten-Übersicht -->
+            <div class="flex flex-col gap-4">
+                <div class="card p-4 flex flex-col h-1/2 overflow-hidden">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-2">
+                        <h3 class="text-xs font-bold text-slate-200"><i class="fa-solid fa-folder-open text-amber-400 mr-2"></i>Lohnabrechnungen</h3>
+                        <span id="payslip-count-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="payslip-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
                 </div>
-                <div id="payslip-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+
+                <div class="card p-4 flex flex-col h-1/2 overflow-hidden">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-2">
+                        <h3 class="text-xs font-bold text-slate-200"><i class="fa-solid fa-receipt text-indigo-400 mr-2"></i>Hinterlegte Fixkosten</h3>
+                        <span id="fixed-count-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="fixed-preview-list" class="flex-1 overflow-y-auto space-y-2 pr-1 text-xs text-slate-400">Keine Fixkosten definiert.</div>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Modal: manuelle Buchung -->
+    <!-- Modal: Manuelle Buchung -->
     <div id="modal-finance-manual" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4"><h3 class="text-base font-bold">Manuelle Buchung anlegen</h3>
@@ -99,7 +120,7 @@
                 <div><label class="lbl">Begünstigter / Empfänger / Quelle</label><input type="text" id="fin-man-partner" required placeholder="z. B. Rewe, Tankstelle, Gehalt" class="inp"></div>
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="lbl">Kategorie</label>
-                        <select id="fin-man-cat" class="inp"><option>Supermarkt</option><option>Gehalt</option><option>Miete / Wohnen</option><option>Tanken / Auto</option><option>Freizeit / Abo</option><option selected>Sonstiges</option></select></div>
+                        <select id="fin-man-cat" class="inp"><option>Fixkosten</option><option>Supermarkt</option><option>Gehalt</option><option>Miete / Wohnen</option><option>Tanken / Auto</option><option>Freizeit / Abo</option><option selected>Sonstiges</option></select></div>
                     <div><label class="lbl">Betrag (€, z. B. -45.50)</label><input type="number" step="0.01" id="fin-man-amount" required placeholder="-45.50 oder 100" class="inp"></div>
                 </div>
                 <div class="flex justify-end gap-3 pt-3">
@@ -107,6 +128,32 @@
                     <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal: Fixkosten verwalten -->
+    <div id="modal-fixed-costs" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4"><h3 class="text-base font-bold text-slate-100">Fixkosten &amp; Abos verwalten</h3>
+                <button onclick="closeModal('modal-fixed-costs')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
+            
+            <div class="mb-4 bg-slate-950/50 p-3 rounded-2xl border border-slate-800">
+                <span class="text-xs font-bold text-amber-400 block mb-1"><i class="fa-solid fa-bolt mr-1"></i>Fixkosten in aktuellen Monat übernehmen</span>
+                <p class="text-[11px] text-slate-400 mb-2">Trage hier deine monatlichen Fixkosten ein. Mit einem Klick kannst du sie für den aktuell ausgewählten Monat als Buchungen eintragen lassen.</p>
+                <button onclick="applyFixedCostsToCurrentMonth()" class="w-full py-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-xl text-xs transition-all">Fixkosten für <span id="lbl-current-month-name">diesen Monat</span> buchen</button>
+            </div>
+
+            <div class="border-t border-slate-800 pt-3 mb-2"><h4 class="text-xs font-bold text-slate-300">Neue Fixkosten hinzufügen</h4></div>
+            <form onsubmit="saveFixedCost(event)" class="space-y-3 mb-4">
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="lbl">Bezeichnung (z. B. Netflix)</label><input type="text" id="fix-name" required placeholder="Netflix, Miete..." class="inp text-xs"></div>
+                    <div><label class="lbl">Betrag (€, monatlich)</label><input type="number" step="0.01" id="fix-amount" required placeholder="-14.99" class="inp text-xs"></div>
+                </div>
+                <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-medium">Fixkosten speichern</button>
+            </form>
+
+            <div class="border-t border-slate-800 pt-3 mb-2"><h4 class="text-xs font-bold text-slate-300">Deine gespeicherten Fixkosten</h4></div>
+            <div id="modal-fixed-list" class="flex-1 overflow-y-auto space-y-2 pr-1 max-h-40"></div>
         </div>
     </div>
 
@@ -140,7 +187,7 @@
         const eur = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
         const monthLabel = ym => { const [y, m] = ym.split('-'); return new Date(+y, +m - 1, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' }); };
 
-        let rawTransactions = [], rawPayslips = [], started = false;
+        let rawTransactions = [], rawPayslips = [], rawFixedCosts = [], started = false;
         let todayStr = localDate().slice(0, 7);
         setInterval(() => { todayStr = localDate().slice(0, 7); }, 60000);
 
@@ -157,6 +204,12 @@
                 renderPayslips();
                 renderFinanceData();
             });
+            db.collection('fixed_costs').where('owner', '==', currentUser.email).onSnapshot(s => {
+                rawFixedCosts = s.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderFixedCostsUI();
+                renderFinanceData();
+            });
+
             $('finance-table-body').addEventListener('click', e => {
                 const del = e.target.closest('[data-del]');
                 if (del) deleteTransaction(del.dataset.del);
@@ -165,9 +218,13 @@
                 const del = e.target.closest('[data-del]');
                 if (del) deletePayslip(del.dataset.del);
             });
+            $('modal-fixed-list').addEventListener('click', e => {
+                const del = e.target.closest('[data-del-fix]');
+                if (del) deleteFixedCost(del.dataset.delFix);
+            });
         }, { perm: 'finanzen' });
 
-        // ---------- Übersicht ----------
+        // ---------- Übersicht & Monate ----------
         function updateMonthDropdown() {
             const sel = $('finance-filter-month'), prev = sel.value;
             const months = new Set([todayStr]);
@@ -176,13 +233,17 @@
             const sorted = [...months].sort().reverse();
             sel.innerHTML = sorted.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
             sel.value = sorted.includes(prev) ? prev : sorted[0];
+            $('lbl-current-month-name').innerText = monthLabel(sel.value);
         }
 
         function renderFinanceData(refreshMonths = true) {
             if (refreshMonths) updateMonthDropdown();
             const month = $('finance-filter-month').value;
+            $('lbl-current-month-name').innerText = monthLabel(month);
+
             const list = rawTransactions.filter(t => t.date?.startsWith(month)).sort((a, b) => b.date.localeCompare(a.date));
             let inc = 0, exp = 0;
+            
             $('finance-table-body').innerHTML = list.length ? list.map(t => {
                 const plus = t.amount > 0;
                 if (plus) inc += t.amount; else exp += Math.abs(t.amount);
@@ -193,16 +254,99 @@
                     <td class="p-2 text-right font-bold font-mono ${plus ? 'text-emerald-400' : 'text-rose-400'}">${(plus ? '+' : '') + eur(t.amount)}</td>
                     <td class="p-2 text-right"><button data-del="${esc(t.id)}" class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
             }).join('') : '<tr><td colspan="5" class="text-center py-6 text-slate-500">Keine Buchungen für diesen Monat vorhanden.</td></tr>';
+
+            // Berechne Fixkosten für den Monat (Summe aller hinterlegten Fixkosten)
+            const totalFixed = rawFixedCosts.reduce((sum, f) => sum + Math.abs(f.amount), 0);
+
             const bal = inc - exp;
             $('fin-stat-income').innerText = eur(inc);
             $('fin-stat-expenses').innerText = eur(exp);
+            $('fin-stat-fixed').innerText = eur(totalFixed);
             $('fin-stat-balance').innerText = (bal >= 0 ? '+' : '') + eur(bal);
             $('fin-stat-balance').className = 'text-xl font-bold mt-1 ' + (bal >= 0 ? 'text-emerald-400' : 'text-rose-400');
         }
 
+        // ---------- Fixkosten ----------
+        function openFixedCostModal() {
+            renderFixedCostsUI();
+            openModal('modal-fixed-costs');
+        }
+
+        function saveFixedCost(e) {
+            e.preventDefault();
+            const partner = $('fix-name').value.trim();
+            let amount = parseFloat($('fix-amount').value);
+            if (!partner || isNaN(amount)) return;
+            if (amount > 0) amount = -amount; // Fixkosten sind immer Ausgaben
+
+            return run(async () => {
+                await db.collection('fixed_costs').add({ partner, amount, category: 'Fixkosten', owner: currentUser.email, createdAt: TS() });
+                $('fix-name').value = '';
+                $('fix-amount').value = '';
+            });
+        }
+
+        function deleteFixedCost(id) {
+            run(async () => { await db.collection('fixed_costs').doc(id).delete(); });
+        }
+
+        function renderFixedCostsUI() {
+            $('fixed-count-badge').innerText = rawFixedCosts.length;
+            const preview = $('fixed-preview-list');
+            const modalList = $('modal-fixed-list');
+
+            if (rawFixedCosts.length === 0) {
+                preview.innerHTML = 'Keine Fixkosten definiert.';
+                modalList.innerHTML = '<div class="text-xs text-slate-500 text-center py-4">Noch keine Fixkosten angelegt.</div>';
+                return;
+            }
+
+            preview.innerHTML = rawFixedCosts.map(f => `
+                <div class="flex justify-between items-center bg-slate-950/40 p-2 rounded-xl border border-slate-800">
+                    <span class="truncate text-slate-200">${esc(f.partner)}</span>
+                    <span class="font-mono font-bold text-rose-400">${eur(f.amount)}</span>
+                </div>
+            `).join('');
+
+            modalList.innerHTML = rawFixedCosts.map(f => `
+                <div class="flex justify-between items-center bg-slate-950/60 p-2.5 rounded-xl border border-slate-800 text-xs">
+                    <div class="truncate"><span class="font-bold text-slate-200 block">${esc(f.partner)}</span><span class="font-mono text-rose-400">${eur(f.amount)} / Monat</span></div>
+                    <button data-del-fix="${esc(f.id)}" class="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+            `).join('');
+        }
+
+        async function applyFixedCostsToCurrentMonth() {
+            if (rawFixedCosts.length === 0) return alert('Keine Fixkosten hinterlegt.');
+            const month = $('finance-filter-month').value;
+            const targetDate = `${month}-01`;
+
+            if (!confirm(`Möchtest du alle ${rawFixedCosts.length} Fixkosten als Buchungen für ${monthLabel(month)} eintragen?`)) return;
+
+            return run(async () => {
+                const batch = db.batch();
+                rawFixedCosts.forEach(f => {
+                    const newRef = db.collection('finance_transactions').doc();
+                    batch.set(newRef, {
+                        date: targetDate,
+                        partner: f.partner,
+                        purpose: 'Fixkosten automatisch gebucht',
+                        amount: f.amount,
+                        category: 'Fixkosten',
+                        owner: currentUser.email,
+                        createdAt: TS()
+                    });
+                });
+                await batch.commit();
+                closeModal('modal-fixed-costs');
+                alert('Fixkosten erfolgreich für diesen Monat gebucht!');
+            });
+        }
+
+        // ---------- Buchungen ----------
         function deleteTransaction(id) {
             if (!confirm('Diese Buchung wirklich löschen?')) return;
-            run(async () => { await db.collection('finance_transactions').doc(id).delete(); logSystemEvent('data', 'Buchung gelöscht', { id }); });
+            run(async () => { await db.collection('finance_transactions').doc(id).delete(); });
         }
 
         function openManualTransactionModal() {
@@ -212,6 +356,7 @@
             $('fin-man-cat').value = 'Sonstiges';
             openModal('modal-finance-manual');
         }
+
         function saveManualTransaction(e) {
             e.preventDefault();
             const date = $('fin-man-date').value, partner = $('fin-man-partner').value.trim();
@@ -220,7 +365,6 @@
             return run(async () => {
                 await db.collection('finance_transactions').add({ date, partner, purpose: 'Manuelle Buchung', amount, category, owner: currentUser.email, createdAt: TS() });
                 closeModal('modal-finance-manual');
-                logSystemEvent('data', 'Buchung manuell angelegt', { date, amount });
             });
         }
 
@@ -299,13 +443,12 @@
                     const batch = db.batch();
                     for (const it of items.slice(i, i + 400)) {
                         const key = [currentUser.email, it.date, it.partner, it.amount, it.purpose].join('|');
-                        seen[key] = (seen[key] || 0) + 1;      // gleiche Buchungen am selben Tag bleiben getrennt
+                        seen[key] = (seen[key] || 0) + 1;
                         batch.set(db.collection('finance_transactions').doc(await hashString(key + '|' + seen[key])), it);
                     }
                     await batch.commit();
                 }
-                alert(`${items.length} Buchungen synchronisiert (bereits vorhandene wurden zusammengeführt).`);
-                logSystemEvent('data', 'Sparkassen-CSV importiert', { anzahl: items.length });
+                alert(`${items.length} Buchungen synchronisiert.`);
             }).finally(() => { e.target.value = ''; });
             reader.readAsArrayBuffer(file);
         }
@@ -322,16 +465,14 @@
             const month = $('payslip-month').value, netto = parseFloat($('payslip-netto').value);
             const brutto = parseFloat($('payslip-brutto').value) || 0, file = $('payslip-file').files[0], btn = $('btn-save-payslip');
             if (!month || isNaN(netto) || !file) return;
-            if (file.size > 700 * 1024) return alert('Datei zu groß (max. ca. 700 KB wegen des Firestore-Limits). Bitte verkleinern.');
+            if (file.size > 700 * 1024) return alert('Datei zu groß (max. ca. 700 KB wegen Firestore-Limit).');
             btn.disabled = true; btn.innerText = 'Wird gespeichert...';
             const reader = new FileReader();
-            reader.onerror = () => { alert('Datei konnte nicht gelesen werden.'); btn.disabled = false; btn.innerText = 'In Cloud speichern'; };
             reader.onload = () => run(async () => {
                 const txRef = db.collection('finance_transactions').doc();
                 await db.collection('payslips').add({ txId: txRef.id, month, netto, brutto, fileName: file.name, fileData: reader.result, owner: currentUser.email, createdAt: TS() });
                 await txRef.set({ date: `${month}-01`, partner: 'Arbeitgeber (Gehalt)', purpose: `Lohnabrechnung ${month}`, amount: netto, category: 'Gehalt', owner: currentUser.email, createdAt: TS() });
                 closeModal('modal-payslip-add');
-                logSystemEvent('data', 'Lohnabrechnung abgelegt', { monat: month, netto });
             }).finally(() => { btn.disabled = false; btn.innerText = 'In Cloud speichern'; });
             reader.readAsDataURL(file);
         }
@@ -358,7 +499,6 @@
             run(async () => {
                 await db.collection('payslips').doc(id).delete();
                 if (p?.txId) await db.collection('finance_transactions').doc(p.txId).delete().catch(() => {});
-                logSystemEvent('data', 'Lohnabrechnung gelöscht', { monat: p?.month });
             });
         }
     </script>
