@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin & Rechte – J.Mainz Dashboard</title>
+    <title>Admin – J.Mainz Dashboard</title>
     <meta name="theme-color" content="#080c14">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,40 +18,91 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
     <style type="text/tailwindcss">
-        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg; }
+        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg p-4; }
         .fld  { @apply bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500; }
+        .tab  { @apply px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 whitespace-nowrap; }
+        .tab.on { @apply bg-indigo-600 text-white; }
         .act  { @apply px-3 py-1.5 rounded-xl border text-xs; }
+        .btn  { @apply px-3 py-2 rounded-xl text-xs font-semibold border; }
+        .h3   { @apply text-xs font-bold text-slate-200 border-b border-slate-800 pb-2.5 mb-3; }
+        .stat { @apply flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800 text-xs; }
     </style>
 </head>
 <body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
 
     <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
-            <i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span>
-        </button>
-        <h1 class="text-sm sm:text-base md:text-xl font-bold text-amber-400 tracking-wide truncate px-2"><i class="fa-solid fa-user-shield mr-1.5"></i>Admin- &amp; Rechtesystem</h1>
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span>
-        </button>
+        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span></button>
+        <h1 class="text-sm sm:text-base md:text-xl font-bold text-amber-400 tracking-wide truncate px-2"><i class="fa-solid fa-user-shield mr-1.5"></i>Admin</h1>
+        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span></button>
     </header>
 
-    <main class="flex-1 w-full overflow-y-auto pr-0 md:pr-1">
-        <div class="card p-4 md:p-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 mb-4 gap-2">
-                <div>
-                    <h2 class="text-lg md:text-xl font-bold text-amber-400"><i class="fa-solid fa-users-gear mr-2"></i>Mitglieder-Verwaltung</h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Neue Registrierungen freigeben und Zugriffsrechte verwalten.</p>
-                </div>
-                <span id="user-count-badge" class="self-start sm:self-center text-xs font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1.5 rounded-xl">0 Benutzer</span>
-            </div>
-            <div class="flex flex-wrap gap-2 mb-4">
+    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
+        <!-- Kennzahlen -->
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+            <button onclick="jumpPending()" class="card text-left hover:border-amber-500/40"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-user-clock text-amber-400 mr-1"></i>Offene Freigaben</span><div id="k-pend" class="text-lg font-bold text-amber-300 mt-1">–</div></button>
+            <div class="card"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-users text-indigo-400 mr-1"></i>Mitglieder</span><div id="k-users" class="text-lg font-bold mt-1">–</div></div>
+            <button onclick="jumpFails()" class="card text-left hover:border-rose-500/40"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-triangle-exclamation text-rose-400 mr-1"></i>Fehl-Logins heute</span><div id="k-fail" class="text-lg font-bold mt-1">–</div></button>
+            <div class="card"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-laptop text-cyan-400 mr-1"></i>Heute aktiv</span><div id="k-active" class="text-lg font-bold mt-1">–</div></div>
+            <div class="card col-span-2 lg:col-span-1"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-database text-emerald-400 mr-1"></i>Datenbank</span><div id="k-db" class="text-lg font-bold mt-1">–</div></div>
+        </div>
+
+        <div class="flex gap-1 bg-slate-900/60 border border-slate-800 rounded-2xl p-1 w-fit max-w-full overflow-x-auto">
+            <button class="tab" data-tab="users" onclick="showTab('users')"><i class="fa-solid fa-users-gear mr-1.5"></i>Benutzer &amp; Rechte</button>
+            <button class="tab" data-tab="logs" onclick="showTab('logs')"><i class="fa-solid fa-timeline mr-1.5"></i>Logs</button>
+            <button class="tab" data-tab="system" onclick="showTab('system')"><i class="fa-solid fa-server mr-1.5"></i>System</button>
+        </div>
+
+        <!-- Benutzer -->
+        <section id="tab-users" class="card">
+            <div class="flex flex-wrap items-center gap-2 mb-4">
                 <input id="adm-search" placeholder="Suchen (Name, E-Mail)..." class="fld w-56">
-                <select id="adm-status" class="fld">
-                    <option value="all">Alle</option><option value="pending">Wartet auf Freigabe</option><option value="active">Aktiv</option><option value="blocked">Gesperrt</option>
-                </select>
+                <select id="adm-status" class="fld"><option value="all">Alle</option><option value="pending">Wartet auf Freigabe</option><option value="active">Aktiv</option><option value="blocked">Gesperrt</option></select>
+                <div class="flex-1"></div>
+                <button id="btn-approve-all" onclick="approveAll()" class="btn bg-emerald-600/20 border-emerald-500/30 text-emerald-300 hidden"><i class="fa-solid fa-check-double mr-1.5"></i><span></span></button>
             </div>
             <div id="admin-user-list" class="space-y-3"><div class="text-xs text-slate-500 text-center py-6">Lade Benutzer...</div></div>
-        </div>
+        </section>
+
+        <!-- Logs -->
+        <section id="tab-logs" class="hidden card flex flex-col">
+            <div class="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3 mb-3">
+                <select id="log-period" onchange="loadLogs(true)" class="fld"><option value="0">Heute</option><option value="7" selected>7 Tage</option><option value="30">30 Tage</option><option value="all">Alles</option></select>
+                <select id="log-cat" onchange="renderLogs()" class="fld"><option value="">Alle Kategorien</option><option value="auth">Logins / Auth</option><option value="data">Datenänderungen</option><option value="admin">Sicherheit &amp; Rechte</option><option value="visit">Seitenbesuche</option></select>
+                <input id="log-q" oninput="renderLogs()" placeholder="Filtern (Person, Ereignis, Details)..." class="fld w-56">
+                <div class="flex-1"></div>
+                <button onclick="loadLogs(true)" class="btn bg-slate-800 border-slate-700 text-slate-200"><i class="fa-solid fa-rotate mr-1.5"></i>Neu laden</button>
+                <button onclick="exportLogs()" class="btn bg-slate-800 border-slate-700 text-slate-200"><i class="fa-solid fa-file-csv mr-1.5 text-emerald-400"></i>Export</button>
+                <button onclick="clearLogs(30)" class="btn bg-amber-500/10 border-amber-500/20 text-amber-300" title="Löscht Logs, die älter als 30 Tage sind"><i class="fa-solid fa-broom mr-1.5"></i>Älter als 30 Tage</button>
+                <button onclick="clearLogs(0)" class="btn bg-rose-500/10 border-rose-500/20 text-rose-400"><i class="fa-solid fa-trash-can mr-1.5"></i>Alle löschen</button>
+            </div>
+            <div class="overflow-auto max-h-[60vh]"><table class="w-full text-left text-xs">
+                <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800 sticky top-0"><tr><th class="p-2.5">Zeitpunkt</th><th class="p-2.5">Kategorie</th><th class="p-2.5">Benutzer</th><th class="p-2.5">Ereignis</th><th class="p-2.5">Details</th></tr></thead>
+                <tbody id="logs-body" class="divide-y divide-slate-800/60 font-mono text-[11px]"></tbody></table></div>
+            <div class="flex items-center justify-between pt-3"><span id="log-info" class="text-[11px] text-slate-500"></span>
+                <button id="log-more" onclick="loadLogs(false)" class="btn bg-slate-800 border-slate-700 text-slate-200 hidden">Mehr laden</button></div>
+        </section>
+
+        <!-- System -->
+        <section id="tab-system" class="hidden space-y-4">
+            <div class="flex items-center justify-between"><span id="sys-update" class="text-xs text-slate-500"></span>
+                <button onclick="loadSystem()" class="btn bg-slate-900 border-slate-800 text-indigo-300"><i class="fa-solid fa-rotate mr-1.5"></i>Aktualisieren</button></div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="card"><div class="h3"><i class="fa-solid fa-folder-tree text-indigo-400 mr-2"></i>Dokumente in der Datenbank</div><div id="col-stats" class="space-y-2"></div></div>
+                <div class="card"><div class="h3"><i class="fa-solid fa-gauge-high text-yellow-400 mr-2"></i>Kontingent (Spark-Plan)</div>
+                    <div class="space-y-2 text-slate-400">
+                        <div class="stat"><span>Lesevorgänge pro Tag</span><span class="font-mono text-slate-200">50.000 frei</span></div>
+                        <div class="stat"><span>Schreibvorgänge pro Tag</span><span class="font-mono text-slate-200">20.000 frei</span></div>
+                        <div class="stat"><span>Speicher</span><span class="font-mono text-slate-200">1 GiB frei</span></div>
+                        <div class="stat"><span>Von dieser Seite verbraucht (Schätzung)</span><span id="reads-est" class="font-mono text-amber-300">–</span></div>
+                        <p class="text-[11px] leading-relaxed pt-1">Den echten Tagesverbrauch zeigt nur Firebase selbst. <a href="https://console.firebase.google.com/project/familie-mainz-netzwerk/usage" target="_blank" rel="noopener" class="text-indigo-400 underline">Verbrauch in der Konsole öffnen</a>.</p></div></div>
+            </div>
+            <div class="card"><div class="h3"><i class="fa-solid fa-user-clock text-cyan-400 mr-2"></i>Aktivität heute pro Person</div>
+                <div class="overflow-auto"><table class="w-full text-left text-xs"><thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800"><tr><th class="p-2">Person</th><th class="p-2">Ereignisse</th><th class="p-2">Geräte</th><th class="p-2">Zuletzt aktiv</th></tr></thead>
+                    <tbody id="people-body" class="divide-y divide-slate-800/60"></tbody></table></div></div>
+            <div class="card"><div class="h3"><i class="fa-solid fa-list-shield text-cyan-400 mr-2"></i>Letzte Aktivitäten mit Gerät</div>
+                <div class="overflow-auto max-h-72"><table class="w-full text-left text-xs"><thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800"><tr><th class="p-2">Zeit</th><th class="p-2">Benutzer</th><th class="p-2">Ereignis</th><th class="p-2">Gerät</th><th class="p-2">Browser</th></tr></thead>
+                    <tbody id="devices-body" class="divide-y divide-slate-800/60 text-[11px]"></tbody></table></div></div>
+        </section>
     </main>
 
     <script>
@@ -62,74 +113,77 @@
             guest: { label: 'Gast',    perms: { kalender: true, zeit: false, finanzen: false, tresor: false, admin: false } }
         };
         const MODULES = { zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe' };
-        const BADGE = {
-            active:  ['Aktiv', 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'],
-            pending: ['Wartet auf Freigabe', 'bg-amber-500/10 text-amber-400 border-amber-500/20'],
-            blocked: ['Gesperrt', 'bg-rose-500/10 text-rose-400 border-rose-500/20']
-        };
+        const BADGE = { active: ['Aktiv', 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'], pending: ['Wartet auf Freigabe', 'bg-amber-500/10 text-amber-400 border-amber-500/20'], blocked: ['Gesperrt', 'bg-rose-500/10 text-rose-400 border-rose-500/20'] };
+        const CAT_COLOR = { auth: 'text-indigo-300', data: 'text-emerald-300', admin: 'text-amber-300', visit: 'text-slate-400' };
         const st = u => u.status || 'active';
-        const fmtDate = ts => ts?.toDate ? ts.toDate().toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) : '–';
+        const fmtDate = t => t?.toDate ? t.toDate().toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) : '–';
+        const csvCell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
         const activeAdmins = () => allUsers.filter(u => isAdmin(u) && st(u) === 'active');
+        const isSelf = u => u.id === currentUser.uid;
 
-        let allUsers = [], fText = '', fStatus = 'all', started = false;
+        let allUsers = [], fText = '', fStatus = 'all', todayLogs = [], logs = [], logCursor = null, logsLoaded = false, sysLoaded = false, reads = 0, started = false;
 
         initAuthGuard(user => {
             if (!user || started) return;
             started = true;
             renderDrawer();
-            db.collection('users').onSnapshot(s => {
-                allUsers = s.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderUsers();
-            }, err => { $('admin-user-list').innerHTML = `<div class="text-xs text-rose-400 text-center py-6">Benutzer konnten nicht geladen werden: ${esc(err.message)}</div>`; });
-
+            db.collection('users').onSnapshot(s => { allUsers = s.docs.map(d => ({ id: d.id, ...d.data() })); renderUsers(); },
+                err => { $('admin-user-list').innerHTML = `<div class="text-xs text-rose-400 text-center py-6">Benutzer konnten nicht geladen werden: ${esc(err.message)}</div>`; });
             $('adm-search').addEventListener('input', e => { fText = e.target.value.toLowerCase(); renderUsers(); });
             $('adm-status').addEventListener('change', e => { fStatus = e.target.value; renderUsers(); });
-            $('admin-user-list').addEventListener('change', e => {
-                const u = userOf(e.target);
-                if (!u) return;
-                if (e.target.dataset.role) setRole(u, e.target.value);
-                if (e.target.dataset.perm) togglePerm(u, e.target.dataset.perm, e.target.checked);
-            });
+            $('admin-user-list').addEventListener('change', e => { const u = userOf(e.target); if (!u) return; if (e.target.dataset.role) setRole(u, e.target.value); if (e.target.dataset.perm) togglePerm(u, e.target.dataset.perm, e.target.checked); });
             $('admin-user-list').addEventListener('click', e => {
-                const btn = e.target.closest('[data-act]'), u = btn && userOf(btn);
-                if (!u) return;
-                if (btn.dataset.act === 'approve') setStatus(u, 'active');
-                if (btn.dataset.act === 'block') setStatus(u, 'blocked');
-                if (btn.dataset.act === 'delete') removeUser(u);
+                const b = e.target.closest('[data-act]'), u = b && userOf(b); if (!u) return;
+                ({ approve: () => setStatus(u, 'active'), block: () => setStatus(u, 'blocked'), delete: () => removeUser(u), reset: () => resetPw(u) })[b.dataset.act]();
             });
+            loadToday();
+            showTab(location.hash.slice(1) || 'users');
         }, { admin: true });
 
         const userOf = el => allUsers.find(u => u.id === el.closest('[data-uid]')?.dataset.uid);
 
-        // ---------- Aktionen ----------
-        async function update(u, data, msg) {
-            try {
-                await db.collection('users').doc(u.id).update(data);
-                logSystemEvent('admin', msg, { ziel: u.email });
-            } catch (err) { alert('Fehlgeschlagen: ' + err.message); renderUsers(); }
+        function showTab(t) {
+            if (!$('tab-' + t)) t = 'users';
+            ['users', 'logs', 'system'].forEach(k => $('tab-' + k).classList.toggle('hidden', k !== t));
+            document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+            history.replaceState(null, '', '#' + t);
+            if (t === 'logs' && !logsLoaded) loadLogs(true);
+            if (t === 'system' && !sysLoaded) loadSystem();
         }
-        // verhindert, dass niemand mehr Admin ist
+        function jumpPending() { fStatus = 'pending'; $('adm-status').value = 'pending'; showTab('users'); renderUsers(); }
+        function jumpFails() { $('log-period').value = '0'; $('log-q').value = 'Fehlgeschlagen'; $('log-cat').value = ''; showTab('logs'); loadLogs(true); }
+
+        // ---------- Kennzahlen ----------
+        async function loadToday() {
+            try {
+                const t0 = performance.now(), start = new Date(); start.setHours(0, 0, 0, 0);
+                const snap = await db.collection('system_logs').where('timestamp', '>=', firebase.firestore.Timestamp.fromDate(start)).orderBy('timestamp', 'desc').limit(500).get();
+                const ms = Math.round(performance.now() - t0); reads += snap.size;
+                todayLogs = snap.docs.map(d => d.data());
+                $('k-db').innerHTML = `<span class="inline-block w-2.5 h-2.5 rounded-full ${ms < 1500 ? 'bg-emerald-400' : 'bg-amber-400'} mr-2"></span>${ms} ms`;
+                const fails = todayLogs.filter(l => (l.action || '').includes('Fehlgeschlagen')).length;
+                $('k-fail').innerText = fails; $('k-fail').className = 'text-lg font-bold mt-1 ' + (fails ? 'text-rose-400' : 'text-emerald-400');
+                $('k-active').innerText = new Set(todayLogs.filter(l => l.userEmail && l.userEmail !== 'Gast / Anonym').map(l => l.userEmail)).size + ' Personen';
+            } catch (e) { $('k-db').innerHTML = '<span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-400 mr-2"></span>Fehler'; }
+        }
+
+        // ---------- Benutzer ----------
+        async function update(u, data, msg) {
+            try { await db.collection('users').doc(u.id).update(data); logSystemEvent('admin', msg, { ziel: u.email }); }
+            catch (err) { alert('Fehlgeschlagen: ' + err.message); renderUsers(); }
+        }
         function lastAdminBlocked(u, what) {
-            if (isAdmin(u) && st(u) === 'active' && activeAdmins().length <= 1) {
-                alert(`Der letzte aktive Admin kann nicht ${what} werden.`);
-                return true;
-            }
+            if (isAdmin(u) && st(u) === 'active' && activeAdmins().length <= 1) { alert(`Der letzte aktive Admin kann nicht ${what} werden.`); return true; }
             return false;
         }
-        const isSelf = u => u.id === currentUser.uid;
-
         function setRole(u, role) {
             if (isSelf(u)) return renderUsers();
             if (role !== 'admin' && lastAdminBlocked(u, 'herabgestuft')) return renderUsers();
-            const msg = role === 'admin' ? `${u.email} zum ADMIN machen? Admins haben Zugriff auf alle Bereiche, auch auf diese Seite.`
-                : `Rolle von ${u.email} auf „${ROLES[role].label}“ setzen? Die Einzelrechte werden dabei zurückgesetzt.`;
+            const msg = role === 'admin' ? `${u.email} zum ADMIN machen? Admins haben Zugriff auf alle Bereiche, auch auf diese Seite.` : `Rolle von ${u.email} auf „${ROLES[role].label}“ setzen? Die Einzelrechte werden dabei zurückgesetzt.`;
             if (!confirm(msg)) return renderUsers();
             update(u, { role, permissions: ROLES[role].perms }, `Rolle auf „${ROLES[role].label}“ gesetzt`);
         }
-        function togglePerm(u, key, checked) {
-            if (isSelf(u)) return renderUsers();
-            update(u, { [`permissions.${key}`]: checked }, `Recht „${key}“ ${checked ? 'erteilt' : 'entzogen'}`);
-        }
+        function togglePerm(u, key, checked) { if (isSelf(u)) return renderUsers(); update(u, { [`permissions.${key}`]: checked }, `Recht „${key}“ ${checked ? 'erteilt' : 'entzogen'}`); }
         function setStatus(u, status) {
             if (status === 'blocked') {
                 if (isSelf(u)) return alert('Du kannst dich nicht selbst sperren.');
@@ -142,47 +196,117 @@
             if (isSelf(u)) return alert('Du kannst dein eigenes Profil nicht löschen.');
             if (lastAdminBlocked(u, 'gelöscht')) return;
             if (!confirm(`Profil von ${u.email} löschen?\n\nDer Zugriff ist danach beendet. Das Login-Konto bleibt in Firebase (Authentication) bestehen und muss dort separat gelöscht werden.`)) return;
-            try {
-                await db.collection('users').doc(u.id).delete();
-                logSystemEvent('admin', 'Benutzerprofil gelöscht', { ziel: u.email });
-            } catch (err) { alert('Fehlgeschlagen: ' + err.message); }
+            try { await db.collection('users').doc(u.id).delete(); logSystemEvent('admin', 'Benutzerprofil gelöscht', { ziel: u.email }); } catch (err) { alert('Fehlgeschlagen: ' + err.message); }
+        }
+        async function resetPw(u) {
+            if (!confirm(`E-Mail zum Zurücksetzen des Passworts an ${u.email} senden?`)) return;
+            try { await auth.sendPasswordResetEmail(u.email); logSystemEvent('admin', 'Passwort-Reset gesendet', { ziel: u.email }); alert('E-Mail wurde versendet.'); } catch (err) { alert('Fehlgeschlagen: ' + err.message); }
+        }
+        async function approveAll() {
+            const list = allUsers.filter(u => st(u) === 'pending');
+            if (!list.length || !confirm(`${list.length} wartende Konten freigeben?`)) return;
+            try { const b = db.batch(); list.forEach(u => b.update(db.collection('users').doc(u.id), { status: 'active' })); await b.commit(); logSystemEvent('admin', 'Mehrere Benutzer freigegeben', { anzahl: list.length }); } catch (err) { alert('Fehlgeschlagen: ' + err.message); }
         }
 
-        // ---------- Anzeige ----------
         function renderUsers() {
-            const pending = allUsers.filter(u => st(u) === 'pending').length;
-            $('user-count-badge').innerText = `${allUsers.length} Benutzer${pending ? ` · ${pending} offen` : ''}`;
-            const rows = allUsers
-                .filter(u => (fStatus === 'all' || st(u) === fStatus) && (!fText || `${u.displayName || ''} ${u.email}`.toLowerCase().includes(fText)))
+            const pending = allUsers.filter(u => st(u) === 'pending').length, active = allUsers.filter(u => st(u) === 'active').length;
+            $('k-pend').innerText = pending; $('k-users').innerText = `${active} aktiv / ${allUsers.length}`;
+            $('btn-approve-all').classList.toggle('hidden', !pending); $('btn-approve-all').querySelector('span').innerText = `Alle ${pending} freigeben`;
+            const rows = allUsers.filter(u => (fStatus === 'all' || st(u) === fStatus) && (!fText || `${u.displayName || ''} ${u.email}`.toLowerCase().includes(fText)))
                 .sort((a, b) => (st(b) === 'pending') - (st(a) === 'pending') || (a.displayName || a.email).localeCompare(b.displayName || b.email, 'de'));
-
             $('admin-user-list').innerHTML = rows.length ? rows.map(u => {
                 const self = isSelf(u), s = st(u), perms = u.permissions || {}, admin = isAdmin(u), [bl, bc] = BADGE[s] || BADGE.active;
                 return `<div data-uid="${esc(u.id)}" class="bg-slate-950/40 border ${s === 'pending' ? 'border-amber-500/40' : 'border-slate-800/80'} rounded-2xl p-4 space-y-3 text-xs">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                            <div class="font-semibold text-slate-200 text-sm">${esc(u.displayName || u.email)} ${self ? '<span class="text-[10px] text-slate-500 font-normal">(du)</span>' : ''}</div>
-                            <div class="text-slate-500">${esc(u.email)}</div>
-                            <div class="text-[10px] text-slate-600 mt-0.5">Registriert: ${fmtDate(u.createdAt)} · Letzter Login: ${fmtDate(u.lastLogin)}</div>
-                        </div>
-                        <span class="text-[10px] border px-2 py-1 rounded-lg ${bc}">${bl}</span>
-                    </div>
+                    <div class="flex flex-wrap items-center justify-between gap-2"><div>
+                        <div class="font-semibold text-slate-200 text-sm">${esc(u.displayName || u.email)} ${self ? '<span class="text-[10px] text-slate-500 font-normal">(du)</span>' : ''}
+                            ${u.notificationsEnabled ? '<i class="fa-solid fa-bell text-yellow-400 text-[10px] ml-1" title="Push aktiv"></i>' : ''}</div>
+                        <div class="text-slate-500">${esc(u.email)}</div>
+                        <div class="text-[10px] text-slate-600 mt-0.5">Registriert: ${fmtDate(u.createdAt)} · Letzter Login: ${fmtDate(u.lastLogin)}</div></div>
+                        <span class="text-[10px] border px-2 py-1 rounded-lg ${bc}">${bl}</span></div>
                     <div class="flex flex-wrap items-center gap-3">
                         <select data-role class="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 disabled:opacity-50" ${self ? 'disabled title="Eigene Rolle kann nicht geändert werden"' : ''}>
-                            ${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${(u.role || 'user') === k ? 'selected' : ''}>${r.label}</option>`).join('')}
-                        </select>
-                        ${Object.entries(MODULES).map(([k, l]) => `
-                            <label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${admin || self ? 'opacity-50' : 'cursor-pointer'}">
-                                <input type="checkbox" data-perm="${k}" ${perms[k] !== false ? 'checked' : ''} ${admin || self ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">${l}
-                            </label>`).join('')}
-                    </div>
+                            ${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${(u.role || 'user') === k ? 'selected' : ''}>${r.label}</option>`).join('')}</select>
+                        ${Object.entries(MODULES).map(([k, l]) => `<label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${admin || self ? 'opacity-50' : 'cursor-pointer'}">
+                            <input type="checkbox" data-perm="${k}" ${perms[k] !== false ? 'checked' : ''} ${admin || self ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">${l}</label>`).join('')}</div>
                     <div class="flex flex-wrap gap-2 pt-1">
                         ${s !== 'active' ? '<button data-act="approve" class="act bg-emerald-600/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-600/30">Freigeben</button>' : ''}
                         ${s === 'active' && !self ? '<button data-act="block" class="act bg-amber-600/20 border-amber-500/30 text-amber-300 hover:bg-amber-600/30">Sperren</button>' : ''}
-                        ${!self ? '<button data-act="delete" class="act bg-rose-600/20 border-rose-500/30 text-rose-300 hover:bg-rose-600/30">Profil löschen</button>' : ''}
-                    </div>
-                </div>`;
+                        ${!self ? '<button data-act="reset" class="act bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-key mr-1"></i>Passwort-Reset</button>' : ''}
+                        ${!self ? '<button data-act="delete" class="act bg-rose-600/20 border-rose-500/30 text-rose-300 hover:bg-rose-600/30">Profil löschen</button>' : ''}</div></div>`;
             }).join('') : '<div class="text-xs text-slate-500 text-center py-6">Keine Benutzer gefunden.</div>';
+        }
+
+        // ---------- Logs ----------
+        const detailsOf = l => [l.device, l.details && Object.keys(l.details).length ? JSON.stringify(l.details) : ''].filter(Boolean).join(' · ');
+        const logTime = l => { if (!l.timestamp?.toDate) return '--'; const d = l.timestamp.toDate(); return `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`; };
+
+        async function loadLogs(reset) {
+            logsLoaded = true;
+            try {
+                let q = db.collection('system_logs').orderBy('timestamp', 'desc');
+                const p = $('log-period').value;
+                if (p !== 'all') { const from = new Date(); from.setHours(0, 0, 0, 0); from.setDate(from.getDate() - +p); q = db.collection('system_logs').where('timestamp', '>=', firebase.firestore.Timestamp.fromDate(from)).orderBy('timestamp', 'desc'); }
+                if (!reset && logCursor) q = q.startAfter(logCursor);
+                const snap = await q.limit(100).get(); reads += snap.size;
+                const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                logs = reset ? rows : logs.concat(rows);
+                logCursor = snap.docs[snap.docs.length - 1] || logCursor;
+                $('log-more').classList.toggle('hidden', snap.size < 100);
+                renderLogs();
+            } catch (e) { $('logs-body').innerHTML = `<tr><td colspan="5" class="text-center py-6 text-rose-400 font-sans">Logs konnten nicht geladen werden: ${esc(e.message)}</td></tr>`; }
+        }
+        function filteredLogs() {
+            const c = $('log-cat').value, q = $('log-q').value.toLowerCase();
+            return logs.filter(l => (!c || l.category === c) && (!q || `${l.userName || ''} ${l.userEmail || ''} ${l.action || ''} ${detailsOf(l)}`.toLowerCase().includes(q)));
+        }
+        function renderLogs() {
+            const list = filteredLogs();
+            $('log-info').innerText = `${list.length} von ${logs.length} geladenen Einträgen`;
+            $('logs-body').innerHTML = list.length ? list.map(l => `<tr class="hover:bg-slate-900/50"><td class="p-2.5 text-slate-400 whitespace-nowrap">${esc(logTime(l))}</td>
+                <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 ${CAT_COLOR[l.category] || 'text-slate-400'}">${esc(l.category || 'info')}</span></td>
+                <td class="p-2.5">${esc(l.userName || 'Unbekannt')}</td><td class="p-2.5 font-medium font-sans">${esc(l.action || '-')}</td>
+                <td class="p-2.5 text-slate-500 max-w-[280px] truncate" title="${esc(detailsOf(l))}">${esc(detailsOf(l) || '-')}</td></tr>`).join('')
+                : '<tr><td colspan="5" class="text-center py-6 text-slate-500 font-sans">Keine Logs gefunden.</td></tr>';
+        }
+        function exportLogs() {
+            const list = filteredLogs(); if (!list.length) return alert('Keine Logs zum Exportieren.');
+            const csv = '\uFEFFZeitpunkt;Kategorie;Benutzer;E-Mail;Ereignis;Details\r\n' + list.map(l => [csvCell(logTime(l)), csvCell(l.category), csvCell(l.userName), csvCell(l.userEmail), csvCell(l.action), csvCell(detailsOf(l))].join(';')).join('\r\n');
+            const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })), download: `Logs_${localDate()}.csv` });
+            document.body.appendChild(a); a.click(); a.remove();
+        }
+        async function clearLogs(days) {
+            if (!confirm(days ? `Alle Logs löschen, die älter als ${days} Tage sind?` : 'ALLE Logs unwiderruflich löschen?')) return;
+            try {
+                let n = 0;
+                const base = days ? db.collection('system_logs').where('timestamp', '<', firebase.firestore.Timestamp.fromDate(new Date(Date.now() - days * 864e5))) : db.collection('system_logs');
+                for (;;) {
+                    const snap = await base.limit(400).get(); if (snap.empty) break;
+                    const b = db.batch(); snap.docs.forEach(d => b.delete(d.ref)); await b.commit(); n += snap.size;
+                }
+                logSystemEvent('admin', 'System-Logs bereinigt', { geloescht: n, aelterAlsTage: days || 'alle' });
+                alert(`${n} Logs gelöscht.`); loadLogs(true); loadToday();
+            } catch (err) { alert('Fehler beim Bereinigen: ' + err.message); }
+        }
+
+        // ---------- System ----------
+        const COLS = [['users', 'Benutzer'], ['worktime', 'Arbeitszeiten'], ['active_work', 'Laufende Stempelungen'], ['finance_transactions', 'Finanz-Buchungen'], ['fixed_costs', 'Fixkosten'],
+            ['payslips', 'Lohnabrechnungen'], ['vault', 'Tresor-Einträge'], ['events', 'Termine'], ['notes', 'Notizen'], ['todos', 'Aufgaben'], ['system_logs', 'System-Logs']];
+        async function countDocs(q) {
+            try { const n = (await q.count().get()).data().count; reads += Math.max(1, Math.ceil(n / 1000)); return n; }
+            catch (e) { try { const s = await q.get(); reads += Math.max(1, s.size); return s.size; } catch (e2) { return null; } }
+        }
+        async function loadSystem() {
+            sysLoaded = true;
+            const counts = await Promise.all(COLS.map(([n]) => countDocs(db.collection(n))));
+            $('col-stats').innerHTML = COLS.map(([, label], i) => `<div class="stat"><span class="text-slate-300">${label}</span><span class="font-mono font-bold text-indigo-300">${counts[i] === null ? '–' : counts[i]}</span></div>`).join('');
+            await loadToday();
+            const by = {};
+            todayLogs.filter(l => l.userEmail && l.userEmail !== 'Gast / Anonym').forEach(l => { const p = by[l.userEmail] = by[l.userEmail] || { name: l.userName, n: 0, ua: new Set(), last: l.timestamp }; p.n++; p.ua.add(l.userAgent); });
+            $('people-body').innerHTML = Object.values(by).map(p => `<tr><td class="p-2 text-slate-200">${esc(p.name)}</td><td class="p-2 font-mono">${p.n}</td><td class="p-2 font-mono">${p.ua.size}</td><td class="p-2 text-slate-400">${p.last?.toDate ? p.last.toDate().toLocaleTimeString('de-DE') : '–'}</td></tr>`).join('') || '<tr><td colspan="4" class="text-center py-4 text-slate-500">Heute noch keine Aktivität.</td></tr>';
+            $('devices-body').innerHTML = todayLogs.slice(0, 25).map(l => `<tr class="hover:bg-slate-900/50"><td class="p-2 text-slate-400 whitespace-nowrap">${l.timestamp?.toDate ? l.timestamp.toDate().toLocaleTimeString('de-DE') : '--'}</td><td class="p-2 text-slate-200">${esc(l.userName || l.userEmail)}</td>
+                <td class="p-2 text-slate-300">${esc(l.action || '-')}</td><td class="p-2 text-cyan-400 font-semibold">${esc(l.device || '-')}</td><td class="p-2 text-slate-500 font-mono" title="${esc(l.userAgent || '')}">${esc((l.userAgent || '').slice(0, 60))}</td></tr>`).join('')
+                || '<tr><td colspan="5" class="text-center py-4 text-slate-500">Heute noch keine Aktivität.</td></tr>';
+            $('reads-est').innerText = '≈ ' + reads + ' Lesevorgänge'; $('sys-update').innerText = 'Zuletzt aktualisiert: ' + new Date().toLocaleTimeString('de-DE');
         }
     </script>
 </body>
