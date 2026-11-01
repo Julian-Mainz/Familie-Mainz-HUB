@@ -15,31 +15,16 @@
     <script src="/js/drawer.js"></script>
     <style>
         body { background: radial-gradient(1200px 600px at 10% -10%, rgba(99,102,241,.12), transparent), #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        /* Performance-Booster gegen Ruckler beim Scrollen */
-        main {
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            will-change: transform;
-        }
-        .card { 
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(51, 65, 85, 0.6);
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-            transform: translateZ(0); /* Hardware-Beschleunigung erzwingen */
-        }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
     <style type="text/tailwindcss">
+        .card { @apply bg-slate-900/60 backdrop-blur border border-slate-800 rounded-3xl shadow-lg; }
         .inp  { @apply w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500; }
         .mini { @apply flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500; }
         .row  { @apply flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-1.5 rounded-xl text-[11px]; }
         .badge { @apply text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full; }
-        .chip { @apply px-2.5 py-1 rounded-lg text-[10px] font-semibold text-slate-400 bg-slate-800/60 hover:text-slate-200 cursor-pointer; }
+        .chip { @apply px-2.5 py-1 rounded-lg text-[10px] font-semibold text-slate-400 bg-slate-800/60 hover:text-slate-200; }
         .chip.on { @apply bg-indigo-600 text-white; }
         .tile { @apply card p-4 flex items-center gap-3 hover:-translate-y-0.5 transition-all relative; }
         .h3 { @apply flex items-center justify-between border-b border-slate-800 pb-2 mb-2 text-xs font-bold text-slate-200; }
@@ -169,6 +154,7 @@
             $('dash-week').innerText = `Kalenderwoche ${wk}`;
             $('greet').innerText = h < 5 ? 'Gute Nacht' : h < 11 ? 'Guten Morgen' : h < 18 ? 'Guten Tag' : 'Guten Abend';
             $('greet-emoji').innerText = h < 5 ? '🌙' : h < 11 ? '☀️' : h < 18 ? '👋' : '🌆';
+            if (activeStart) tickStamp();
         }
         setInterval(updateClock, 1000);
 
@@ -208,7 +194,6 @@
             db.collection('worktime').where('owner', '==', currentUser.email).where('date', '==', localDate()).onSnapshot(s => {
                 bookedToday = s.docs.reduce((a, d) => a + (d.data().netMinutes || 0), 0); tickStamp();
             }, () => {});
-            setInterval(tickStamp, 1000);
         }
         function tickStamp() {
             const ms = activeStart ? Math.max(0, Date.now() - activeStart) : 0, p = n => String(n).padStart(2, '0');
