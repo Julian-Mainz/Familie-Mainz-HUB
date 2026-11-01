@@ -2,300 +2,308 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Start Menü – J.Mainz Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start – J.Mainz Dashboard</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#080c14">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
     <script src="/js/drawer.js"></script>
-
     <style>
-        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: radial-gradient(1200px 600px at 10% -10%, rgba(99,102,241,.12), transparent), #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
     <style type="text/tailwindcss">
-        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg; }
+        .card { @apply bg-slate-900/60 backdrop-blur border border-slate-800 rounded-3xl shadow-lg; }
         .inp  { @apply w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500; }
         .mini { @apply flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500; }
         .row  { @apply flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-1.5 rounded-xl text-[11px]; }
         .badge { @apply text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full; }
+        .chip { @apply px-2.5 py-1 rounded-lg text-[10px] font-semibold text-slate-400 bg-slate-800/60 hover:text-slate-200; }
+        .chip.on { @apply bg-indigo-600 text-white; }
+        .tile { @apply card p-4 flex items-center gap-3 hover:-translate-y-0.5 transition-all relative; }
+        .h3 { @apply flex items-center justify-between border-b border-slate-800 pb-2 mb-2 text-xs font-bold text-slate-200; }
     </style>
 </head>
 <body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
 
-    <!-- DASHBOARD -->
-    <div id="view-dashboard" class="flex-1 flex flex-col min-h-screen md:min-h-0 overflow-hidden">
-        <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-            <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
-                <i class="fa-solid fa-bars text-indigo-400"></i><span>Menü</span>
-            </button>
-            <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide truncate px-2">Hallo, <span id="user-display-name" class="text-indigo-400 font-semibold"></span> 👋</h1>
-            <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span>
-            </button>
-        </header>
+    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
+        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-bars text-indigo-400"></i><span>Menü</span></button>
+        <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide truncate px-2"><span id="greet">Hallo</span>, <span id="user-display-name" class="text-indigo-400 font-semibold"></span> <span id="greet-emoji">👋</span></h1>
+        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span></button>
+    </header>
 
-        <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="card p-5 flex flex-col items-center justify-center text-center">
-                    <div id="dash-time" class="text-3xl font-mono font-bold tracking-wider">00:00:00</div>
-                    <div id="dash-date" class="text-xs font-medium text-indigo-400 uppercase tracking-widest mt-2"></div>
-                </div>
+    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
+        <a id="pending-banner" href="/admin.html#users" class="hidden card px-4 py-3 border-amber-500/40 bg-amber-500/10 text-amber-200 text-xs items-center gap-2"><i class="fa-solid fa-user-clock"></i><span id="pending-text"></span><i class="fa-solid fa-chevron-right ml-auto text-[10px]"></i></a>
 
-                <div class="card p-5 flex flex-col justify-between">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i><span id="weather-location">Düren</span></span>
-                        <button onclick="loadWeather()" class="text-slate-400 hover:text-indigo-400 text-xs" title="Aktualisieren"><i class="fa-solid fa-rotate"></i></button>
-                    </div>
-                    <div class="flex items-center gap-3 my-auto">
-                        <i id="weather-icon" class="fa-solid fa-cloud-sun text-3xl text-amber-400"></i>
-                        <div><div id="weather-temp" class="text-2xl font-bold">--°C</div><div id="weather-condition" class="text-[11px] text-slate-400">Lade Wetter...</div></div>
-                    </div>
-                    <div class="flex justify-between text-[10px] text-slate-500 pt-2 border-t border-slate-800/60">
-                        <span>Wind: <span id="weather-wind" class="text-slate-300">-- km/h</span></span>
-                        <span>Feuchte: <span id="weather-hum" class="text-slate-300">-- %</span></span>
-                    </div>
-                </div>
-
-                <div class="card p-4 flex flex-col justify-between">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-note-sticky text-amber-400 mr-1.5"></i>Pinnwand</span>
-                        <span id="note-count" class="badge">0</span>
-                    </div>
-                    <div id="notes-list" class="flex-1 overflow-y-auto max-h-24 space-y-1.5 pr-1 text-[11px] text-slate-500"></div>
-                    <form onsubmit="saveNewNote(event)" class="mt-2 flex gap-1.5">
-                        <input type="text" id="new-note-input" required placeholder="Notiz anpinnen..." class="mini">
-                        <button type="submit" class="bg-amber-500/20 text-amber-300 px-2.5 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-paper-plane"></i></button>
-                    </form>
-                </div>
-
-                <div class="card p-4 flex flex-col justify-between">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-list-check text-emerald-400 mr-1.5"></i>Aufgaben &amp; Einkauf</span>
-                        <span id="todo-count" class="badge">0</span>
-                    </div>
-                    <div id="todos-list" class="flex-1 overflow-y-auto max-h-24 space-y-1.5 pr-1 text-[11px] text-slate-500"></div>
-                    <form onsubmit="saveNewTodo(event)" class="mt-2 flex gap-1.5">
-                        <input type="text" id="new-todo-input" required placeholder="Aufgabe..." class="mini">
-                        <button type="submit" class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-plus"></i></button>
-                    </form>
-                </div>
+        <!-- Reihe 1: Hero, Wetter, Stempeluhr -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div class="card p-6 flex flex-col items-center justify-center text-center bg-gradient-to-br from-indigo-600/20 via-slate-900/60 to-cyan-500/10">
+                <div id="dash-time" class="text-5xl font-mono font-bold tracking-wider">00:00:00</div>
+                <div id="dash-date" class="text-xs font-medium text-indigo-300 uppercase tracking-widest mt-3"></div>
+                <div id="dash-week" class="text-[11px] text-slate-500 mt-1"></div>
             </div>
 
-            <div class="card flex-1 p-4 md:p-6 flex flex-col">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
-                    <div class="flex items-center gap-3"><i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i><h2 class="text-base font-bold text-slate-200">Kalender</h2></div>
-                    <div class="flex items-center gap-2">
-                        <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 gap-2">
-                            <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400"><i class="fa-solid fa-chevron-left"></i></button>
-                            <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-28 sm:w-36 text-center truncate"></span>
-                            <button onclick="changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-400"><i class="fa-solid fa-chevron-right"></i></button>
-                        </div>
-                        <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
-                            <i class="fa-solid fa-plus"></i><span>Termin</span>
-                        </button>
-                    </div>
+            <div class="card p-5 flex flex-col">
+                <div class="h3"><span><i class="fa-solid fa-location-dot text-rose-400 mr-1.5"></i>Düren</span><button onclick="loadWeather()" class="text-slate-400 hover:text-indigo-400" title="Aktualisieren"><i class="fa-solid fa-rotate"></i></button></div>
+                <div class="flex items-center gap-4 my-1">
+                    <i id="weather-icon" class="fa-solid fa-cloud-sun text-4xl text-amber-400"></i>
+                    <div class="flex-1"><div id="weather-temp" class="text-3xl font-bold">--°C</div><div id="weather-condition" class="text-xs text-slate-400">Lade Wetter...</div></div>
+                    <div class="text-[11px] text-slate-400 space-y-0.5 text-right"><div><i class="fa-solid fa-wind w-4 text-slate-500"></i><span id="weather-wind">--</span></div><div><i class="fa-solid fa-droplet w-4 text-slate-500"></i><span id="weather-hum">--</span></div><div><i class="fa-solid fa-umbrella w-4 text-slate-500"></i><span id="weather-rain">--</span></div></div>
                 </div>
-                <div class="flex-1 overflow-x-auto pb-2">
-                    <div class="min-w-[620px]">
-                        <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800">
-                            <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
-                        </div>
-                        <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2"></div>
+                <div id="forecast" class="grid grid-cols-3 gap-2 mt-auto pt-3 border-t border-slate-800/60"></div>
+            </div>
+
+            <div id="st-card" class="card p-5 flex flex-col md:col-span-2 xl:col-span-1">
+                <div class="h3"><span><i class="fa-solid fa-stopwatch text-emerald-400 mr-1.5"></i>Arbeitszeit</span><span id="st-badge" class="badge">Inaktiv</span></div>
+                <div class="text-center py-1"><div id="st-timer" class="text-3xl font-mono font-bold tracking-wider">00:00:00</div><div id="st-sub" class="text-xs text-slate-500 mt-1">Nicht eingestempelt</div></div>
+                <div class="mt-3"><div class="flex justify-between text-[11px] mb-1"><span class="text-slate-400">Heute (inkl. laufender Zeit)</span><span id="st-today" class="font-mono"></span></div>
+                    <div class="h-2 bg-slate-800 rounded-full overflow-hidden"><div id="st-bar" class="h-full bg-emerald-500 rounded-full" style="width:0"></div></div></div>
+                <a href="/zeiterfassung.html" class="mt-4 text-center text-xs font-semibold bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl py-2.5"><i class="fa-solid fa-arrow-right mr-1.5"></i>Zur Zeiterfassung</a>
+            </div>
+        </div>
+
+        <!-- Schnellzugriff -->
+        <div id="tiles" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
+
+        <!-- Reihe 2: Pinnwand, Aufgaben, Termine -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div class="card p-4 flex flex-col">
+                <div class="h3"><span><i class="fa-solid fa-note-sticky text-amber-400 mr-1.5"></i>Pinnwand</span><span id="note-count" class="badge">0</span></div>
+                <div id="notes-list" class="flex-1 overflow-y-auto max-h-44 space-y-1.5 pr-1 text-[11px] text-slate-500"></div>
+                <form onsubmit="saveNewNote(event)" class="mt-2 flex gap-1.5"><input type="text" id="new-note-input" required placeholder="Notiz anpinnen..." class="mini"><button class="bg-amber-500/20 text-amber-300 px-2.5 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-paper-plane"></i></button></form>
+            </div>
+
+            <div class="card p-4 flex flex-col">
+                <div class="h3"><span><i class="fa-solid fa-list-check text-emerald-400 mr-1.5"></i>Aufgaben &amp; Einkauf</span>
+                    <span class="flex items-center gap-2"><span id="todo-count" class="badge">0</span><button onclick="clearDone()" class="text-slate-500 hover:text-rose-400" title="Erledigte löschen"><i class="fa-solid fa-broom"></i></button></span></div>
+                <div class="flex gap-1.5 mb-2"><button class="chip on" data-f="all" onclick="setFilter('all')">Alle</button><button class="chip" data-f="task" onclick="setFilter('task')"><i class="fa-solid fa-circle-check mr-1"></i>Aufgaben</button><button class="chip" data-f="shop" onclick="setFilter('shop')"><i class="fa-solid fa-cart-shopping mr-1"></i>Einkauf</button></div>
+                <div id="todos-list" class="flex-1 overflow-y-auto max-h-44 space-y-1.5 pr-1 text-[11px] text-slate-500"></div>
+                <form onsubmit="saveNewTodo(event)" class="mt-2 flex gap-1.5">
+                    <button type="button" id="kind-btn" onclick="toggleKind()" class="bg-slate-800 text-slate-300 px-2.5 py-1.5 rounded-xl text-xs" title="Art wechseln"><i class="fa-solid fa-circle-check"></i></button>
+                    <input type="text" id="new-todo-input" required placeholder="Neue Aufgabe..." class="mini"><button class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-plus"></i></button></form>
+            </div>
+
+            <div class="card p-4 flex flex-col md:col-span-2 xl:col-span-1">
+                <div class="h3"><span><i class="fa-solid fa-calendar-check text-indigo-400 mr-1.5"></i>Nächste Termine</span></div>
+                <div id="upcoming" class="space-y-1.5 text-[11px]"></div>
+            </div>
+        </div>
+
+        <!-- Kalender -->
+        <div class="card flex-1 p-4 md:p-6 flex flex-col min-h-[420px]">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
+                <div class="flex items-center gap-3"><i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i><h2 class="text-base font-bold text-slate-200">Kalender</h2></div>
+                <div class="flex items-center gap-2">
+                    <button onclick="goToday()" class="text-xs font-semibold text-slate-300 bg-slate-950 border border-slate-800 hover:border-indigo-500/50 px-3 py-2 rounded-xl">Heute</button>
+                    <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 gap-2">
+                        <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-28 sm:w-36 text-center truncate"></span>
+                        <button onclick="changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-400"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
+                    <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap"><i class="fa-solid fa-plus"></i><span>Termin</span></button>
                 </div>
             </div>
-        </main>
-    </div>
+            <div class="flex-1 overflow-x-auto pb-2"><div class="min-w-[620px]">
+                <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div class="text-slate-500">Sa</div><div class="text-slate-500">So</div></div>
+                <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2"></div>
+            </div></div>
+        </div>
+    </main>
 
-    <!-- Termin-Modal -->
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-slate-100">Neuen Termin eintragen</h3>
-                <button onclick="closeModal('modal-event')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
+            <div class="flex justify-between items-center mb-4"><h3 class="text-base font-bold text-slate-100">Neuen Termin eintragen</h3><button onclick="closeModal('modal-event')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
             <form onsubmit="saveCalendarEvent(event)" class="space-y-4">
                 <div><label class="block text-xs text-slate-400 mb-1">Titel / Anlass</label><input type="text" id="ev-title" required class="inp"></div>
                 <div><label class="block text-xs text-slate-400 mb-1">Datum</label><input type="date" id="ev-date" required class="inp"></div>
                 <label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" id="ev-public" class="rounded bg-slate-800 border-slate-700"> Öffentlich für alle sichtbar</label>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('modal-event')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button>
-                </div>
+                <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeModal('modal-event')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button></div>
             </form>
         </div>
     </div>
 
     <script>
         const $ = id => document.getElementById(id);
-        const openModal = id => $(id).classList.remove('hidden');
-        const closeModal = id => $(id).classList.add('hidden');
+        const openModal = id => $(id).classList.remove('hidden'), closeModal = id => $(id).classList.add('hidden');
         const run = async fn => { try { await fn(); } catch (e) { alert('Fehler: ' + e.message); } };
         const TS = () => firebase.firestore.FieldValue.serverTimestamp();
+        const hm = min => `${Math.floor(Math.max(0, min) / 60)}:${String(Math.round(Math.max(0, min)) % 60).padStart(2, '0')} Std`;
 
-        let pubEvents = [], myEvents = [], calendarEvents = [], familyNotes = [], familyTodos = [];
-        let currentCalendarDate = new Date();
+        let pubEvents = [], myEvents = [], calendarEvents = [], familyNotes = [], familyTodos = [], started = false;
+        let todoFilter = 'all', todoKind = 'task', currentCalendarDate = new Date(), activeStart = null, bookedToday = 0;
 
-        // Absicherung: Wenn nicht eingeloggt, direkt zurück zum Login (/index.html)
         initAuthGuard(user => {
-            if (!user) {
-                window.location.href = '/index.html';
-                return;
-            }
-            $('user-display-name').innerText = currentUser?.name || user.email.split('@')[0];
-            renderDrawer();
-            initCalendar(); initNotes(); initTodos(); loadWeather();
+            if (!user || started) return;
+            started = true;
+            renderDrawer(); renderTiles(); initCalendar(); initNotes(); initTodos(); initStamp(); loadWeather(); updateClock();
+            if (isAdmin(currentUser)) countPending();
         });
 
-        // ---------- Uhr ----------
+        // ---------- Uhr & Begrüßung ----------
         function updateClock() {
-            const now = new Date();
+            const now = new Date(), h = now.getHours();
             $('dash-time').innerText = now.toLocaleTimeString('de-DE');
-            $('dash-date').innerText = now.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+            $('dash-date').innerText = now.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+            const wk = Math.ceil(((now - new Date(now.getFullYear(), 0, 1)) / 864e5 + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7);
+            $('dash-week').innerText = `Kalenderwoche ${wk}`;
+            $('greet').innerText = h < 5 ? 'Gute Nacht' : h < 11 ? 'Guten Morgen' : h < 18 ? 'Guten Tag' : 'Guten Abend';
+            $('greet-emoji').innerText = h < 5 ? '🌙' : h < 11 ? '☀️' : h < 18 ? '👋' : '🌆';
+            if (activeStart) tickStamp();
         }
-        setInterval(updateClock, 1000); updateClock();
+        setInterval(updateClock, 1000);
+
+        // ---------- Schnellzugriff ----------
+        function renderTiles() {
+            const T = [['/zeiterfassung.html', 'Zeiterfassung', 'Stempeln & Stunden', 'fa-business-time', 'emerald', 'zeit'], ['/finanzen.html', 'Finanzen', 'Buchungen & Fixkosten', 'fa-coins', 'yellow', 'finanzen'],
+                ['/passwort.html', 'Passwort-Safe', 'Verschlüsselter Tresor', 'fa-shield-halved', 'amber', 'tresor'], ['/admin.html', 'Admin', 'Mitglieder, Logs, System', 'fa-user-shield', 'indigo', 'admin']];
+            $('tiles').innerHTML = T.filter(t => t[5] === 'admin' ? isAdmin(currentUser) : can(currentUser, t[5])).map(t =>
+                `<a href="${t[0]}" class="tile hover:border-${t[4]}-500/50"><div class="w-11 h-11 rounded-2xl bg-${t[4]}-500/10 border border-${t[4]}-500/20 text-${t[4]}-400 flex items-center justify-center text-lg"><i class="fa-solid ${t[3]}"></i></div>
+                <div class="min-w-0"><div class="text-sm font-semibold text-slate-100 truncate">${t[1]}</div><div class="text-[11px] text-slate-500 truncate">${t[2]}</div></div>
+                ${t[5] === 'admin' ? '<span id="pend-dot" class="hidden absolute top-2 right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-slate-950 text-[10px] font-bold flex items-center justify-center"></span>' : ''}</a>`).join('');
+            if (!can(currentUser, 'zeit')) $('st-card').classList.add('hidden');
+        }
+        async function countPending() {
+            try {
+                const q = db.collection('users').where('status', '==', 'pending'); let n;
+                try { n = (await q.count().get()).data().count; } catch (e) { n = (await q.get()).size; }
+                if (!n) return;
+                $('pend-dot').innerText = n; $('pend-dot').classList.remove('hidden');
+                $('pending-text').innerText = n === 1 ? '1 Konto wartet auf Freigabe' : `${n} Konten warten auf Freigabe`; $('pending-banner').classList.remove('hidden'); $('pending-banner').classList.add('flex');
+            } catch (e) {}
+        }
+
+        // ---------- Arbeitszeit-Widget ----------
+        function dayTarget() { return Math.round((currentUser.userPrefs?.work?.weekly || 40) / 5 * 60); }
+        function initStamp() {
+            if (!can(currentUser, 'zeit')) return;
+            db.collection('active_work').doc(currentUser.uid).onSnapshot(d => {
+                activeStart = d.exists && d.data().startTime ? d.data().startTime.toDate() : null;
+                const on = !!activeStart;
+                $('st-badge').innerText = on ? 'Aktiv' : 'Inaktiv';
+                $('st-badge').className = on ? 'text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full animate-pulse' : 'badge';
+                $('st-sub').innerText = on ? `Eingestempelt seit ${activeStart.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr` : 'Nicht eingestempelt';
+                if (!on) $('st-timer').innerText = '00:00:00';
+                tickStamp();
+            });
+            db.collection('worktime').where('owner', '==', currentUser.email).where('date', '==', localDate()).onSnapshot(s => {
+                bookedToday = s.docs.reduce((a, d) => a + (d.data().netMinutes || 0), 0); tickStamp();
+            }, () => {});
+        }
+        function tickStamp() {
+            const ms = activeStart ? Math.max(0, Date.now() - activeStart) : 0, p = n => String(n).padStart(2, '0');
+            if (activeStart) $('st-timer').innerText = `${p(Math.floor(ms / 3600000))}:${p(Math.floor(ms % 3600000 / 60000))}:${p(Math.floor(ms % 60000 / 1000))}`;
+            const total = bookedToday + ms / 60000, t = dayTarget();
+            $('st-today').innerText = `${hm(total)} / ${hm(t)}`; $('st-bar').style.width = Math.min(100, total / t * 100) + '%';
+        }
+
+        // ---------- Wetter ----------
+        const WX = [[0, 'Klar', 'fa-sun text-amber-400'], [3, 'Leicht bewölkt', 'fa-cloud-sun text-amber-300'], [48, 'Nebelig', 'fa-smog text-slate-400'], [67, 'Regnerisch', 'fa-cloud-rain text-cyan-400'],
+            [77, 'Schnee', 'fa-snowflake text-indigo-300'], [82, 'Regenschauer', 'fa-cloud-showers-heavy text-cyan-400'], [86, 'Schneeschauer', 'fa-snowflake text-indigo-300'], [99, 'Gewitter', 'fa-cloud-bolt text-amber-500']];
+        const wx = c => WX.find(w => c <= w[0]) || WX[WX.length - 1];
+        async function loadWeather() {
+            try {
+                const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.8021&longitude=6.4836&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=4&timezone=auto');
+                const j = await r.json(), c = j.current, d = j.daily, w = wx(c.weather_code);
+                $('weather-temp').innerText = `${Math.round(c.temperature_2m)}°C`; $('weather-condition').innerText = w[1]; $('weather-icon').className = `fa-solid ${w[2]} text-4xl`;
+                $('weather-wind').innerText = ` ${Math.round(c.wind_speed_10m)} km/h`; $('weather-hum').innerText = ` ${c.relative_humidity_2m} %`; $('weather-rain').innerText = ` ${d.precipitation_probability_max[0] ?? '–'} %`;
+                $('forecast').innerHTML = [1, 2, 3].map(i => { const f = wx(d.weather_code[i]);
+                    return `<div class="text-center"><div class="text-[10px] text-slate-500">${new Date(d.time[i]).toLocaleDateString('de-DE', { weekday: 'short' })}</div><i class="fa-solid ${f[2]} text-lg my-1" title="${f[1]}"></i>
+                        <div class="text-[11px]"><b>${Math.round(d.temperature_2m_max[i])}°</b> <span class="text-slate-500">${Math.round(d.temperature_2m_min[i])}°</span></div></div>`; }).join('');
+            } catch (e) { $('weather-condition').innerText = 'Wetter offline'; }
+        }
 
         // ---------- Kalender ----------
         function initCalendar() {
-            const merge = () => {
-                const map = new Map();
-                [...pubEvents, ...myEvents].forEach(ev => map.set(ev.id, ev));
-                calendarEvents = [...map.values()];
-                renderCalendar();
-            };
+            const merge = () => { const m = new Map(); [...pubEvents, ...myEvents].forEach(ev => m.set(ev.id, ev)); calendarEvents = [...m.values()]; renderCalendar(); renderUpcoming(); };
             const list = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
             db.collection('events').where('isPublic', '==', true).onSnapshot(s => { pubEvents = list(s); merge(); }, () => renderCalendar());
             db.collection('events').where('owner', '==', currentUser.email).onSnapshot(s => { myEvents = list(s); merge(); }, () => renderCalendar());
-            $('calendar-days-grid').addEventListener('click', e => {
-                const add = e.target.closest('[data-add]'), del = e.target.closest('[data-del]');
-                if (add) openEventModal(add.dataset.add);
-                if (del) deleteEvent(del.dataset.del);
-            });
+            $('calendar-days-grid').addEventListener('click', e => { const a = e.target.closest('[data-add]'), d = e.target.closest('[data-del]'); if (a) openEventModal(a.dataset.add); if (d) deleteEvent(d.dataset.del); });
         }
-
         function renderCalendar() {
-            const grid = $('calendar-days-grid');
-            const year = currentCalendarDate.getFullYear(), month = currentCalendarDate.getMonth();
-            $('calendar-month-year').innerText = new Date(year, month, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
-            const first = (new Date(year, month, 1).getDay() + 6) % 7;
-            const days = new Date(year, month + 1, 0).getDate();
-            const today = localDate();
-            let html = '<div class="h-20 md:h-24 rounded-2xl bg-slate-900/20 border border-slate-800/30 opacity-20"></div>'.repeat(first);
+            const y = currentCalendarDate.getFullYear(), mo = currentCalendarDate.getMonth(), today = localDate();
+            $('calendar-month-year').innerText = new Date(y, mo, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+            const first = (new Date(y, mo, 1).getDay() + 6) % 7, days = new Date(y, mo + 1, 0).getDate();
+            let h = '<div class="h-20 md:h-24 rounded-2xl bg-slate-900/20 border border-slate-800/30 opacity-20"></div>'.repeat(first);
             for (let d = 1; d <= days; d++) {
-                const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                const isToday = ds === today;
-                const evs = calendarEvents.filter(ev => ev.date === ds).map(ev => {
-                    const mine = ev.owner === currentUser.email;
-                    return `<div class="text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between gap-1 ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}" title="${esc(ev.title)}">
-                        <span class="truncate">${esc(ev.title)}</span>${mine ? `<button data-del="${esc(ev.id)}" class="text-slate-400 hover:text-rose-400"><i class="fa-solid fa-xmark text-[9px]"></i></button>` : ''}</div>`;
-                }).join('');
-                html += `<div class="h-20 md:h-24 p-1.5 md:p-2 bg-slate-900/60 border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col overflow-hidden">
-                    <div class="flex items-center justify-between text-[11px] mb-1"><span class="${isToday ? 'font-bold text-indigo-400' : 'text-slate-400'}">${d}</span>
-                    <button data-add="${ds}" class="text-slate-500 hover:text-indigo-400 text-[10px] p-0.5" title="Termin hinzufügen"><i class="fa-solid fa-plus"></i></button></div>
-                    <div class="space-y-1 overflow-y-auto">${evs}</div></div>`;
+                const ds = `${y}-${String(mo + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`, isToday = ds === today, we = [0, 6].includes(new Date(y, mo, d).getDay());
+                const evs = calendarEvents.filter(ev => ev.date === ds).map(ev => `<div class="text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between gap-1 ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}" title="${esc(ev.title)}">
+                    <span class="truncate">${esc(ev.title)}</span>${ev.owner === currentUser.email ? `<button data-del="${esc(ev.id)}" class="text-slate-400 hover:text-rose-400"><i class="fa-solid fa-xmark text-[9px]"></i></button>` : ''}</div>`).join('');
+                h += `<div class="h-20 md:h-24 p-1.5 md:p-2 ${we ? 'bg-slate-900/30' : 'bg-slate-900/60'} border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col overflow-hidden">
+                    <div class="flex items-center justify-between text-[11px] mb-1"><span class="${isToday ? 'font-bold text-white bg-indigo-600 rounded-md px-1.5' : we ? 'text-slate-500' : 'text-slate-400'}">${d}</span>
+                    <button data-add="${ds}" class="text-slate-500 hover:text-indigo-400 text-[10px] p-0.5" title="Termin hinzufügen"><i class="fa-solid fa-plus"></i></button></div><div class="space-y-1 overflow-y-auto">${evs}</div></div>`;
             }
-            grid.innerHTML = html;
+            $('calendar-days-grid').innerHTML = h;
         }
-
-        function changeCalendarMonth(d) {
-            currentCalendarDate.setDate(1);
-            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + d);
-            renderCalendar();
+        function renderUpcoming() {
+            const today = localDate(), tom = localDate(new Date(Date.now() + 864e5));
+            const list = calendarEvents.filter(e => e.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
+            $('upcoming').innerHTML = list.length ? list.map(e => {
+                const lbl = e.date === today ? 'Heute' : e.date === tom ? 'Morgen' : new Date(e.date).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
+                return `<div class="row"><span class="truncate text-slate-200">${esc(e.title)}</span><span class="${e.date === today ? 'text-indigo-300 font-semibold' : 'text-slate-500'} whitespace-nowrap">${lbl}</span></div>`;
+            }).join('') : '<div class="text-slate-500 py-2">Keine anstehenden Termine.</div>';
         }
-        function openEventModal(d = '') {
-            $('ev-title').value = '';
-            $('ev-date').value = d || localDate();
-            $('ev-public').checked = true;
-            openModal('modal-event');
-        }
+        function changeCalendarMonth(d) { currentCalendarDate.setDate(1); currentCalendarDate.setMonth(currentCalendarDate.getMonth() + d); renderCalendar(); }
+        function goToday() { currentCalendarDate = new Date(); renderCalendar(); }
+        function openEventModal(d = '') { $('ev-title').value = ''; $('ev-date').value = d || localDate(); $('ev-public').checked = true; openModal('modal-event'); }
         function saveCalendarEvent(e) {
             e.preventDefault();
             const title = $('ev-title').value.trim(), date = $('ev-date').value, isPublic = $('ev-public').checked;
-            return run(async () => {
-                await db.collection('events').add({ title, date, isPublic, owner: currentUser.email, createdAt: TS() });
-                closeModal('modal-event');
-            });
+            run(async () => { await db.collection('events').add({ title, date, isPublic, owner: currentUser.email, createdAt: TS() }); closeModal('modal-event'); logSystemEvent('data', 'Termin erstellt', { title, date, isPublic }); });
         }
-        function deleteEvent(id) {
-            if (!confirm('Diesen Termin wirklich löschen?')) return;
-            run(async () => { await db.collection('events').doc(id).delete(); });
-        }
+        function deleteEvent(id) { if (confirm('Diesen Termin wirklich löschen?')) run(async () => { await db.collection('events').doc(id).delete(); logSystemEvent('data', 'Termin gelöscht', { id }); }); }
 
         // ---------- Pinnwand ----------
         function initNotes() {
             db.collection('notes').orderBy('createdAt', 'desc').onSnapshot(s => {
-                familyNotes = s.docs.map(d => ({ id: d.id, ...d.data() }));
-                $('note-count').innerText = familyNotes.length;
-                $('notes-list').innerHTML = familyNotes.length ? familyNotes.map(n => {
-                    const may = n.owner === currentUser.email || currentUser.role === 'admin';
-                    return `<div class="row"><div class="flex flex-col min-w-0"><span class="text-slate-200">${esc(n.text)}</span>
-                        <span class="text-[9px] text-slate-500">${esc(n.author || 'Familie')}</span></div>
-                        ${may ? `<button data-del="${esc(n.id)}" class="text-slate-500 hover:text-rose-400"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}</div>`;
-                }).join('') : 'Keine Notizen vorhanden.';
+                familyNotes = s.docs.map(d => ({ id: d.id, ...d.data() })); $('note-count').innerText = familyNotes.length;
+                $('notes-list').innerHTML = familyNotes.length ? familyNotes.map(n => `<div class="row"><div class="flex flex-col min-w-0"><span class="text-slate-200">${esc(n.text)}</span><span class="text-[9px] text-slate-500">${esc(n.author || 'Familie')}</span></div>
+                    ${n.owner === currentUser.email || isAdmin(currentUser) ? `<button data-del="${esc(n.id)}" class="text-slate-500 hover:text-rose-400"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}</div>`).join('') : 'Keine Notizen vorhanden.';
             });
-            $('notes-list').addEventListener('click', e => {
-                const del = e.target.closest('[data-del]');
-                if (del) run(() => db.collection('notes').doc(del.dataset.del).delete());
-            });
+            $('notes-list').addEventListener('click', e => { const d = e.target.closest('[data-del]'); if (d) run(() => db.collection('notes').doc(d.dataset.del).delete()); });
         }
         function saveNewNote(e) {
-            e.preventDefault();
-            const input = $('new-note-input'), text = input.value.trim();
-            if (!text) return;
-            return run(async () => {
-                await db.collection('notes').add({ text, author: currentUser.name || 'Mitglied', owner: currentUser.email, createdAt: TS() });
-                input.value = '';
-            });
+            e.preventDefault(); const i = $('new-note-input'), text = i.value.trim(); if (!text) return;
+            run(async () => { await db.collection('notes').add({ text, author: currentUser.firstName, owner: currentUser.email, createdAt: TS() }); i.value = ''; });
         }
 
-        // ---------- Aufgaben ----------
+        // ---------- Aufgaben & Einkauf ----------
+        const kindOf = t => t.kind || 'task';
         function initTodos() {
-            db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(s => {
-                familyTodos = s.docs.map(d => ({ id: d.id, ...d.data() }));
-                $('todo-count').innerText = familyTodos.filter(t => !t.done).length;
-                $('todos-list').innerHTML = familyTodos.length ? familyTodos.map(t => `
-                    <div class="row"><label class="flex items-center gap-2 cursor-pointer min-w-0">
-                        <input type="checkbox" data-id="${esc(t.id)}" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">
-                        <span class="truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${esc(t.text)}</span></label>
-                        <button data-del="${esc(t.id)}" class="text-slate-500 hover:text-rose-400"><i class="fa-solid fa-xmark text-[10px]"></i></button></div>`).join('')
-                    : 'Alles erledigt! 🎉';
-            });
-            $('todos-list').addEventListener('change', e => {
-                if (e.target.dataset.id) run(() => db.collection('todos').doc(e.target.dataset.id).update({ done: e.target.checked }));
-            });
-            $('todos-list').addEventListener('click', e => {
-                const del = e.target.closest('[data-del]');
-                if (del) run(() => db.collection('todos').doc(del.dataset.del).delete());
-            });
+            db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(s => { familyTodos = s.docs.map(d => ({ id: d.id, ...d.data() })); renderTodos(); });
+            $('todos-list').addEventListener('change', e => { if (e.target.dataset.id) run(() => db.collection('todos').doc(e.target.dataset.id).update({ done: e.target.checked })); });
+            $('todos-list').addEventListener('click', e => { const d = e.target.closest('[data-del]'); if (d) run(() => db.collection('todos').doc(d.dataset.del).delete()); });
+        }
+        function renderTodos() {
+            const list = familyTodos.filter(t => todoFilter === 'all' || kindOf(t) === todoFilter).sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));
+            $('todo-count').innerText = familyTodos.filter(t => !t.done).length;
+            $('todos-list').innerHTML = list.length ? list.map(t => `<div class="row"><label class="flex items-center gap-2 cursor-pointer min-w-0">
+                <input type="checkbox" data-id="${esc(t.id)}" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">
+                <i class="fa-solid ${kindOf(t) === 'shop' ? 'fa-cart-shopping text-yellow-400' : 'fa-circle-check text-emerald-400'} text-[9px]"></i>
+                <span class="truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${esc(t.text)}</span></label>
+                <button data-del="${esc(t.id)}" class="text-slate-500 hover:text-rose-400"><i class="fa-solid fa-xmark text-[10px]"></i></button></div>`).join('') : 'Alles erledigt! 🎉';
+        }
+        function setFilter(f) { todoFilter = f; document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.f === f)); renderTodos(); }
+        function toggleKind() {
+            todoKind = todoKind === 'task' ? 'shop' : 'task';
+            $('kind-btn').innerHTML = `<i class="fa-solid ${todoKind === 'shop' ? 'fa-cart-shopping text-yellow-400' : 'fa-circle-check text-emerald-400'}"></i>`;
+            $('new-todo-input').placeholder = todoKind === 'shop' ? 'Einkauf: z. B. Milch...' : 'Neue Aufgabe...';
         }
         function saveNewTodo(e) {
-            e.preventDefault();
-            const input = $('new-todo-input'), text = input.value.trim();
-            if (!text) return;
-            return run(async () => {
-                await db.collection('todos').add({ text, done: false, author: currentUser.name || 'Mitglied', owner: currentUser.email, createdAt: TS() });
-                input.value = '';
-            });
+            e.preventDefault(); const i = $('new-todo-input'), text = i.value.trim(); if (!text) return;
+            run(async () => { await db.collection('todos').add({ text, kind: todoKind, done: false, author: currentUser.firstName, owner: currentUser.email, createdAt: TS() }); i.value = ''; });
         }
-
-        // ---------- Wetter ----------
-        async function loadWeather() {
-            try {
-                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.8021&longitude=6.4836&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto');
-                const c = (await res.json()).current;
-                $('weather-temp').innerText = `${Math.round(c.temperature_2m)}°C`;
-                $('weather-wind').innerText = `${Math.round(c.wind_speed_10m)} km/h`;
-                $('weather-hum').innerText = `${c.relative_humidity_2m} %`;
-                $('weather-condition').innerText = c.weather_code === 0 ? 'Klar' : 'Bewölkt / Aktiv';
-            } catch (e) { $('weather-condition').innerText = 'Wetter offline'; }
+        function clearDone() {
+            const done = familyTodos.filter(t => t.done && (todoFilter === 'all' || kindOf(t) === todoFilter));
+            if (!done.length) return alert('Keine erledigten Einträge.');
+            if (!confirm(`${done.length} erledigte Einträge löschen?`)) return;
+            run(async () => { const b = db.batch(); done.forEach(t => b.delete(db.collection('todos').doc(t.id))); await b.commit(); });
         }
     </script>
 </body>
