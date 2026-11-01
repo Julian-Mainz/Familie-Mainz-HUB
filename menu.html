@@ -154,7 +154,6 @@
             $('dash-week').innerText = `Kalenderwoche ${wk}`;
             $('greet').innerText = h < 5 ? 'Gute Nacht' : h < 11 ? 'Guten Morgen' : h < 18 ? 'Guten Tag' : 'Guten Abend';
             $('greet-emoji').innerText = h < 5 ? '🌙' : h < 11 ? '☀️' : h < 18 ? '👋' : '🌆';
-            if (activeStart) tickStamp();
         }
         setInterval(updateClock, 1000);
 
@@ -194,6 +193,7 @@
             db.collection('worktime').where('owner', '==', currentUser.email).where('date', '==', localDate()).onSnapshot(s => {
                 bookedToday = s.docs.reduce((a, d) => a + (d.data().netMinutes || 0), 0); tickStamp();
             }, () => {});
+            setInterval(tickStamp, 1000); // Separater Timer nur für die Stempeluhr
         }
         function tickStamp() {
             const ms = activeStart ? Math.max(0, Date.now() - activeStart) : 0, p = n => String(n).padStart(2, '0');
