@@ -82,17 +82,40 @@
                     </div>
                     <input type="email" id="reg-email" required autocomplete="username" placeholder="E-Mail" class="inp text-xs py-2.5">
                     <input type="password" id="reg-password" required minlength="6" autocomplete="new-password" placeholder="Passwort (min. 6 Zeichen)" class="inp text-xs py-2.5">
+                    <label class="flex items-start gap-2 text-[11px] text-slate-400"><input type="checkbox" required class="mt-0.5 rounded bg-slate-800 border-slate-700"><span>Ich habe die <a href="/datenschutz.html" target="_blank" class="text-indigo-400 underline">Datenschutzerklärung</a> gelesen.</span></label>
                     <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl text-xs transition-all shadow-lg shadow-emerald-600/20">Konto anlegen</button>
                     <button type="button" onclick="showRegisterView(false)" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1 text-center">&larr; Zurück zum Login</button>
                 </form>
+                <div class="mt-5 pt-4 border-t border-slate-800/80 text-center">
+                    <button type="button" onclick="openContact()" class="text-xs text-slate-400 hover:text-indigo-300"><i class="fa-regular fa-envelope mr-1.5"></i>Fragen? Nachricht hinterlassen</button>
+                </div>
             </div>
         </div>
     </main>
 
     <footer class="max-w-6xl w-full mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 py-4 border-t border-slate-900 gap-2">
         <span>J.Mainz Dashboard &bull; Secured Cloud Environment</span>
-        <span>Nur für autorisierte Benutzer</span>
+        <span class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1"><a href="/impressum.html" class="hover:text-slate-300">Impressum</a><a href="/datenschutz.html" class="hover:text-slate-300">Datenschutz</a><button type="button" onclick="openContact()" class="hover:text-slate-300">Kontakt</button></span>
     </footer>
+
+    <!-- Kontakt-Dialog -->
+    <div id="modal-contact" class="fixed inset-0 z-50 bg-black/70 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-1"><h3 class="text-base font-bold text-slate-100"><i class="fa-regular fa-envelope text-indigo-400 mr-2"></i>Nachricht hinterlassen</h3><button onclick="closeContact()" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
+            <div id="c-sent" class="hidden text-center py-8"><i class="fa-solid fa-circle-check text-4xl text-emerald-400"></i><p class="mt-3 text-sm text-slate-200 font-semibold">Danke, deine Nachricht ist angekommen.</p><p class="text-xs text-slate-400 mt-1">Ich melde mich, sobald ich sie gelesen habe.</p>
+                <button onclick="closeContact()" class="mt-5 px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Schließen</button></div>
+            <form id="c-form" onsubmit="sendContact(event)" class="space-y-3.5">
+                <p class="text-xs text-slate-400">Du hast Fragen oder möchtest einen Zugang? Schreib mir kurz.</p>
+                <div id="c-error" class="hidden p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Name</label><input id="c-name" required maxlength="80" class="inp text-sm py-2.5"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">E-Mail (für die Antwort)</label><input type="email" id="c-email" maxlength="120" class="inp text-sm py-2.5" placeholder="optional, ohne E-Mail kann ich nicht antworten"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Nachricht <span id="c-count" class="text-slate-600">0 / 1500</span></label><textarea id="c-msg" required minlength="5" maxlength="1500" rows="5" oninput="$('c-count').innerText = this.value.length + ' / 1500'" class="inp text-sm py-2.5"></textarea></div>
+                <input id="c-web" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+                <label class="flex items-start gap-2 text-[11px] text-slate-400"><input type="checkbox" id="c-priv" required class="mt-0.5 rounded bg-slate-800 border-slate-700"><span>Ich habe die <a href="/datenschutz.html" target="_blank" class="text-indigo-400 underline">Datenschutzerklärung</a> gelesen und bin einverstanden, dass meine Angaben zur Bearbeitung gespeichert werden.</span></label>
+                <div class="flex justify-end gap-2 pt-1"><button type="button" onclick="closeContact()" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button id="c-btn" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium">Senden</button></div>
+            </form>
+        </div>
+    </div>
 
     <script>
         const $ = id => document.getElementById(id);
@@ -171,6 +194,27 @@
                 window.signingUp = false;
                 btn.disabled = false; btn.innerText = 'Konto anlegen';
             }
+        }
+    
+        // ---------- Kontaktformular ----------
+        function openContact() { $('c-sent').classList.add('hidden'); $('c-form').classList.remove('hidden'); $('c-error').classList.add('hidden'); $('modal-contact').classList.remove('hidden'); }
+        function closeContact() { $('modal-contact').classList.add('hidden'); }
+        async function sendContact(e) {
+            e.preventDefault();
+            const done = () => { $('c-form').reset(); $('c-count').innerText = '0 / 1500'; $('c-form').classList.add('hidden'); $('c-sent').classList.remove('hidden'); };
+            if ($('c-web').value) return done();                                  // Lockfeld: Bots bekommen scheinbar Erfolg
+            const err = m => { $('c-error').innerText = m; $('c-error').classList.remove('hidden'); };
+            let last = 0; try { last = +localStorage.getItem('contact_last') || 0; } catch (x) {}
+            if (Date.now() - last < 60000) return err('Bitte warte kurz, bevor du eine weitere Nachricht sendest.');
+            const name = $('c-name').value.trim(), email = $('c-email').value.trim(), message = $('c-msg').value.trim();
+            if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return err('Bitte eine gültige E-Mail-Adresse eingeben oder das Feld leer lassen.');
+            const btn = $('c-btn'); btn.disabled = true; btn.innerText = 'Wird gesendet...';
+            try {
+                await db.collection('contact_messages').add({ name, email, message, read: false, createdAt: TS() });
+                try { localStorage.setItem('contact_last', String(Date.now())); } catch (x) {}
+                done();
+            } catch (ex) { err('Senden fehlgeschlagen. Bitte später erneut versuchen.'); }
+            finally { btn.disabled = false; btn.innerText = 'Senden'; }
         }
     </script>
 </body>
