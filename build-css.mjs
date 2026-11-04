@@ -9,7 +9,8 @@ import cssnano from 'cssnano';
 // Klassen, die erst zur Laufzeit im Browser zusammengesetzt werden (Finanzen: bg-xyz -> text-xyz)
 const safelist = [{ pattern: /^text-(emerald|yellow|indigo|orange|pink|cyan|teal|slate)-(400|500)$/ }];
 
-const pages = fs.readdirSync('.').filter(f => f.endsWith('.html'));
+// Nur Seiten, die ihre eigene CSS-Datei einbinden (die eigenständige Uhr und die Weiterleitung uhr.html brauchen keine)
+const pages = fs.readdirSync('.').filter(f => f.endsWith('.html') && fs.readFileSync(f, 'utf8').includes('/assets/css/'));
 fs.mkdirSync('assets/css', { recursive: true });
 // Verwaiste CSS-Dateien gelöschter Seiten entfernen (z. B. logs.css, status.css)
 for (const f of fs.readdirSync('assets/css')) if (!pages.includes(f.replace(/\.css$/, '.html'))) fs.unlinkSync(path.join('assets/css', f));
