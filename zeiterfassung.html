@@ -250,7 +250,7 @@
             stopTimer(); $('work-start-hint').innerText = `Eingestempelt seit ${fmtT(start)} Uhr`;
             const tick = () => {
                 const ms = Math.max(0, Date.now() - start), p = n => String(n).padStart(2, '0');
-                $('work-active-timer').innerText = `${p(Math.floor(ms / 3600000))}:${p(Math.floor(ms % 3600000 / 60000))}:${p(Math.floor(ms % 60000 / 1000))}`;
+                const el = $('work-active-timer'), v = `${p(Math.floor(ms / 3600000))}:${p(Math.floor(ms % 3600000 / 60000))}:${p(Math.floor(ms % 60000 / 1000))}`; if (el.firstChild && el.firstChild.nodeType === 3) el.firstChild.nodeValue = v; else el.textContent = v;
                 if (tickN++ % 30 === 0) renderSummary();
             };
             tick(); timerId = setInterval(tick, 1000);
