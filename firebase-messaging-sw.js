@@ -12,7 +12,7 @@ firebase.initializeApp({
 });
 
 const messaging = firebase.messaging();
-const ICON = 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f6e1.png';
+const ICON = '/icons/icon-192.png';
 
 // Nachrichten mit "notification"-Feld zeigt der Browser selbst an.
 // Reine Daten-Nachrichten (title/body/url im Feld "data") zeigen wir hier an.
