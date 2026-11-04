@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Datenschutzerklärung – J.Mainz Dashboard</title>
     <meta name="theme-color" content="#05080f">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Mainz Hub">
     <meta name="robots" content="noindex">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -51,7 +58,7 @@
         <p>Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung des Zugangs für Mitglieder) sowie lit. f DSGVO (sicherer Betrieb).</p>
 
         <h2>6. Registrierung und Benutzerkonto</h2>
-        <p>Für ein Konto werden Vorname, Nachname, E-Mail-Adresse und ein Passwort erhoben. Das Passwort wird von Firebase nur in geschützter Form (Hash) gespeichert. Zusätzlich speichere ich Rolle, Rechte, Freigabestatus, Zeitpunkt der Registrierung und des letzten Logins sowie Ihre Einstellungen. Neue Konten sind zunächst gesperrt und werden von mir geprüft und freigegeben. Sie können jederzeit die Löschung Ihres Kontos verlangen.</p>
+        <p>Für ein Konto werden Vorname, Nachname, E-Mail-Adresse und ein Passwort erhoben. Das Passwort wird von Firebase nur in geschützter Form (Hash) gespeichert. Zusätzlich speichere ich Rolle, Rechte, Freigabestatus, Zeitpunkt der Registrierung und des letzten Logins sowie Ihre Einstellungen. Neue Konten sind zunächst gesperrt und werden von mir geprüft und freigegeben. Sie können Ihr Konto jederzeit in den Einstellungen selbst löschen oder die Löschung von mir verlangen. Wenn Sie die Funktion „Passwort vergessen“ nutzen, wird eine E-Mail über Firebase versandt.</p>
 
         <h2>7. Inhalte nach der Anmeldung</h2>
         <p>Je nach Freigabe können Mitglieder folgende Bereiche nutzen. Die Eingaben werden in der Datenbank gespeichert:</p>
@@ -64,7 +71,7 @@
         <p>Technisch ist der Zugriff durch Regeln in der Datenbank so begrenzt, dass die privaten Bereiche nur vom jeweiligen Mitglied gelesen werden können. Als Betreiber der Datenbank habe ich über die Firebase-Konsole technisch Zugriff auf die gespeicherten Daten, mit Ausnahme der verschlüsselten Inhalte des Passwort-Safes. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO bzw. die Einwilligung der Mitglieder (Art. 6 Abs. 1 lit. a DSGVO).</p>
 
         <h2>8. Protokollierung</h2>
-        <p>Zur Sicherheit und Nachvollziehbarkeit werden Ereignisse protokolliert, zum Beispiel Anmeldungen und fehlgeschlagene Anmeldeversuche, Seitenaufrufe, Änderungen an Daten und Verwaltungsaktionen. Gespeichert werden Zeitpunkt, Benutzername und E-Mail, Ereignis, Gerätetyp, Browserkennung, aufgerufene Adresse und ggf. die eingegebene E-Mail bei fehlgeschlagenen Anmeldungen. Die Protokolle sind nur für Administratoren einsehbar und werden in der Regel nach 30 Tagen gelöscht. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (IT-Sicherheit, Missbrauchserkennung).</p>
+        <p>Zur Sicherheit und Nachvollziehbarkeit werden Ereignisse protokolliert, zum Beispiel Anmeldungen und fehlgeschlagene Anmeldeversuche, Seitenaufrufe, Änderungen an Daten und Verwaltungsaktionen. Gespeichert werden Zeitpunkt, Benutzername und E-Mail, Ereignis, Gerätetyp, Browserkennung, aufgerufene Adresse und ggf. die eingegebene E-Mail bei fehlgeschlagenen Anmeldungen. Außerdem werden technische Fehlermeldungen des Browsers (Fehlertext, Datei, Zeile und aufgerufene Seite) protokolliert, um Fehler zu finden und zu beheben. Die Protokolle sind nur für Administratoren einsehbar und werden in der Regel nach 30 Tagen gelöscht. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (IT-Sicherheit, Missbrauchserkennung).</p>
 
         <h2>9. Kontaktformular („Nachricht hinterlassen“)</h2>
         <p>Wenn Sie mir über das Formular auf der Startseite eine Nachricht senden, speichere ich Ihren Namen, Ihre optional angegebene E-Mail-Adresse, den Nachrichtentext und den Zeitpunkt. Die Angaben sind freiwillig, ohne E-Mail-Adresse kann ich jedoch nicht antworten. Die Nachricht ist nur für Administratoren einsehbar und wird gelöscht, sobald die Anfrage erledigt ist, spätestens nach 6 Monaten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (Bearbeitung von Anfragen) bzw. lit. b DSGVO, wenn die Anfrage mit einem Nutzungsverhältnis zusammenhängt.</p>
@@ -76,13 +83,14 @@
         <p>Push-Mitteilungen sind freiwillig. Wenn Sie sie in den Einstellungen aktivieren und im Browser zulassen, wird ein Geräte-Token in Ihrem Profil gespeichert, damit Nachrichten zugestellt werden können. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie können sie jederzeit in den Einstellungen oder im Browser widerrufen.</p>
 
         <h2>12. Speicherung im Browser</h2>
-        <p>Die Anwendung nutzt den lokalen Speicher Ihres Browsers (Local/Session Storage, IndexedDB) für technisch erforderliche Zwecke: Anmeldestatus, kurze Hinweise nach einer Weiterleitung und Voreinstellungen, zum Beispiel beim Urlaubsantrag. Es werden keine Cookies zu Werbe- oder Analysezwecken gesetzt. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG in Verbindung mit Art. 6 Abs. 1 lit. f DSGVO.</p>
+        <p>Die Anwendung nutzt den lokalen Speicher Ihres Browsers (Local/Session Storage, IndexedDB) für technisch erforderliche Zwecke: Anmeldestatus, kurze Hinweise nach einer Weiterleitung und Voreinstellungen, zum Beispiel das gewählte Design (hell/dunkel) oder Angaben beim Urlaubsantrag. Es werden keine Cookies zu Werbe- oder Analysezwecken gesetzt. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG in Verbindung mit Art. 6 Abs. 1 lit. f DSGVO.</p>
 
         <h2>13. Speicherdauer</h2>
         <p>Daten werden gelöscht, sobald der Zweck entfällt, spätestens wenn ein Konto gelöscht wird, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen. Details zu Protokollen und Nachrichten finden Sie oben.</p>
 
         <h2>14. Ihre Rechte</h2>
         <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen Verarbeitungen auf Grundlage berechtigter Interessen (Art. 21). Eine erteilte Einwilligung können Sie jederzeit mit Wirkung für die Zukunft widerrufen. Wenden Sie sich dazu an die oben genannte E-Mail-Adresse.</p>
+        <p>Viele dieser Rechte können Mitglieder direkt im Portal wahrnehmen: In den Einstellungen lassen sich alle gespeicherten Daten als Datei herunterladen (Auskunft und Datenübertragbarkeit), und das Konto kann dort mit allen zugehörigen Daten selbst gelöscht werden (Löschung).</p>
         <p>Sie haben außerdem das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren, zum Beispiel bei der <b>Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen</b>, Kavalleriestraße 2-4, 40213 Düsseldorf, Telefon 0211 38424-0, E-Mail poststelle@ldi.nrw.de, <a href="https://www.ldi.nrw.de" target="_blank" rel="noopener">www.ldi.nrw.de</a>.</p>
 
         <h2>15. Sicherheit</h2>
