@@ -150,3 +150,53 @@ async function handleLogout() {
     await auth.signOut();
     window.location.href = '/';
 }
+
+
+// ---------- Design: Hell / Dunkel ----------
+// Hell wird über einen Farbfilter auf der ganzen Seite erzeugt. So gilt es ohne Umbau auf allen Seiten.
+// Seiten, die immer dunkel bleiben sollen (Wandkalender), setzen <html data-theme-lock="dark">.
+(function () {
+    const css = document.createElement('style');
+    css.textContent = 'html.light{filter:invert(.94) hue-rotate(180deg)}html.light img,html.light video,html.light iframe{filter:invert(1) hue-rotate(180deg)}';
+    document.head.appendChild(css);
+})();
+window.applyTheme = function () {
+    const lock = document.documentElement.dataset.themeLock;
+    const pref = lock || safeStore(() => localStorage.getItem('theme')) || 'dark';
+    const light = pref === 'light' || (pref === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches);
+    document.documentElement.classList.toggle('light', light);
+    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = light ? '#f1f5f9' : '#080c14';
+    window.updateThemeButtons();
+};
+window.updateThemeButtons = function () {
+    const light = document.documentElement.classList.contains('light');
+    document.querySelectorAll('[data-theme-icon]').forEach(el => { el.classList.toggle('fa-sun', light); el.classList.toggle('fa-moon', !light); });
+    document.querySelectorAll('[data-theme-text]').forEach(el => { el.textContent = light ? 'Hell' : 'Dunkel'; });
+};
+window.toggleTheme = function () {
+    safeStore(() => localStorage.setItem('theme', document.documentElement.classList.contains('light') ? 'dark' : 'light'));
+    applyTheme();
+};
+applyTheme();
+document.addEventListener('DOMContentLoaded', () => updateThemeButtons());
+
+// ---------- Fehlerprotokoll ----------
+// Unbehandelte Browser-Fehler landen als Kategorie "error" im Log (höchstens 5 pro Seitenaufruf, ohne Wiederholungen).
+(function () {
+    let count = 0; const seen = new Set();
+    function report(msg, details) {
+        const key = String(msg).slice(0, 120) + '|' + (details.zeile || '');
+        if (count >= 5 || seen.has(key)) return;
+        seen.add(key); count++;
+        details.seite = location.pathname;
+        logSystemEvent('error', String(msg).slice(0, 190), details);
+    }
+    window.addEventListener('error', e => {
+        if (!e.message || /^Script error\.?$/.test(e.message) || /ResizeObserver loop/.test(e.message)) return;
+        report(e.message, { datei: String(e.filename || '').split('/').pop(), zeile: e.lineno || 0, spalte: e.colno || 0 });
+    });
+    window.addEventListener('unhandledrejection', e => {
+        const r = e.reason || {};
+        report('Promise: ' + String(r.message || r.code || r).slice(0, 170), { code: r.code || '' });
+    });
+})();
