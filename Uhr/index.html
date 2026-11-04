@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Uhr</title>
+    <meta name="theme-color" content="#000000">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='none' stroke='%23fff' stroke-width='6'/%3E%3Cpath d='M32 16v17l11 7' fill='none' stroke='%23fff' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+    <style>
+        :root { --bg: #000; --fg: #fff; --dim: #8a8f98; }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); overflow: hidden; -webkit-tap-highlight-color: transparent;
+            font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; }
+        #stage { height: 100vh; height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; user-select: none; }
+        #clock { display: inline-flex; align-items: flex-start; white-space: nowrap; line-height: 1; }
+        #t { font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+        #ap { font-size: .22em; font-weight: 600; margin: .35em 0 0 .25em; color: var(--dim); }
+        #d { margin-top: 2.2vh; color: var(--dim); font-size: clamp(1rem, 3.4vw, 2.6rem); text-align: center; padding: 0 4vw; }
+        #ctl { position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+            padding: 8px 10px; max-width: 96vw; background: rgba(128,128,128,.22); border-radius: 16px; transition: opacity .4s; font-size: 13px; }
+        #ctl button, #ctl a { font: inherit; color: var(--fg); background: rgba(128,128,128,.25); border: 0; border-radius: 10px; padding: 8px 12px; cursor: pointer; text-decoration: none; }
+        #ctl button:hover, #ctl a:hover { background: rgba(128,128,128,.45); }
+        body.idle { cursor: none; }
+        body.idle #ctl { opacity: 0; pointer-events: none; }
+        noscript { position: fixed; inset: 0; display: grid; place-items: center; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+    <main id="stage" ondblclick="toggleFs()">
+        <div id="clock"><span id="t">00:00:00</span><span id="ap"></span></div>
+        <div id="d"></div>
+    </main>
+
+    <nav id="ctl" aria-label="Einstellungen">
+        <button id="b-fs" onclick="toggleFs()">Vollbild</button>
+        <button id="b-sec" onclick="toggle('sec')">Sekunden</button>
+        <button id="b-h" onclick="toggle('h24')">24 h</button>
+        <button id="b-date" onclick="toggle('date')">Datum</button>
+        <button id="b-th" onclick="nextTheme()">Farbe</button>
+        <a href="/impressum.html">Impressum</a>
+    </nav>
+    <noscript>Bitte JavaScript aktivieren, damit die Uhr läuft.</noscript>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const THEMES = [
+            { n: 'Dunkel', bg: '#000000', fg: '#ffffff', dim: '#8a8f98' },
+            { n: 'Hell',   bg: '#ffffff', fg: '#0b0b0b', dim: '#5b616b' },
+            { n: 'Nacht',  bg: '#000000', fg: '#ff3b30', dim: '#7a1c17' }
+        ];
+        const S = { sec: true, h24: true, date: false, theme: 0 };
+        try { Object.assign(S, JSON.parse(localStorage.getItem('uhr_settings') || '{}')); } catch (e) {}
+        if (!THEMES[S.theme]) S.theme = 0;
+        const save = () => { try { localStorage.setItem('uhr_settings', JSON.stringify(S)); } catch (e) {} };
+        const p = n => String(n).padStart(2, '0');
+        // Nur den vorhandenen Text-Knoten ändern (spart Arbeit bei der sekündlichen Aktualisierung)
+        const setT = (el, t) => { const n = el.firstChild; if (n && n.nodeType === 3) { if (n.nodeValue !== t) n.nodeValue = t; } else el.textContent = t; };
+
+        let lastDay = '';
+        function render(now) {
+            let h = now.getHours(), ap = '';
+            if (!S.h24) { ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; }
+            const txt = p(h) + ':' + p(now.getMinutes()) + (S.sec ? ':' + p(now.getSeconds()) : '');
+            setT($('t'), txt); setT($('ap'), ap); document.title = txt;
+            const day = now.toDateString();
+            if (day !== lastDay) { lastDay = day; $('d').textContent = now.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+        }
+        function tick() { const now = new Date(); render(now); setTimeout(tick, 1000 - now.getMilliseconds() + 5); }   // exakt auf den Sekundenwechsel
+
+        // Schrift so groß wie möglich, ohne dass etwas abgeschnitten wird
+        function fit() {
+            const t = $('clock'); t.style.fontSize = '100px';
+            const w = t.scrollWidth, h = t.scrollHeight, maxH = innerHeight * (S.date ? 0.66 : 0.86);
+            t.style.fontSize = Math.max(16, Math.floor(100 * Math.min(innerWidth * 0.95 / w, maxH / h))) + 'px';
+        }
+        function apply() {
+            const th = THEMES[S.theme], r = document.documentElement.style;
+            r.setProperty('--bg', th.bg); r.setProperty('--fg', th.fg); r.setProperty('--dim', th.dim);
+            document.querySelector('meta[name="theme-color"]').content = th.bg;
+            $('d').style.display = S.date ? '' : 'none';
+            $('b-sec').textContent = 'Sekunden: ' + (S.sec ? 'an' : 'aus');
+            $('b-h').textContent = S.h24 ? '24 h' : '12 h';
+            $('b-date').textContent = 'Datum: ' + (S.date ? 'an' : 'aus');
+            $('b-th').textContent = 'Farbe: ' + th.n;
+            render(new Date()); fit(); save();
+        }
+        function toggle(k) { S[k] = !S[k]; apply(); }
+        function nextTheme() { S.theme = (S.theme + 1) % THEMES.length; apply(); }
+
+        // Vollbild, Bildschirm wach halten
+        function toggleFs() { if (document.fullscreenElement) document.exitFullscreen(); else (document.documentElement.requestFullscreen || (() => {})).call(document.documentElement); }
+        document.addEventListener('fullscreenchange', () => { $('b-fs').textContent = document.fullscreenElement ? 'Vollbild beenden' : 'Vollbild'; setTimeout(fit, 60); });
+        let lock = null;
+        async function keepAwake() { try { if ('wakeLock' in navigator && !lock) { lock = await navigator.wakeLock.request('screen'); lock.addEventListener('release', () => { lock = null; }); } } catch (e) { lock = null; } }
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
+        document.addEventListener('click', keepAwake, { once: true });
+
+        // Bedienelemente und Mauszeiger nach 3 Sekunden Ruhe ausblenden
+        let idleT; const wake = () => { document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(() => document.body.classList.add('idle'), 3000); };
+        ['mousemove', 'mousedown', 'touchstart', 'keydown'].forEach(ev => document.addEventListener(ev, wake, { passive: true }));
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            const k = e.key.toLowerCase();
+            if (k === 'f') toggleFs(); else if (k === 's') toggle('sec'); else if (k === 'd') toggle('date'); else if (k === 't') nextTheme(); else if (k === 'h') toggle('h24');
+        });
+        addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 120));
+
+        apply(); tick(); wake(); keepAwake();
+    </script>
+</body>
+</html>
