@@ -213,7 +213,7 @@
                 await db.collection('contact_messages').add({ name, email, message, read: false, createdAt: TS() });
                 try { localStorage.setItem('contact_last', String(Date.now())); } catch (x) {}
                 done();
-            } catch (ex) { err('Senden fehlgeschlagen. Bitte später erneut versuchen.'); }
+            } catch (ex) { console.error('Kontakt senden:', ex); err('Senden fehlgeschlagen (' + (ex.code || ex.message) + '). Bitte später erneut versuchen.'); }
             finally { btn.disabled = false; btn.innerText = 'Senden'; }
         }
     </script>
