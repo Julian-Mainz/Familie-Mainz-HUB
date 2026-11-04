@@ -29,7 +29,7 @@
     function buildModal() {
         if (document.getElementById('modal-settings')) return;
         document.body.insertAdjacentHTML('beforeend', `
-        <div id="modal-settings" class="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div id="modal-settings" class="fixed inset-0 z-[60] bg-slate-950/80 hidden flex items-center justify-center p-4">
             <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
                     <h3 class="text-base font-bold text-slate-100">Einstellungen</h3>
