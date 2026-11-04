@@ -289,16 +289,17 @@
         }
 
         // ---------- System ----------
-        const COLS = [['users', 'Benutzer'], ['worktime', 'Arbeitszeiten'], ['active_work', 'Laufende Stempelungen'], ['finance_transactions', 'Finanz-Buchungen'], ['fixed_costs', 'Fixkosten'],
-            ['payslips', 'Lohnabrechnungen'], ['vault', 'Tresor-Einträge'], ['events', 'Termine'], ['notes', 'Notizen'], ['todos', 'Aufgaben'], ['system_logs', 'System-Logs']];
+        // Dritter Wert true = private Daten, die auch Admins laut Regeln nicht sehen dürfen
+        const COLS = [['users', 'Benutzer'], ['worktime', 'Arbeitszeiten', true], ['active_work', 'Laufende Stempelungen', true], ['finance_transactions', 'Finanz-Buchungen', true], ['fixed_costs', 'Fixkosten', true],
+            ['payslips', 'Lohnabrechnungen', true], ['vault', 'Tresor-Einträge', true], ['events', 'Termine'], ['notes', 'Notizen'], ['todos', 'Aufgaben'], ['system_logs', 'System-Logs']];
         async function countDocs(q) {
             try { const n = (await q.count().get()).data().count; reads += Math.max(1, Math.ceil(n / 1000)); return n; }
             catch (e) { try { const s = await q.get(); reads += Math.max(1, s.size); return s.size; } catch (e2) { return null; } }
         }
         async function loadSystem() {
             sysLoaded = true;
-            const counts = await Promise.all(COLS.map(([n]) => countDocs(db.collection(n))));
-            $('col-stats').innerHTML = COLS.map(([, label], i) => `<div class="stat"><span class="text-slate-300">${label}</span><span class="font-mono font-bold text-indigo-300">${counts[i] === null ? '–' : counts[i]}</span></div>`).join('');
+            const counts = await Promise.all(COLS.map(([n, , priv]) => priv ? null : countDocs(db.collection(n))));
+            $('col-stats').innerHTML = COLS.map(([, label, priv], i) => `<div class="stat"><span class="text-slate-300">${label}</span><span class="font-mono font-bold text-indigo-300">${priv ? '<span class="text-slate-500 font-sans">privat</span>' : counts[i] === null ? '–' : counts[i]}</span></div>`).join('');
             await loadToday();
             const by = {};
             todayLogs.filter(l => l.userEmail && l.userEmail !== 'Gast / Anonym').forEach(l => { const p = by[l.userEmail] = by[l.userEmail] || { name: l.userName, n: 0, ua: new Set(), last: l.timestamp }; p.n++; p.ua.add(l.userAgent); });
