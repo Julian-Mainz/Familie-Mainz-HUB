@@ -151,7 +151,7 @@
 
     window.sendLocalNotification = function (title, body) {
         if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification(title, { body, icon: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f6e1.png' });
+            new Notification(title, { body, icon: '/icons/icon-192.png' });
         }
     };
 
