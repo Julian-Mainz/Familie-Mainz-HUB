@@ -19,14 +19,13 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
     <style type="text/tailwindcss">
-        .card { @apply bg-slate-900/60 backdrop-blur border border-slate-800 rounded-3xl shadow-lg; }
+        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg; }
         .inp  { @apply w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500; }
         .mini { @apply flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500; }
         .row  { @apply flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-1.5 rounded-xl text-[11px]; }
         .badge { @apply text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full; }
         .chip { @apply px-2.5 py-1 rounded-lg text-[10px] font-semibold text-slate-400 bg-slate-800/60 hover:text-slate-200; }
         .chip.on { @apply bg-indigo-600 text-white; }
-        .tile { @apply bg-slate-900/60 backdrop-blur border border-slate-800 rounded-3xl shadow-lg p-4 flex items-center gap-3 hover:-translate-y-0.5 transition-all relative; }
         .h3 { @apply flex items-center justify-between border-b border-slate-800 pb-2 mb-2 text-xs font-bold text-slate-200; }
     </style>
 </head>
@@ -68,8 +67,6 @@
             </div>
         </div>
 
-        <!-- Schnellzugriff -->
-        <div id="tiles" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
 
         <!-- Reihe 2: Pinnwand, Aufgaben, Termine -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -141,40 +138,34 @@
         initAuthGuard(user => {
             if (!user || started) return;
             started = true;
-            renderDrawer(); renderTiles(); initCalendar(); initNotes(); initTodos(); initStamp(); loadWeather(); updateClock();
+            renderDrawer(); if (!can(currentUser, 'zeit')) $('st-card').classList.add('hidden'); initCalendar(); initNotes(); initTodos(); initStamp(); loadWeather(); updateClock();
             if (isAdmin(currentUser)) countPending();
         });
 
         // ---------- Uhr & Begrüßung ----------
+        const setT = (el, t) => { const n = el.firstChild; if (n && n.nodeType === 3) { if (n.nodeValue !== t) n.nodeValue = t; } else el.textContent = t; };
+        let lastMinute = -1;
         function updateClock() {
-            const now = new Date(), h = now.getHours();
-            $('dash-time').innerText = now.toLocaleTimeString('de-DE');
-            $('dash-date').innerText = now.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
-            const t = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())); t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
-            const wk = Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7);
-            $('dash-week').innerText = `Kalenderwoche ${wk}`;
-            $('greet').innerText = h < 5 ? 'Gute Nacht' : h < 11 ? 'Guten Morgen' : h < 18 ? 'Guten Tag' : 'Guten Abend';
-            $('greet-emoji').innerText = h < 5 ? '🌙' : h < 11 ? '☀️' : h < 18 ? '👋' : '🌆';
+            const now = new Date();
+            setT($('dash-time'), now.toLocaleTimeString('de-DE'));
+            if (now.getMinutes() !== lastMinute) {
+                lastMinute = now.getMinutes();
+                const h = now.getHours();
+                $('dash-date').innerText = now.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+                const t = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())); t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
+                $('dash-week').innerText = `Kalenderwoche ${Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7)}`;
+                $('greet').innerText = h < 5 ? 'Gute Nacht' : h < 11 ? 'Guten Morgen' : h < 18 ? 'Guten Tag' : 'Guten Abend';
+                $('greet-emoji').innerText = h < 5 ? '🌙' : h < 11 ? '☀️' : h < 18 ? '👋' : '🌆';
+            }
             if (activeStart) tickStamp();
         }
         setInterval(updateClock, 1000);
 
-        // ---------- Schnellzugriff ----------
-        function renderTiles() {
-            const T = [['/zeiterfassung.html', 'Zeiterfassung', 'Stempeln & Stunden', 'fa-business-time', 'emerald', 'zeit'], ['/finanzen.html', 'Finanzen', 'Buchungen & Fixkosten', 'fa-coins', 'yellow', 'finanzen'],
-                ['/passwort.html', 'Passwort-Safe', 'Verschlüsselter Tresor', 'fa-shield-halved', 'amber', 'tresor'], ['/admin.html', 'Admin', 'Mitglieder, Logs, System', 'fa-user-shield', 'indigo', 'admin']];
-            $('tiles').innerHTML = T.filter(t => t[5] === 'admin' ? isAdmin(currentUser) : can(currentUser, t[5])).map(t =>
-                `<a href="${t[0]}" class="tile hover:border-${t[4]}-500/50"><div class="w-11 h-11 rounded-2xl bg-${t[4]}-500/10 border border-${t[4]}-500/20 text-${t[4]}-400 flex items-center justify-center text-lg"><i class="fa-solid ${t[3]}"></i></div>
-                <div class="min-w-0"><div class="text-sm font-semibold text-slate-100 truncate">${t[1]}</div><div class="text-[11px] text-slate-500 truncate">${t[2]}</div></div>
-                ${t[5] === 'admin' ? '<span id="pend-dot" class="hidden absolute top-2 right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-slate-950 text-[10px] font-bold flex items-center justify-center"></span>' : ''}</a>`).join('');
-            if (!can(currentUser, 'zeit')) $('st-card').classList.add('hidden');
-        }
         async function countPending() {
             try {
                 const q = db.collection('users').where('status', '==', 'pending'); let n;
                 try { n = (await q.count().get()).data().count; } catch (e) { n = (await q.get()).size; }
                 if (!n) return;
-                $('pend-dot').innerText = n; $('pend-dot').classList.remove('hidden');
                 $('pending-text').innerText = n === 1 ? '1 Konto wartet auf Freigabe' : `${n} Konten warten auf Freigabe`; $('pending-banner').classList.remove('hidden'); $('pending-banner').classList.add('flex');
             } catch (e) {}
         }
@@ -198,9 +189,9 @@
         }
         function tickStamp() {
             const ms = activeStart ? Math.max(0, Date.now() - activeStart) : 0, p = n => String(n).padStart(2, '0');
-            if (activeStart) $('st-timer').innerText = `${p(Math.floor(ms / 3600000))}:${p(Math.floor(ms % 3600000 / 60000))}:${p(Math.floor(ms % 60000 / 1000))}`;
+            if (activeStart) setT($('st-timer'), `${p(Math.floor(ms / 3600000))}:${p(Math.floor(ms % 3600000 / 60000))}:${p(Math.floor(ms % 60000 / 1000))}`);
             const total = bookedToday + ms / 60000, t = dayTarget();
-            $('st-today').innerText = `${hm(total)} / ${hm(t)}`; $('st-bar').style.width = Math.min(100, total / t * 100) + '%';
+            setT($('st-today'), `${hm(total)} / ${hm(t)}`); $('st-bar').style.width = Math.min(100, total / t * 100) + '%';
         }
 
         // ---------- Wetter ----------
