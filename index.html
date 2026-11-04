@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>J.Mainz Dashboard – Secure Portal</title>
-    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#080c14">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Mainz Hub">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -27,9 +33,12 @@
             <div class="w-9 h-9 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400"><i class="fa-solid fa-shield-halved"></i></div>
             <span class="font-bold text-slate-200 tracking-wide">J.Mainz Dashboard</span>
         </div>
+        <div class="flex items-center gap-2">
+        <button onclick="toggleTheme()" class="w-9 h-9 rounded-full bg-slate-900/80 border border-slate-800/80 text-slate-300 hover:text-white" title="Hell / Dunkel"><i data-theme-icon class="fa-solid fa-moon text-sm"></i></button>
         <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800/80 px-3.5 py-1.5 rounded-full">
             <span id="net-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span id="net-text" class="text-xs font-medium text-slate-300">System Online</span>
+        </div>
         </div>
     </div>
 
@@ -66,7 +75,8 @@
                     <div><label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail-Adresse</label>
                         <input type="email" id="login-email" required autocomplete="username" placeholder="name@julian-mainz.de" class="inp"></div>
                     <div><label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort</label>
-                        <input type="password" id="login-password" required autocomplete="current-password" placeholder="••••••••" class="inp"></div>
+                        <input type="password" id="login-password" required autocomplete="current-password" placeholder="••••••••" class="inp">
+                        <button type="button" onclick="showView('reset')" class="mt-1.5 ml-1 text-[11px] text-slate-500 hover:text-indigo-300">Passwort vergessen?</button></div>
                     <div class="pt-2 space-y-3">
                         <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3.5 rounded-2xl shadow-lg shadow-indigo-600/25 text-sm transition-all">Anmelden</button>
                         <button type="button" onclick="showRegisterView(true)" class="w-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 font-medium py-3 rounded-2xl border border-slate-700/60 text-xs transition-all">Neues Konto beantragen</button>
@@ -85,6 +95,14 @@
                     <label class="flex items-start gap-2 text-[11px] text-slate-400"><input type="checkbox" required class="mt-0.5 rounded bg-slate-800 border-slate-700"><span>Ich habe die <a href="/datenschutz.html" target="_blank" class="text-indigo-400 underline">Datenschutzerklärung</a> gelesen.</span></label>
                     <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl text-xs transition-all shadow-lg shadow-emerald-600/20">Konto anlegen</button>
                     <button type="button" onclick="showRegisterView(false)" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1 text-center">&larr; Zurück zum Login</button>
+                </form>
+
+                <form id="form-reset" onsubmit="sendReset(event)" class="space-y-3.5 hidden">
+                    <div><h2 class="text-sm font-bold text-slate-100 mb-1">Passwort zurücksetzen</h2>
+                        <p class="text-[11px] text-slate-400">Wir senden einen Link zum Festlegen eines neuen Passworts an Ihre E-Mail-Adresse.</p></div>
+                    <input type="email" id="reset-email" required autocomplete="username" placeholder="E-Mail-Adresse" class="inp text-sm py-2.5">
+                    <button type="submit" id="btn-reset" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-2xl text-sm transition-all">Link senden</button>
+                    <button type="button" onclick="showView('login')" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1 text-center">&larr; Zurück zum Login</button>
                 </form>
                 <div class="mt-5 pt-4 border-t border-slate-800/80 text-center">
                     <button type="button" onclick="openContact()" class="text-xs text-slate-400 hover:text-indigo-300"><i class="fa-regular fa-envelope mr-1.5"></i>Fragen? Nachricht hinterlassen</button>
@@ -142,10 +160,28 @@
                 (ok ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400');
         }
 
-        function showRegisterView(show) {
+        function showView(v) {
             $('auth-alert').classList.add('hidden');
-            $('form-login').classList.toggle('hidden', show);
-            $('form-register').classList.toggle('hidden', !show);
+            ['login', 'register', 'reset'].forEach(k => $('form-' + k).classList.toggle('hidden', k !== v));
+            if (v === 'reset' && !$('reset-email').value) $('reset-email').value = $('login-email').value;
+        }
+        function showRegisterView(show) { showView(show ? 'register' : 'login'); }
+
+        async function sendReset(e) {
+            e.preventDefault();
+            const email = $('reset-email').value.trim(), btn = $('btn-reset');
+            btn.disabled = true; btn.innerText = 'Wird gesendet...';
+            try {
+                await auth.sendPasswordResetEmail(email);
+            } catch (err) {
+                const hint = { 'auth/invalid-email': 'Bitte eine gültige E-Mail-Adresse eingeben.', 'auth/too-many-requests': 'Zu viele Versuche. Bitte später erneut versuchen.', 'auth/network-request-failed': 'Netzwerkfehler. Bitte später erneut versuchen.' }[err.code];
+                if (hint) { showAuthAlert(hint); btn.disabled = false; btn.innerText = 'Link senden'; return; }
+                // Alle anderen Fälle (z. B. unbekannte Adresse) bewusst neutral beantworten, damit niemand Adressen ausprobieren kann
+            }
+            logSystemEvent('auth', 'Passwort-Reset angefordert', { attemptedEmail: email });
+            btn.disabled = false; btn.innerText = 'Link senden';
+            showView('login');
+            showAuthAlert('Falls ein Konto mit dieser E-Mail-Adresse existiert, wurde eine E-Mail zum Zurücksetzen des Passworts gesendet. Bitte auch den Spam-Ordner prüfen.', true);
         }
 
         async function handleSignIn(e) {
