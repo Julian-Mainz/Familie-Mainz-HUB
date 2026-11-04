@@ -114,7 +114,7 @@
     </main>
 
     <!-- Modal Buchung -->
-    <div id="m-tx" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
+    <div id="m-tx" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
         <div class="flex justify-between mb-4"><h3 id="tx-title" class="text-base font-bold">Buchung</h3><button onclick="closeModal('m-tx')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
         <form onsubmit="saveTx(event)" class="space-y-3"><input type="hidden" id="tx-id">
             <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Datum</label><input type="date" id="tx-date" required class="inp"></div>
@@ -126,7 +126,7 @@
         </form></div></div>
 
     <!-- Modal Fixkosten -->
-    <div id="m-fix" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
+    <div id="m-fix" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
         <div class="flex justify-between mb-4"><h3 id="fx-title" class="text-base font-bold">Fixkosten</h3><button onclick="closeModal('m-fix')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
         <form onsubmit="saveFix(event)" class="space-y-3"><input type="hidden" id="fx-id">
             <div><label class="lbl">Bezeichnung</label><input id="fx-name" required class="inp" placeholder="z. B. Miete, Netflix, KFZ-Versicherung"></div>
@@ -140,14 +140,14 @@
         </form></div></div>
 
     <!-- Modal Budgets -->
-    <div id="m-bud" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div id="m-bud" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between mb-1"><h3 class="text-base font-bold">Monatsbudgets</h3><button onclick="closeModal('m-bud')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
         <p class="text-xs text-slate-400 mb-4">Lege pro Kategorie ein Limit fest. Leer lassen = kein Budget.</p>
         <form onsubmit="saveBudgets(event)"><div id="bud-fields" class="space-y-2.5"></div>
             <div class="flex justify-end gap-3 pt-4"><button type="button" onclick="closeModal('m-bud')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button></div></form></div></div>
 
     <!-- Modal Lohn -->
-    <div id="m-pay" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
+    <div id="m-pay" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
         <div class="flex justify-between mb-4"><h3 class="text-base font-bold">Lohnabrechnung ablegen</h3><button onclick="closeModal('m-pay')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
         <form onsubmit="savePayslip(event)" class="space-y-3">
             <div><label class="lbl">Abrechnungsmonat</label><input type="month" id="pay-month" required class="inp"></div>
