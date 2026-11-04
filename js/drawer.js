@@ -54,6 +54,7 @@ function renderDrawer() {
         </div>
         <div class="pt-4 border-t border-slate-800/80">
             <div class="text-[11px] text-slate-500 text-center font-medium">J.Mainz Dashboard &bull; v4.0</div>
+            <div class="text-[11px] text-slate-600 text-center mt-1"><a href="/impressum.html" class="hover:text-slate-300">Impressum</a> &bull; <a href="/datenschutz.html" class="hover:text-slate-300">Datenschutz</a></div>
         </div>
     </aside>`;
 
