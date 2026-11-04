@@ -11,6 +11,8 @@ const safelist = [{ pattern: /^text-(emerald|yellow|indigo|orange|pink|cyan|teal
 
 const pages = fs.readdirSync('.').filter(f => f.endsWith('.html'));
 fs.mkdirSync('assets/css', { recursive: true });
+// Verwaiste CSS-Dateien gelöschter Seiten entfernen (z. B. logs.css, status.css)
+for (const f of fs.readdirSync('assets/css')) if (!pages.includes(f.replace(/\.css$/, '.html'))) fs.unlinkSync(path.join('assets/css', f));
 
 for (const page of pages) {
     const html = fs.readFileSync(page, 'utf8');
