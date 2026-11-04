@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wandkalender – J.Mainz Dashboard</title>
+    <meta name="theme-color" content="#080c14">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="/js/firebase-init.js"></script>
+    <style>
+        html, body { background: #05080f; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        ::-webkit-scrollbar { width: 0; height: 0; }
+        .idle { cursor: none; }
+        .idle #controls { opacity: 0; pointer-events: none; }
+    </style>
+    <style type="text/tailwindcss">
+        .panel { @apply bg-slate-900/60 border border-slate-800 rounded-3xl p-5 flex flex-col min-h-0; }
+        .ph { @apply flex items-center justify-between text-sm font-bold text-slate-300 border-b border-slate-800 pb-2 mb-3; }
+        .item { @apply flex items-center gap-3 w-full text-left rounded-2xl bg-slate-950/50 border border-slate-800 px-4 py-2.5 text-base; }
+    </style>
+</head>
+<body class="min-h-screen lg:h-screen overflow-x-hidden lg:overflow-hidden p-3 lg:p-5">
+
+    <div id="dim" class="fixed inset-0 bg-black pointer-events-none z-40 transition-opacity duration-[2000ms] opacity-0"></div>
+
+    <div id="controls" class="fixed top-3 right-3 z-50 flex items-center gap-2 transition-opacity duration-500">
+        <span id="wl" class="hidden text-[11px] text-emerald-400 bg-slate-900/80 border border-slate-800 rounded-xl px-2.5 py-1.5"><i class="fa-solid fa-sun mr-1"></i>Bildschirm bleibt an</span>
+        <button onclick="toggleFs()" class="bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white rounded-xl px-3 py-2 text-xs" title="Vollbild"><i id="fs-icon" class="fa-solid fa-expand"></i></button>
+        <a href="/menu.html" class="bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white rounded-xl px-3 py-2 text-xs" title="Zurück zum Dashboard"><i class="fa-solid fa-house"></i></a>
+    </div>
+
+    <main class="h-full grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- Links: Uhr, Wetter, Monat -->
+        <section class="lg:col-span-5 flex flex-col gap-4 min-h-0">
+            <div class="panel items-center text-center justify-center bg-gradient-to-br from-indigo-600/20 via-slate-900/60 to-cyan-500/10 py-6">
+                <div id="clock" class="font-mono font-bold tracking-wider leading-none text-[clamp(3.5rem,9vw,8rem)]">00:00</div>
+                <div id="date" class="mt-3 text-indigo-300 font-semibold text-[clamp(1rem,2vw,1.7rem)]"></div>
+                <div id="kw" class="text-slate-500 text-sm mt-1"></div>
+            </div>
+
+            <div class="panel">
+                <div class="flex items-center gap-5">
+                    <i id="w-icon" class="fa-solid fa-cloud-sun text-6xl text-amber-400"></i>
+                    <div class="flex-1"><div id="w-temp" class="text-5xl font-bold">--°</div><div id="w-cond" class="text-slate-400">Lade Wetter...</div></div>
+                    <div class="text-sm text-slate-400 space-y-1 text-right"><div><i class="fa-solid fa-umbrella w-5 text-slate-500"></i><span id="w-rain">--</span></div><div><i class="fa-solid fa-wind w-5 text-slate-500"></i><span id="w-wind">--</span></div></div>
+                </div>
+                <div id="w-fc" class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-800/60"></div>
+            </div>
+
+            <div class="panel flex-1">
+                <div class="ph"><span id="cal-title"></span><span class="text-xs font-normal text-slate-500">Punkt = Termin</span></div>
+                <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-500 mb-1"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div>
+                <div id="cal" class="grid grid-cols-7 gap-1 flex-1"></div>
+            </div>
+        </section>
+
+        <!-- Rechts: Termine, Einkauf, Aufgaben, Pinnwand -->
+        <section class="lg:col-span-7 grid grid-cols-2 gap-4 min-h-0 lg:grid-rows-[1.3fr_1fr_0.7fr]">
+            <div class="panel col-span-2 overflow-hidden"><div class="ph"><span><i class="fa-solid fa-calendar-check text-indigo-400 mr-2"></i>Termine der nächsten 7 Tage</span></div><div id="agenda" class="overflow-y-auto space-y-3 flex-1"></div></div>
+            <div class="panel overflow-hidden"><div class="ph"><span><i class="fa-solid fa-cart-shopping text-yellow-400 mr-2"></i>Einkauf</span><span id="shop-n" class="text-xs font-normal text-slate-500"></span></div><div id="shop" class="overflow-y-auto space-y-2 flex-1"></div></div>
+            <div class="panel overflow-hidden"><div class="ph"><span><i class="fa-solid fa-circle-check text-emerald-400 mr-2"></i>Aufgaben</span><span id="task-n" class="text-xs font-normal text-slate-500"></span></div><div id="tasks" class="overflow-y-auto space-y-2 flex-1"></div></div>
+            <div class="panel col-span-2 overflow-hidden"><div class="ph"><span><i class="fa-solid fa-note-sticky text-amber-400 mr-2"></i>Pinnwand</span></div><div id="notes" class="overflow-y-auto grid sm:grid-cols-2 gap-2 flex-1 content-start"></div></div>
+        </section>
+    </main>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const setT = (el, t) => { const n = el.firstChild; if (n && n.nodeType === 3) { if (n.nodeValue !== t) n.nodeValue = t; } else el.textContent = t; };
+        const TS = () => firebase.firestore.FieldValue.serverTimestamp();
+        let pub = [], mine = [], events = [], todos = [], notes = [], started = false, lastMin = -1, lastDay = '', lock = null;
+
+        initAuthGuard(user => {
+            if (!user || started) return;
+            started = true;
+            const list = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
+            const merge = () => { const m = new Map(); [...pub, ...mine].forEach(e => m.set(e.id, e)); events = [...m.values()]; renderCalendar(); renderAgenda(); };
+            db.collection('events').where('isPublic', '==', true).onSnapshot(s => { pub = list(s); merge(); }, () => {});
+            db.collection('events').where('owner', '==', currentUser.email).onSnapshot(s => { mine = list(s); merge(); }, () => {});
+            db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(s => { todos = list(s); renderLists(); }, () => {});
+            db.collection('notes').orderBy('createdAt', 'desc').limit(8).onSnapshot(s => { notes = list(s); renderNotes(); }, () => {});
+            ['shop', 'tasks'].forEach(id => $(id).addEventListener('click', e => {
+                const b = e.target.closest('[data-id]'); if (!b) return;
+                db.collection('todos').doc(b.dataset.id).update({ done: b.dataset.done !== 'true' }).catch(err => alert('Fehler: ' + err.message));
+            }));
+            tick(); setInterval(tick, 1000); loadWeather(); setInterval(loadWeather, 15 * 60 * 1000);
+            keepAwake(); document.addEventListener('click', keepAwake, { once: true });
+            document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
+            ['mousemove', 'touchstart', 'keydown'].forEach(ev => document.addEventListener(ev, wake, { passive: true })); wake();
+        });
+
+        // ---------- Uhr, Datum, Nachtmodus ----------
+        function tick() {
+            const now = new Date();
+            setT($('clock'), now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
+            if (now.getMinutes() === lastMin) return;
+            lastMin = now.getMinutes();
+            $('date').innerText = now.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const t = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())); t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
+            $('kw').innerText = `Kalenderwoche ${Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7)}`;
+            $('dim').style.opacity = (now.getHours() >= 22 || now.getHours() < 6) ? '0.7' : '0';
+            const day = localDate(); if (day !== lastDay) { lastDay = day; renderCalendar(); renderAgenda(); }
+            if (now.getHours() === 3 && now.getMinutes() === 30) location.reload();   // nächtlicher Neustart: frische Version, kein Speicherstau
+        }
+
+        // ---------- Wetter ----------
+        const WX = [[0, 'Klar', 'fa-sun text-amber-400'], [3, 'Leicht bewölkt', 'fa-cloud-sun text-amber-300'], [48, 'Nebelig', 'fa-smog text-slate-400'], [67, 'Regnerisch', 'fa-cloud-rain text-cyan-400'],
+            [77, 'Schnee', 'fa-snowflake text-indigo-300'], [82, 'Regenschauer', 'fa-cloud-showers-heavy text-cyan-400'], [86, 'Schneeschauer', 'fa-snowflake text-indigo-300'], [99, 'Gewitter', 'fa-cloud-bolt text-amber-500']];
+        const wx = c => WX.find(w => c <= w[0]) || WX[WX.length - 1];
+        async function loadWeather() {
+            try {
+                const j = await (await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.8021&longitude=6.4836&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=4&timezone=auto')).json();
+                const c = j.current, d = j.daily, w = wx(c.weather_code);
+                $('w-temp').innerText = `${Math.round(c.temperature_2m)}°`; $('w-cond').innerText = `${w[1]} · Düren`; $('w-icon').className = `fa-solid ${w[2]} text-6xl`;
+                $('w-rain').innerText = ` ${d.precipitation_probability_max[0] ?? '–'} %`; $('w-wind').innerText = ` ${Math.round(c.wind_speed_10m)} km/h`;
+                $('w-fc').innerHTML = [1, 2, 3].map(i => { const f = wx(d.weather_code[i]); return `<div class="text-center"><div class="text-sm text-slate-500">${new Date(d.time[i]).toLocaleDateString('de-DE', { weekday: 'long' })}</div>
+                    <i class="fa-solid ${f[2]} text-3xl my-2"></i><div class="text-lg"><b>${Math.round(d.temperature_2m_max[i])}°</b> <span class="text-slate-500">${Math.round(d.temperature_2m_min[i])}°</span></div>
+                    <div class="text-xs text-slate-500"><i class="fa-solid fa-umbrella mr-1"></i>${d.precipitation_probability_max[i] ?? '–'} %</div></div>`; }).join('');
+            } catch (e) { $('w-cond').innerText = 'Wetter offline'; }
+        }
+
+        // ---------- Monatskalender ----------
+        function renderCalendar() {
+            const now = new Date(), y = now.getFullYear(), m = now.getMonth(), today = localDate(), first = (new Date(y, m, 1).getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate();
+            $('cal-title').innerText = now.toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+            let h = '<div></div>'.repeat(first);
+            for (let d = 1; d <= days; d++) {
+                const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`, n = events.filter(e => e.date === ds).length, we = [0, 6].includes(new Date(y, m, d).getDay());
+                h += `<div class="flex flex-col items-center justify-center rounded-xl text-base ${ds === today ? 'bg-indigo-600 text-white font-bold' : we ? 'text-slate-500' : 'text-slate-300'} ${ds < today ? 'opacity-60' : ''}">${d}
+                    <span class="h-1.5 flex gap-0.5">${n ? '<i class="w-1.5 h-1.5 rounded-full bg-cyan-400"></i>' : ''}${n > 1 ? '<i class="w-1.5 h-1.5 rounded-full bg-cyan-400"></i>' : ''}</span></div>`;
+            }
+            $('cal').innerHTML = h;
+        }
+
+        // ---------- Termine der Woche ----------
+        function renderAgenda() {
+            let h = '', any = false;
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(); d.setDate(d.getDate() + i); const ds = localDate(d), list = events.filter(e => e.date === ds);
+                if (!list.length && i > 0) continue;
+                if (list.length) any = true;
+                const label = i === 0 ? 'Heute' : i === 1 ? 'Morgen' : d.toLocaleDateString('de-DE', { weekday: 'long' });
+                h += `<div><div class="flex items-baseline gap-2 mb-1.5"><span class="text-lg font-bold ${i === 0 ? 'text-indigo-300' : 'text-slate-200'}">${label}</span><span class="text-sm text-slate-500">${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}.</span></div>
+                    ${list.length ? list.map(e => `<div class="item"><i class="fa-solid ${e.isPublic ? 'fa-calendar-day text-cyan-400' : 'fa-lock text-slate-500'} text-sm"></i><span class="truncate">${esc(e.title)}</span></div>`).join('<div class="h-1.5"></div>') : '<div class="text-slate-500 text-sm pl-1">Keine Termine</div>'}</div>`;
+            }
+            $('agenda').innerHTML = h;
+            if (!any) $('agenda').innerHTML += '<div class="text-slate-500 text-sm">In den nächsten 7 Tagen sind keine weiteren Termine eingetragen.</div>';
+        }
+
+        // ---------- Einkauf & Aufgaben (Antippen = abhaken) ----------
+        function renderLists() {
+            const fill = (id, nId, list) => {
+                const open = list.filter(t => !t.done), done = list.filter(t => t.done).slice(0, 3);
+                $(nId).innerText = open.length ? `${open.length} offen` : '';
+                const row = (t, d) => `<button data-id="${esc(t.id)}" data-done="${d}" class="item ${d ? 'opacity-40' : ''}"><i class="fa-regular ${d ? 'fa-square-check text-emerald-400' : 'fa-square text-slate-500'}"></i><span class="truncate ${d ? 'line-through' : ''}">${esc(t.text)}</span></button>`;
+                $(id).innerHTML = (open.map(t => row(t, false)).join('') + done.map(t => row(t, true)).join('')) || '<div class="text-slate-500 text-sm">Alles erledigt 🎉</div>';
+            };
+            fill('shop', 'shop-n', todos.filter(t => t.kind === 'shop'));
+            fill('tasks', 'task-n', todos.filter(t => t.kind !== 'shop'));
+        }
+        function renderNotes() {
+            $('notes').innerHTML = notes.length ? notes.map(n => `<div class="item"><i class="fa-solid fa-thumbtack text-amber-400 text-sm"></i><div class="min-w-0"><div class="truncate">${esc(n.text)}</div><div class="text-[11px] text-slate-500">${esc(n.author || 'Familie')}</div></div></div>`).join('') : '<div class="text-slate-500 text-sm">Keine Notizen.</div>';
+        }
+
+        // ---------- Vollbild, Bildschirm wach halten, Bedienelemente ausblenden ----------
+        function toggleFs() { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.(); }
+        document.addEventListener('fullscreenchange', () => { $('fs-icon').className = 'fa-solid ' + (document.fullscreenElement ? 'fa-compress' : 'fa-expand'); });
+        async function keepAwake() {
+            try {
+                if (!('wakeLock' in navigator) || lock) return;
+                lock = await navigator.wakeLock.request('screen'); $('wl').classList.remove('hidden');
+                lock.addEventListener('release', () => { lock = null; $('wl').classList.add('hidden'); });
+            } catch (e) { lock = null; }
+        }
+        let idleT; function wake() { document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(() => document.body.classList.add('idle'), 5000); }
+    </script>
+</body>
+</html>
