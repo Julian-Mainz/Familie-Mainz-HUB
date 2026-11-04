@@ -16,6 +16,8 @@
         body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        /* Direkte Kinder von <main> dürfen nie zusammengedrückt werden, auch nicht bei langen Seiten */
+        main > * { flex-shrink: 0; }
     </style>
     <style type="text/tailwindcss">
         .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg p-4; }
@@ -46,7 +48,7 @@
             <div class="card col-span-2 lg:col-span-1"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-database text-emerald-400 mr-1"></i>Datenbank</span><div id="k-db" class="text-lg font-bold mt-1">–</div></div>
         </div>
 
-        <div class="flex gap-1 bg-slate-900/60 border border-slate-800 rounded-2xl p-1 w-fit max-w-full overflow-x-auto">
+        <div class="flex gap-1 bg-slate-900/60 border border-slate-800 rounded-2xl p-1 w-fit max-w-full overflow-x-auto shrink-0">
             <button class="tab" data-tab="users" onclick="showTab('users')"><i class="fa-solid fa-users-gear mr-1.5"></i>Benutzer &amp; Rechte</button>
             <button class="tab" data-tab="logs" onclick="showTab('logs')"><i class="fa-solid fa-timeline mr-1.5"></i>Logs</button>
             <button class="tab" data-tab="system" onclick="showTab('system')"><i class="fa-solid fa-server mr-1.5"></i>System</button>
