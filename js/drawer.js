@@ -45,10 +45,16 @@ function renderDrawer() {
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-            <nav class="space-y-1.5">${links}
+            <nav class="space-y-1.5">
+                <button onclick="toggleSideMenu(false); if (typeof openSearch === 'function') openSearch();" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all hover:bg-slate-800/80 border border-slate-800 text-left">
+                    <i class="fa-solid fa-magnifying-glass w-5 text-slate-400"></i><span class="text-slate-200 flex-1">Suche</span><kbd class="text-[10px] text-slate-500 border border-slate-700 rounded px-1.5 py-0.5">Strg K</kbd>
+                </button>${links}
                 <button onclick="toggleSideMenu(false); if (typeof openSettingsModal === 'function') openSettingsModal();" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all hover:bg-slate-800/80 border border-slate-800 text-left">
                     <i class="fa-solid fa-gear w-5 text-slate-400"></i>
                     <span class="text-slate-200">Einstellungen &amp; Alarm</span>
+                </button>
+                <button onclick="toggleTheme()" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all hover:bg-slate-800/80 border border-slate-800 text-left">
+                    <i data-theme-icon class="fa-solid fa-moon w-5 text-slate-400"></i><span class="text-slate-200">Design: <span data-theme-text>Dunkel</span></span>
                 </button>
             </nav>
         </div>
@@ -67,6 +73,12 @@ function renderDrawer() {
         s.src = '/js/settings.js';
         document.head.appendChild(s);
     }
+    if (!document.getElementById('search-js')) {
+        const q = document.createElement('script');
+        q.id = 'search-js'; q.src = '/js/search.js';
+        document.head.appendChild(q);
+    }
+    if (typeof updateThemeButtons === 'function') updateThemeButtons();
     document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleSideMenu(false); });
 }
 
