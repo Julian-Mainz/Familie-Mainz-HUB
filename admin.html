@@ -50,6 +50,7 @@
             <button class="tab" data-tab="users" onclick="showTab('users')"><i class="fa-solid fa-users-gear mr-1.5"></i>Benutzer &amp; Rechte</button>
             <button class="tab" data-tab="logs" onclick="showTab('logs')"><i class="fa-solid fa-timeline mr-1.5"></i>Logs</button>
             <button class="tab" data-tab="system" onclick="showTab('system')"><i class="fa-solid fa-server mr-1.5"></i>System</button>
+            <button class="tab" data-tab="messages" onclick="showTab('messages')"><i class="fa-solid fa-envelope mr-1.5"></i>Nachrichten<span id="msg-badge" class="hidden ml-1.5 text-[10px] bg-amber-500 text-slate-950 font-bold rounded-full px-1.5"></span></button>
         </div>
 
         <!-- Benutzer -->
@@ -80,6 +81,12 @@
                 <tbody id="logs-body" class="divide-y divide-slate-800/60 font-mono text-[11px]"></tbody></table></div>
             <div class="flex items-center justify-between pt-3"><span id="log-info" class="text-[11px] text-slate-500"></span>
                 <button id="log-more" onclick="loadLogs(false)" class="btn bg-slate-800 border-slate-700 text-slate-200 hidden">Mehr laden</button></div>
+        </section>
+
+        <!-- Nachrichten -->
+        <section id="tab-messages" class="hidden card">
+            <div class="flex items-center justify-between mb-3"><span id="msg-info" class="text-xs text-slate-400"></span><button onclick="markAllRead()" class="btn bg-slate-800 border-slate-700 text-slate-200"><i class="fa-solid fa-check-double mr-1.5"></i>Alle als gelesen</button></div>
+            <div id="msg-list" class="space-y-3"></div>
         </section>
 
         <!-- System -->
@@ -136,7 +143,7 @@
                 const b = e.target.closest('[data-act]'), u = b && userOf(b); if (!u) return;
                 ({ approve: () => setStatus(u, 'active'), block: () => setStatus(u, 'blocked'), delete: () => removeUser(u), reset: () => resetPw(u) })[b.dataset.act]();
             });
-            loadToday();
+            loadToday(); initMessages();
             showTab(location.hash.slice(1) || 'users');
         }, { admin: true });
 
@@ -144,7 +151,7 @@
 
         function showTab(t) {
             if (!$('tab-' + t)) t = 'users';
-            ['users', 'logs', 'system'].forEach(k => $('tab-' + k).classList.toggle('hidden', k !== t));
+            ['users', 'logs', 'system', 'messages'].forEach(k => $('tab-' + k).classList.toggle('hidden', k !== t));
             document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
             history.replaceState(null, '', '#' + t);
             if (t === 'logs' && !logsLoaded) loadLogs(true);
@@ -236,6 +243,35 @@
             }).join('') : '<div class="text-xs text-slate-500 text-center py-6">Keine Benutzer gefunden.</div>';
         }
 
+        // ---------- Nachrichten (Kontaktformular der Startseite) ----------
+        let messages = [];
+        function initMessages() {
+            db.collection('contact_messages').orderBy('createdAt', 'desc').limit(100).onSnapshot(s => { messages = s.docs.map(d => ({ id: d.id, ...d.data() })); renderMessages(); },
+                err => { $('msg-list').innerHTML = `<div class="text-xs text-rose-400 text-center py-6">Nachrichten konnten nicht geladen werden: ${esc(err.message)}</div>`; });
+            $('msg-list').addEventListener('click', e => {
+                const b = e.target.closest('[data-m]'); if (!b) return;
+                const m = messages.find(x => x.id === b.dataset.id); if (!m) return;
+                if (b.dataset.m === 'read') db.collection('contact_messages').doc(m.id).update({ read: !m.read }).catch(x => alert('Fehler: ' + x.message));
+                if (b.dataset.m === 'del' && confirm('Nachricht endgültig löschen?')) db.collection('contact_messages').doc(m.id).delete().then(() => logSystemEvent('admin', 'Kontaktnachricht gelöscht')).catch(x => alert('Fehler: ' + x.message));
+            });
+        }
+        function renderMessages() {
+            const unread = messages.filter(m => !m.read).length;
+            $('msg-badge').innerText = unread; $('msg-badge').classList.toggle('hidden', !unread);
+            $('msg-info').innerText = `${messages.length} Nachrichten · ${unread} ungelesen`;
+            $('msg-list').innerHTML = messages.length ? messages.map(m => `<div class="bg-slate-950/40 border ${m.read ? 'border-slate-800/80' : 'border-amber-500/40'} rounded-2xl p-4 text-xs space-y-2">
+                <div class="flex flex-wrap items-start justify-between gap-2"><div><div class="font-semibold text-slate-200 text-sm">${esc(m.name)} ${m.read ? '' : '<span class="text-[10px] text-amber-400 ml-1">neu</span>'}</div>
+                    <div class="text-slate-500">${m.email ? esc(m.email) : 'keine E-Mail angegeben'} · ${fmtDate(m.createdAt)}</div></div>
+                    <div class="flex gap-2">${m.email ? `<a href="mailto:${esc(m.email)}?subject=${encodeURIComponent('Antwort auf deine Nachricht')}" class="act bg-indigo-600/20 border-indigo-500/30 text-indigo-300"><i class="fa-solid fa-reply mr-1"></i>Antworten</a>` : ''}
+                    <button data-m="read" data-id="${esc(m.id)}" class="act bg-slate-800 border-slate-700 text-slate-300">${m.read ? 'Als ungelesen' : 'Gelesen'}</button>
+                    <button data-m="del" data-id="${esc(m.id)}" class="act bg-rose-600/20 border-rose-500/30 text-rose-300"><i class="fa-solid fa-trash-can"></i></button></div></div>
+                <p class="text-slate-300 text-[13px] whitespace-pre-wrap break-words">${esc(m.message)}</p></div>`).join('') : '<div class="text-xs text-slate-500 text-center py-6">Noch keine Nachrichten.</div>';
+        }
+        async function markAllRead() {
+            const list = messages.filter(m => !m.read); if (!list.length) return;
+            try { const b = db.batch(); list.forEach(m => b.update(db.collection('contact_messages').doc(m.id), { read: true })); await b.commit(); } catch (err) { alert('Fehler: ' + err.message); }
+        }
+
         // ---------- Logs ----------
         const detailsOf = l => [l.device, l.details && Object.keys(l.details).length ? JSON.stringify(l.details) : ''].filter(Boolean).join(' · ');
         const logTime = l => { if (!l.timestamp?.toDate) return '--'; const d = l.timestamp.toDate(); return `${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('de-DE')}`; };
@@ -291,7 +327,7 @@
         // ---------- System ----------
         // Dritter Wert true = private Daten, die auch Admins laut Regeln nicht sehen dürfen
         const COLS = [['users', 'Benutzer'], ['worktime', 'Arbeitszeiten', true], ['active_work', 'Laufende Stempelungen', true], ['finance_transactions', 'Finanz-Buchungen', true], ['fixed_costs', 'Fixkosten', true],
-            ['payslips', 'Lohnabrechnungen', true], ['vault', 'Tresor-Einträge', true], ['events', 'Termine'], ['notes', 'Notizen'], ['todos', 'Aufgaben'], ['system_logs', 'System-Logs']];
+            ['payslips', 'Lohnabrechnungen', true], ['vault', 'Tresor-Einträge', true], ['events', 'Termine'], ['notes', 'Notizen'], ['todos', 'Aufgaben'], ['system_logs', 'System-Logs'], ['contact_messages', 'Nachrichten']];
         async function countDocs(q) {
             try { const n = (await q.count().get()).data().count; reads += Math.max(1, Math.ceil(n / 1000)); return n; }
             catch (e) { try { const s = await q.get(); reads += Math.max(1, s.size); return s.size; } catch (e2) { return null; } }
