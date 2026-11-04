@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Start – J.Mainz Dashboard</title>
-    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#080c14">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Mainz Hub">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -32,23 +38,29 @@
 <body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
 
     <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
+        <div class="flex items-center gap-2">
         <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-bars text-indigo-400"></i><span>Menü</span></button>
+        <button onclick="window.openSearch && openSearch()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold" title="Suche (Strg+K)"><i class="fa-solid fa-magnifying-glass text-indigo-400"></i><span class="hidden md:inline">Suche</span><kbd class="hidden lg:inline text-[10px] text-slate-500 border border-slate-700 rounded px-1.5">Strg K</kbd></button>
+        </div>
         <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide truncate px-2"><span id="greet">Hallo</span>, <span id="user-display-name" class="text-indigo-400 font-semibold"></span> <span id="greet-emoji">👋</span></h1>
+        <div class="flex items-center gap-2">
+        <button onclick="openLayout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold" title="Startseite anpassen"><i class="fa-solid fa-table-columns text-indigo-400"></i><span class="hidden md:inline">Anpassen</span></button>
         <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span></button>
+        </div>
     </header>
 
     <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
         <a id="pending-banner" href="/admin.html#users" class="hidden card px-4 py-3 border-amber-500/40 bg-amber-500/10 text-amber-200 text-xs items-center gap-2"><i class="fa-solid fa-user-clock"></i><span id="pending-text"></span><i class="fa-solid fa-chevron-right ml-auto text-[10px]"></i></a>
 
-        <!-- Reihe 1: Hero, Wetter, Stempeluhr -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <div class="card p-6 flex flex-col items-center justify-center text-center bg-gradient-to-br from-indigo-600/20 via-slate-900/60 to-cyan-500/10">
+        <!-- Widgets (Reihenfolge und Sichtbarkeit sind anpassbar) -->
+        <div id="widgets" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div data-w="hero" class="card p-6 flex flex-col items-center justify-center text-center bg-gradient-to-br from-indigo-600/20 via-slate-900/60 to-cyan-500/10">
                 <div id="dash-time" class="text-5xl font-mono font-bold tracking-wider">00:00:00</div>
                 <div id="dash-date" class="text-xs font-medium text-indigo-300 uppercase tracking-widest mt-3"></div>
                 <div id="dash-week" class="text-[11px] text-slate-500 mt-1"></div>
             </div>
 
-            <div class="card p-5 flex flex-col">
+            <div data-w="weather" class="card p-5 flex flex-col">
                 <div class="h3"><span><i class="fa-solid fa-location-dot text-rose-400 mr-1.5"></i>Düren</span><button onclick="loadWeather()" class="text-slate-400 hover:text-indigo-400" title="Aktualisieren"><i class="fa-solid fa-rotate"></i></button></div>
                 <div class="flex items-center gap-4 my-1">
                     <i id="weather-icon" class="fa-solid fa-cloud-sun text-4xl text-amber-400"></i>
@@ -58,25 +70,20 @@
                 <div id="forecast" class="grid grid-cols-3 gap-2 mt-auto pt-3 border-t border-slate-800/60"></div>
             </div>
 
-            <div id="st-card" class="card p-5 flex flex-col md:col-span-2 xl:col-span-1">
+            <div id="st-card" data-w="stamp" class="card p-5 flex flex-col">
                 <div class="h3"><span><i class="fa-solid fa-stopwatch text-emerald-400 mr-1.5"></i>Arbeitszeit</span><span id="st-badge" class="badge">Inaktiv</span></div>
                 <div class="text-center py-1"><div id="st-timer" class="text-3xl font-mono font-bold tracking-wider">00:00:00</div><div id="st-sub" class="text-xs text-slate-500 mt-1">Nicht eingestempelt</div></div>
                 <div class="mt-3"><div class="flex justify-between text-[11px] mb-1"><span class="text-slate-400">Heute (inkl. laufender Zeit)</span><span id="st-today" class="font-mono"></span></div>
                     <div class="h-2 bg-slate-800 rounded-full overflow-hidden"><div id="st-bar" class="h-full bg-emerald-500 rounded-full" style="width:0"></div></div></div>
                 <a href="/zeiterfassung.html" class="mt-4 text-center text-xs font-semibold bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl py-2.5"><i class="fa-solid fa-arrow-right mr-1.5"></i>Zur Zeiterfassung</a>
             </div>
-        </div>
-
-
-        <!-- Reihe 2: Pinnwand, Aufgaben, Termine -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <div class="card p-4 flex flex-col">
+            <div data-w="notes" class="card p-4 flex flex-col">
                 <div class="h3"><span><i class="fa-solid fa-note-sticky text-amber-400 mr-1.5"></i>Pinnwand</span><span id="note-count" class="badge">0</span></div>
                 <div id="notes-list" class="flex-1 overflow-y-auto max-h-44 space-y-1.5 pr-1 text-[11px] text-slate-500"></div>
                 <form onsubmit="saveNewNote(event)" class="mt-2 flex gap-1.5"><input type="text" id="new-note-input" required placeholder="Notiz anpinnen..." class="mini"><button class="bg-amber-500/20 text-amber-300 px-2.5 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-paper-plane"></i></button></form>
             </div>
 
-            <div class="card p-4 flex flex-col">
+            <div data-w="todos" class="card p-4 flex flex-col">
                 <div class="h3"><span><i class="fa-solid fa-list-check text-emerald-400 mr-1.5"></i>Aufgaben &amp; Einkauf</span>
                     <span class="flex items-center gap-2"><span id="todo-count" class="badge">0</span><button onclick="clearDone()" class="text-slate-500 hover:text-rose-400" title="Erledigte löschen"><i class="fa-solid fa-broom"></i></button></span></div>
                 <div class="flex gap-1.5 mb-2"><button class="chip on" data-f="all" onclick="setFilter('all')">Alle</button><button class="chip" data-f="task" onclick="setFilter('task')"><i class="fa-solid fa-circle-check mr-1"></i>Aufgaben</button><button class="chip" data-f="shop" onclick="setFilter('shop')"><i class="fa-solid fa-cart-shopping mr-1"></i>Einkauf</button></div>
@@ -86,14 +93,13 @@
                     <input type="text" id="new-todo-input" required placeholder="Neue Aufgabe..." class="mini"><button class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-plus"></i></button></form>
             </div>
 
-            <div class="card p-4 flex flex-col md:col-span-2 xl:col-span-1">
+            <div data-w="upcoming" class="card p-4 flex flex-col">
                 <div class="h3"><span><i class="fa-solid fa-calendar-check text-indigo-400 mr-1.5"></i>Nächste Termine</span></div>
                 <div id="upcoming" class="space-y-1.5 text-[11px]"></div>
             </div>
-        </div>
 
         <!-- Kalender -->
-        <div class="card flex-1 p-4 md:p-6 flex flex-col min-h-[420px]">
+        <div data-w="calendar" class="card p-4 md:p-6 flex flex-col min-h-[420px] md:col-span-2 xl:col-span-3">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
                 <div class="flex items-center gap-3"><i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i><h2 class="text-base font-bold text-slate-200">Kalender</h2></div>
                 <div class="flex items-center gap-2">
@@ -111,7 +117,37 @@
                 <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2"></div>
             </div></div>
         </div>
+        </div>
     </main>
+
+    <!-- Schnell-Erfassung -->
+    <button onclick="openQuick()" title="Schnell-Erfassung (Taste N)" class="fixed bottom-5 right-5 z-40 w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xl shadow-xl shadow-indigo-600/30 flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
+
+    <div id="modal-quick" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
+            <div class="flex justify-between items-center mb-3"><h3 class="text-base font-bold text-slate-100"><i class="fa-solid fa-bolt text-amber-400 mr-2"></i>Schnell-Erfassung</h3><button onclick="closeModal('modal-quick')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
+            <div id="q-kinds" class="flex flex-wrap gap-1.5 mb-3">
+                <button type="button" class="chip" data-k="task" onclick="setQuick('task')"><i class="fa-solid fa-circle-check mr-1"></i>Aufgabe</button>
+                <button type="button" class="chip" data-k="shop" onclick="setQuick('shop')"><i class="fa-solid fa-cart-shopping mr-1"></i>Einkauf</button>
+                <button type="button" class="chip" data-k="note" onclick="setQuick('note')"><i class="fa-solid fa-note-sticky mr-1"></i>Notiz</button>
+                <button type="button" class="chip" data-k="event" onclick="setQuick('event')"><i class="fa-solid fa-calendar-plus mr-1"></i>Termin</button>
+            </div>
+            <form onsubmit="saveQuick(event)" class="space-y-3">
+                <input id="q-text" required maxlength="200" autocomplete="off" class="inp">
+                <div id="q-event-opts" class="hidden space-y-2"><input type="date" id="q-date" class="inp"><label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" id="q-public" checked class="rounded bg-slate-800 border-slate-700"> Öffentlich für alle sichtbar</label></div>
+                <div class="flex justify-end gap-2"><button type="button" onclick="closeModal('modal-quick')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-layout" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-1"><h3 class="text-base font-bold text-slate-100"><i class="fa-solid fa-table-columns text-indigo-400 mr-2"></i>Startseite anpassen</h3><button onclick="closeModal('modal-layout')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
+            <p class="text-xs text-slate-400 mb-3">Mit den Pfeilen sortierst du, mit dem Auge blendest du Bereiche ein oder aus. Die Auswahl gilt auf allen deinen Geräten.</p>
+            <div id="layout-list" class="space-y-2"></div>
+            <div class="flex justify-between pt-4"><button onclick="resetLayout()" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300"><i class="fa-solid fa-rotate-left mr-1.5"></i>Zurücksetzen</button><button onclick="closeModal('modal-layout')" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Fertig</button></div>
+        </div>
+    </div>
 
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
@@ -138,8 +174,88 @@
         initAuthGuard(user => {
             if (!user || started) return;
             started = true;
-            renderDrawer(); if (!can(currentUser, 'zeit')) $('st-card').classList.add('hidden'); initCalendar(); initNotes(); initTodos(); initStamp(); loadWeather(); updateClock();
+            renderDrawer(); loadLayout(); applyLayout(); initLayoutEvents(); initCalendar(); initNotes(); initTodos(); initStamp(); loadWeather(); updateClock();
             if (isAdmin(currentUser)) countPending();
+            handleQuickHash();
+        });
+
+        // ---------- Widgets anpassen ----------
+        const WIDGETS = { hero: ['Uhr & Datum', 'fa-clock'], weather: ['Wetter', 'fa-cloud-sun'], stamp: ['Arbeitszeit', 'fa-stopwatch'], notes: ['Pinnwand', 'fa-note-sticky'],
+            todos: ['Aufgaben & Einkauf', 'fa-list-check'], upcoming: ['Nächste Termine', 'fa-calendar-check'], calendar: ['Kalender', 'fa-calendar-days'] };
+        const DEFAULT_ORDER = Object.keys(WIDGETS);
+        let layout = { order: [...DEFAULT_ORDER], hidden: [] };
+        function loadLayout() {
+            const l = currentUser.userPrefs?.layout; if (!l) return;
+            const order = (l.order || []).filter(id => WIDGETS[id]);
+            DEFAULT_ORDER.forEach(id => { if (!order.includes(id)) order.push(id); });      // neue Widgets später automatisch ergänzen
+            layout = { order: [...new Set(order)], hidden: (l.hidden || []).filter(id => WIDGETS[id]) };
+        }
+        function applyLayout() {
+            const host = $('widgets');
+            layout.order.forEach(id => { const el = host.querySelector(`[data-w="${id}"]`); if (el) host.appendChild(el); });
+            DEFAULT_ORDER.forEach(id => { const el = host.querySelector(`[data-w="${id}"]`); if (el) el.classList.toggle('hidden', layout.hidden.includes(id) || (id === 'stamp' && !can(currentUser, 'zeit'))); });
+        }
+        function renderLayout() {
+            $('layout-list').innerHTML = layout.order.map((id, i) => {
+                const [label, icon] = WIDGETS[id], off = layout.hidden.includes(id), blocked = id === 'stamp' && !can(currentUser, 'zeit');
+                return `<div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-3 py-2 ${off || blocked ? 'opacity-50' : ''}"><i class="fa-solid ${icon} w-5 text-slate-400"></i>
+                    <span class="flex-1 text-sm text-slate-200">${label}${blocked ? ' <span class="text-[10px] text-slate-500">(keine Berechtigung)</span>' : ''}</span>
+                    <button data-act="up" data-id="${id}" ${i === 0 ? 'disabled' : ''} class="p-1.5 text-slate-400 hover:text-white disabled:opacity-20" title="Nach oben"><i class="fa-solid fa-arrow-up"></i></button>
+                    <button data-act="down" data-id="${id}" ${i === layout.order.length - 1 ? 'disabled' : ''} class="p-1.5 text-slate-400 hover:text-white disabled:opacity-20" title="Nach unten"><i class="fa-solid fa-arrow-down"></i></button>
+                    <button data-act="eye" data-id="${id}" class="p-1.5" title="${off ? 'Einblenden' : 'Ausblenden'}"><i class="fa-solid ${off ? 'fa-eye-slash text-slate-500' : 'fa-eye text-emerald-400'}"></i></button></div>`;
+            }).join('');
+        }
+        function saveLayout() {
+            applyLayout(); renderLayout();
+            currentUser.userPrefs = { ...(currentUser.userPrefs || {}), layout };
+            db.collection('users').doc(currentUser.uid).update({ 'userPrefs.layout': layout }).catch(e => toast('Speichern fehlgeschlagen: ' + e.message));
+        }
+        function openLayout() { renderLayout(); openModal('modal-layout'); }
+        function resetLayout() { layout = { order: [...DEFAULT_ORDER], hidden: [] }; saveLayout(); }
+        function moveWidget(id, dir) { const i = layout.order.indexOf(id), j = i + dir; if (i < 0 || j < 0 || j >= layout.order.length) return; [layout.order[i], layout.order[j]] = [layout.order[j], layout.order[i]]; }
+        function initLayoutEvents() {
+            $('layout-list').addEventListener('click', e => {
+                const b = e.target.closest('[data-act]'); if (!b) return; const id = b.dataset.id;
+                if (b.dataset.act === 'up') moveWidget(id, -1); else if (b.dataset.act === 'down') moveWidget(id, 1);
+                else layout.hidden = layout.hidden.includes(id) ? layout.hidden.filter(x => x !== id) : [...layout.hidden, id];
+                saveLayout();
+            });
+        }
+
+        // ---------- Schnell-Erfassung ----------
+        const QK = { task: ['Neue Aufgabe...', 'Aufgabe'], shop: ['Einkauf, z. B. Milch...', 'Einkauf'], note: ['Notiz an die Pinnwand...', 'Notiz'], event: ['Titel des Termins...', 'Termin'] };
+        let quickKind = 'task';
+        function setQuick(k) {
+            quickKind = k;
+            document.querySelectorAll('#q-kinds [data-k]').forEach(b => b.classList.toggle('on', b.dataset.k === k));
+            $('q-text').placeholder = QK[k][0]; $('q-event-opts').classList.toggle('hidden', k !== 'event');
+        }
+        function openQuick(kind) { setQuick(QK[kind] ? kind : quickKind); $('q-text').value = ''; $('q-date').value = localDate(); openModal('modal-quick'); setTimeout(() => $('q-text').focus(), 40); }
+        async function saveQuick(e) {
+            e.preventDefault();
+            const text = $('q-text').value.trim(); if (!text) return;
+            const base = { owner: currentUser.email, createdAt: TS() };
+            try {
+                if (quickKind === 'task' || quickKind === 'shop') await db.collection('todos').add({ text, kind: quickKind, done: false, author: currentUser.firstName, ...base });
+                else if (quickKind === 'note') await db.collection('notes').add({ text, author: currentUser.firstName, ...base });
+                else await db.collection('events').add({ title: text, date: $('q-date').value, isPublic: $('q-public').checked, ...base });
+                logSystemEvent('data', quickKind === 'event' ? 'Termin erstellt' : 'Schnell-Erfassung: ' + QK[quickKind][1]);
+                closeModal('modal-quick'); toast(QK[quickKind][1] + ' gespeichert ✓');
+            } catch (err) { alert('Fehler: ' + err.message); }
+        }
+        function toast(msg) {
+            const t = document.createElement('div'); t.textContent = msg;
+            t.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[90] bg-slate-800 border border-slate-700 text-slate-100 text-xs font-medium px-4 py-2.5 rounded-2xl shadow-xl';
+            document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+        }
+        // Aus der Suche: /menu.html#neu-task usw. öffnet die Schnell-Erfassung
+        function handleQuickHash() { const m = /^#neu-(task|shop|note|event)$/.exec(location.hash); if (m) { history.replaceState(null, '', location.pathname); openQuick(m[1]); } }
+        window.addEventListener('hashchange', handleQuickHash);
+        const MODALS = ['modal-event', 'modal-quick', 'modal-layout', 'modal-settings', 'search-box'];
+        const anyModal = () => MODALS.some(id => { const el = document.getElementById(id); return el && !el.classList.contains('hidden'); });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { ['modal-quick', 'modal-layout'].forEach(closeModal); return; }
+            if (e.key.toLowerCase() === 'n' && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && !anyModal()) { e.preventDefault(); openQuick(); }
         });
 
         // ---------- Uhr & Begrüßung ----------
