@@ -100,7 +100,8 @@
                     <div class="flex items-end justify-between"><div><div id="vac-left" class="text-3xl font-bold"></div><div class="text-[11px] text-slate-400">Tage übrig</div></div><div id="vac-sub" class="text-right text-[11px] text-slate-400 space-y-0.5"></div></div>
                     <div class="h-2.5 bg-slate-800 rounded-full overflow-hidden flex mt-3"><div id="vac-bar-taken" class="bg-sky-500" style="width:0"></div><div id="vac-bar-plan" class="bg-sky-500/40" style="width:0"></div></div>
                     <div id="vac-ranges" class="mt-3 space-y-1 text-[11px] max-h-24 overflow-y-auto"></div>
-                    <button onclick="openAbsence('vacation')" class="btn mt-3 bg-sky-600/10 hover:bg-sky-600/20 text-sky-300 border border-sky-500/30"><i class="fa-solid fa-plus"></i>Urlaub eintragen</button>
+                    <div class="grid grid-cols-2 gap-2 mt-3"><button onclick="openAbsence('vacation')" class="btn bg-sky-600/10 hover:bg-sky-600/20 text-sky-300 border border-sky-500/30"><i class="fa-solid fa-plus"></i>Eintragen</button>
+                        <button onclick="openVacReq()" class="btn bg-sky-600 hover:bg-sky-500 text-white"><i class="fa-solid fa-file-pdf"></i>Urlaubsantrag</button></div>
                 </div>
                 <div class="card p-5 flex flex-col justify-between">
                 <div class="border-b border-slate-800 pb-2 mb-2"><span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-bolt text-amber-400 mr-2"></i>Aktionen &amp; Export</span></div>
@@ -145,6 +146,22 @@
             <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Von</label><input type="date" id="ab-from" required class="inp"></div><div><label class="lbl">Bis</label><input type="date" id="ab-to" required class="inp"></div></div>
             <div><label class="lbl">Notiz (optional)</label><input type="text" id="ab-note" class="inp"></div>
             <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeModal('modal-absence')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-sky-600 text-white font-medium">Eintragen</button></div>
+        </form></div></div>
+
+    <!-- Modal: Urlaubsantrag -->
+    <div id="modal-vacreq" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto">
+        <div class="flex justify-between mb-1"><h3 class="text-base font-bold"><i class="fa-solid fa-file-pdf text-sky-400 mr-2"></i>Urlaubsantrag</h3><button onclick="closeModal('modal-vacreq')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
+        <p class="text-xs text-slate-400 mb-4">Das Formular öffnet sich zum Drucken. Im Druckdialog kannst du „Als PDF speichern“ wählen.</p>
+        <form onsubmit="submitVacReq(event)" class="space-y-3.5">
+            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Von</label><input type="date" id="vr-from" required oninput="updateVacReq()" class="inp"></div><div><label class="lbl">Bis (einschließlich)</label><input type="date" id="vr-to" required oninput="updateVacReq()" class="inp"></div></div>
+            <div id="vr-info" class="text-xs rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-200 px-3 py-2"></div>
+            <div><label class="lbl">Art des Urlaubs</label><select id="vr-type" onchange="updateVacReq()" class="inp"><option>Erholungsurlaub</option><option>Sonderurlaub</option><option>Unbezahlter Urlaub</option></select></div>
+            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Abteilung / Personal-Nr. (optional)</label><input id="vr-dept" class="inp"></div><div><label class="lbl">An (Vorgesetzte/r, Arbeitgeber)</label><input id="vr-boss" class="inp" placeholder="z. B. Frau Müller"></div></div>
+            <div><label class="lbl">Vertretung (optional)</label><input id="vr-sub" class="inp"></div>
+            <div><label class="lbl">Erreichbar unter (optional)</label><input id="vr-contact" class="inp" placeholder="Telefon / E-Mail während des Urlaubs"></div>
+            <div><label class="lbl">Bemerkung (optional)</label><input id="vr-note" class="inp"></div>
+            <label id="vr-book-wrap" class="flex items-start gap-2 text-xs text-slate-300"><input type="checkbox" id="vr-book" checked class="mt-0.5 rounded bg-slate-800 border-slate-700"><span>Zeitraum gleichzeitig im Urlaubskonto als geplanten Urlaub vormerken <span class="text-slate-500">(nur bei Erholungsurlaub)</span></span></label>
+            <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeModal('modal-vacreq')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-sky-600 text-white font-medium"><i class="fa-solid fa-print mr-1.5"></i>Antrag drucken / PDF</button></div>
         </form></div></div>
 
     <!-- Modal: Einstellungen -->
@@ -436,13 +453,92 @@
             const ranges = []; st.dates.forEach(d => { const l = ranges[ranges.length - 1]; if (l && nextWork(l.to) === d) { l.to = d; l.n++; } else ranges.push({ from: d, to: d, n: 1 }); });
             $('vac-ranges').innerHTML = ranges.length ? ranges.map(r => `<div class="flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2 py-1">
                 <span class="${r.to < today ? 'text-slate-500' : 'text-sky-300'}">${gdShort(r.from)}${r.from !== r.to ? ' – ' + gdShort(r.to) : ''} · ${r.n} ${r.n === 1 ? 'Tag' : 'Tage'}</span>
-                <button onclick="delVacRange('${r.from}','${r.to}')" class="text-slate-500 hover:text-rose-400" title="Zeitraum löschen"><i class="fa-solid fa-trash-can text-[10px]"></i></button></div>`).join('')
+                <span class="flex gap-2.5"><button onclick="openVacReq('${r.from}','${r.to}')" class="text-slate-500 hover:text-sky-400" title="Urlaubsantrag drucken"><i class="fa-solid fa-print text-[10px]"></i></button>
+                <button onclick="delVacRange('${r.from}','${r.to}')" class="text-slate-500 hover:text-rose-400" title="Zeitraum löschen"><i class="fa-solid fa-trash-can text-[10px]"></i></button></span></div>`).join('')
                 : '<div class="text-slate-500">Noch kein Urlaub eingetragen.</div>';
         }
         function delVacRange(from, to) {
             const list = workEntries.filter(e => typeOf(e) === 'vacation' && e.date >= from && e.date <= to);
             if (!list.length || !confirm(`Urlaub vom ${gdShort(from)} bis ${gdShort(to)} (${list.length} Einträge) löschen?`)) return;
             run(async () => { const b = db.batch(); list.forEach(e => b.delete(db.collection('worktime').doc(e.id))); await b.commit(); logSystemEvent('data', 'Urlaub gelöscht', { von: from, bis: to }); });
+        }
+
+        // ---------- Urlaubsantrag ----------
+        const wdays = (a, b) => { const out = []; for (const d = parse(a), e = parse(b); d <= e; d.setDate(d.getDate() + 1)) if (isWork(d)) out.push(localDate(d)); return out; };
+        const longDate = ds => parse(ds).toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+        const lsGet = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
+        const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+        const vacDays = () => new Set(workEntries.filter(x => typeOf(x) === 'vacation').map(x => x.date));
+
+        function openVacReq(from, to) {
+            $('vr-from').value = from || localDate(); $('vr-to').value = to || from || localDate();
+            $('vr-type').value = 'Erholungsurlaub'; $('vr-dept').value = lsGet('vr_dept'); $('vr-boss').value = lsGet('vr_boss');
+            ['vr-sub', 'vr-contact', 'vr-note'].forEach(i => $(i).value = ''); $('vr-book').checked = true; $('vr-book').disabled = false;
+            updateVacReq(); openModal('modal-vacreq');
+        }
+        function updateVacReq() {
+            const from = $('vr-from').value, to = $('vr-to').value, box = $('vr-info');
+            if (!from || !to || to < from) { box.innerText = 'Bitte einen gültigen Zeitraum wählen.'; return; }
+            const days = wdays(from, to), year = +from.slice(0, 4), st = vacStats(year), have = vacDays();
+            const inYear = days.filter(d => d.startsWith(String(year))), already = inYear.filter(d => have.has(d)).length, before = st.left + already, after = before - inYear.length;
+            box.innerHTML = days.length ? `<b>${days.length} Arbeitstage</b> · Resturlaub ${year}: vorher ${before}, nachher <b class="${after < 0 ? 'text-rose-300' : ''}">${after}</b>${after < 0 ? ' (Anspruch überschritten)' : ''}` : 'Im Zeitraum liegt kein Arbeitstag (Wochenende oder Feiertag).';
+            const newDays = days.filter(d => !have.has(d)), bookable = $('vr-type').value === 'Erholungsurlaub' && newDays.length > 0;
+            if (bookable && $('vr-book').disabled) $('vr-book').checked = true;
+            $('vr-book').disabled = !bookable; if (!bookable) $('vr-book').checked = false;
+            $('vr-book-wrap').classList.toggle('opacity-40', !bookable);
+        }
+        async function bookVacation(days) {
+            const b = db.batch();
+            days.forEach(date => b.set(db.collection('worktime').doc(), { type: 'vacation', date, start: '', end: '', pauseMinutes: 0, netMinutes: dayMin(), note: 'Urlaub', owner: currentUser.email, createdAt: TS() }));
+            await b.commit(); return days.length;
+        }
+        async function submitVacReq(e) {
+            e.preventDefault();
+            const from = $('vr-from').value, to = $('vr-to').value;
+            if (to < from) return alert('Das Enddatum liegt vor dem Startdatum.');
+            const days = wdays(from, to); if (!days.length) return alert('Im Zeitraum liegt kein Arbeitstag.');
+            const w = window.open('', '_blank');          // sofort öffnen, sonst blockiert der Browser das Fenster
+            if (!w) return alert('Das Druckfenster wurde blockiert. Bitte Pop-ups für diese Seite erlauben.');
+            const f = { type: $('vr-type').value, dept: $('vr-dept').value.trim(), boss: $('vr-boss').value.trim(), sub: $('vr-sub').value.trim(), contact: $('vr-contact').value.trim(), note: $('vr-note').value.trim() };
+            lsSet('vr_dept', f.dept); lsSet('vr_boss', f.boss);
+            const year = from.slice(0, 4), st = vacStats(+year), have = vacDays(), inYear = days.filter(d => d.startsWith(year));
+            const already = inYear.filter(d => have.has(d)).length, info = { year, total: st.total, used: st.taken + st.planned - already, before: st.left + already, req: inYear.length };
+            let booked = 0;
+            if ($('vr-book').checked && !$('vr-book').disabled) {
+                const newDays = days.filter(d => !have.has(d)), nIn = newDays.filter(d => d.startsWith(year)).length;
+                if (st.left - nIn < 0 && !confirm(`Mit diesen ${nIn} Tagen überschreitest du deinen Urlaubsanspruch ${year}. Trotzdem vormerken?`)) { w.close(); return; }
+                try { booked = await bookVacation(newDays); } catch (err) { w.close(); return alert('Fehler: ' + err.message); }
+            }
+            printVacReq(w, from, to, days, f, info);
+            closeModal('modal-vacreq');
+            logSystemEvent('data', 'Urlaubsantrag erstellt', { von: from, bis: to, tage: days.length, vorgemerkt: booked });
+        }
+        function printVacReq(w, from, to, days, f, k) {
+            const row = (a, b) => `<tr><th>${a}</th><td colspan="3">${b || '&nbsp;'}</td></tr>`, after = k.before - k.req;
+            w.document.write(`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>Urlaubsantrag_${esc(currentUser.name)}_${from}</title>
+            <style>@page{size:A4;margin:16mm}body{font-family:system-ui,Arial,sans-serif;color:#0f172a;font-size:13px;line-height:1.45}h1{font-size:28px;margin:0 0 2px}.sub{color:#475569;margin-bottom:6px}
+            h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#475569;margin:22px 0 6px;border-bottom:1px solid #cbd5e1;padding-bottom:3px}table{width:100%;border-collapse:collapse}
+            th,td{border:1px solid #cbd5e1;padding:7px 9px;text-align:left;vertical-align:top}th{background:#f1f5f9;width:23%;font-weight:600;font-size:12px}.num{text-align:right;font-variant-numeric:tabular-nums}
+            .sig{display:flex;gap:40px;margin-top:48px}.sig div{flex:1;border-top:1px solid #0f172a;padding-top:4px;font-size:11px;color:#475569}.box{display:inline-block;width:13px;height:13px;border:1.5px solid #0f172a;margin:0 6px -2px 0}
+            .line{border-bottom:1px solid #94a3b8;height:24px}small{color:#64748b}@media print{.noprint{display:none}}</style></head><body>
+            <button class="noprint" onclick="window.print()" style="background:#0284c7;color:#fff;border:0;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;margin-bottom:14px">Drucken / Als PDF speichern</button>
+            <h1>Urlaubsantrag</h1><div class="sub">${esc(f.type)}</div>
+            <table>${`<tr><th>Name</th><td>${esc(currentUser.name)}</td><th>Abteilung / Personal-Nr.</th><td>${esc(f.dept) || '&nbsp;'}</td></tr>`}${row('An', esc(f.boss))}</table>
+            <h2>Beantragter Urlaub</h2>
+            <table><tr><th>Von</th><td>${longDate(from)}</td><th>Bis (einschließlich)</th><td>${longDate(to)}</td></tr>
+            <tr><th>Arbeitstage</th><td><b>${days.length}</b><br><small>ohne Wochenenden und gesetzliche Feiertage (NRW)</small></td><th>Erster Arbeitstag danach</th><td>${longDate(nextWork(to))}</td></tr>
+            ${row('Vertretung', esc(f.sub))}${row('Erreichbar unter', esc(f.contact))}${row('Bemerkung', esc(f.note))}</table>
+            <h2>Urlaubskonto ${k.year}</h2>
+            <table><tr><th>Anspruch (inkl. Resturlaub Vorjahr)</th><td class="num">${k.total} Tage</td><th>Bereits genommen / eingeplant</th><td class="num">${k.used} Tage</td></tr>
+            <tr><th>Resturlaub vor diesem Antrag</th><td class="num">${k.before} Tage</td><th>Beantragt</th><td class="num">${k.req} Tage</td></tr>
+            <tr><th>Resturlaub nach Genehmigung</th><td class="num" colspan="3"><b>${after} Tage</b></td></tr></table>
+            <div class="sig"><div>Ort, Datum</div><div>Unterschrift Antragsteller/in</div></div>
+            <h2>Entscheidung des/der Vorgesetzten</h2>
+            <p><span class="box"></span>genehmigt &nbsp;&nbsp;&nbsp; <span class="box"></span>abgelehnt &nbsp;&nbsp;&nbsp; <span class="box"></span>mit Änderung</p>
+            <div class="line"></div><div class="line"></div>
+            <div class="sig"><div>Ort, Datum</div><div>Unterschrift Vorgesetzte/r</div></div>
+            <p style="margin-top:28px;color:#94a3b8;font-size:10px">Erstellt am ${new Date().toLocaleDateString('de-DE')} mit dem J.Mainz Dashboard</p></body></html>`);
+            w.document.close();
         }
 
         // ---------- Export ----------
