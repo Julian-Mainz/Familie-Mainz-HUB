@@ -161,13 +161,15 @@
         }
         setInterval(updateClock, 1000);
 
+        async function countOf(q) { try { return (await q.count().get()).data().count; } catch (e) { try { return (await q.get()).size; } catch (e2) { return 0; } } }
         async function countPending() {
-            try {
-                const q = db.collection('users').where('status', '==', 'pending'); let n;
-                try { n = (await q.count().get()).data().count; } catch (e) { n = (await q.get()).size; }
-                if (!n) return;
-                $('pending-text').innerText = n === 1 ? '1 Konto wartet auf Freigabe' : `${n} Konten warten auf Freigabe`; $('pending-banner').classList.remove('hidden'); $('pending-banner').classList.add('flex');
-            } catch (e) {}
+            const [p, m] = await Promise.all([countOf(db.collection('users').where('status', '==', 'pending')), countOf(db.collection('contact_messages').where('read', '==', false))]);
+            const parts = [];
+            if (p) parts.push(p === 1 ? '1 Konto wartet auf Freigabe' : `${p} Konten warten auf Freigabe`);
+            if (m) parts.push(m === 1 ? '1 neue Nachricht' : `${m} neue Nachrichten`);
+            if (!parts.length) return;
+            $('pending-text').innerText = parts.join(' · '); $('pending-banner').href = p ? '/admin.html#users' : '/admin.html#messages';
+            $('pending-banner').classList.remove('hidden'); $('pending-banner').classList.add('flex');
         }
 
         // ---------- Arbeitszeit-Widget ----------
