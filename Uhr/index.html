@@ -4,64 +4,121 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Uhr</title>
-    <meta name="theme-color" content="#000000">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='none' stroke='%23fff' stroke-width='6'/%3E%3Cpath d='M32 16v17l11 7' fill='none' stroke='%23fff' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+    <meta name="theme-color" content="#050816">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='none' stroke='%2338bdf8' stroke-width='6'/%3E%3Cpath d='M32 16v17l11 7' fill='none' stroke='%2338bdf8' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
     <style>
-        :root { --bg: #000; --fg: #fff; --dim: #8a8f98; }
+        :root { --a: #38bdf8; --ar: 56,189,248; --br: 99,102,241; }
         * { box-sizing: border-box; }
-        html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); overflow: hidden; -webkit-tap-highlight-color: transparent;
-            font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; }
-        #stage { height: 100vh; height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; user-select: none; }
-        #clock { display: inline-flex; align-items: flex-start; white-space: nowrap; line-height: 1; }
-        #t { font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
-        #ap { font-size: .22em; font-weight: 600; margin: .35em 0 0 .25em; color: var(--dim); }
-        #d { margin-top: 2.2vh; color: var(--dim); font-size: clamp(1rem, 3.4vw, 2.6rem); text-align: center; padding: 0 4vw; }
-        #ctl { position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
-            padding: 8px 10px; max-width: 96vw; background: rgba(128,128,128,.22); border-radius: 16px; transition: opacity .4s; font-size: 13px; }
-        #ctl button, #ctl a { font: inherit; color: var(--fg); background: rgba(128,128,128,.25); border: 0; border-radius: 10px; padding: 8px 12px; cursor: pointer; text-decoration: none; }
-        #ctl button:hover, #ctl a:hover { background: rgba(128,128,128,.45); }
+        html, body { margin: 0; height: 100%; overflow: hidden; -webkit-tap-highlight-color: transparent; color: #fff;
+            font-family: "Helvetica Neue", "Segoe UI", system-ui, -apple-system, Arial, sans-serif; }
+        body { background: #050816; }
+        #stage { position: relative; z-index: 1; height: 100vh; height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; user-select: none; }
+        #clock { display: inline-flex; align-items: baseline; white-space: nowrap; line-height: 1; font-weight: 200; letter-spacing: -.02em; font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+        #cs { display: inline-flex; align-items: baseline; }
+        .c { display: inline-block; padding: 0 .02em; animation: blink 2s steps(1) infinite; }
+        #ap { font-size: .2em; margin-left: .3em; opacity: .7; font-weight: 400; letter-spacing: .05em; }
+        #d { margin-top: 2.4vh; font-size: clamp(.9rem, 2.6vw, 2rem); letter-spacing: .32em; text-transform: uppercase; text-align: center; padding: 0 4vw; opacity: .75; }
+        @keyframes blink { 0%, 55% { opacity: 1 } 56%, 100% { opacity: .25 } }
+
+        /* ---------- Aurora: weicher, wandernder Farbverlauf, dünne Ziffern mit Verlauf ---------- */
+        body.s-aurora { background: #050816; }
+        body.s-aurora::before { content: ""; position: fixed; inset: -30%; z-index: 0; will-change: transform;
+            background: radial-gradient(38% 38% at 24% 30%, rgba(var(--ar), .55), transparent 70%), radial-gradient(42% 42% at 76% 32%, rgba(var(--br), .5), transparent 70%), radial-gradient(48% 48% at 50% 82%, rgba(var(--ar), .32), transparent 70%);
+            animation: drift 30s ease-in-out infinite alternate; }
+        @keyframes drift { 0% { transform: translate3d(-4%, -3%, 0) rotate(0) scale(1); } 100% { transform: translate3d(4%, 3%, 0) rotate(16deg) scale(1.15); } }
+        body.s-aurora #clock { font-weight: 200; }
+        body.s-aurora .g, body.s-aurora .c { background: linear-gradient(180deg, #fff 35%, var(--a) 140%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        body.s-aurora #cs { font-size: .36em; margin-left: .18em; }
+        body.s-aurora #cs .c { display: none; }
+        body.s-aurora #cs .g { background: none; color: var(--a); -webkit-text-fill-color: var(--a); font-weight: 300; }
+        body.s-aurora #d { color: #dbeafe; }
+
+        /* ---------- Neon: leuchtende Ziffern ---------- */
+        body.s-neon { background: radial-gradient(ellipse 90% 60% at 50% 115%, rgba(var(--br), .45), transparent 65%), #05060f; }
+        body.s-neon #clock { font-weight: 600; color: #fff; text-shadow: 0 0 .03em #fff, 0 0 .1em rgba(var(--ar), 1), 0 0 .3em rgba(var(--ar), .85), 0 0 .7em rgba(var(--br), .75); }
+        body.s-neon #d { color: var(--a); text-shadow: 0 0 .6em rgba(var(--ar), .8); }
+
+        /* ---------- Flip: Klappzahlen wie bei der Bahnhofsuhr ---------- */
+        body.s-flip { background: #111317; }
+        body.s-flip #clock { font-weight: 700; color: #f3f4f6; align-items: center; perspective: 1200px; }
+        body.s-flip .g { position: relative; padding: .05em .1em; margin: 0 .02em; border-radius: .1em; background: linear-gradient(#2c2f36 50%, #22252b 50%); box-shadow: 0 .02em .06em rgba(0,0,0,.6), inset 0 .01em 0 rgba(255,255,255,.07); }
+        body.s-flip .g::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: .012em; min-height: 2px; background: rgba(0,0,0,.85); }
+        body.s-flip .c { color: var(--a); font-size: .55em; opacity: 1; animation: none; }
+        body.s-flip .g.flip { animation: flipin .5s ease-out; }
+        @keyframes flipin { 0% { transform: rotateX(-75deg); filter: brightness(.55); } 100% { transform: rotateX(0); filter: none; } }
+        body.s-flip #d { color: #9ca3af; }
+
+        /* ---------- Retro: Bernstein-Monitor ---------- */
+        body.s-retro { background: #0a0700; }
+        body.s-retro::after { content: ""; position: fixed; inset: 0; z-index: 2; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.3) 0 2px, transparent 2px 4px), radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.65) 100%); }
+        body.s-retro #clock, body.s-retro #d { font-family: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace; color: #ffb000; text-shadow: 0 0 .05em rgba(255,176,0,.95), 0 0 .22em rgba(255,120,0,.55); }
+        body.s-retro #clock { font-weight: 700; }
+
+        /* ---------- Hell ---------- */
+        body.s-hell { background: linear-gradient(160deg, #ffffff, #eef1f6); color: #0f172a; }
+        body.s-hell #clock { font-weight: 300; color: #0f172a; }
+        body.s-hell #cs { font-size: .36em; margin-left: .18em; color: var(--a); }
+        body.s-hell #cs .c { display: none; }
+        body.s-hell #d { color: #475569; }
+
+        /* ---------- Nacht: dunkelrot, blendet nicht ---------- */
+        body.s-nacht { background: #000; }
+        body.s-nacht #clock { font-weight: 300; color: #d6342a; }
+        body.s-nacht #d { color: #7a1c17; }
+
+        /* ---------- Bedienleiste ---------- */
+        #ctl { position: fixed; z-index: 5; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+            padding: 8px 10px; max-width: 96vw; background: rgba(20,20,28,.72); border-radius: 16px; transition: opacity .4s; font-size: 13px; }
+        #ctl button, #ctl a { font: inherit; color: #fff; background: rgba(255,255,255,.14); border: 0; border-radius: 10px; padding: 8px 12px; cursor: pointer; text-decoration: none; }
+        #ctl button:hover, #ctl a:hover { background: rgba(255,255,255,.28); }
         body.idle { cursor: none; }
         body.idle #ctl { opacity: 0; pointer-events: none; }
-        noscript { position: fixed; inset: 0; display: grid; place-items: center; font-size: 1.2rem; }
+        @media (prefers-reduced-motion: reduce) { body::before, .c, .g.flip { animation: none !important; } }
+        noscript { position: fixed; inset: 0; display: grid; place-items: center; font-size: 1.2rem; color: #fff; }
     </style>
 </head>
-<body>
+<body class="s-aurora">
     <main id="stage" ondblclick="toggleFs()">
-        <div id="clock"><span id="t">00:00:00</span><span id="ap"></span></div>
+        <div id="clock"><span class="g" id="gh">00</span><span class="c">:</span><span class="g" id="gm">00</span><span id="cs"><span class="c">:</span><span class="g" id="gs">00</span></span><span id="ap"></span></div>
         <div id="d"></div>
     </main>
 
     <nav id="ctl" aria-label="Einstellungen">
-        <button id="b-fs" onclick="toggleFs()">Vollbild</button>
+        <button id="b-st" onclick="nextStyle()">Stil</button>
+        <button id="b-ac" onclick="nextAccent()">Akzent</button>
         <button id="b-sec" onclick="toggle('sec')">Sekunden</button>
         <button id="b-h" onclick="toggle('h24')">24 h</button>
         <button id="b-date" onclick="toggle('date')">Datum</button>
-        <button id="b-th" onclick="nextTheme()">Farbe</button>
+        <button id="b-fs" onclick="toggleFs()">Vollbild</button>
         <a href="/impressum.html">Impressum</a>
     </nav>
     <noscript>Bitte JavaScript aktivieren, damit die Uhr läuft.</noscript>
 
     <script>
         const $ = id => document.getElementById(id);
-        const THEMES = [
-            { n: 'Dunkel', bg: '#000000', fg: '#ffffff', dim: '#8a8f98' },
-            { n: 'Hell',   bg: '#ffffff', fg: '#0b0b0b', dim: '#5b616b' },
-            { n: 'Nacht',  bg: '#000000', fg: '#ff3b30', dim: '#7a1c17' }
-        ];
-        const S = { sec: true, h24: true, date: false, theme: 0 };
-        try { Object.assign(S, JSON.parse(localStorage.getItem('uhr_settings') || '{}')); } catch (e) {}
-        if (!THEMES[S.theme]) S.theme = 0;
-        const save = () => { try { localStorage.setItem('uhr_settings', JSON.stringify(S)); } catch (e) {} };
+        const STYLES = [['aurora', 'Aurora', '#050816'], ['neon', 'Neon', '#05060f'], ['flip', 'Flip', '#111317'], ['retro', 'Retro', '#0a0700'], ['hell', 'Hell', '#f4f6fa'], ['nacht', 'Nacht', '#000000']];
+        const ACC = [{ n: 'Blau', a: '#38bdf8', ar: '56,189,248', br: '99,102,241' }, { n: 'Violett', a: '#c084fc', ar: '192,132,252', br: '236,72,153' },
+                     { n: 'Grün', a: '#34d399', ar: '52,211,153', br: '34,211,238' }, { n: 'Orange', a: '#fb923c', ar: '251,146,60', br: '244,63,94' }];
+        const S = { sec: true, h24: true, date: false, style: 0, acc: 0 };
+        try { Object.assign(S, JSON.parse(localStorage.getItem('uhr_settings2') || '{}')); } catch (e) {}
+        if (!STYLES[S.style]) S.style = 0; if (!ACC[S.acc]) S.acc = 0;
+        const save = () => { try { localStorage.setItem('uhr_settings2', JSON.stringify(S)); } catch (e) {} };
         const p = n => String(n).padStart(2, '0');
         // Nur den vorhandenen Text-Knoten ändern (spart Arbeit bei der sekündlichen Aktualisierung)
         const setT = (el, t) => { const n = el.firstChild; if (n && n.nodeType === 3) { if (n.nodeValue !== t) n.nodeValue = t; } else el.textContent = t; };
-
+        const prev = {};
+        function setG(id, v) {
+            if (prev[id] === v) return;
+            const el = $(id); setT(el, v);
+            if (prev[id] !== undefined && STYLES[S.style][0] === 'flip') { el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip'); }
+            prev[id] = v;
+        }
         let lastDay = '';
         function render(now) {
             let h = now.getHours(), ap = '';
             if (!S.h24) { ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; }
-            const txt = p(h) + ':' + p(now.getMinutes()) + (S.sec ? ':' + p(now.getSeconds()) : '');
-            setT($('t'), txt); setT($('ap'), ap); document.title = txt;
+            setG('gh', p(h)); setG('gm', p(now.getMinutes())); if (S.sec) setG('gs', p(now.getSeconds()));
+            setT($('ap'), ap); document.title = p(h) + ':' + p(now.getMinutes()) + (S.sec ? ':' + p(now.getSeconds()) : '');
             const day = now.toDateString();
             if (day !== lastDay) { lastDay = day; $('d').textContent = now.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
         }
@@ -70,22 +127,22 @@
         // Schrift so groß wie möglich, ohne dass etwas abgeschnitten wird
         function fit() {
             const t = $('clock'); t.style.fontSize = '100px';
-            const w = t.scrollWidth, h = t.scrollHeight, maxH = innerHeight * (S.date ? 0.66 : 0.86);
+            const w = t.scrollWidth, h = t.scrollHeight, maxH = innerHeight * (S.date ? 0.66 : 0.84);
             t.style.fontSize = Math.max(16, Math.floor(100 * Math.min(innerWidth * 0.95 / w, maxH / h))) + 'px';
         }
         function apply() {
-            const th = THEMES[S.theme], r = document.documentElement.style;
-            r.setProperty('--bg', th.bg); r.setProperty('--fg', th.fg); r.setProperty('--dim', th.dim);
-            document.querySelector('meta[name="theme-color"]').content = th.bg;
-            $('d').style.display = S.date ? '' : 'none';
-            $('b-sec').textContent = 'Sekunden: ' + (S.sec ? 'an' : 'aus');
-            $('b-h').textContent = S.h24 ? '24 h' : '12 h';
-            $('b-date').textContent = 'Datum: ' + (S.date ? 'an' : 'aus');
-            $('b-th').textContent = 'Farbe: ' + th.n;
+            const st = STYLES[S.style], ac = ACC[S.acc], r = document.documentElement.style;
+            document.body.className = 's-' + st[0] + (document.body.classList.contains('idle') ? ' idle' : '');
+            r.setProperty('--a', ac.a); r.setProperty('--ar', ac.ar); r.setProperty('--br', ac.br);
+            document.querySelector('meta[name="theme-color"]').content = st[2];
+            $('d').style.display = S.date ? '' : 'none'; $('cs').style.display = S.sec ? '' : 'none';
+            $('b-st').textContent = 'Stil: ' + st[1]; $('b-ac').textContent = 'Akzent: ' + ac.n;
+            $('b-sec').textContent = 'Sekunden: ' + (S.sec ? 'an' : 'aus'); $('b-h').textContent = S.h24 ? '24 h' : '12 h'; $('b-date').textContent = 'Datum: ' + (S.date ? 'an' : 'aus');
             render(new Date()); fit(); save();
         }
         function toggle(k) { S[k] = !S[k]; apply(); }
-        function nextTheme() { S.theme = (S.theme + 1) % THEMES.length; apply(); }
+        function nextStyle() { S.style = (S.style + 1) % STYLES.length; apply(); }
+        function nextAccent() { S.acc = (S.acc + 1) % ACC.length; apply(); }
 
         // Vollbild, Bildschirm wach halten
         function toggleFs() { if (document.fullscreenElement) document.exitFullscreen(); else (document.documentElement.requestFullscreen || (() => {})).call(document.documentElement); }
@@ -95,13 +152,13 @@
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
         document.addEventListener('click', keepAwake, { once: true });
 
-        // Bedienelemente und Mauszeiger nach 3 Sekunden Ruhe ausblenden
+        // Bedienleiste und Mauszeiger nach 3 Sekunden Ruhe ausblenden
         let idleT; const wake = () => { document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(() => document.body.classList.add('idle'), 3000); };
         ['mousemove', 'mousedown', 'touchstart', 'keydown'].forEach(ev => document.addEventListener(ev, wake, { passive: true }));
         document.addEventListener('keydown', e => {
             if (e.ctrlKey || e.metaKey || e.altKey) return;
             const k = e.key.toLowerCase();
-            if (k === 'f') toggleFs(); else if (k === 's') toggle('sec'); else if (k === 'd') toggle('date'); else if (k === 't') nextTheme(); else if (k === 'h') toggle('h24');
+            if (k === 'f') toggleFs(); else if (k === 's') toggle('sec'); else if (k === 'd') toggle('date'); else if (k === 't') nextStyle(); else if (k === 'a') nextAccent(); else if (k === 'h') toggle('h24');
         });
         addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 120));
 
