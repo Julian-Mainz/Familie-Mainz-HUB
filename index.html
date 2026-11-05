@@ -226,7 +226,7 @@
                 batch.set(db.collection('users').doc(cred.user.uid), {
                     firstName, lastName, displayName: `${firstName} ${lastName}`, email, inviteCode: code,
                     role: 'user', status: 'pending',
-                    permissions: { kalender: true, zeit: true, finanzen: true, tresor: true, admin: false },
+                    permissions: { termine: true, pinnwand: true, aufgaben: true, zeit: false, finanzen: false, tresor: false, wand: false, spotify: false, admin: false },   // Standard für neue Konten: nur Startseite; mehr vergibt der Admin
                     userPrefs: { notifyWork: true, notifyEvents: true },
                     createdAt: TS()
                 });
