@@ -7,8 +7,8 @@
 
     const PAGES = () => [
         ['Start', '/menu.html', 'fa-border-all', 'startseite uebersicht dashboard home'],
-        ['Wandkalender', '/wand.html', 'fa-display', 'tablet kueche anzeige kiosk'],
-        ['Spotify', '/spotify.html', 'fa-headphones', 'musik fernbedienung player lied playlist handy'],
+        can(currentUser, 'wand') && ['Wandkalender', '/wand.html', 'fa-display', 'tablet kueche anzeige kiosk'],
+        can(currentUser, 'spotify') && ['Spotify', '/spotify.html', 'fa-headphones', 'musik fernbedienung player lied playlist handy'],
         can(currentUser, 'zeit') && ['Zeiterfassung', '/zeiterfassung.html', 'fa-business-time', 'stempeln stunden arbeitszeit urlaub ueberstunden stundenzettel'],
         can(currentUser, 'finanzen') && ['Finanzen', '/finanzen.html', 'fa-coins', 'buchungen geld fixkosten budget lohn sparkasse konto'],
         can(currentUser, 'tresor') && ['Passwort-Safe', '/passwort.html', 'fa-shield-halved', 'tresor passwoerter zugangsdaten'],
@@ -18,14 +18,14 @@
     ].filter(Boolean).map(p => ({ kind: 'page', title: p[0], sub: 'Seite öffnen', icon: p[2], href: p[1], hay: norm(p[0] + ' ' + p[3]) }));
 
     const ACTIONS = () => [
-        ['Neue Aufgabe', '/menu.html#neu-task', 'fa-circle-check text-emerald-400', 'todo erledigen'],
-        ['Neuer Einkauf', '/menu.html#neu-shop', 'fa-cart-shopping text-yellow-400', 'einkaufsliste kaufen'],
-        ['Neue Notiz', '/menu.html#neu-note', 'fa-note-sticky text-amber-400', 'pinnwand'],
-        ['Neuer Termin', '/menu.html#neu-event', 'fa-calendar-plus text-indigo-400', 'kalender'],
+        ['Neue Aufgabe', '/menu.html#neu-task', 'fa-circle-check text-emerald-400', 'todo erledigen', undefined, 'aufgaben'],
+        ['Neuer Einkauf', '/menu.html#neu-shop', 'fa-cart-shopping text-yellow-400', 'einkaufsliste kaufen', undefined, 'aufgaben'],
+        ['Neue Notiz', '/menu.html#neu-note', 'fa-note-sticky text-amber-400', 'pinnwand', undefined, 'pinnwand'],
+        ['Neuer Termin', '/menu.html#neu-event', 'fa-calendar-plus text-indigo-400', 'kalender', undefined, 'termine'],
         ['Design umschalten (Hell/Dunkel)', null, 'fa-circle-half-stroke text-slate-300', 'theme dunkel hell modus', () => toggleTheme()],
         ['Einstellungen & Alarm', null, 'fa-gear text-slate-300', 'push benachrichtigung daten export konto loeschen', () => window.openSettingsModal && openSettingsModal()],
         ['Abmelden', null, 'fa-arrow-right-from-bracket text-rose-400', 'logout ausloggen', () => handleLogout()]
-    ].map(a => ({ kind: 'action', title: a[0], sub: 'Aktion', icon: a[2], href: a[1], run: a[4], hay: norm(a[0] + ' ' + a[3]) }));
+    ].map(a => ({ kind: 'action', title: a[0], sub: 'Aktion', icon: a[2], href: a[1], run: a[4], perm: a[5], hay: norm(a[0] + ' ' + a[3]) })).filter(a => !a.perm || can(currentUser, a.perm));
 
     function build() {
         if (box) return;
@@ -59,8 +59,8 @@
         const me = currentUser.email, get = async q => { try { return (await q.get()).docs.map(d => ({ id: d.id, ...d.data() })); } catch (e) { return []; } };
         loading = (async () => {
             const [pub, mine, notes, todos, tx, work] = await Promise.all([
-                get(db.collection('events').where('isPublic', '==', true)), get(db.collection('events').where('owner', '==', me)),
-                get(db.collection('notes').orderBy('createdAt', 'desc').limit(100)), get(db.collection('todos').orderBy('createdAt', 'desc').limit(200)),
+                can(currentUser, 'termine') ? get(db.collection('events').where('isPublic', '==', true)) : [], can(currentUser, 'termine') ? get(db.collection('events').where('owner', '==', me)) : [],
+                can(currentUser, 'pinnwand') ? get(db.collection('notes').orderBy('createdAt', 'desc').limit(100)) : [], can(currentUser, 'aufgaben') ? get(db.collection('todos').orderBy('createdAt', 'desc').limit(200)) : [],
                 can(currentUser, 'finanzen') ? get(db.collection('finance_transactions').where('owner', '==', me).limit(1500)) : [],
                 can(currentUser, 'zeit') ? get(db.collection('worktime').where('owner', '==', me).limit(1500)) : []]);
             const ev = new Map(); [...pub, ...mine].forEach(e => ev.set(e.id, e));
