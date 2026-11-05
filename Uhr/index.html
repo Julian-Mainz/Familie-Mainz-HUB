@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Uhr</title>
     <meta name="theme-color" content="#050816">
@@ -67,7 +68,9 @@
         body.s-nacht #d { color: #7a1c17; }
 
         /* ---------- Bedienleiste ---------- */
-        #ctl { position: fixed; z-index: 5; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+        #legal { position: fixed; z-index: 4; left: 0; right: 0; bottom: max(8px, env(safe-area-inset-bottom)); text-align: center; font-size: 12px; opacity: .55; }
+        #legal a { color: inherit; text-decoration: none; } #legal a:hover { text-decoration: underline; }
+        #ctl { position: fixed; z-index: 5; left: 50%; bottom: max(38px, calc(env(safe-area-inset-bottom) + 30px)); transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
             padding: 8px 10px; max-width: 96vw; background: rgba(20,20,28,.72); border-radius: 16px; transition: opacity .4s; font-size: 13px; }
         #ctl button, #ctl a { font: inherit; color: #fff; background: rgba(255,255,255,.14); border: 0; border-radius: 10px; padding: 8px 12px; cursor: pointer; text-decoration: none; }
         #ctl button:hover, #ctl a:hover { background: rgba(255,255,255,.28); }
@@ -97,8 +100,8 @@
         <button id="b-date" onclick="toggle('date')">Datum</button>
         <button id="b-tz" onclick="toggle('berlin')">Zone</button>
         <button id="b-fs" onclick="toggleFs()">Vollbild</button>
-        <a href="/impressum.html">Impressum</a>
     </nav>
+    <footer id="legal"><a href="/impressum.html">Impressum</a> &middot; <a href="/datenschutz.html">Datenschutz</a></footer>
     <div id="warn">Zeit wird abgeglichen …</div>
     <noscript>Bitte JavaScript aktivieren, damit die Uhr läuft.</noscript>
 
@@ -197,11 +200,11 @@
             $('d').style.display = S.date ? '' : 'none'; $('cs').style.display = S.sec ? '' : 'none';
             $('b-st').textContent = 'Stil: ' + st[1]; $('b-ac').textContent = 'Akzent: ' + ac.n;
             $('b-sec').textContent = 'Sekunden: ' + (S.sec ? 'an' : 'aus'); $('b-h').textContent = S.h24 ? '24 h' : '12 h'; $('b-date').textContent = 'Datum: ' + (S.date ? 'an' : 'aus');
-            $('b-tz').textContent = 'Zone: ' + (S.berlin ? 'Berlin' : 'Gerät'); makeFormatters(); render(trueNow()); fit(); updateStatus(); save();
+            $('b-tz').textContent = 'Zone: ' + (S.berlin ? 'Berlin' : 'Gerät'); makeFormatters(); render(trueNow()); fit(); updateStatus();
         }
-        function toggle(k) { S[k] = !S[k]; apply(); }
-        function nextStyle() { S.style = (S.style + 1) % STYLES.length; apply(); }
-        function nextAccent() { S.acc = (S.acc + 1) % ACC.length; apply(); }
+        function toggle(k) { S[k] = !S[k]; apply(); save(); }
+        function nextStyle() { S.style = (S.style + 1) % STYLES.length; apply(); save(); }
+        function nextAccent() { S.acc = (S.acc + 1) % ACC.length; apply(); save(); }
 
         // Vollbild, Bildschirm wach halten
         function toggleFs() { if (document.fullscreenElement) document.exitFullscreen(); else (document.documentElement.requestFullscreen || (() => {})).call(document.documentElement); }
