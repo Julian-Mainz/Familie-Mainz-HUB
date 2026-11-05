@@ -122,7 +122,7 @@
     </main>
 
     <!-- Schnell-Erfassung -->
-    <button onclick="openQuick()" title="Schnell-Erfassung (Taste N)" class="fixed bottom-5 right-5 z-40 w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xl shadow-xl shadow-indigo-600/30 flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
+    <button id="fab" onclick="openQuick()" title="Schnell-Erfassung (Taste N)" class="fixed bottom-5 right-5 z-40 w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xl shadow-xl shadow-indigo-600/30 flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
 
     <div id="modal-quick" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
@@ -175,7 +175,11 @@
         initAuthGuard(user => {
             if (!user || started) return;
             started = true;
-            renderDrawer(); loadLayout(); applyLayout(); initLayoutEvents(); initCalendar(); initNotes(); initTodos(); initStamp(); loadWeather(); updateClock();
+            renderDrawer(); loadLayout(); applyLayout(); initLayoutEvents(); setupQuickKinds();
+            if (can(currentUser, 'termine')) initCalendar();
+            if (can(currentUser, 'pinnwand')) initNotes();
+            if (can(currentUser, 'aufgaben')) initTodos();
+            initStamp(); loadWeather(); updateClock();
             if (isAdmin(currentUser)) countPending();
             handleQuickHash();
         });
@@ -184,6 +188,9 @@
         const WIDGETS = { hero: ['Uhr & Datum', 'fa-clock'], weather: ['Wetter', 'fa-cloud-sun'], stamp: ['Arbeitszeit', 'fa-stopwatch'], notes: ['Pinnwand', 'fa-note-sticky'],
             todos: ['Aufgaben & Einkauf', 'fa-list-check'], upcoming: ['Nächste Termine', 'fa-calendar-check'], calendar: ['Kalender', 'fa-calendar-days'] };
         const DEFAULT_ORDER = Object.keys(WIDGETS);
+        // Welches Recht ein Widget braucht (ohne Eintrag: für alle)
+        const WIDGET_PERM = { stamp: 'zeit', notes: 'pinnwand', todos: 'aufgaben', upcoming: 'termine', calendar: 'termine' };
+        const allowed = id => !WIDGET_PERM[id] || can(currentUser, WIDGET_PERM[id]);
         let layout = { order: [...DEFAULT_ORDER], hidden: [] };
         function loadLayout() {
             const l = currentUser.userPrefs?.layout; if (!l) return;
@@ -194,11 +201,11 @@
         function applyLayout() {
             const host = $('widgets');
             layout.order.forEach(id => { const el = host.querySelector(`[data-w="${id}"]`); if (el) host.appendChild(el); });
-            DEFAULT_ORDER.forEach(id => { const el = host.querySelector(`[data-w="${id}"]`); if (el) el.classList.toggle('hidden', layout.hidden.includes(id) || (id === 'stamp' && !can(currentUser, 'zeit'))); });
+            DEFAULT_ORDER.forEach(id => { const el = host.querySelector(`[data-w="${id}"]`); if (el) el.classList.toggle('hidden', layout.hidden.includes(id) || !allowed(id)); });
         }
         function renderLayout() {
             $('layout-list').innerHTML = layout.order.map((id, i) => {
-                const [label, icon] = WIDGETS[id], off = layout.hidden.includes(id), blocked = id === 'stamp' && !can(currentUser, 'zeit');
+                const [label, icon] = WIDGETS[id], off = layout.hidden.includes(id), blocked = !allowed(id);
                 return `<div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-3 py-2 ${off || blocked ? 'opacity-50' : ''}"><i class="fa-solid ${icon} w-5 text-slate-400"></i>
                     <span class="flex-1 text-sm text-slate-200">${label}${blocked ? ' <span class="text-[10px] text-slate-500">(keine Berechtigung)</span>' : ''}</span>
                     <button data-act="up" data-id="${id}" ${i === 0 ? 'disabled' : ''} class="p-1.5 text-slate-400 hover:text-white disabled:opacity-20" title="Nach oben"><i class="fa-solid fa-arrow-up"></i></button>
@@ -231,7 +238,15 @@
             document.querySelectorAll('#q-kinds [data-k]').forEach(b => b.classList.toggle('on', b.dataset.k === k));
             $('q-text').placeholder = QK[k][0]; $('q-event-opts').classList.toggle('hidden', k !== 'event');
         }
-        function openQuick(kind) { setQuick(QK[kind] ? kind : quickKind); $('q-text').value = ''; $('q-date').value = localDate(); openModal('modal-quick'); setTimeout(() => $('q-text').focus(), 40); }
+        // Welches Recht eine Art der Schnell-Erfassung braucht
+        const KIND_PERM = { task: 'aufgaben', shop: 'aufgaben', note: 'pinnwand', event: 'termine' };
+        const allowedKinds = () => Object.keys(KIND_PERM).filter(k => can(currentUser, KIND_PERM[k]));
+        function setupQuickKinds() {
+            document.querySelectorAll('#q-kinds [data-k]').forEach(b => b.classList.toggle('hidden', !can(currentUser, KIND_PERM[b.dataset.k])));
+            $('fab').classList.toggle('hidden', !allowedKinds().length);
+            if (!allowedKinds().includes(quickKind)) quickKind = allowedKinds()[0] || 'task';
+        }
+        function openQuick(kind) { const ak = allowedKinds(); if (!ak.length) return; kind = ak.includes(kind) ? kind : (ak.includes(quickKind) ? quickKind : ak[0]); setQuick(QK[kind] ? kind : quickKind); $('q-text').value = ''; $('q-date').value = localDate(); openModal('modal-quick'); setTimeout(() => $('q-text').focus(), 40); }
         async function saveQuick(e) {
             e.preventDefault();
             const text = $('q-text').value.trim(); if (!text) return;
