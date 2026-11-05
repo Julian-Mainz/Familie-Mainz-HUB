@@ -86,7 +86,8 @@
 
                 <form id="form-register" onsubmit="handleSignUp(event)" class="space-y-3.5 hidden">
                     <div><h2 class="text-sm font-bold text-slate-100 mb-1">Konto registrieren</h2>
-                        <p class="text-[11px] text-slate-400">Nach der Erstellung wird das Konto von einem Administrator geprüft.</p></div>
+                        <p class="text-[11px] text-slate-400">Für die Registrierung brauchen Sie einen Einladungscode. Nach der Erstellung wird das Konto von einem Administrator geprüft.</p></div>
+                    <input type="text" id="reg-code" required autocomplete="off" spellcheck="false" maxlength="24" oninput="this.value = this.value.toUpperCase()" placeholder="Einladungscode" class="inp text-sm py-2.5 font-mono tracking-widest">
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" id="reg-firstname" required placeholder="Vorname" class="inp text-xs py-2.5">
                         <input type="text" id="reg-lastname" required placeholder="Nachname" class="inp text-xs py-2.5">
@@ -200,32 +201,48 @@
             }
         }
 
+        const normCode = v => (v || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
         async function handleSignUp(e) {
             e.preventDefault();
             $('auth-alert').classList.add('hidden');
             const firstName = $('reg-firstname').value.trim(), lastName = $('reg-lastname').value.trim();
-            const email = $('reg-email').value.trim(), password = $('reg-password').value;
+            const email = $('reg-email').value.trim(), password = $('reg-password').value, code = normCode($('reg-code').value);
             const btn = $('btn-register');
-            btn.disabled = true; btn.innerText = 'Erstelle Konto...';
+            if (code.length < 8) return showAuthAlert('Bitte den Einladungscode eingeben.');
+            btn.disabled = true; btn.innerText = 'Prüfe Code...';
             window.signingUp = true;
             let cred = null;
             try {
+                // 1) Code prüfen, bevor ein Konto angelegt wird
+                let inv; try { inv = await db.collection('invites').doc(code).get(); } catch (x) { throw Object.assign(new Error('Der Einladungscode konnte nicht geprüft werden. Bitte später erneut versuchen.'), { friendly: true }); }
+                const d = inv.exists ? inv.data() : null, exp = d && d.expiresAt && d.expiresAt.toDate ? d.expiresAt.toDate() : null;
+                if (!d) throw Object.assign(new Error('Dieser Einladungscode ist nicht gültig.'), { friendly: true });
+                if (d.used) throw Object.assign(new Error('Dieser Einladungscode wurde bereits verwendet.'), { friendly: true });
+                if (exp && exp < new Date()) throw Object.assign(new Error('Dieser Einladungscode ist abgelaufen.'), { friendly: true });
+                btn.innerText = 'Erstelle Konto...';
                 cred = await auth.createUserWithEmailAndPassword(email, password);
-                await db.collection('users').doc(cred.user.uid).set({
-                    firstName, lastName, displayName: `${firstName} ${lastName}`, email,
+                // 2) Profil anlegen und Code einlösen in EINEM Schreibvorgang. Die Datenbank-Regeln prüfen beides gemeinsam.
+                const batch = db.batch();
+                batch.set(db.collection('users').doc(cred.user.uid), {
+                    firstName, lastName, displayName: `${firstName} ${lastName}`, email, inviteCode: code,
                     role: 'user', status: 'pending',
                     permissions: { kalender: true, zeit: true, finanzen: true, tresor: true, admin: false },
                     userPrefs: { notifyWork: true, notifyEvents: true },
                     createdAt: TS()
                 });
+                batch.update(db.collection('invites').doc(code), { used: true, usedBy: cred.user.uid, usedAt: TS() });
+                await batch.commit();
+                logSystemEvent('auth', 'Registrierung per Einladung', { email, code: code.slice(0, 4) + '…' });
                 await auth.signOut();
                 $('form-register').reset();
                 showRegisterView(false);
                 showAuthAlert('Registrierung erfolgreich! Ein Administrator muss Ihr Konto noch freigeben.', true);
             } catch (err) {
                 if (cred?.user) await cred.user.delete().catch(() => {});
-                showAuthAlert(err.code === 'auth/email-already-in-use' ? 'Diese E-Mail ist bereits registriert.'
+                showAuthAlert(err.friendly ? err.message
+                    : err.code === 'auth/email-already-in-use' ? 'Diese E-Mail ist bereits registriert.'
                     : err.code === 'auth/weak-password' ? 'Passwort zu schwach (min. 6 Zeichen).'
+                    : err.code === 'permission-denied' ? 'Der Einladungscode konnte nicht eingelöst werden (bereits verwendet oder abgelaufen).'
                     : 'Registrierung fehlgeschlagen: ' + err.message);
             } finally {
                 window.signingUp = false;
@@ -253,6 +270,12 @@
             } catch (ex) { console.error('Kontakt senden:', ex); err('Senden fehlgeschlagen (' + (ex.code || ex.message) + '). Bitte später erneut versuchen.'); }
             finally { btn.disabled = false; btn.innerText = 'Senden'; }
         }
+    
+        // Einladungslink: /?code=ABCDE12345 öffnet direkt die Registrierung mit eingetragenem Code
+        (function () {
+            const c = normCode(new URLSearchParams(location.search).get('code'));
+            if (c) { showView('register'); $('reg-code').value = c; history.replaceState(null, '', location.pathname); }
+        })();
     </script>
 </body>
 </html>
