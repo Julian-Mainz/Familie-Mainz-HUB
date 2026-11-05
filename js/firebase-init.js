@@ -21,7 +21,7 @@ const db = firebase.firestore();
 let currentUser = null;
 
 // ---------- Rechte ----------
-// perm: 'kalender' | 'zeit' | 'finanzen' | 'tresor'
+// perm: 'termine' | 'pinnwand' | 'aufgaben' | 'zeit' | 'finanzen' | 'tresor' | 'wand' | 'spotify'  (nicht vergebene Rechte gelten als erlaubt, außer sie sind ausdrücklich false)
 const can = (u, key) => !!u && (u.role === 'admin' || (u.permissions || {})[key] !== false);
 const isAdmin = u => !!u && (u.role === 'admin' || (u.permissions || {}).admin === true);
 
