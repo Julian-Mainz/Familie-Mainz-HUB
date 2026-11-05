@@ -1,8 +1,8 @@
 // js/drawer.js - Menü, blendet Punkte ohne Berechtigung aus und markiert die aktuelle Seite
 const DRAWER_LINKS = [
     { href: '/menu.html',                    label: 'Start Menü',            icon: 'fa-border-all',     icon_c: 'text-indigo-400',  text_c: 'text-slate-200' },
-    { href: '/wand.html',            label: 'Wandkalender',          icon: 'fa-display',        icon_c: 'text-cyan-400',    text_c: 'text-cyan-300' },
-    { href: '/spotify.html',         label: 'Spotify',               icon: 'fa-headphones',     icon_c: 'text-emerald-400', text_c: 'text-emerald-300' },
+    { href: '/wand.html',            label: 'Wandkalender',          icon: 'fa-display',        icon_c: 'text-cyan-400',    text_c: 'text-cyan-300', perm: 'wand' },
+    { href: '/spotify.html',         label: 'Spotify',               icon: 'fa-headphones',     icon_c: 'text-emerald-400', text_c: 'text-emerald-300', perm: 'spotify' },
     { href: '/zeiterfassung.html',  label: 'Zeiterfassung',         icon: 'fa-business-time',  icon_c: 'text-emerald-400', text_c: 'text-emerald-300', perm: 'zeit' },
     { href: '/finanzen.html',       label: 'Finanzen',              icon: 'fa-coins',          icon_c: 'text-yellow-400',  text_c: 'text-yellow-300',  perm: 'finanzen' },
     { href: '/passwort.html',       label: 'Passwort-Safe',         icon: 'fa-shield-halved',  icon_c: 'text-amber-400',   text_c: 'text-amber-300',   perm: 'tresor' },
