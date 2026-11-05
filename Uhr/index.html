@@ -73,6 +73,11 @@
         #ctl button:hover, #ctl a:hover { background: rgba(255,255,255,.28); }
         body.idle { cursor: none; }
         body.idle #ctl { opacity: 0; pointer-events: none; }
+        #syncinfo { width: 100%; text-align: center; font-size: 12px; opacity: .85; padding: 2px 4px 0; }
+        #warn { display: none; position: fixed; z-index: 6; right: 14px; bottom: 14px; font-size: 13px; color: #fbbf24; background: rgba(0,0,0,.6); padding: 7px 11px; border-radius: 10px; }
+        body.unsynced #warn { display: block; }
+        body.unsynced #clock { opacity: .3; }
+        #clock { transition: opacity .6s; }
         @media (prefers-reduced-motion: reduce) { body::before, .c, .g.flip { animation: none !important; } }
         noscript { position: fixed; inset: 0; display: grid; place-items: center; font-size: 1.2rem; color: #fff; }
     </style>
@@ -84,14 +89,17 @@
     </main>
 
     <nav id="ctl" aria-label="Einstellungen">
+        <div id="syncinfo"></div>
         <button id="b-st" onclick="nextStyle()">Stil</button>
         <button id="b-ac" onclick="nextAccent()">Akzent</button>
         <button id="b-sec" onclick="toggle('sec')">Sekunden</button>
         <button id="b-h" onclick="toggle('h24')">24 h</button>
         <button id="b-date" onclick="toggle('date')">Datum</button>
+        <button id="b-tz" onclick="toggle('berlin')">Zone</button>
         <button id="b-fs" onclick="toggleFs()">Vollbild</button>
         <a href="/impressum.html">Impressum</a>
     </nav>
+    <div id="warn">Zeit wird abgeglichen …</div>
     <noscript>Bitte JavaScript aktivieren, damit die Uhr läuft.</noscript>
 
     <script>
@@ -99,7 +107,7 @@
         const STYLES = [['aurora', 'Aurora', '#050816'], ['neon', 'Neon', '#05060f'], ['flip', 'Flip', '#111317'], ['retro', 'Retro', '#0a0700'], ['hell', 'Hell', '#f4f6fa'], ['nacht', 'Nacht', '#000000']];
         const ACC = [{ n: 'Blau', a: '#38bdf8', ar: '56,189,248', br: '99,102,241' }, { n: 'Violett', a: '#c084fc', ar: '192,132,252', br: '236,72,153' },
                      { n: 'Grün', a: '#34d399', ar: '52,211,153', br: '34,211,238' }, { n: 'Orange', a: '#fb923c', ar: '251,146,60', br: '244,63,94' }];
-        const S = { sec: true, h24: true, date: false, style: 0, acc: 0 };
+        const S = { sec: true, h24: true, date: false, style: 0, acc: 0, berlin: true };
         try { Object.assign(S, JSON.parse(localStorage.getItem('uhr_settings2') || '{}')); } catch (e) {}
         if (!STYLES[S.style]) S.style = 0; if (!ACC[S.acc]) S.acc = 0;
         const save = () => { try { localStorage.setItem('uhr_settings2', JSON.stringify(S)); } catch (e) {} };
@@ -113,16 +121,67 @@
             if (prev[id] !== undefined && STYLES[S.style][0] === 'flip') { el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip'); }
             prev[id] = v;
         }
-        let lastDay = '';
-        function render(now) {
-            let h = now.getHours(), ap = '';
-            if (!S.h24) { ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; }
-            setG('gh', p(h)); setG('gm', p(now.getMinutes())); if (S.sec) setG('gs', p(now.getSeconds()));
-            setT($('ap'), ap); document.title = p(h) + ':' + p(now.getMinutes()) + (S.sec ? ':' + p(now.getSeconds()) : '');
-            const day = now.toDateString();
-            if (day !== lastDay) { lastDay = day; $('d').textContent = now.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+        let lastDay = '', FT, FD;
+        function makeFormatters() {
+            const tz = S.berlin ? 'Europe/Berlin' : undefined;
+            FT = new Intl.DateTimeFormat('de-DE', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+            FD = new Intl.DateTimeFormat('de-DE', { timeZone: tz, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            lastDay = '';
         }
-        function tick() { const now = new Date(); render(now); setTimeout(tick, 1000 - now.getMilliseconds() + 5); }   // exakt auf den Sekundenwechsel
+        function render(ms) {
+            const v = {}; FT.formatToParts(ms).forEach(x => { v[x.type] = x.value; });
+            let h = +v.hour, ap = '';
+            if (!S.h24) { ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; }
+            setG('gh', p(h)); setG('gm', v.minute); if (S.sec) setG('gs', v.second);
+            setT($('ap'), ap); document.title = p(h) + ':' + v.minute + (S.sec ? ':' + v.second : '');
+            const day = FD.format(ms); if (day !== lastDay) { lastDay = day; $('d').textContent = day; }
+        }
+
+        // ---------- Zeitabgleich ----------
+        // Die Uhr des PCs wird NICHT als Wahrheit genommen. Stattdessen fragt die Seite ihren eigenen Server nach der Zeit
+        // (Datumsangabe der Antwort, auf die Sekunde genau). Mehrere Anfragen zu unterschiedlichen Zeitpunkten grenzen den Wert auf Bruchteile
+        // einer Sekunde ein. Als Zeitgeber dient der Zähler des Browsers, der auch bei verstellter Systemuhr gleichmäßig weiterläuft.
+        const local = () => performance.timeOrigin + performance.now();
+        let offset = 0, accuracy = null, synced = false, syncing = false, failed = false;
+        const trueNow = () => local() + offset;
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        const dur = ms => {
+            const t = Math.round(Math.abs(ms) / 1000), h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), sec = t % 60, out = [];
+            if (h) out.push(h + ' Std'); if (m) out.push(m + ' Min'); if (!h && (sec || !m)) out.push(sec + ' s');
+            return out.join(' ');
+        };
+        function updateStatus() {
+            document.body.classList.toggle('unsynced', !synced);
+            $('warn').textContent = failed ? '⚠ Gerätezeit – Abgleich nicht möglich (offline?)' : 'Zeit wird abgeglichen …';
+            if (!synced) { $('syncinfo').textContent = failed ? 'Zeit des Geräts, nicht abgeglichen' : ''; return; }
+            const dev = -offset;      // Abweichung der PC-Uhr (positiv = PC geht vor)
+            $('syncinfo').textContent = Math.abs(dev) < 1500 ? 'Abgeglichen: Die PC-Uhr stimmt' + (accuracy != null ? ' (±' + Math.max(0.05, accuracy / 1000).toFixed(1).replace('.', ',') + ' s)' : '')
+                : 'Abgeglichen: Die PC-Uhr geht ' + dur(dev) + (dev > 0 ? ' vor' : ' nach') + (accuracy != null ? ' (±' + Math.max(0.05, accuracy / 1000).toFixed(1).replace('.', ',') + ' s)' : '');
+        }
+        async function sync() {
+            if (syncing) return; syncing = true;
+            let lo = -Infinity, hi = Infinity, ok = 0; const mids = [];
+            try {
+                for (let i = 0; i < 14 && (ok < 4 || hi - lo > 160); i++) {
+                    const ts = local(); let res;
+                    try { res = await fetch('/Uhr/?sync=' + Math.random().toString(36).slice(2), { method: 'HEAD', cache: 'no-store' }); } catch (e) { break; }
+                    const tr = local(), d = res.headers.get('date');
+                    if (!res.ok || !d || (+res.headers.get('age') || 0) > 0) continue;       // nur frische, nicht zwischengespeicherte Antworten
+                    const sec = Math.floor(Date.parse(d) / 1000) * 1000, l = sec - tr, h = sec + 1000 - ts;   // wahre Serverzeit liegt in [sec, sec+1000)
+                    mids.push((l + h) / 2); ok++;
+                    if (Math.max(lo, l) <= Math.min(hi, h)) { lo = Math.max(lo, l); hi = Math.min(hi, h); } else { lo = l; hi = h; }
+                    await sleep(90 + Math.random() * 300);
+                }
+                if (ok >= 2) {
+                    mids.sort((a, b) => a - b);
+                    offset = hi >= lo ? (lo + hi) / 2 : mids[Math.floor(mids.length / 2)];
+                    accuracy = hi >= lo ? (hi - lo) / 2 : null; synced = true; failed = false;
+                } else if (!synced) failed = true;
+            } finally { syncing = false; }
+            updateStatus();
+            if (!synced) setTimeout(sync, 10000);       // bei Fehlschlag in 10 Sekunden erneut versuchen
+        }
+        function tick() { const t = trueNow(); render(t); setTimeout(tick, 1000 - (t % 1000) + 5); }   // exakt auf den Sekundenwechsel
 
         // Schrift so groß wie möglich, ohne dass etwas abgeschnitten wird
         function fit() {
@@ -132,13 +191,13 @@
         }
         function apply() {
             const st = STYLES[S.style], ac = ACC[S.acc], r = document.documentElement.style;
-            document.body.className = 's-' + st[0] + (document.body.classList.contains('idle') ? ' idle' : '');
+            document.body.className = 's-' + st[0] + (document.body.classList.contains('idle') ? ' idle' : '') + (synced ? '' : ' unsynced');
             r.setProperty('--a', ac.a); r.setProperty('--ar', ac.ar); r.setProperty('--br', ac.br);
             document.querySelector('meta[name="theme-color"]').content = st[2];
             $('d').style.display = S.date ? '' : 'none'; $('cs').style.display = S.sec ? '' : 'none';
             $('b-st').textContent = 'Stil: ' + st[1]; $('b-ac').textContent = 'Akzent: ' + ac.n;
             $('b-sec').textContent = 'Sekunden: ' + (S.sec ? 'an' : 'aus'); $('b-h').textContent = S.h24 ? '24 h' : '12 h'; $('b-date').textContent = 'Datum: ' + (S.date ? 'an' : 'aus');
-            render(new Date()); fit(); save();
+            $('b-tz').textContent = 'Zone: ' + (S.berlin ? 'Berlin' : 'Gerät'); makeFormatters(); render(trueNow()); fit(); updateStatus(); save();
         }
         function toggle(k) { S[k] = !S[k]; apply(); }
         function nextStyle() { S.style = (S.style + 1) % STYLES.length; apply(); }
@@ -162,7 +221,9 @@
         });
         addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 120));
 
-        apply(); tick(); wake(); keepAwake();
+        apply(); tick(); wake(); keepAwake(); sync();
+        setInterval(sync, 10 * 60 * 1000);                               // alle 10 Minuten neu abgleichen
+        addEventListener('online', sync); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') sync(); });
     </script>
 </body>
 </html>
