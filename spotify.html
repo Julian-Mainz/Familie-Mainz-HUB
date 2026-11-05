@@ -348,7 +348,7 @@
             if (!getTok()) return view('connect');
             view('player'); startPolling();
             document.addEventListener('visibilitychange', () => { if (!document.hidden && getTok()) poll(); });
-        });
+        }, { perm: 'spotify' });
     </script>
 </body>
 </html>
