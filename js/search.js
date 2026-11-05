@@ -8,6 +8,7 @@
     const PAGES = () => [
         ['Start', '/menu.html', 'fa-border-all', 'startseite uebersicht dashboard home'],
         ['Wandkalender', '/wand.html', 'fa-display', 'tablet kueche anzeige kiosk'],
+        ['Spotify', '/spotify.html', 'fa-headphones', 'musik fernbedienung player lied playlist handy'],
         can(currentUser, 'zeit') && ['Zeiterfassung', '/zeiterfassung.html', 'fa-business-time', 'stempeln stunden arbeitszeit urlaub ueberstunden stundenzettel'],
         can(currentUser, 'finanzen') && ['Finanzen', '/finanzen.html', 'fa-coins', 'buchungen geld fixkosten budget lohn sparkasse konto'],
         can(currentUser, 'tresor') && ['Passwort-Safe', '/passwort.html', 'fa-shield-halved', 'tresor passwoerter zugangsdaten'],
