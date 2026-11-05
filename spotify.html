@@ -121,10 +121,11 @@
         const mmss = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
         const ls = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }, del: k => { try { localStorage.removeItem(k); } catch (e) {} } };
         const view = v => ['setup', 'connect', 'player'].forEach(k => $('v-' + k).classList.toggle('hidden', k !== v));
-        function toast(msg, bad) {
-            const t = document.createElement('div'); t.textContent = msg;
+        function toast(msg, bad, action) {
+            const t = document.createElement('div'); t.textContent = msg + ' ';
             t.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] max-w-[92vw] text-xs font-medium px-4 py-2.5 rounded-2xl shadow-xl border ' + (bad ? 'bg-rose-950 border-rose-500/40 text-rose-200' : 'bg-slate-800 border-slate-700 text-slate-100');
-            document.body.appendChild(t); setTimeout(() => t.remove(), 4200);
+            if (action) { const b = document.createElement('button'); b.textContent = action.label; b.className = 'ml-2 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold'; b.onclick = () => { t.remove(); action.fn(); }; t.appendChild(b); }
+            document.body.appendChild(t); setTimeout(() => t.remove(), action ? 14000 : 4200);
         }
 
         // ---------- Anmeldung (PKCE, ohne eigenen Server) ----------
@@ -195,18 +196,38 @@
 
         // ---------- Zustand ----------
         let st = null, fetchedAt = 0, devices = [], seeking = false, pollT = null, devT = 0, lastVol = 0;
+        let lastActive = sessionStorage.getItem('sp_last_active') || '', lastTransferAt = 0, polled = false; const names = {};
         const stopPolling = () => { clearInterval(pollT); pollT = null; };
         function startPolling() { if (pollT) return; poll(); loadDevices(); pollT = setInterval(() => { poll(); if (Date.now() - devT > 12000) loadDevices(); }, 3000); }
         async function poll() {
             if (document.hidden || Date.now() < backoffUntil) return;
-            try { st = await api('/me/player?additional_types=episode'); fetchedAt = performance.now(); render(); } catch (e) { if (e.status !== 429) toast(explain(e), true); }
+            try {
+                st = await api('/me/player?additional_types=episode'); fetchedAt = performance.now();
+                const dv = st && st.device;
+                if (dv && dv.id) {
+                    names[dv.id] = dv.name;
+                    // Läuft die Musik plötzlich woanders (nicht durch diese Seite), wird das gemeldet und lässt sich mit einem Klick zurückholen
+                    if (polled && lastActive && dv.id !== lastActive && Date.now() - lastTransferAt > 8000)
+                        toast('Die Wiedergabe läuft jetzt auf „' + dv.name + '“. Das wurde nicht von dieser Seite ausgelöst.', false, { label: 'Zurück auf „' + (names[lastActive] || 'vorheriges Gerät') + '“', fn: () => transferTo(lastActive === dv.id ? '' : lastActive, dv.id) });
+                    lastActive = dv.id; try { sessionStorage.setItem('sp_last_active', dv.id); } catch (e) {}
+                }
+                polled = true; render();
+            } catch (e) { if (e.status !== 429) toast(explain(e), true); }
         }
         async function cmd(path, method = 'PUT', body) {
             try { await api(path, { method, body }); setTimeout(poll, 350); }
             catch (e) { toast(explain(e), true); if (e.status === 404) loadDevices(true); }
         }
-        const preferred = () => (st && st.device && st.device.id) || ls.get('sp_last_device') || (devices.find(d => d.type === 'Smartphone') || devices[0] || {}).id || '';
-        const withDevice = path => { const d = preferred(); return d ? path + (path.includes('?') ? '&' : '?') + 'device_id=' + encodeURIComponent(d) : path; };
+        // Es wird nie geraten, auf welchem Gerät etwas startet. Pause, Weiter, Lautstärke usw. gehen ohne Geräteangabe an das aktive Gerät.
+        // Nur wenn gerade kein Gerät aktiv ist, wird das zuletzt aktive Gerät dieser Sitzung genommen (und nur, wenn es noch in der Liste steht).
+        const hasActive = () => !!(st && st.device && st.device.id);
+        const resumeTarget = () => (lastActive && devices.some(d => d.id === lastActive) ? lastActive : '');
+        function noDevice() { toast('Kein aktives Gerät. Wähle rechts ein Gerät aus, auf dem Spotify laufen soll.', true); $('devices').scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        function play(payload) {
+            const target = hasActive() ? '' : resumeTarget();
+            if (!hasActive() && !target) return noDevice();
+            return cmd('/me/player/play' + (target ? '?device_id=' + encodeURIComponent(target) : ''), 'PUT', payload);
+        }
 
         // ---------- Anzeige ----------
         const cur = () => { const prog = st && st.progress_ms != null ? st.progress_ms : 0; return st && st.is_playing ? prog + (performance.now() - fetchedAt) : prog; };
@@ -250,9 +271,9 @@
 
         // ---------- Steuerung ----------
         function togglePlay() {
-            if (st && st.is_playing) { st.is_playing = false; st.progress_ms = cur(); fetchedAt = performance.now(); render(); return cmd(withDevice('/me/player/pause')); }
+            if (st && st.is_playing) { st.is_playing = false; st.progress_ms = cur(); fetchedAt = performance.now(); render(); return cmd('/me/player/pause'); }
             if (st) { st.is_playing = true; fetchedAt = performance.now(); render(); }
-            return cmd(withDevice('/me/player/play'));
+            return play();
         }
         const toggleShuffle = () => cmd('/me/player/shuffle?state=' + !(st && st.shuffle_state));
         function cycleRepeat() { const next = { off: 'context', context: 'track', track: 'off' }[(st && st.repeat_state) || 'off']; cmd('/me/player/repeat?state=' + next); }
@@ -260,10 +281,17 @@
         $('seek').addEventListener('change', () => { const it = st && st.item; seeking = false; if (!it) return; const ms = Math.round($('seek').value / 1000 * it.duration_ms); st.progress_ms = ms; fetchedAt = performance.now(); cmd('/me/player/seek?position_ms=' + ms); });
         let volT; $('vol').addEventListener('input', () => { lastVol = Date.now(); clearTimeout(volT); volT = setTimeout(() => cmd('/me/player/volume?volume_percent=' + $('vol').value), 250); });
         $('devices').addEventListener('click', e => {
-            const b = e.target.closest('[data-id]'); if (!b) return; ls.set('sp_last_device', b.dataset.id);
-            cmd('/me/player', 'PUT', { device_ids: [b.dataset.id], play: !!(st && st.is_playing) }).then(() => setTimeout(() => loadDevices(), 700));
+            const b = e.target.closest('[data-id]'); if (!b) return; if (st && st.device && st.device.id === b.dataset.id) return;
+            transferTo(b.dataset.id, st && st.device ? st.device.id : '');
         });
-        const play = payload => cmd(withDevice('/me/player/play'), 'PUT', payload);
+        async function transferTo(id, backId) {
+            if (!id) return;
+            lastTransferAt = Date.now(); lastActive = id; try { sessionStorage.setItem('sp_last_active', id); } catch (e) {}
+            const was = !!(st && st.is_playing);
+            await cmd('/me/player', 'PUT', { device_ids: [id], play: was });
+            setTimeout(() => loadDevices(), 700);
+            if (backId && backId !== id) toast('Wiedergabe auf „' + (devices.find(d => d.id === id) || {}).name + '“ übertragen.', false, { label: 'Rückgängig', fn: () => transferTo(backId, '') });
+        }
         document.addEventListener('keydown', e => {
             if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || e.ctrlKey || e.metaKey || e.altKey || $('v-player').classList.contains('hidden')) return;
             if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
