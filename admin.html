@@ -65,6 +65,17 @@
 
         <!-- Benutzer -->
         <section id="tab-users" class="card">
+            <div class="mb-5 pb-5 border-b border-slate-800">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="text-sm font-bold text-slate-200"><i class="fa-solid fa-ticket text-amber-400 mr-2"></i>Einladungen</span>
+                    <span class="text-[11px] text-slate-500">Nur wer einen Code hat, kann sich registrieren.</span>
+                    <div class="flex-1"></div>
+                    <input id="inv-note" maxlength="60" placeholder="Für wen? (optional)" class="fld w-44">
+                    <select id="inv-exp" class="fld"><option value="7">7 Tage gültig</option><option value="30">30 Tage gültig</option><option value="1">1 Tag gültig</option><option value="0">unbegrenzt</option></select>
+                    <button onclick="createInvite()" class="btn bg-amber-500/20 border-amber-500/30 text-amber-300"><i class="fa-solid fa-plus mr-1.5"></i>Code erzeugen</button>
+                </div>
+                <div id="inv-list" class="space-y-2"><div class="text-xs text-slate-500">Lade Einladungen...</div></div>
+            </div>
             <div class="flex flex-wrap items-center gap-2 mb-4">
                 <input id="adm-search" placeholder="Suchen (Name, E-Mail)..." class="fld w-56">
                 <select id="adm-status" class="fld"><option value="all">Alle</option><option value="pending">Wartet auf Freigabe</option><option value="active">Aktiv</option><option value="blocked">Gesperrt</option></select>
@@ -144,7 +155,7 @@
             if (!user || started) return;
             started = true;
             renderDrawer();
-            db.collection('users').onSnapshot(s => { allUsers = s.docs.map(d => ({ id: d.id, ...d.data() })); renderUsers(); },
+            db.collection('users').onSnapshot(s => { allUsers = s.docs.map(d => ({ id: d.id, ...d.data() })); renderUsers(); renderInvites(); },
                 err => { $('admin-user-list').innerHTML = `<div class="text-xs text-rose-400 text-center py-6">Benutzer konnten nicht geladen werden: ${esc(err.message)}</div>`; });
             $('adm-search').addEventListener('input', e => { fText = e.target.value.toLowerCase(); renderUsers(); });
             $('adm-status').addEventListener('change', e => { fStatus = e.target.value; renderUsers(); });
@@ -153,7 +164,7 @@
                 const b = e.target.closest('[data-act]'), u = b && userOf(b); if (!u) return;
                 ({ approve: () => setStatus(u, 'active'), block: () => setStatus(u, 'blocked'), delete: () => removeUser(u), reset: () => resetPw(u) })[b.dataset.act]();
             });
-            loadToday(); initMessages();
+            loadToday(); initMessages(); initInvites();
             showTab(location.hash.slice(1) || 'users');
         }, { admin: true });
 
@@ -186,6 +197,49 @@
                 $('k-err').innerText = errs ? `${errs} Browser-Fehler heute` : 'keine Browser-Fehler'; $('k-err').className = 'block text-[10px] mt-0.5 ' + (errs ? 'text-rose-300' : 'text-slate-500');
                 $('k-active').innerText = new Set(todayLogs.filter(l => l.userEmail && l.userEmail !== 'Gast / Anonym').map(l => l.userEmail)).size + ' Personen';
             } catch (e) { $('k-db').innerHTML = '<span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-400 mr-2"></span>Fehler'; }
+        }
+
+        // ---------- Einladungen ----------
+        let invites = [];
+        const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';           // ohne leicht verwechselbare Zeichen (0/O, 1/I)
+        const newCode = () => Array.from(crypto.getRandomValues(new Uint8Array(10)), x => CODE_CHARS[x % 32]).join('');
+        const showCode = c => c.replace(/(.{5})(?=.)/g, '$1-');
+        async function copyText(t, btn) {
+            try { await navigator.clipboard.writeText(t); } catch (e) { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); }
+            if (btn) { const old = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>Kopiert'; setTimeout(() => { btn.innerHTML = old; }, 1400); }
+        }
+        function initInvites() {
+            db.collection('invites').orderBy('createdAt', 'desc').limit(60).onSnapshot(s => { invites = s.docs.map(d => ({ id: d.id, ...d.data() })); renderInvites(); },
+                err => { $('inv-list').innerHTML = `<div class="text-xs text-rose-400">Einladungen konnten nicht geladen werden: ${esc(err.message)} (sind die neuen Firestore-Regeln veröffentlicht?)</div>`; });
+            $('inv-list').addEventListener('click', e => {
+                const b = e.target.closest('[data-i]'); if (!b) return; const id = b.dataset.id;
+                if (b.dataset.i === 'code') copyText(showCode(id), b);
+                if (b.dataset.i === 'link') copyText(`${location.origin}/?code=${id}`, b);
+                if (b.dataset.i === 'del' && confirm('Diesen Code löschen? Ein noch nicht eingelöster Code ist danach ungültig.')) db.collection('invites').doc(id).delete().then(() => logSystemEvent('admin', 'Einladung gelöscht')).catch(x => alert('Fehlgeschlagen: ' + x.message));
+            });
+        }
+        async function createInvite() {
+            const days = +$('inv-exp').value, note = $('inv-note').value.trim().slice(0, 60), code = newCode();
+            const data = { createdAt: firebase.firestore.FieldValue.serverTimestamp(), createdBy: currentUser.email, note, used: false };
+            if (days > 0) data.expiresAt = firebase.firestore.Timestamp.fromDate(new Date(Date.now() + days * 864e5));
+            try { await db.collection('invites').doc(code).set(data); $('inv-note').value = ''; logSystemEvent('admin', 'Einladung erzeugt', { code: code.slice(0, 4) + '…', notiz: note }); }
+            catch (err) { alert('Fehlgeschlagen: ' + err.message); }
+        }
+        function renderInvites() {
+            const now = Date.now();
+            $('inv-list').innerHTML = invites.length ? invites.map(i => {
+                const exp = i.expiresAt && i.expiresAt.toDate ? i.expiresAt.toDate() : null, expired = !i.used && exp && exp.getTime() < now;
+                const who = i.used ? allUsers.find(u => u.id === i.usedBy) : null;
+                const [lbl, cls] = i.used ? ['Eingelöst', 'bg-slate-700/40 text-slate-300'] : expired ? ['Abgelaufen', 'bg-rose-500/10 text-rose-300'] : ['Offen', 'bg-emerald-500/10 text-emerald-300'];
+                const info = i.used ? `von ${esc(who ? who.displayName || who.email : 'unbekannt')} am ${fmtDate(i.usedAt)}` : (exp ? `gültig bis ${exp.toLocaleDateString('de-DE')}` : 'unbegrenzt gültig');
+                const open = !i.used && !expired;
+                return `<div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 bg-slate-950/40 border ${open ? 'border-amber-500/30' : 'border-slate-800/80 opacity-70'} rounded-2xl px-3.5 py-2.5 text-xs">
+                    <span class="font-mono text-sm tracking-widest ${open ? 'text-amber-300' : 'text-slate-500 line-through'}">${esc(showCode(i.id))}</span>
+                    <span class="px-2 py-0.5 rounded-lg text-[10px] ${cls}">${lbl}</span>
+                    <span class="text-slate-400 flex-1 min-w-[160px] truncate">${i.note ? '<b class="text-slate-300">' + esc(i.note) + '</b> · ' : ''}${info}</span>
+                    ${open ? `<button data-i="code" data-id="${esc(i.id)}" class="act bg-slate-800 border-slate-700 text-slate-300">Code kopieren</button><button data-i="link" data-id="${esc(i.id)}" class="act bg-indigo-600/20 border-indigo-500/30 text-indigo-300"><i class="fa-solid fa-link mr-1"></i>Link kopieren</button>` : ''}
+                    <button data-i="del" data-id="${esc(i.id)}" class="act bg-rose-600/20 border-rose-500/30 text-rose-300" title="Löschen"><i class="fa-solid fa-trash-can"></i></button></div>`;
+            }).join('') : '<div class="text-xs text-slate-500">Noch keine Einladungen. Erzeuge einen Code und schicke ihn der Person.</div>';
         }
 
         // ---------- Benutzer ----------
