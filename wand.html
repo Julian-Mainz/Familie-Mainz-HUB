@@ -86,10 +86,17 @@
             started = true;
             const list = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
             const merge = () => { const m = new Map(); [...pub, ...mine].forEach(e => m.set(e.id, e)); events = [...m.values()]; renderCalendar(); renderAgenda(); };
-            db.collection('events').where('isPublic', '==', true).onSnapshot(s => { pub = list(s); merge(); }, () => {});
-            db.collection('events').where('owner', '==', currentUser.email).onSnapshot(s => { mine = list(s); merge(); }, () => {});
-            db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(s => { todos = list(s); renderLists(); }, () => {});
-            db.collection('notes').orderBy('createdAt', 'desc').limit(8).onSnapshot(s => { notes = list(s); renderNotes(); }, () => {});
+            // Nur anzeigen und laden, wofür dieses Konto Rechte hat
+            const P = { termine: can(currentUser, 'termine'), aufgaben: can(currentUser, 'aufgaben'), pinnwand: can(currentUser, 'pinnwand') };
+            if (!P.termine) { $('cal').closest('.panel').classList.add('hidden'); $('agenda').closest('.panel').classList.add('hidden'); }
+            if (!P.aufgaben) { $('shop').closest('.panel').classList.add('hidden'); $('tasks').closest('.panel').classList.add('hidden'); }
+            if (!P.pinnwand) $('notes').closest('.panel').classList.add('hidden');
+            if (P.termine) {
+                db.collection('events').where('isPublic', '==', true).onSnapshot(s => { pub = list(s); merge(); }, () => {});
+                db.collection('events').where('owner', '==', currentUser.email).onSnapshot(s => { mine = list(s); merge(); }, () => {});
+            }
+            if (P.aufgaben) db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(s => { todos = list(s); renderLists(); }, () => {});
+            if (P.pinnwand) db.collection('notes').orderBy('createdAt', 'desc').limit(8).onSnapshot(s => { notes = list(s); renderNotes(); }, () => {});
             ['shop', 'tasks'].forEach(id => $(id).addEventListener('click', e => {
                 const b = e.target.closest('[data-id]'); if (!b) return;
                 db.collection('todos').doc(b.dataset.id).update({ done: b.dataset.done !== 'true' }).catch(err => alert('Fehler: ' + err.message));
@@ -98,7 +105,7 @@
             keepAwake(); document.addEventListener('click', keepAwake, { once: true });
             document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
             ['mousemove', 'touchstart', 'keydown'].forEach(ev => document.addEventListener(ev, wake, { passive: true })); wake();
-        });
+        }, { perm: 'wand' });
 
         // ---------- Uhr, Datum, Nachtmodus ----------
         function tick() {
