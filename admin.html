@@ -136,11 +136,17 @@
     <script>
         const $ = id => document.getElementById(id);
         const ROLES = {
-            admin: { label: 'Admin',   perms: { kalender: true, zeit: true,  finanzen: true,  tresor: true,  admin: true } },
-            user:  { label: 'Familie', perms: { kalender: true, zeit: true,  finanzen: true,  tresor: true,  admin: false } },
-            guest: { label: 'Gast',    perms: { kalender: true, zeit: false, finanzen: false, tresor: false, admin: false } }
+            admin: { label: 'Admin',   perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  admin: true } },
+            user:  { label: 'Familie', perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  admin: false } },
+            guest: { label: 'Gast',    perms: { termine: true, pinnwand: true, aufgaben: true, zeit: false, finanzen: false, tresor: false, wand: false, spotify: false, admin: false } }
         };
-        const MODULES = { zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe' };
+        // Alle einzeln vergebbaren Rechte. Neue Bereiche später hier ergänzen.
+        const PERM_GROUPS = [
+            ['Startseite', { termine: 'Kalender & Termine', pinnwand: 'Pinnwand', aufgaben: 'Aufgaben & Einkauf' }],
+            ['Bereiche', { zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe', wand: 'Wandkalender', spotify: 'Spotify' }]
+        ];
+        const PERM_KEYS = PERM_GROUPS.flatMap(([, m]) => Object.keys(m));
+        const PERM_LABEL = Object.assign({}, ...PERM_GROUPS.map(([, m]) => m));
         const BADGE = { active: ['Aktiv', 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'], pending: ['Wartet auf Freigabe', 'bg-amber-500/10 text-amber-400 border-amber-500/20'], blocked: ['Gesperrt', 'bg-rose-500/10 text-rose-400 border-rose-500/20'] };
         const CAT_COLOR = { auth: 'text-indigo-300', data: 'text-emerald-300', admin: 'text-amber-300', visit: 'text-slate-400', error: 'text-rose-300' };
         const st = u => u.status || 'active';
@@ -159,10 +165,10 @@
                 err => { $('admin-user-list').innerHTML = `<div class="text-xs text-rose-400 text-center py-6">Benutzer konnten nicht geladen werden: ${esc(err.message)}</div>`; });
             $('adm-search').addEventListener('input', e => { fText = e.target.value.toLowerCase(); renderUsers(); });
             $('adm-status').addEventListener('change', e => { fStatus = e.target.value; renderUsers(); });
-            $('admin-user-list').addEventListener('change', e => { const u = userOf(e.target); if (!u) return; if (e.target.dataset.role) setRole(u, e.target.value); if (e.target.dataset.perm) togglePerm(u, e.target.dataset.perm, e.target.checked); });
+            $('admin-user-list').addEventListener('change', e => { const u = userOf(e.target); if (!u) return; if ('role' in e.target.dataset) setRole(u, e.target.value); if (e.target.dataset.perm) togglePerm(u, e.target.dataset.perm, e.target.checked); });
             $('admin-user-list').addEventListener('click', e => {
                 const b = e.target.closest('[data-act]'), u = b && userOf(b); if (!u) return;
-                ({ approve: () => setStatus(u, 'active'), block: () => setStatus(u, 'blocked'), delete: () => removeUser(u), reset: () => resetPw(u) })[b.dataset.act]();
+                ({ approve: () => setStatus(u, 'active'), block: () => setStatus(u, 'blocked'), delete: () => removeUser(u), reset: () => resetPw(u), allperms: () => setAllPerms(u, true), noperms: () => setAllPerms(u, false) })[b.dataset.act]();
             });
             loadToday(); initMessages(); initInvites();
             showTab(location.hash.slice(1) || 'users');
@@ -258,7 +264,12 @@
             if (!confirm(msg)) return renderUsers();
             update(u, { role, permissions: ROLES[role].perms }, `Rolle auf „${ROLES[role].label}“ gesetzt`);
         }
-        function togglePerm(u, key, checked) { if (isSelf(u)) return renderUsers(); update(u, { [`permissions.${key}`]: checked }, `Recht „${key}“ ${checked ? 'erteilt' : 'entzogen'}`); }
+        function setAllPerms(u, on) {
+            if (isSelf(u) || isAdmin(u)) return;
+            const p = {}; PERM_KEYS.forEach(k => { p[k] = on; }); p.admin = false;
+            update(u, { permissions: p }, on ? 'Alle Rechte erteilt' : 'Alle Rechte entzogen');
+        }
+        function togglePerm(u, key, checked) { if (isSelf(u)) return renderUsers(); update(u, { [`permissions.${key}`]: checked }, `Recht „${PERM_LABEL[key] || key}“ ${checked ? 'erteilt' : 'entzogen'}`); }
         function setStatus(u, status) {
             if (status === 'blocked') {
                 if (isSelf(u)) return alert('Du kannst dich nicht selbst sperren.');
@@ -301,8 +312,11 @@
                     <div class="flex flex-wrap items-center gap-3">
                         <select data-role class="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 disabled:opacity-50" ${self ? 'disabled title="Eigene Rolle kann nicht geändert werden"' : ''}>
                             ${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${(u.role || 'user') === k ? 'selected' : ''}>${r.label}</option>`).join('')}</select>
-                        ${Object.entries(MODULES).map(([k, l]) => `<label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${admin || self ? 'opacity-50' : 'cursor-pointer'}">
-                            <input type="checkbox" data-perm="${k}" ${perms[k] !== false ? 'checked' : ''} ${admin || self ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">${l}</label>`).join('')}</div>
+                        ${!admin && !self ? '<span class="flex gap-1.5 ml-auto"><button data-act="allperms" class="act bg-slate-800 border-slate-700 text-slate-300">Alle Rechte</button><button data-act="noperms" class="act bg-slate-800 border-slate-700 text-slate-300">Keine</button></span>' : ''}</div>
+                    ${s === 'pending' ? '<div class="text-[11px] text-amber-300/80">Neue Konten starten nur mit Kalender-Rechten. Wähle eine Rolle oder einzelne Rechte und gib das Konto dann frei.</div>' : ''}
+                    <div class="space-y-1.5">${PERM_GROUPS.map(([g, m]) => `<div class="flex flex-wrap items-center gap-x-4 gap-y-1.5"><span class="text-[10px] uppercase tracking-wider text-slate-500 w-20 shrink-0">${g}</span>
+                        ${Object.entries(m).map(([k, l]) => `<label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${admin || self ? 'opacity-50' : 'cursor-pointer'}">
+                            <input type="checkbox" data-perm="${k}" ${admin || perms[k] !== false ? 'checked' : ''} ${admin || self ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">${l}</label>`).join('')}</div>`).join('')}</div>
                     <div class="flex flex-wrap gap-2 pt-1">
                         ${s !== 'active' ? '<button data-act="approve" class="act bg-emerald-600/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-600/30">Freigeben</button>' : ''}
                         ${s === 'active' && !self ? '<button data-act="block" class="act bg-amber-600/20 border-amber-500/30 text-amber-300 hover:bg-amber-600/30">Sperren</button>' : ''}
