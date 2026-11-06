@@ -65,7 +65,10 @@
                 can(currentUser, 'zeit') ? get(db.collection('worktime').where('owner', '==', me).limit(1500)) : []]);
             const ev = new Map(); [...pub, ...mine].forEach(e => ev.set(e.id, e));
             cache = [
-                ...[...ev.values()].map(e => ({ kind: 'Termine', title: e.title, sub: gd(e.date) + (e.isPublic ? '' : ' · privat'), icon: 'fa-calendar-day text-indigo-400', href: '/menu.html', hay: norm(e.title + ' ' + e.date + ' ' + gd(e.date)), date: e.date })),
+                ...[...ev.values()].map(e => {
+                    const C = window.CAL, rec = !!(C && C.isRecurring(e)), nx = C ? C.nextOccurrences([e], localDate(), 1, 400)[0] : null, d = nx ? nx.date : e.date;
+                    return { kind: 'Termine', title: e.title, sub: gd(d) + (e.time ? ' · ' + e.time : '') + (rec ? ' · ' + C.repeatLabel(e) : '') + (e.isPublic ? '' : ' · privat'), icon: 'fa-calendar-day text-indigo-400', href: '/menu.html', hay: norm(e.title + ' ' + e.date + ' ' + gd(e.date) + ' ' + gd(d)), date: d };
+                }),
                 ...todos.map(t => ({ kind: 'Aufgaben & Einkauf', title: t.text, sub: (t.kind === 'shop' ? 'Einkauf' : 'Aufgabe') + (t.done ? ' · erledigt' : ''), icon: t.kind === 'shop' ? 'fa-cart-shopping text-yellow-400' : 'fa-circle-check text-emerald-400', href: '/menu.html', hay: norm(t.text) })),
                 ...notes.map(n => ({ kind: 'Notizen', title: n.text, sub: n.author || 'Familie', icon: 'fa-note-sticky text-amber-400', href: '/menu.html', hay: norm(n.text + ' ' + (n.author || '')) })),
                 ...tx.map(t => ({ kind: 'Buchungen', title: t.partner, sub: `${gd(t.date)} · ${eur(t.amount)} · ${t.category || 'Sonstiges'}`, icon: 'fa-coins text-yellow-400', href: '/finanzen.html#tx', hay: norm(`${t.partner} ${t.purpose || ''} ${t.category || ''} ${t.date} ${gd(t.date)} ${String(t.amount).replace('.', ',')}`), date: t.date })),
