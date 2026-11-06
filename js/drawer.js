@@ -74,6 +74,11 @@ function renderDrawer() {
         s.src = '/js/settings.js';
         document.head.appendChild(s);
     }
+    if (!window.CAL && !document.getElementById('cal-core-js')) {
+        const c = document.createElement('script');
+        c.id = 'cal-core-js'; c.src = '/js/calendar-core.js';
+        document.head.appendChild(c);
+    }
     if (!document.getElementById('search-js')) {
         const q = document.createElement('script');
         q.id = 'search-js'; q.src = '/js/search.js';
