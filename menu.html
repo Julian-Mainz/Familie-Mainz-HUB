@@ -19,6 +19,7 @@
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
+    <script src="/js/calendar-core.js"></script>
     <script src="/js/drawer.js"></script>
     <style>
         body { background: radial-gradient(1200px 600px at 10% -10%, rgba(99,102,241,.12), transparent), #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -135,7 +136,7 @@
             </div>
             <form onsubmit="saveQuick(event)" class="space-y-3">
                 <input id="q-text" required maxlength="200" autocomplete="off" class="inp">
-                <div id="q-event-opts" class="hidden space-y-2"><input type="date" id="q-date" class="inp"><label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" id="q-public" checked class="rounded bg-slate-800 border-slate-700"> Öffentlich für alle sichtbar</label></div>
+                <div id="q-event-opts" class="hidden space-y-2"><div class="grid grid-cols-2 gap-2"><input type="date" id="q-date" class="inp"><input type="time" id="q-time" class="inp" title="Uhrzeit (optional)"></div><label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" id="q-public" checked class="rounded bg-slate-800 border-slate-700"> Öffentlich für alle sichtbar</label></div>
                 <div class="flex justify-end gap-2"><button type="button" onclick="closeModal('modal-quick')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button></div>
             </form>
         </div>
@@ -151,14 +152,54 @@
     </div>
 
     <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center mb-4"><h3 class="text-base font-bold text-slate-100">Neuen Termin eintragen</h3><button onclick="closeModal('modal-event')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
-            <form onsubmit="saveCalendarEvent(event)" class="space-y-4">
-                <div><label class="block text-xs text-slate-400 mb-1">Titel / Anlass</label><input type="text" id="ev-title" required class="inp"></div>
-                <div><label class="block text-xs text-slate-400 mb-1">Datum</label><input type="date" id="ev-date" required class="inp"></div>
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4"><h3 id="ev-heading" class="text-base font-bold text-slate-100">Neuen Termin eintragen</h3><button onclick="closeModal('modal-event')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
+            <form id="ev-form" onsubmit="saveCalendarEvent(event)" class="space-y-3.5">
+                <input type="hidden" id="ev-id"><input type="hidden" id="ev-occ">
+                <div id="ev-scope" class="hidden p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-slate-200 space-y-1.5">
+                    <div class="text-[11px] text-indigo-300">Dieser Termin wiederholt sich <span id="ev-scope-info"></span>. Was möchtest du ändern?</div>
+                    <label class="flex items-center gap-2"><input type="radio" name="evscope" value="one" onchange="applyScope()"> Nur diesen Termin</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="evscope" value="all" checked onchange="applyScope()"> Die ganze Serie</label>
+                </div>
+                <div><label class="block text-xs text-slate-400 mb-1">Titel / Anlass</label><input type="text" id="ev-title" required maxlength="120" class="inp"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label id="ev-date-label" class="block text-xs text-slate-400 mb-1">Datum</label><input type="date" id="ev-date" required class="inp"></div>
+                    <label class="flex items-end gap-2 text-xs text-slate-300 pb-3"><input type="checkbox" id="ev-allday" checked onchange="toggleAllDay()" class="rounded bg-slate-800 border-slate-700"> Ganztägig</label>
+                </div>
+                <div id="ev-times" class="hidden grid grid-cols-2 gap-3">
+                    <div><label class="block text-xs text-slate-400 mb-1">Beginn</label><input type="time" id="ev-time" class="inp"></div>
+                    <div><label class="block text-xs text-slate-400 mb-1">Ende (optional)</label><input type="time" id="ev-end" class="inp"></div>
+                </div>
+                <div id="ev-repeat-box">
+                    <label class="block text-xs text-slate-400 mb-1">Wiederholung</label>
+                    <select id="ev-repeat" onchange="toggleRepeat()" class="inp"><option value="none">Keine Wiederholung</option><option value="daily">Täglich</option><option value="weekly">Wöchentlich</option><option value="monthly">Monatlich</option><option value="yearly">Jährlich</option></select>
+                    <div id="ev-repeat-opts" class="hidden grid grid-cols-2 gap-3 mt-2">
+                        <div><label class="block text-xs text-slate-400 mb-1">Alle</label><div class="flex items-center gap-2"><input type="number" id="ev-interval" min="1" max="99" value="1" class="inp"><span id="ev-unit" class="text-xs text-slate-400 whitespace-nowrap">Tag(e)</span></div></div>
+                        <div><label class="block text-xs text-slate-400 mb-1">Bis (optional)</label><input type="date" id="ev-until" class="inp"></div>
+                    </div>
+                </div>
                 <label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" id="ev-public" class="rounded bg-slate-800 border-slate-700"> Öffentlich für alle sichtbar</label>
-                <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeModal('modal-event')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button></div>
+                <div id="ev-ro" class="hidden text-xs text-slate-400">Dieser Termin gehört einer anderen Person und ist nur lesbar.</div>
+                <div class="flex items-center gap-2 pt-2">
+                    <button type="button" id="ev-del" onclick="askDeleteEvent()" class="hidden px-4 py-2 rounded-xl text-xs bg-rose-600/20 border border-rose-500/30 text-rose-300"><i class="fa-solid fa-trash-can mr-1.5"></i>Löschen</button>
+                    <div class="flex-1"></div>
+                    <button type="button" onclick="closeModal('modal-event')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Schließen</button>
+                    <button id="ev-save" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button>
+                </div>
             </form>
+        </div>
+    </div>
+
+    <div id="modal-evdel" class="fixed inset-0 z-[60] bg-slate-950/80 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-sm">
+            <h3 class="text-base font-bold text-slate-100 mb-1"><i class="fa-solid fa-trash-can text-rose-400 mr-2"></i>Termin löschen</h3>
+            <p id="evdel-text" class="text-xs text-slate-400 mb-4"></p>
+            <div id="evdel-btns" class="space-y-2">
+                <button data-scope="one" class="w-full px-4 py-2.5 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-100 text-left">Nur diesen Termin</button>
+                <button data-scope="following" class="w-full px-4 py-2.5 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-100 text-left">Diesen und alle folgenden</button>
+                <button data-scope="all" class="w-full px-4 py-2.5 rounded-xl text-xs font-medium bg-rose-600/20 border border-rose-500/30 text-rose-300 text-left">Die ganze Serie</button>
+            </div>
+            <button onclick="closeModal('modal-evdel')" class="w-full mt-3 text-xs text-slate-400 hover:text-slate-200 py-1">Abbrechen</button>
         </div>
     </div>
 
@@ -246,7 +287,7 @@
             $('fab').classList.toggle('hidden', !allowedKinds().length);
             if (!allowedKinds().includes(quickKind)) quickKind = allowedKinds()[0] || 'task';
         }
-        function openQuick(kind) { const ak = allowedKinds(); if (!ak.length) return; kind = ak.includes(kind) ? kind : (ak.includes(quickKind) ? quickKind : ak[0]); setQuick(QK[kind] ? kind : quickKind); $('q-text').value = ''; $('q-date').value = localDate(); openModal('modal-quick'); setTimeout(() => $('q-text').focus(), 40); }
+        function openQuick(kind) { const ak = allowedKinds(); if (!ak.length) return; kind = ak.includes(kind) ? kind : (ak.includes(quickKind) ? quickKind : ak[0]); setQuick(QK[kind] ? kind : quickKind); $('q-text').value = ''; $('q-date').value = localDate(); $('q-time').value = ''; openModal('modal-quick'); setTimeout(() => $('q-text').focus(), 40); }
         async function saveQuick(e) {
             e.preventDefault();
             const text = $('q-text').value.trim(); if (!text) return;
@@ -254,7 +295,7 @@
             try {
                 if (quickKind === 'task' || quickKind === 'shop') await db.collection('todos').add({ text, kind: quickKind, done: false, author: currentUser.firstName, ...base });
                 else if (quickKind === 'note') await db.collection('notes').add({ text, author: currentUser.firstName, ...base });
-                else await db.collection('events').add({ title: text, date: $('q-date').value, isPublic: $('q-public').checked, ...base });
+                else await db.collection('events').add({ title: text, date: $('q-date').value, time: $('q-time').value || '', isPublic: $('q-public').checked, ...base });
                 logSystemEvent('data', quickKind === 'event' ? 'Termin erstellt' : 'Schnell-Erfassung: ' + QK[quickKind][1]);
                 closeModal('modal-quick'); toast(QK[quickKind][1] + ' gespeichert ✓');
             } catch (err) { alert('Fehler: ' + err.message); }
@@ -345,22 +386,27 @@
         }
 
         // ---------- Kalender ----------
+        const evOf = id => calendarEvents.find(e => e.id === id);
+        const pad2 = n => String(n).padStart(2, '0');
         function initCalendar() {
             const merge = () => { const m = new Map(); [...pubEvents, ...myEvents].forEach(ev => m.set(ev.id, ev)); calendarEvents = [...m.values()]; renderCalendar(); renderUpcoming(); };
             const list = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
             db.collection('events').where('isPublic', '==', true).onSnapshot(s => { pubEvents = list(s); merge(); }, () => renderCalendar());
             db.collection('events').where('owner', '==', currentUser.email).onSnapshot(s => { myEvents = list(s); merge(); }, () => renderCalendar());
-            $('calendar-days-grid').addEventListener('click', e => { const a = e.target.closest('[data-add]'), d = e.target.closest('[data-del]'); if (a) openEventModal(a.dataset.add); if (d) deleteEvent(d.dataset.del); });
+            $('calendar-days-grid').addEventListener('click', e => { const a = e.target.closest('[data-add]'), v = e.target.closest('[data-ev]'); if (a) openEventModal(a.dataset.add); else if (v) openEditEvent(v.dataset.ev, v.dataset.occ); });
+            $('upcoming').addEventListener('click', e => { const v = e.target.closest('[data-ev]'); if (v) openEditEvent(v.dataset.ev, v.dataset.occ); });
+            $('evdel-btns').addEventListener('click', e => { const b = e.target.closest('[data-scope]'); if (b) doDeleteEvent(b.dataset.scope); });
         }
         function renderCalendar() {
             const y = currentCalendarDate.getFullYear(), mo = currentCalendarDate.getMonth(), today = localDate();
             $('calendar-month-year').innerText = new Date(y, mo, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
             const first = (new Date(y, mo, 1).getDay() + 6) % 7, days = new Date(y, mo + 1, 0).getDate();
+            const byDay = {}; CAL.expand(calendarEvents, `${y}-${pad2(mo + 1)}-01`, `${y}-${pad2(mo + 1)}-${pad2(days)}`).forEach(o => (byDay[o.date] = byDay[o.date] || []).push(o));
             let h = '<div class="h-20 md:h-24 rounded-2xl bg-slate-900/20 border border-slate-800/30 opacity-20"></div>'.repeat(first);
             for (let d = 1; d <= days; d++) {
-                const ds = `${y}-${String(mo + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`, isToday = ds === today, we = [0, 6].includes(new Date(y, mo, d).getDay());
-                const evs = calendarEvents.filter(ev => ev.date === ds).map(ev => `<div class="text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center justify-between gap-1 ${ev.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}" title="${esc(ev.title)}">
-                    <span class="truncate">${esc(ev.title)}</span>${ev.owner === currentUser.email ? `<button data-del="${esc(ev.id)}" class="text-slate-400 hover:text-rose-400"><i class="fa-solid fa-xmark text-[9px]"></i></button>` : ''}</div>`).join('');
+                const ds = `${y}-${pad2(mo + 1)}-${pad2(d)}`, isToday = ds === today, we = [0, 6].includes(new Date(y, mo, d).getDay());
+                const evs = (byDay[ds] || []).map(o => `<div data-ev="${esc(o.id)}" data-occ="${o.date}" title="${esc(o.title)}${o.time ? ' · ' + esc(CAL.timeLabel(o)) : ''}" class="cursor-pointer text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center gap-1 ${o.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}">
+                    ${o.time ? `<b class="font-semibold shrink-0">${esc(o.time)}</b>` : ''}<span class="truncate">${esc(o.title)}</span>${o.recurring ? '<i class="fa-solid fa-repeat text-[8px] opacity-70 ml-auto shrink-0"></i>' : ''}</div>`).join('');
                 h += `<div class="h-20 md:h-24 p-1.5 md:p-2 ${we ? 'bg-slate-900/30' : 'bg-slate-900/60'} border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col overflow-hidden">
                     <div class="flex items-center justify-between text-[11px] mb-1"><span class="${isToday ? 'font-bold text-white bg-indigo-600 rounded-md px-1.5' : we ? 'text-slate-500' : 'text-slate-400'}">${d}</span>
                     <button data-add="${ds}" class="text-slate-500 hover:text-indigo-400 text-[10px] p-0.5" title="Termin hinzufügen"><i class="fa-solid fa-plus"></i></button></div><div class="space-y-1 overflow-y-auto">${evs}</div></div>`;
@@ -368,22 +414,87 @@
             $('calendar-days-grid').innerHTML = h;
         }
         function renderUpcoming() {
-            const today = localDate(), tom = localDate(new Date(Date.now() + 864e5));
-            const list = calendarEvents.filter(e => e.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
-            $('upcoming').innerHTML = list.length ? list.map(e => {
-                const lbl = e.date === today ? 'Heute' : e.date === tom ? 'Morgen' : new Date(e.date).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
-                return `<div class="row"><span class="truncate text-slate-200">${esc(e.title)}</span><span class="${e.date === today ? 'text-indigo-300 font-semibold' : 'text-slate-500'} whitespace-nowrap">${lbl}</span></div>`;
+            const today = localDate(), tom = CAL.addDays(today, 1), list = CAL.nextOccurrences(calendarEvents, today, 6, 120);
+            $('upcoming').innerHTML = list.length ? list.map(o => {
+                const lbl = o.date === today ? 'Heute' : o.date === tom ? 'Morgen' : new Date(o.date).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
+                return `<div class="row cursor-pointer" data-ev="${esc(o.id)}" data-occ="${o.date}"><span class="truncate text-slate-200">${o.time ? `<b class="text-indigo-300 mr-1">${esc(o.time)}</b>` : ''}${esc(o.title)}${o.recurring ? ' <i class="fa-solid fa-repeat text-[9px] text-slate-500"></i>' : ''}</span><span class="${o.date === today ? 'text-indigo-300 font-semibold' : 'text-slate-500'} whitespace-nowrap">${lbl}</span></div>`;
             }).join('') : '<div class="text-slate-500 py-2">Keine anstehenden Termine.</div>';
         }
         function changeCalendarMonth(d) { currentCalendarDate.setDate(1); currentCalendarDate.setMonth(currentCalendarDate.getMonth() + d); renderCalendar(); }
         function goToday() { currentCalendarDate = new Date(); renderCalendar(); }
-        function openEventModal(d = '') { $('ev-title').value = ''; $('ev-date').value = d || localDate(); $('ev-public').checked = true; openModal('modal-event'); }
+
+        // ---------- Termin anlegen, ansehen, bearbeiten, löschen ----------
+        const UNITS = { daily: 'Tag(e)', weekly: 'Woche(n)', monthly: 'Monat(e)', yearly: 'Jahr(e)' };
+        function toggleAllDay() { $('ev-times').classList.toggle('hidden', $('ev-allday').checked); }
+        function toggleRepeat() { const r = $('ev-repeat').value; $('ev-repeat-opts').classList.toggle('hidden', r === 'none'); if (UNITS[r]) $('ev-unit').textContent = UNITS[r]; }
+        function setEventForm(f, readOnly) {
+            $('ev-title').value = f.title || ''; $('ev-date').value = f.date || ''; $('ev-allday').checked = !f.time; $('ev-time').value = f.time || ''; $('ev-end').value = f.endTime || '';
+            $('ev-repeat').value = CAL.isRecurring(f) ? f.repeat : 'none'; $('ev-interval').value = f.interval || 1; $('ev-until').value = f.until || ''; $('ev-public').checked = f.isPublic !== false;
+            toggleAllDay(); toggleRepeat(); $('ev-repeat-box').classList.remove('hidden'); $('ev-date-label').textContent = 'Datum';
+            $('ev-form').querySelectorAll('input:not([type=hidden]), select').forEach(el => { el.disabled = readOnly; });
+        }
+        function openEventModal(d = '') {
+            $('ev-heading').textContent = 'Neuen Termin eintragen'; $('ev-id').value = ''; $('ev-occ').value = '';
+            setEventForm({ date: d || localDate(), isPublic: true }, false);
+            $('ev-scope').classList.add('hidden'); $('ev-del').classList.add('hidden'); $('ev-ro').classList.add('hidden'); $('ev-save').classList.remove('hidden');
+            openModal('modal-event'); setTimeout(() => $('ev-title').focus(), 40);
+        }
+        function openEditEvent(id, occ) {
+            const ev = evOf(id); if (!ev) return;
+            const mine = ev.owner === currentUser.email, rec = CAL.isRecurring(ev);
+            $('ev-heading').textContent = mine ? 'Termin bearbeiten' : 'Termin';
+            $('ev-id').value = id; $('ev-occ').value = occ || ev.date; setEventForm(ev, !mine);
+            $('ev-scope').classList.toggle('hidden', !(mine && rec));
+            if (rec) { document.querySelector('input[name="evscope"][value="all"]').checked = true; $('ev-scope-info').textContent = '(' + CAL.repeatLabel(ev) + ')'; }
+            $('ev-del').classList.toggle('hidden', !mine); $('ev-save').classList.toggle('hidden', !mine); $('ev-ro').classList.toggle('hidden', mine);
+            applyScope(); openModal('modal-event');
+        }
+        // Bei Serien: "Nur diesen Termin" ändert genau dieses Vorkommen, "Ganze Serie" den Beginn und die Regel der Serie
+        function applyScope() {
+            const ev = $('ev-id').value && evOf($('ev-id').value);
+            if (!ev || !CAL.isRecurring(ev) || $('ev-scope').classList.contains('hidden')) return;
+            const one = document.querySelector('input[name="evscope"]:checked').value === 'one';
+            $('ev-date').value = one ? $('ev-occ').value : ev.date; $('ev-date-label').textContent = one ? 'Datum dieses Termins' : 'Beginn der Serie'; $('ev-repeat-box').classList.toggle('hidden', one);
+        }
+        function readEventForm() {
+            const allDay = $('ev-allday').checked, rep = $('ev-repeat').value;
+            return { title: $('ev-title').value.trim(), date: $('ev-date').value, time: allDay ? '' : $('ev-time').value, endTime: allDay ? '' : $('ev-end').value, isPublic: $('ev-public').checked,
+                repeat: rep, interval: rep === 'none' ? 1 : Math.max(1, Math.min(99, parseInt($('ev-interval').value, 10) || 1)), until: rep === 'none' ? '' : $('ev-until').value };
+        }
         function saveCalendarEvent(e) {
             e.preventDefault();
-            const title = $('ev-title').value.trim(), date = $('ev-date').value, isPublic = $('ev-public').checked;
-            run(async () => { await db.collection('events').add({ title, date, isPublic, owner: currentUser.email, createdAt: TS() }); closeModal('modal-event'); logSystemEvent('data', 'Termin erstellt', { title, date, isPublic }); });
+            const id = $('ev-id').value, occ = $('ev-occ').value, f = readEventForm(), err = CAL.validate(f);
+            if (err) return alert(err);
+            const owner = currentUser.email;
+            run(async () => {
+                if (!id) { await db.collection('events').add({ ...f, owner, createdAt: TS() }); logSystemEvent('data', 'Termin erstellt', { title: f.title, date: f.date, repeat: f.repeat }); }
+                else {
+                    const ev = evOf(id), one = ev && CAL.isRecurring(ev) && document.querySelector('input[name="evscope"]:checked').value === 'one';
+                    if (one) {      // nur dieses Vorkommen: Serie überspringt den Tag, dafür entsteht ein eigener Einzeltermin
+                        const b = db.batch();
+                        b.update(db.collection('events').doc(id), { ...CAL.deleteOne(ev, occ).data, updatedAt: TS() });
+                        b.set(db.collection('events').doc(), { ...f, repeat: 'none', interval: 1, until: '', owner, createdAt: TS() });
+                        await b.commit();
+                    } else await db.collection('events').doc(id).update({ ...f, updatedAt: TS() });
+                    logSystemEvent('data', 'Termin geändert', { id, nurDieser: !!one });
+                }
+                closeModal('modal-event');
+            });
         }
-        function deleteEvent(id) { if (confirm('Diesen Termin wirklich löschen?')) run(async () => { await db.collection('events').doc(id).delete(); logSystemEvent('data', 'Termin gelöscht', { id }); }); }
+        function askDeleteEvent() {
+            const id = $('ev-id').value, ev = evOf(id); if (!ev) return;
+            if (!CAL.isRecurring(ev)) { if (confirm('Diesen Termin wirklich löschen?')) doDeleteEvent('all'); return; }
+            $('evdel-text').textContent = `„${ev.title}“ wiederholt sich (${CAL.repeatLabel(ev)}). Was soll gelöscht werden?`; openModal('modal-evdel');
+        }
+        function doDeleteEvent(scope) {
+            const id = $('ev-id').value, occ = $('ev-occ').value, ev = evOf(id); if (!ev) return;
+            run(async () => {
+                const r = scope === 'one' ? CAL.deleteOne(ev, occ) : scope === 'following' ? CAL.deleteFollowing(ev, occ) : { op: 'delete' };
+                const ref = db.collection('events').doc(id);
+                if (r.op === 'delete') await ref.delete(); else await ref.update({ ...r.data, updatedAt: TS() });
+                closeModal('modal-evdel'); closeModal('modal-event'); logSystemEvent('data', 'Termin gelöscht', { id, umfang: scope });
+            });
+        }
 
         // ---------- Pinnwand ----------
         function initNotes() {
