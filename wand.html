@@ -19,6 +19,7 @@
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
+    <script src="/js/calendar-core.js"></script>
     <style>
         html, body { background: #05080f; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 0; height: 0; }
@@ -140,10 +141,11 @@
         // ---------- Monatskalender ----------
         function renderCalendar() {
             const now = new Date(), y = now.getFullYear(), m = now.getMonth(), today = localDate(), first = (new Date(y, m, 1).getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate();
+            const cnt = {}; CAL.expand(events, `${y}-${String(m + 1).padStart(2, '0')}-01`, `${y}-${String(m + 1).padStart(2, '0')}-${String(days).padStart(2, '0')}`).forEach(o => { cnt[o.date] = (cnt[o.date] || 0) + 1; });
             $('cal-title').innerText = now.toLocaleString('de-DE', { month: 'long', year: 'numeric' });
             let h = '<div></div>'.repeat(first);
             for (let d = 1; d <= days; d++) {
-                const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`, n = events.filter(e => e.date === ds).length, we = [0, 6].includes(new Date(y, m, d).getDay());
+                const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`, n = cnt[ds] || 0, we = [0, 6].includes(new Date(y, m, d).getDay());
                 h += `<div class="flex flex-col items-center justify-center rounded-xl text-base ${ds === today ? 'bg-indigo-600 text-white font-bold' : we ? 'text-slate-500' : 'text-slate-300'} ${ds < today ? 'opacity-60' : ''}">${d}
                     <span class="h-1.5 flex gap-0.5">${n ? '<i class="w-1.5 h-1.5 rounded-full bg-cyan-400"></i>' : ''}${n > 1 ? '<i class="w-1.5 h-1.5 rounded-full bg-cyan-400"></i>' : ''}</span></div>`;
             }
@@ -152,14 +154,14 @@
 
         // ---------- Termine der Woche ----------
         function renderAgenda() {
-            let h = '', any = false;
+            let h = '', any = false; const occ = CAL.expand(events, localDate(), CAL.addDays(localDate(), 6));
             for (let i = 0; i < 7; i++) {
-                const d = new Date(); d.setDate(d.getDate() + i); const ds = localDate(d), list = events.filter(e => e.date === ds);
+                const d = new Date(); d.setDate(d.getDate() + i); const ds = localDate(d), list = occ.filter(o => o.date === ds);
                 if (!list.length && i > 0) continue;
                 if (list.length) any = true;
                 const label = i === 0 ? 'Heute' : i === 1 ? 'Morgen' : d.toLocaleDateString('de-DE', { weekday: 'long' });
                 h += `<div><div class="flex items-baseline gap-2 mb-1.5"><span class="text-lg font-bold ${i === 0 ? 'text-indigo-300' : 'text-slate-200'}">${label}</span><span class="text-sm text-slate-500">${d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}.</span></div>
-                    ${list.length ? list.map(e => `<div class="item"><i class="fa-solid ${e.isPublic ? 'fa-calendar-day text-cyan-400' : 'fa-lock text-slate-500'} text-sm"></i><span class="truncate">${esc(e.title)}</span></div>`).join('<div class="h-1.5"></div>') : '<div class="text-slate-500 text-sm pl-1">Keine Termine</div>'}</div>`;
+                    ${list.length ? list.map(e => `<div class="item"><i class="fa-solid ${e.isPublic ? 'fa-calendar-day text-cyan-400' : 'fa-lock text-slate-500'} text-sm"></i>${e.time ? `<span class="font-mono text-cyan-300 text-sm shrink-0">${esc(e.time)}</span>` : ''}<span class="truncate">${esc(e.title)}</span>${e.recurring ? '<i class="fa-solid fa-repeat text-slate-500 text-xs ml-auto"></i>' : ''}</div>`).join('<div class="h-1.5"></div>') : '<div class="text-slate-500 text-sm pl-1">Keine Termine</div>'}</div>`;
             }
             $('agenda').innerHTML = h;
             if (!any) $('agenda').innerHTML += '<div class="text-slate-500 text-sm">In den nächsten 7 Tagen sind keine weiteren Termine eingetragen.</div>';
