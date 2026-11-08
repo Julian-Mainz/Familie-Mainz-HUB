@@ -67,6 +67,20 @@
         body.s-nacht #clock { font-weight: 300; color: #d6342a; }
         body.s-nacht #d { color: #7a1c17; }
 
+        /* ---------- Feierabend-Timer ---------- */
+        #timer { width: min(90vw, 1000px); margin-top: 3vh; text-align: center; --tc: var(--a); }
+        #tm-label { font-size: clamp(.75rem, min(2.2vw, 2.6vh), 1.6rem); letter-spacing: .22em; text-transform: uppercase; opacity: .8; }
+        #tm-val { font-size: clamp(1.8rem, min(10vw, 14vh), 7.5rem); font-weight: 600; line-height: 1.05; letter-spacing: -.01em; font-variant-numeric: tabular-nums; color: var(--tc); margin-top: .5vh; }
+        #tm-bar { height: clamp(6px, 1.2vh, 12px); background: rgba(128,128,128,.25); border-radius: 99px; overflow: hidden; margin: 2vh auto 0; max-width: 760px; }
+        #tm-fill { height: 100%; width: 0; background: var(--tc); border-radius: inherit; transition: width .9s linear; }
+        #tm-sub { font-size: clamp(.75rem, min(2vw, 2.4vh), 1.4rem); opacity: .7; margin-top: 1.2vh; }
+        #timer[data-state="pre"] #tm-label, #timer[data-state="post"] #tm-label { font-size: clamp(1.3rem, min(5.5vw, 9vh), 4.2rem); letter-spacing: .04em; text-transform: none; opacity: 1; color: var(--tc); font-weight: 600; }
+        #timer[data-state="pre"] #tm-val, #timer[data-state="post"] #tm-val, #timer[data-state="pre"] #tm-bar, #timer[data-state="post"] #tm-bar { display: none; }
+        body.s-hell #timer { --tc: #0369a1; } body.s-nacht #timer { --tc: #d6342a; } body.s-retro #timer { --tc: #ffb000; font-family: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace; text-shadow: 0 0 .05em rgba(255,176,0,.9), 0 0 .3em rgba(255,120,0,.45); }
+        body.s-neon #tm-val { text-shadow: 0 0 .08em var(--tc), 0 0 .3em rgba(var(--ar), .8); }
+        #tmcfg { display: inline-flex; align-items: center; gap: 4px; color: #fff; font-size: 12px; }
+        #tmcfg input { font: inherit; color: #fff; background: rgba(255,255,255,.14); border: 0; border-radius: 8px; padding: 6px 6px; color-scheme: dark; }
+
         /* ---------- Bedienleiste ---------- */
         #legal { position: fixed; z-index: 4; left: 0; right: 0; bottom: max(8px, env(safe-area-inset-bottom)); text-align: center; font-size: 12px; opacity: .55; }
         #legal a { color: inherit; text-decoration: none; } #legal a:hover { text-decoration: underline; }
@@ -79,7 +93,7 @@
         #syncinfo { width: 100%; text-align: center; font-size: 12px; opacity: .85; padding: 2px 4px 0; }
         #warn { display: none; position: fixed; z-index: 6; right: 14px; bottom: 14px; font-size: 13px; color: #fbbf24; background: rgba(0,0,0,.6); padding: 7px 11px; border-radius: 10px; }
         body.unsynced #warn { display: block; }
-        body.unsynced #clock { opacity: .3; }
+        body.unsynced #clock, body.unsynced #timer { opacity: .3; }
         #clock { transition: opacity .6s; }
         @media (prefers-reduced-motion: reduce) { body::before, .c, .g.flip { animation: none !important; } }
         noscript { position: fixed; inset: 0; display: grid; place-items: center; font-size: 1.2rem; color: #fff; }
@@ -88,6 +102,7 @@
 <body class="s-aurora">
     <main id="stage" ondblclick="toggleFs()">
         <div id="clock"><span class="g" id="gh">00</span><span class="c">:</span><span class="g" id="gm">00</span><span id="cs"><span class="c">:</span><span class="g" id="gs">00</span></span><span id="ap"></span></div>
+        <div id="timer" data-state="run" style="display:none"><div id="tm-label"></div><div id="tm-val">00:00:00</div><div id="tm-bar"><div id="tm-fill"></div></div><div id="tm-sub"></div></div>
         <div id="d"></div>
     </main>
 
@@ -98,6 +113,8 @@
         <button id="b-sec" onclick="toggle('sec')">Sekunden</button>
         <button id="b-h" onclick="toggle('h24')">24 h</button>
         <button id="b-date" onclick="toggle('date')">Datum</button>
+        <button id="b-timer" onclick="toggle('timer')">Timer</button>
+        <span id="tmcfg" title="Arbeitszeit für den Feierabend-Timer"><input type="time" id="t-start" onchange="setTimerTimes()" aria-label="Arbeitsbeginn"> – <input type="time" id="t-end" onchange="setTimerTimes()" aria-label="Feierabend"></span>
         <button id="b-tz" onclick="toggle('berlin')">Zone</button>
         <button id="b-fs" onclick="toggleFs()">Vollbild</button>
     </nav>
@@ -110,8 +127,10 @@
         const STYLES = [['aurora', 'Aurora', '#050816'], ['neon', 'Neon', '#05060f'], ['flip', 'Flip', '#111317'], ['retro', 'Retro', '#0a0700'], ['hell', 'Hell', '#f4f6fa'], ['nacht', 'Nacht', '#000000']];
         const ACC = [{ n: 'Blau', a: '#38bdf8', ar: '56,189,248', br: '99,102,241' }, { n: 'Violett', a: '#c084fc', ar: '192,132,252', br: '236,72,153' },
                      { n: 'Grün', a: '#34d399', ar: '52,211,153', br: '34,211,238' }, { n: 'Orange', a: '#fb923c', ar: '251,146,60', br: '244,63,94' }];
-        const S = { sec: true, h24: true, date: false, style: 0, acc: 0, berlin: true };
+        const S = { sec: true, h24: true, date: false, style: 0, acc: 0, berlin: true, timer: true, tStart: '07:00', tEnd: '16:00' };
         try { Object.assign(S, JSON.parse(localStorage.getItem('uhr_settings2') || '{}')); } catch (e) {}
+        const okT = v => /^([01]\d|2[0-3]):[0-5]\d$/.test(v || '');
+        if (!okT(S.tStart) || !okT(S.tEnd) || S.tEnd <= S.tStart) { S.tStart = '07:00'; S.tEnd = '16:00'; }
         if (!STYLES[S.style]) S.style = 0; if (!ACC[S.acc]) S.acc = 0;
         const save = () => { try { localStorage.setItem('uhr_settings2', JSON.stringify(S)); } catch (e) {} };
         const p = n => String(n).padStart(2, '0');
@@ -138,6 +157,7 @@
             setG('gh', p(h)); setG('gm', v.minute); if (S.sec) setG('gs', v.second);
             setT($('ap'), ap); document.title = p(h) + ':' + v.minute + (S.sec ? ':' + v.second : '');
             const day = FD.format(ms); if (day !== lastDay) { lastDay = day; $('d').textContent = day; }
+            renderTimer(v);
         }
 
         // ---------- Zeitabgleich ----------
@@ -182,14 +202,36 @@
                 } else if (!synced) failed = true;
             } finally { syncing = false; }
             updateStatus();
+            if (synced) { render(trueNow()); fit(); }
             if (!synced) setTimeout(sync, 10000);       // bei Fehlschlag in 10 Sekunden erneut versuchen
+        }
+        // ---------- Feierabend-Timer: läuft jeden Tag zwischen Beginn und Ende (Standard 07:00 bis 16:00), davor und danach steht ein Hinweis ----------
+        const toSec = hhmm => { const a = hhmm.split(':'); return +a[0] * 3600 + +a[1] * 60; };
+        const hms = x => p(Math.floor(x / 3600)) + ':' + p(Math.floor(x % 3600 / 60)) + ':' + p(x % 60);
+        const inMin = x => { const m = Math.ceil(x / 60), h = Math.floor(m / 60); return h ? h + ' Std ' + (m % 60) + ' Min' : m + ' Min'; };
+        let tmState = '';
+        function renderTimer(v) {
+            const tm = $('timer'); if (!S.timer) return;
+            const now = +v.hour * 3600 + +v.minute * 60 + +v.second, a = toSec(S.tStart), e = toSec(S.tEnd);
+            const state = now < a ? 'pre' : now >= e ? 'post' : 'run';
+            if (state !== tmState) { tmState = state; tm.dataset.state = state; fit(); }
+            if (state === 'run') {
+                setT($('tm-label'), 'Noch bis Feierabend (' + S.tEnd + ' Uhr)'); setT($('tm-val'), hms(e - now));
+                const pct = (now - a) / (e - a) * 100; $('tm-fill').style.width = pct.toFixed(2) + '%'; setT($('tm-sub'), Math.floor(pct) + ' % des Arbeitstags geschafft');
+            } else if (state === 'pre') { setT($('tm-label'), 'Timer startet gleich'); setT($('tm-sub'), 'um ' + S.tStart + ' Uhr · in ' + inMin(a - now)); }
+            else { setT($('tm-label'), 'Feierabend!'); setT($('tm-sub'), 'Der Timer startet morgen um ' + S.tStart + ' Uhr'); }
+        }
+        function setTimerTimes() {
+            const a = $('t-start').value, e = $('t-end').value;
+            if (!okT(a) || !okT(e) || e <= a) { $('t-start').value = S.tStart; $('t-end').value = S.tEnd; $('syncinfo').textContent = 'Der Feierabend muss nach dem Arbeitsbeginn liegen.'; setTimeout(updateStatus, 2800); return; }
+            S.tStart = a; S.tEnd = e; tmState = ''; apply(); save();
         }
         function tick() { const t = trueNow(); render(t); setTimeout(tick, 1000 - (t % 1000) + 5); }   // exakt auf den Sekundenwechsel
 
         // Schrift so groß wie möglich, ohne dass etwas abgeschnitten wird
         function fit() {
             const t = $('clock'); t.style.fontSize = '100px';
-            const w = t.scrollWidth, h = t.scrollHeight, maxH = innerHeight * (S.date ? 0.66 : 0.84);
+            const w = t.scrollWidth, h = t.scrollHeight, maxH = innerHeight * Math.max(0.3, 0.84 - (S.date ? 0.18 : 0) - (S.timer ? 0.26 : 0));
             t.style.fontSize = Math.max(16, Math.floor(100 * Math.min(innerWidth * 0.95 / w, maxH / h))) + 'px';
         }
         function apply() {
@@ -198,6 +240,7 @@
             r.setProperty('--a', ac.a); r.setProperty('--ar', ac.ar); r.setProperty('--br', ac.br);
             document.querySelector('meta[name="theme-color"]').content = st[2];
             $('d').style.display = S.date ? '' : 'none'; $('cs').style.display = S.sec ? '' : 'none';
+            $('timer').style.display = S.timer ? '' : 'none'; $('b-timer').textContent = 'Timer: ' + (S.timer ? 'an' : 'aus'); $('t-start').value = S.tStart; $('t-end').value = S.tEnd; tmState = '';
             $('b-st').textContent = 'Stil: ' + st[1]; $('b-ac').textContent = 'Akzent: ' + ac.n;
             $('b-sec').textContent = 'Sekunden: ' + (S.sec ? 'an' : 'aus'); $('b-h').textContent = S.h24 ? '24 h' : '12 h'; $('b-date').textContent = 'Datum: ' + (S.date ? 'an' : 'aus');
             $('b-tz').textContent = 'Zone: ' + (S.berlin ? 'Berlin' : 'Gerät'); makeFormatters(); render(trueNow()); fit(); updateStatus();
@@ -220,7 +263,7 @@
         document.addEventListener('keydown', e => {
             if (e.ctrlKey || e.metaKey || e.altKey) return;
             const k = e.key.toLowerCase();
-            if (k === 'f') toggleFs(); else if (k === 's') toggle('sec'); else if (k === 'd') toggle('date'); else if (k === 't') nextStyle(); else if (k === 'a') nextAccent(); else if (k === 'h') toggle('h24');
+            if (k === 'f') toggleFs(); else if (k === 's') toggle('sec'); else if (k === 'd') toggle('date'); else if (k === 't') nextStyle(); else if (k === 'a') nextAccent(); else if (k === 'h') toggle('h24'); else if (k === 'e') toggle('timer');
         });
         addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 120));
 
