@@ -16,6 +16,17 @@ const WEB_APPS = [
     { href: '/Uhr/', label: 'Uhr', desc: 'Große Uhr mit Feierabend-Timer', icon: 'fa-clock', c: '#38bdf8' },
 ];
 
+// Avatar: Profilbild (nur geprüfte Bild-Daten) oder Initialen auf farbigem Verlauf. Wird auch von Profil- und Admin-Seite genutzt.
+const AVATAR_COLORS = [['#6366f1', '#06b6d4'], ['#ec4899', '#f97316'], ['#10b981', '#06b6d4'], ['#f59e0b', '#ef4444'], ['#8b5cf6', '#ec4899'], ['#0ea5e9', '#6366f1']];
+function avatarGradient(i) { const g = AVATAR_COLORS[Math.abs(parseInt(i, 10) || 0) % AVATAR_COLORS.length]; return `linear-gradient(135deg, ${g[0]}, ${g[1]})`; }
+function initialsOf(name) { return String(name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '?'; }
+const PHOTO_OK = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/;      // nichts anderes wird als Bild eingesetzt (Schutz vor eingeschleustem HTML)
+function avatarInner(u) {
+    const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    return u && PHOTO_OK.test(u.photo || '') ? `<img src="${u.photo}" alt="">` : e(initialsOf(u && (u.name || u.displayName || (u.email || '').split('@')[0])));
+}
+function roleLabel(u) { return !u ? '' : (typeof isAdmin === 'function' && isAdmin(u)) ? 'Administrator' : u.role === 'guest' ? 'Gast' : 'Mitglied'; }
+
 function normPath(p) {
     return p.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1') || '/';
 }
@@ -62,15 +73,13 @@ function renderDrawer() {
         <button class="tb-item" onclick="toggleSideMenu(true)"><span class="tb-ico"><i class="fa-solid fa-bars"></i></span><span>Mehr</span></button></nav>`;
 
     const name = (user && (user.name || user.displayName)) || (user && user.email ? user.email.split('@')[0] : 'Gast');
-    const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '?';
-    const role = !user ? '' : (typeof isAdmin === 'function' && isAdmin(user)) ? 'Administrator' : user.role === 'guest' ? 'Gast' : 'Familie';
 
     const html = `
     <div id="sb-backdrop" onclick="toggleSideMenu(false)"></div>
     <aside id="sb" aria-label="Navigation">
         <div class="sb-brand">
             <img class="sb-logo" src="/icons/icon-192.png" alt="">
-            <div class="sb-brandtxt"><b>Mainz Hub</b><small>Familien-Portal</small></div>
+            <div class="sb-brandtxt"><b>J.Mainz</b><small>Dashboard</small></div>
             <button class="sb-collapse" onclick="toggleSidebarWidth()" title="Seitenleiste ein-/ausklappen" aria-label="Seitenleiste ein-/ausklappen"><i class="fa-solid fa-angles-left"></i></button>
             <button class="sb-close" onclick="toggleSideMenu(false)" aria-label="Menü schließen"><i class="fa-solid fa-xmark"></i></button>
         </div>
@@ -82,7 +91,7 @@ function renderDrawer() {
                 <button class="sb-tool" data-tip="Hell / Dunkel" title="Hell / Dunkel" onclick="toggleTheme()"><i data-theme-icon class="fa-solid fa-moon"></i></button>
                 <button class="sb-tool danger" data-tip="Abmelden" title="Abmelden" onclick="handleLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
             </div>
-            <div class="sb-user"><span class="sb-avatar">${esc2(initials)}<i></i></span><div class="sb-usertxt"><b>${esc2(name)}</b><small>${role}</small></div></div>
+            <a class="sb-user${here === '/profil' ? ' on' : ''}" href="/profil.html" title="Mein Profil bearbeiten" data-tip="Mein Profil">${userCard(user, name)}</a>
             <div class="sb-legal"><a href="/impressum.html">Impressum</a> &bull; <a href="/datenschutz.html">Datenschutz</a></div>
         </div>
     </aside>
@@ -125,6 +134,14 @@ function renderDrawer() {
     document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleSideMenu(false); });
     if (typeof isAdmin === 'function' && isAdmin(user)) loadAdminBadge();
 }
+
+// Inhalt der Profilkarte unten in der Leiste (wird nach Änderungen im Profil neu gezeichnet)
+function userCard(user, name) {
+    const nm = name || (user && (user.name || user.displayName)) || (user && user.email ? user.email.split('@')[0] : 'Gast');
+    const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    return `<span class="sb-avatar" style="background:${avatarGradient(user && user.avatarColor)}">${avatarInner(user)}<i></i></span><div class="sb-usertxt"><b>${e(nm)}</b><small>${roleLabel(user)}</small></div><i class="fa-solid fa-pen sb-edit"></i>`;
+}
+function refreshSidebarUser() { const el = document.querySelector('#sb .sb-user'); if (el && typeof currentUser !== 'undefined' && currentUser) el.innerHTML = userCard(currentUser); }
 
 // Zähler am Admin-Eintrag: wartende Konten + ungelesene Nachrichten (für 2 Minuten zwischengespeichert, spart Abfragen)
 async function loadAdminBadge() {
