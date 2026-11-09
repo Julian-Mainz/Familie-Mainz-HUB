@@ -1,8 +1,8 @@
 {
   "id": "/",
   "name": "J.Mainz Dashboard",
-  "short_name": "Mainz Hub",
-  "description": "Zentrales Dashboard der Familie Mainz",
+  "short_name": "J.Mainz",
+  "description": "Persönliches Dashboard von Julian Mainz",
   "lang": "de",
   "start_url": "/",
   "scope": "/",
