@@ -15,6 +15,7 @@
     <meta name="apple-mobile-web-app-title" content="Mainz Hub">
     <link rel="stylesheet" href="/assets/css/menu.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
     <link rel="stylesheet" href="/assets/icons.css">
+    <link rel="stylesheet" href="/assets/ui.css">
     <script src="/js/vendor/firebase-app-compat.js"></script>
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
@@ -216,6 +217,7 @@
         initAuthGuard(user => {
             if (!user || started) return;
             started = true;
+            $('user-display-name').textContent = currentUser.firstName || (currentUser.name || '').split(' ')[0] || (user.email || '').split('@')[0];
             renderDrawer(); loadLayout(); applyLayout(); initLayoutEvents(); setupQuickKinds();
             if (can(currentUser, 'termine')) initCalendar();
             if (can(currentUser, 'pinnwand')) initNotes();
