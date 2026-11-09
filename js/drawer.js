@@ -1,12 +1,14 @@
-// js/drawer.js - Menü, blendet Punkte ohne Berechtigung aus und markiert die aktuelle Seite
+// js/drawer.js - Navigation: Seitenleiste (Desktop, einklappbar), Tab-Leiste und ausfahrende Leiste (Handy).
+// Blendet Punkte ohne Berechtigung aus, markiert die aktuelle Seite und zeigt einen Hinweis-Zähler für Admins.
+// Bedienung für die Seiten bleibt gleich: renderDrawer() beim Start, toggleSideMenu(true|false) für das Menü am Handy.
 const DRAWER_LINKS = [
-    { href: '/menu.html',                    label: 'Start Menü',            icon: 'fa-border-all',     icon_c: 'text-indigo-400',  text_c: 'text-slate-200' },
-    { href: '/wand.html',            label: 'Wandkalender',          icon: 'fa-display',        icon_c: 'text-cyan-400',    text_c: 'text-cyan-300', perm: 'wand' },
-    { href: '/spotify.html',         label: 'Spotify',               icon: 'fa-headphones',     icon_c: 'text-emerald-400', text_c: 'text-emerald-300', perm: 'spotify' },
-    { href: '/zeiterfassung.html',  label: 'Zeiterfassung',         icon: 'fa-business-time',  icon_c: 'text-emerald-400', text_c: 'text-emerald-300', perm: 'zeit' },
-    { href: '/finanzen.html',       label: 'Finanzen',              icon: 'fa-coins',          icon_c: 'text-yellow-400',  text_c: 'text-yellow-300',  perm: 'finanzen' },
-    { href: '/passwort.html',       label: 'Passwort-Safe',         icon: 'fa-shield-halved',  icon_c: 'text-amber-400',   text_c: 'text-amber-300',   perm: 'tresor' },
-    { href: '/admin.html',          label: 'Admin',                 icon: 'fa-user-shield',    icon_c: 'text-indigo-400',  text_c: 'text-indigo-300',  admin: true },
+    { href: '/menu.html',           label: 'Start',          icon: 'fa-border-all',    c: '#818cf8', group: 'Übersicht' },
+    { href: '/wand.html',           label: 'Wandkalender',   icon: 'fa-display',       c: '#22d3ee', group: 'Übersicht', perm: 'wand' },
+    { href: '/zeiterfassung.html',  label: 'Zeiterfassung',  icon: 'fa-business-time', c: '#34d399', group: 'Bereiche',  perm: 'zeit' },
+    { href: '/finanzen.html',       label: 'Finanzen',       icon: 'fa-coins',         c: '#facc15', group: 'Bereiche',  perm: 'finanzen' },
+    { href: '/passwort.html',       label: 'Passwort-Safe',  icon: 'fa-shield-halved', c: '#fb923c', group: 'Bereiche',  perm: 'tresor' },
+    { href: '/spotify.html',        label: 'Spotify',        icon: 'fa-headphones',    c: '#4ade80', group: 'Bereiche',  perm: 'spotify' },
+    { href: '/admin.html',          label: 'Admin',          icon: 'fa-user-shield',   c: '#c084fc', group: 'System',    admin: true, badge: true },
 ];
 
 function normPath(p) {
@@ -14,60 +16,67 @@ function normPath(p) {
 }
 
 function renderDrawer() {
-    if (document.getElementById('side-drawer')) return;
+    if (document.getElementById('sb')) return;
 
     const here = normPath(window.location.pathname);
     const user = (typeof currentUser !== 'undefined') ? currentUser : null;
-
-    const links = DRAWER_LINKS
+    const esc2 = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const allowed = DRAWER_LINKS
         .filter(l => !l.perm || (typeof can === 'function' && can(user, l.perm)))
-        .filter(l => !l.admin || (typeof isAdmin === 'function' && isAdmin(user)))
-        .map(l => {
-            const active = normPath(l.href) === here;
-            return `
-            <a href="${l.href}" class="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all hover:bg-slate-800/80 ${active ? 'bg-indigo-600/20 border border-indigo-500/30' : ''}">
-                <i class="fa-solid ${l.icon} w-5 ${l.icon_c}"></i>
-                <span class="${l.text_c}">${l.label}</span>
-            </a>`;
-        }).join('');
+        .filter(l => !l.admin || (typeof isAdmin === 'function' && isAdmin(user)));
+
+    // Seitenleiste: Einträge nach Gruppen
+    let idx = 0, lastGroup = '';
+    const items = allowed.map(l => {
+        const head = l.group !== lastGroup ? `<div class="sb-sec">${l.group}</div>` : ''; lastGroup = l.group;
+        const on = normPath(l.href) === here;
+        return `${head}<a class="sb-item${on ? ' on' : ''}" href="${l.href}" style="--c:${l.c};--i:${idx++}" data-tip="${l.label}"${on ? ' aria-current="page"' : ''}>
+            <span class="sb-ico"><i class="fa-solid ${l.icon}"></i></span><span class="sb-label">${l.label}</span>${l.badge ? '<em class="sb-badge" id="sb-badge"></em>' : ''}</a>`;
+    }).join('');
+
+    // Tab-Leiste am Handy: Start + die zwei wichtigsten freigegebenen Bereiche + Suche + Menü
+    const prio = ['/zeiterfassung.html', '/finanzen.html', '/spotify.html', '/passwort.html', '/wand.html', '/admin.html'];
+    const picks = [allowed.find(l => l.href === '/menu.html'), ...prio.map(h => allowed.find(l => l.href === h)).filter(Boolean).slice(0, 2)].filter(Boolean);
+    const tab = l => `<a class="tb-item${normPath(l.href) === here ? ' on' : ''}" href="${l.href}" style="--c:${l.c}"><span class="tb-ico"><i class="fa-solid ${l.icon}"></i></span><span>${l.label.replace('Passwort-Safe', 'Safe').replace('Zeiterfassung', 'Zeit')}</span></a>`;
+    const tabbar = `<nav id="tabbar" aria-label="Schnellzugriff">${picks.map(tab).join('')}
+        <button class="tb-item" onclick="if (typeof openSearch === 'function') openSearch();"><span class="tb-ico"><i class="fa-solid fa-magnifying-glass"></i></span><span>Suche</span></button>
+        <button class="tb-item" onclick="toggleSideMenu(true)"><span class="tb-ico"><i class="fa-solid fa-bars"></i></span><span>Mehr</span></button></nav>`;
+
+    const name = (user && (user.name || user.displayName)) || (user && user.email ? user.email.split('@')[0] : 'Gast');
+    const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '?';
+    const role = !user ? '' : (typeof isAdmin === 'function' && isAdmin(user)) ? 'Administrator' : user.role === 'guest' ? 'Gast' : 'Familie';
 
     const html = `
-    <div id="menu-backdrop" onclick="toggleSideMenu(false)" class="fixed inset-0 bg-slate-950/70 z-50 opacity-0 pointer-events-none transition-opacity duration-200"></div>
-    <aside id="side-drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 z-50 p-6 flex flex-col justify-between shadow-2xl -translate-x-full transition-transform duration-200 ease-out">
-        <div>
-            <div class="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-6">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-xs">
-                        <i class="fa-solid fa-house"></i>
-                    </div>
-                    <span class="font-bold text-sm tracking-wide text-slate-200">J.Mainz Dashboard</span>
-                </div>
-                <button onclick="toggleSideMenu(false)" class="text-slate-400 hover:text-slate-200 p-1.5 transition-colors">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+    <div id="sb-backdrop" onclick="toggleSideMenu(false)"></div>
+    <aside id="sb" aria-label="Navigation">
+        <div class="sb-brand">
+            <img class="sb-logo" src="/icons/icon-192.png" alt="">
+            <div class="sb-brandtxt"><b>Mainz Hub</b><small>Familien-Portal</small></div>
+            <button class="sb-collapse" onclick="toggleSidebarWidth()" title="Seitenleiste ein-/ausklappen" aria-label="Seitenleiste ein-/ausklappen"><i class="fa-solid fa-angles-left"></i></button>
+            <button class="sb-close" onclick="toggleSideMenu(false)" aria-label="Menü schließen"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <nav class="sb-nav">${items}</nav>
+        <div class="sb-foot">
+            <div class="sb-tools">
+                <button class="sb-tool" data-tip="Suche (Strg+K)" title="Suche (Strg+K)" onclick="toggleSideMenu(false); if (typeof openSearch === 'function') openSearch();"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <button class="sb-tool" data-tip="Einstellungen" title="Einstellungen &amp; Alarm" onclick="toggleSideMenu(false); if (typeof openSettingsModal === 'function') openSettingsModal();"><i class="fa-solid fa-gear"></i></button>
+                <button class="sb-tool" data-tip="Hell / Dunkel" title="Hell / Dunkel" onclick="toggleTheme()"><i data-theme-icon class="fa-solid fa-moon"></i></button>
+                <button class="sb-tool danger" data-tip="Abmelden" title="Abmelden" onclick="handleLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
             </div>
-            <nav class="space-y-1.5">
-                <button onclick="toggleSideMenu(false); if (typeof openSearch === 'function') openSearch();" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all hover:bg-slate-800/80 border border-slate-800 text-left">
-                    <i class="fa-solid fa-magnifying-glass w-5 text-slate-400"></i><span class="text-slate-200 flex-1">Suche</span><kbd class="text-[10px] text-slate-500 border border-slate-700 rounded px-1.5 py-0.5">Strg K</kbd>
-                </button>${links}
-                <button onclick="toggleSideMenu(false); if (typeof openSettingsModal === 'function') openSettingsModal();" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all hover:bg-slate-800/80 border border-slate-800 text-left">
-                    <i class="fa-solid fa-gear w-5 text-slate-400"></i>
-                    <span class="text-slate-200">Einstellungen &amp; Alarm</span>
-                </button>
-                <button onclick="toggleTheme()" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all hover:bg-slate-800/80 border border-slate-800 text-left">
-                    <i data-theme-icon class="fa-solid fa-moon w-5 text-slate-400"></i><span class="text-slate-200">Design: <span data-theme-text>Dunkel</span></span>
-                </button>
-            </nav>
+            <div class="sb-user"><span class="sb-avatar">${esc2(initials)}<i></i></span><div class="sb-usertxt"><b>${esc2(name)}</b><small>${role}</small></div></div>
+            <div class="sb-legal"><a href="/impressum.html">Impressum</a> &bull; <a href="/datenschutz.html">Datenschutz</a></div>
         </div>
-        <div class="pt-4 border-t border-slate-800/80">
-            <div class="text-[11px] text-slate-500 text-center font-medium">J.Mainz Dashboard &bull; v4.0</div>
-            <div class="text-[11px] text-slate-600 text-center mt-1"><a href="/impressum.html" class="hover:text-slate-300">Impressum</a> &bull; <a href="/datenschutz.html" class="hover:text-slate-300">Datenschutz</a></div>
-        </div>
-    </aside>`;
+    </aside>
+    ${tabbar}`;
 
+    document.body.classList.add('has-sb');
     document.body.insertAdjacentHTML('afterbegin', html);
+    try { if (localStorage.getItem('sb_collapsed') === '1') document.documentElement.classList.add('sb-collapsed'); } catch (e) { /* ohne Speicher: immer ausgeklappt */ }
 
-    // Einstellungen & Push nachladen, damit auf den Seiten nichts ergänzt werden muss
+    // Auf dem Handy: nach einem Klick auf einen Eintrag schließt sich die Leiste
+    document.getElementById('sb').addEventListener('click', e => { if (e.target.closest('a.sb-item')) toggleSideMenu(false); });
+
+    // Einstellungen, Termin-Logik & Suche nachladen, damit auf den Seiten nichts ergänzt werden muss
     if (!document.getElementById('settings-js')) {
         const s = document.createElement('script');
         s.id = 'settings-js';
@@ -86,17 +95,29 @@ function renderDrawer() {
     }
     if (typeof updateThemeButtons === 'function') updateThemeButtons();
     document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleSideMenu(false); });
+    if (typeof isAdmin === 'function' && isAdmin(user)) loadAdminBadge();
 }
 
+// Zähler am Admin-Eintrag: wartende Konten + ungelesene Nachrichten (für 2 Minuten zwischengespeichert, spart Abfragen)
+async function loadAdminBadge() {
+    const el = document.getElementById('sb-badge'); if (!el || typeof db === 'undefined') return;
+    const show = n => { el.textContent = n > 99 ? '99+' : n; el.classList.toggle('show', n > 0); };
+    try { const c = JSON.parse(sessionStorage.getItem('sb_badge') || 'null'); if (c && Date.now() - c.t < 120000) return show(c.n); } catch (e) {}
+    const count = async q => { try { return (await q.count().get()).data().count; } catch (e) { try { return (await q.get()).size; } catch (e2) { return 0; } } };
+    const n = (await count(db.collection('users').where('status', '==', 'pending'))) + (await count(db.collection('contact_messages').where('read', '==', false)));
+    try { sessionStorage.setItem('sb_badge', JSON.stringify({ t: Date.now(), n })); } catch (e) {}
+    show(n);
+}
+
+// Desktop: Leiste schmal (nur Symbole) oder breit. Wird erst nach einem Klick im Browser gemerkt.
+function toggleSidebarWidth() {
+    const on = document.documentElement.classList.toggle('sb-collapsed');
+    try { localStorage.setItem('sb_collapsed', on ? '1' : '0'); } catch (e) {}
+}
+
+// Handy: Leiste ein- oder ausfahren
 function toggleSideMenu(open) {
-    const drawer = document.getElementById('side-drawer');
-    const backdrop = document.getElementById('menu-backdrop');
-    if (!drawer || !backdrop) return;
-    if (open) {
-        backdrop.classList.remove('opacity-0', 'pointer-events-none');
-        drawer.classList.remove('-translate-x-full');
-    } else {
-        drawer.classList.add('-translate-x-full');
-        backdrop.classList.add('opacity-0', 'pointer-events-none');
-    }
+    const sb = document.getElementById('sb'), bd = document.getElementById('sb-backdrop');
+    if (!sb || !bd) return;
+    sb.classList.toggle('open', !!open); bd.classList.toggle('show', !!open); document.body.classList.toggle('sb-lock', !!open);
 }
