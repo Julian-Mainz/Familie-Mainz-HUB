@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J.Mainz Dashboard – Secure Portal</title>
-    <meta name="theme-color" content="#080c14">
+    <title>J.Mainz Dashboard – Anmelden</title>
+    <meta name="theme-color" content="#05080f">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
@@ -13,7 +13,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="J.Mainz">
-    <link rel="stylesheet" href="/assets/css/index.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
     <link rel="stylesheet" href="/assets/icons.css">
     <link rel="stylesheet" href="/assets/ui.css">
     <script src="/js/vendor/firebase-app-compat.js"></script>
@@ -21,119 +20,243 @@
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
     <style>
-        body { background-color: #05080f; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .glow { box-shadow: 0 0 50px -10px rgba(99, 102, 241, 0.15); }
-    </style>
-    <style type="text/tailwindcss">
-        .inp { @apply w-full bg-slate-900/80 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition-all; }
+        /* Anmeldeseite: komplett eigenes CSS (kein Tailwind, keine fremden Server) */
+        @property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+        :root { --ink: #f8fafc; --mut: #94a3b8; --acc: #818cf8; --acc2: #22d3ee; --line: rgba(148, 163, 184, .18); }
+        * { box-sizing: border-box; }
+        .hidden { display: none !important; }
+        html, body { margin: 0; }
+        body { min-height: 100vh; display: flex; flex-direction: column; background: #05080f; color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; position: relative; }
+        button { font-family: inherit; cursor: pointer; } a { color: inherit; }
+
+        /* ----- Hintergrund ----- */
+        .lg-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+        .lg-orb { position: absolute; border-radius: 50%; will-change: transform; }
+        .lg-orb.a { width: 64vmax; height: 64vmax; left: -22vmax; top: -30vmax; background: radial-gradient(circle at 40% 40%, rgba(99, 102, 241, .55), rgba(99, 102, 241, 0) 62%); animation: lgDriftA 28s ease-in-out infinite alternate; }
+        .lg-orb.b { width: 56vmax; height: 56vmax; right: -20vmax; bottom: -26vmax; background: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, .42), rgba(6, 182, 212, 0) 62%); animation: lgDriftB 34s ease-in-out infinite alternate; }
+        .lg-orb.c { width: 38vmax; height: 38vmax; left: 40%; top: 42%; background: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, .30), rgba(168, 85, 247, 0) 64%); animation: lgDriftC 40s ease-in-out infinite alternate; }
+        .lg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(148, 163, 184, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, .07) 1px, transparent 1px); background-size: 56px 56px;
+            -webkit-mask-image: radial-gradient(ellipse at 50% 38%, #000 18%, transparent 74%); mask-image: radial-gradient(ellipse at 50% 38%, #000 18%, transparent 74%); }
+        .lg-spot { position: absolute; left: 0; top: 0; width: 560px; height: 560px; border-radius: 50%; background: radial-gradient(circle, rgba(129, 140, 248, .17), transparent 65%); transform: translate(var(--mx, 62vw), var(--my, 34vh)) translate(-50%, -50%); transition: transform .35s ease-out; }
+        @keyframes lgDriftA { to { transform: translate(14vmax, 10vmax) scale(1.12); } }
+        @keyframes lgDriftB { to { transform: translate(-12vmax, -9vmax) scale(1.08); } }
+        @keyframes lgDriftC { to { transform: translate(-16vmax, 8vmax) scale(1.25); } }
+
+        /* ----- Kopfzeile / Fußzeile ----- */
+        .lg-top, .lg-foot { position: relative; z-index: 2; width: 100%; max-width: 1200px; margin: 0 auto; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .lg-brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: .01em; }
+        .lg-brand img { width: 40px; height: 40px; border-radius: 13px; box-shadow: 0 8px 22px rgba(79, 70, 229, .5); }
+        .lg-brand small { display: block; font-size: 10.5px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--mut); }
+        .lg-tools { display: flex; align-items: center; gap: 10px; }
+        .lg-round { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: rgba(15, 23, 42, .6); color: #cbd5e1; display: grid; place-items: center; font-size: 15px; transition: transform .25s, background-color .2s, color .2s; }
+        .lg-round:hover { color: #fff; background: rgba(129, 140, 248, .22); transform: rotate(-12deg) scale(1.06); }
+        .lg-status { display: flex; align-items: center; gap: 8px; padding: 9px 15px; border-radius: 99px; font-size: 12px; font-weight: 500; color: #cbd5e1; border: 1px solid var(--line); background: rgba(15, 23, 42, .6); }
+        .lg-dot { width: 8px; height: 8px; border-radius: 50%; } .lg-dot.on { background: #4ade80; animation: lgPulse 2.4s infinite; } .lg-dot.off { background: #fb7185; }
+        @keyframes lgPulse { 0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, .6); } 70% { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0); } 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } }
+        .lg-foot { border-top: 1px solid rgba(148, 163, 184, .1); font-size: 12px; color: #64748b; }
+        .lg-foot nav { display: flex; gap: 18px; flex-wrap: wrap; } .lg-foot a, .lg-foot button { color: inherit; text-decoration: none; background: none; border: 0; font-size: inherit; padding: 0; transition: color .2s; } .lg-foot a:hover, .lg-foot button:hover { color: #e2e8f0; }
+
+        /* ----- Layout ----- */
+        .lg-main { position: relative; z-index: 2; flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; padding: 8px 28px 36px; display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr); gap: 64px; align-items: center; }
+
+        /* ----- Linke Seite ----- */
+        .lg-pill { display: inline-flex; align-items: center; gap: 9px; padding: 7px 14px; border-radius: 99px; font-size: 12px; font-weight: 600; color: #c7d2fe; background: rgba(99, 102, 241, .13); border: 1px solid rgba(129, 140, 248, .3); }
+        .lg-pill i { font-size: 11px; color: var(--acc); }
+        .lg-h1 { margin: 22px 0 0; font-size: clamp(2.3rem, 4.3vw, 3.7rem); line-height: 1.08; font-weight: 800; letter-spacing: -.035em; }
+        .lg-rotwrap { display: inline-block; overflow: hidden; height: 1.16em; vertical-align: bottom; }
+        .lg-rot { display: block; animation: lgRot 14s cubic-bezier(.7, 0, .2, 1) infinite; }
+        .lg-rot span { display: block; text-align: left; height: 1.16em; line-height: 1.16; padding-right: .06em; background: linear-gradient(90deg, #818cf8, #22d3ee 60%, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        @keyframes lgRot { 0%, 15% { transform: translateY(0); } 20%, 35% { transform: translateY(-1.16em); } 40%, 55% { transform: translateY(-2.32em); } 60%, 75% { transform: translateY(-3.48em); } 80%, 95% { transform: translateY(-4.64em); } 100% { transform: translateY(-5.8em); } }
+        .lg-lead { margin: 20px 0 0; max-width: 520px; font-size: 1.05rem; line-height: 1.65; color: var(--mut); }
+        .lg-feats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 30px; max-width: 540px; }
+        .lg-feat { --c: #818cf8; display: flex; align-items: center; gap: 13px; padding: 14px; border-radius: 20px; border: 1px solid var(--line); background: rgba(15, 23, 42, .5); transition: transform .3s cubic-bezier(.2, .8, .2, 1), border-color .25s, background-color .25s; animation: lgFloat 6s ease-in-out infinite; }
+        .lg-feat:nth-child(2) { animation-delay: -1.5s; } .lg-feat:nth-child(3) { animation-delay: -3s; } .lg-feat:nth-child(4) { animation-delay: -4.5s; }
+        .lg-feat:hover { transform: translateY(-4px) !important; border-color: var(--c); background: rgba(30, 41, 59, .6); }
+        .lg-ft { flex: none; width: 44px; height: 44px; border-radius: 15px; display: grid; place-items: center; font-size: 19px; color: var(--c); background: rgba(148, 163, 184, .1); transition: transform .3s cubic-bezier(.2, .8, .2, 1), background-color .25s; }
+        .lg-feat:hover .lg-ft { transform: scale(1.1) rotate(-6deg); background: rgba(148, 163, 184, .2); }
+        .lg-feat b { display: block; font-size: 14px; } .lg-feat small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--mut); line-height: 1.35; }
+        @keyframes lgFloat { 50% { transform: translateY(-5px); } }
+        .lg-live { display: inline-flex; align-items: baseline; gap: 14px; margin-top: 30px; padding: 14px 20px; border-radius: 20px; border: 1px solid var(--line); background: rgba(15, 23, 42, .45); }
+        .lg-live b { font-size: 2rem; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; } .lg-live span { color: #c7d2fe; font-weight: 600; } .lg-live small { color: var(--mut); }
+
+        /* ----- Karte mit umlaufendem Lichtrand ----- */
+        .lg-cardwrap { width: 100%; max-width: 456px; margin: 0 auto; padding: 1.5px; border-radius: 32px; background: conic-gradient(from var(--ang), transparent 0 52%, rgba(129, 140, 248, .95) 72%, rgba(34, 211, 238, .95) 88%, transparent 100%), rgba(148, 163, 184, .16); animation: lgSpin 8s linear infinite; box-shadow: 0 40px 100px -20px rgba(0, 0, 0, .7), 0 0 80px -20px rgba(99, 102, 241, .35); }
+        @keyframes lgSpin { to { --ang: 360deg; } }
+        .lg-card { padding: 28px; border-radius: 30.5px; background: linear-gradient(180deg, rgba(14, 20, 36, .98), rgba(8, 12, 22, .985)); }
+        .lg-tabs { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; margin-bottom: 22px; border-radius: 18px; background: rgba(2, 6, 16, .7); border: 1px solid var(--line); }
+        .lg-tabs button { position: relative; z-index: 1; padding: 11px 8px; border: 0; background: none; color: var(--mut); font-size: 13.5px; font-weight: 600; border-radius: 14px; transition: color .25s; }
+        .lg-tabs button:hover { color: #e2e8f0; }
+        .lg-tabs[data-v="login"] #tab-login, .lg-tabs[data-v="register"] #tab-register { color: #fff; }
+        .lg-tabbar { position: absolute; z-index: 0; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 14px; background: linear-gradient(135deg, #4f46e5, #7c3aed); box-shadow: 0 8px 22px -6px rgba(99, 102, 241, .7); transition: transform .4s cubic-bezier(.2, .8, .2, 1), opacity .25s; }
+        .lg-tabs[data-v="register"] .lg-tabbar { transform: translateX(100%); } .lg-tabs[data-v="reset"] .lg-tabbar { opacity: 0; }
+        .lg-fh { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+        .lg-fico { flex: none; width: 46px; height: 46px; border-radius: 16px; display: grid; place-items: center; font-size: 19px; color: #fff; background: linear-gradient(135deg, #6366f1, #06b6d4); box-shadow: 0 10px 24px -6px rgba(79, 70, 229, .6); }
+        .lg-fico.green { background: linear-gradient(135deg, #10b981, #06b6d4); box-shadow: 0 10px 24px -6px rgba(16, 185, 129, .55); }
+        .lg-fh h2 { margin: 0; font-size: 1.25rem; letter-spacing: -.01em; } .lg-fh p { margin: 3px 0 0; font-size: 12.5px; color: var(--mut); line-height: 1.45; }
+        .lg-form { display: flex; flex-direction: column; gap: 14px; }
+        .lg-form.lg-enter { animation: lgSlide .5s cubic-bezier(.2, .8, .2, 1); } .lg-form.lg-enter > * { animation: lgSlide .5s cubic-bezier(.2, .8, .2, 1) backwards; }
+        .lg-form.lg-enter > :nth-child(2) { animation-delay: .04s; } .lg-form.lg-enter > :nth-child(3) { animation-delay: .08s; } .lg-form.lg-enter > :nth-child(4) { animation-delay: .12s; } .lg-form.lg-enter > :nth-child(n+5) { animation-delay: .16s; }
+        @keyframes lgSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+        /* ----- Eingabefelder mit schwebender Beschriftung ----- */
+        .lg-f { position: relative; }
+        .lg-fi { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 15px; color: #64748b; pointer-events: none; transition: color .2s; }
+        .lg-in { width: 100%; height: 56px; padding: 21px 46px 6px 46px; border-radius: 16px; border: 1px solid var(--line); background: rgba(2, 6, 16, .6); color: #f1f5f9; font-size: 15px; font-family: inherit; outline: none; transition: border-color .2s, box-shadow .25s, background-color .2s; }
+        .lg-in.nop { padding-left: 16px; } .lg-in.code { font-family: ui-monospace, Consolas, monospace; letter-spacing: .22em; text-transform: uppercase; font-size: 16px; padding-left: 46px; }
+        .lg-in:focus { border-color: var(--acc); background: rgba(2, 6, 16, .85); box-shadow: 0 0 0 4px rgba(129, 140, 248, .16); }
+        .lg-f:focus-within .lg-fi { color: var(--acc); }
+        .lg-f label { position: absolute; left: 46px; top: 50%; transform: translateY(-50%); font-size: 14.5px; color: #64748b; pointer-events: none; transition: top .18s ease, font-size .18s ease, color .18s ease, transform .18s ease; white-space: nowrap; }
+        .lg-in.nop ~ label { left: 16px; }
+        .lg-in:focus ~ label, .lg-in:not(:placeholder-shown) ~ label { top: 17px; font-size: 11px; color: var(--acc); font-weight: 600; letter-spacing: .02em; }
+        .lg-in::placeholder { color: transparent; }
+        .lg-in:-webkit-autofill { -webkit-text-fill-color: #f1f5f9; box-shadow: 0 0 0 100px #0b1220 inset; caret-color: #fff; }
+        .lg-eye { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border: 0; border-radius: 12px; background: none; color: #64748b; font-size: 15px; transition: color .2s, background-color .2s; }
+        .lg-eye:hover { color: #fff; background: rgba(148, 163, 184, .14); }
+        .lg-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .lg-caps { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #fbbf24; margin-top: -6px; } .lg-caps.hidden { display: none !important; }
+        .lg-link { background: none; border: 0; padding: 0; font-size: 12.5px; color: var(--mut); transition: color .2s; } .lg-link:hover { color: #c7d2fe; text-decoration: underline; }
+        .lg-row { display: flex; justify-content: flex-end; margin-top: -4px; } .lg-row.center { justify-content: center; margin: 0; }
+        .lg-note { font-size: 12.5px; line-height: 1.5; color: var(--mut); margin: 0; }
+        .lg-meter { height: 5px; border-radius: 5px; background: rgba(148, 163, 184, .16); overflow: hidden; margin-top: 8px; } .lg-meter i { display: block; height: 100%; width: 0; border-radius: inherit; transition: width .35s cubic-bezier(.2, .8, .2, 1), background-color .3s; }
+        .lg-meter-t { font-size: 11px; color: var(--mut); min-height: 14px; margin-top: 4px; }
+        .lg-check { display: flex; align-items: flex-start; gap: 11px; font-size: 12.5px; line-height: 1.5; color: var(--mut); cursor: pointer; }
+        .lg-check input { appearance: none; -webkit-appearance: none; flex: none; width: 20px; height: 20px; margin: 1px 0 0; border-radius: 7px; border: 1.5px solid #475569; background: rgba(2, 6, 16, .6); cursor: pointer; display: grid; place-items: center; transition: background-color .2s, border-color .2s; }
+        .lg-check input:checked { background: linear-gradient(135deg, #6366f1, #8b5cf6); border-color: transparent; }
+        .lg-check input:checked::after { content: ""; width: 5px; height: 10px; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) translate(-1px, -1px); }
+        .lg-check input:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; } .lg-check a { color: #a5b4fc; }
+
+        /* ----- Knöpfe ----- */
+        .lg-btn { position: relative; overflow: hidden; width: 100%; height: 54px; border: 0; border-radius: 16px; color: #fff; font-size: 15px; font-weight: 700; letter-spacing: .01em; background: linear-gradient(135deg, #4f46e5, #7c3aed 55%, #0ea5e9); background-size: 160% 100%; box-shadow: 0 14px 34px -10px rgba(99, 102, 241, .8); transition: transform .2s, box-shadow .25s, background-position .5s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .lg-btn.green { background: linear-gradient(135deg, #059669, #10b981 55%, #06b6d4); background-size: 160% 100%; box-shadow: 0 14px 34px -10px rgba(16, 185, 129, .7); }
+        .lg-btn::after { content: "\2192"; font-size: 18px; transition: transform .25s; }
+        .lg-btn:hover { transform: translateY(-2px); background-position: 100% 0; box-shadow: 0 18px 40px -10px rgba(99, 102, 241, .9); } .lg-btn:hover::after { transform: translateX(5px); }
+        .lg-btn::before { content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; transform: skewX(-20deg); background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .28), transparent); transition: left .7s; }
+        .lg-btn:hover::before { left: 130%; }
+        .lg-btn:disabled { cursor: progress; opacity: .85; transform: none; } .lg-btn:disabled::after { content: ""; width: 17px; height: 17px; border-radius: 50%; border: 2.5px solid rgba(255, 255, 255, .35); border-top-color: #fff; animation: lgRoll .7s linear infinite; transform: none; } .lg-btn:disabled::before { display: none; }
+        @keyframes lgRoll { to { transform: rotate(360deg); } }
+        .lg-alert { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; margin-bottom: 16px; border-radius: 16px; font-size: 12.5px; line-height: 1.5; animation: lgSlide .35s cubic-bezier(.2, .8, .2, 1); }
+        .lg-alert i { margin-top: 2px; } .lg-alert.bad { color: #fda4af; background: rgba(244, 63, 94, .1); border: 1px solid rgba(244, 63, 94, .28); } .lg-alert.ok { color: #86efac; background: rgba(34, 197, 94, .1); border: 1px solid rgba(34, 197, 94, .28); }
+        .lg-contact { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(148, 163, 184, .13); text-align: center; }
+
+        /* ----- Kontaktfenster ----- */
+        .lg-modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(2, 6, 16, .78); animation: lgFade .2s ease; }
+        @keyframes lgFade { from { opacity: 0; } }
+        .lg-mbox { width: 100%; max-width: 440px; max-height: 92vh; overflow-y: auto; padding: 24px; border-radius: 28px; background: #0f172a; border: 1px solid rgba(148, 163, 184, .22); box-shadow: 0 30px 90px rgba(0, 0, 0, .65); animation: lgSlide .35s cubic-bezier(.2, .9, .3, 1.1); }
+        .lg-mhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; } .lg-mhead h3 { margin: 0; font-size: 1.05rem; } .lg-mhead h3 i { color: var(--acc); margin-right: 8px; }
+        .lg-x { width: 34px; height: 34px; border-radius: 11px; border: 0; background: rgba(148, 163, 184, .1); color: #94a3b8; } .lg-x:hover { color: #fff; background: rgba(148, 163, 184, .22); }
+        .inp { width: 100%; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(2, 6, 16, .6); color: #f1f5f9; font-size: 14px; font-family: inherit; outline: none; transition: border-color .2s, box-shadow .2s; }
+        .inp:focus { border-color: var(--acc); box-shadow: 0 0 0 4px rgba(129, 140, 248, .16); } textarea.inp { resize: vertical; }
+        .lg-mlabel { display: block; font-size: 12px; color: var(--mut); margin: 0 0 5px; }
+        .lg-mbtn { padding: 10px 18px; border-radius: 13px; border: 0; font-size: 13px; font-weight: 600; background: rgba(148, 163, 184, .13); color: #cbd5e1; } .lg-mbtn:hover { background: rgba(148, 163, 184, .24); }
+        .lg-mbtn.go { color: #fff; background: linear-gradient(135deg, #4f46e5, #7c3aed); box-shadow: 0 8px 20px -6px rgba(99, 102, 241, .7); }
+        .lg-mbtn:disabled { opacity: .6; cursor: progress; }
+
+        /* ----- Eingang ----- */
+        .lg-hero > * { animation: lgSlide .8s cubic-bezier(.2, .8, .2, 1) backwards; }
+        .lg-hero > :nth-child(2) { animation-delay: .08s; } .lg-hero > :nth-child(3) { animation-delay: .16s; } .lg-hero > :nth-child(4) { animation-delay: .24s; } .lg-hero > :nth-child(5) { animation-delay: .32s; }
+
+        /* ----- Tablet und Handy ----- */
+        @media (max-width: 980px) {
+            .lg-main { grid-template-columns: minmax(0, 1fr); gap: 34px; padding-top: 0; } .lg-hero { text-align: center; } .lg-lead, .lg-feats { margin-left: auto; margin-right: auto; }
+            .lg-h1 { font-size: clamp(2.1rem, 8.4vw, 3.2rem); } .lg-live { display: none; } .lg-feat { animation: none; }
+        }
+        @media (max-width: 520px) {
+            .lg-pillx { display: none; } .lg-status { padding: 8px 12px; font-size: 11.5px; } .lg-round { width: 38px; height: 38px; }
+            .lg-top, .lg-foot { padding: 16px 18px; } .lg-main { padding: 0 16px 28px; } .lg-card { padding: 22px 18px; } .lg-cols { grid-template-columns: 1fr; }
+            .lg-feats { grid-template-columns: 1fr 1fr; gap: 9px; } .lg-feat { padding: 11px; gap: 10px; } .lg-feat small { display: none; } .lg-ft { width: 36px; height: 36px; font-size: 15px; } .lg-lead { font-size: .95rem; }
+        }
+        @media (prefers-reduced-motion: reduce) { .lg-orb, .lg-cardwrap, .lg-rot, .lg-feat { animation: none !important; } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-4 md:p-8 overflow-x-hidden">
+<body>
+    <div class="lg-bg" aria-hidden="true"><div class="lg-orb a"></div><div class="lg-orb b"></div><div class="lg-orb c"></div><div class="lg-grid"></div><div class="lg-spot" id="lg-spot"></div></div>
 
-    <div class="max-w-6xl w-full mx-auto flex justify-between items-center py-4">
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400"><i class="fa-solid fa-shield-halved"></i></div>
-            <span class="font-bold text-slate-200 tracking-wide">J.Mainz Dashboard</span>
+    <header class="lg-top">
+        <div class="lg-brand"><img src="/icons/icon-192.png" alt=""><div><span class="t">J.Mainz</span><small>Dashboard</small></div></div>
+        <div class="lg-tools">
+            <button type="button" class="lg-round" onclick="toggleTheme()" title="Hell / Dunkel" aria-label="Hell oder Dunkel"><i data-theme-icon class="fa-solid fa-moon"></i></button>
+            <div class="lg-status"><span id="net-dot" class="lg-dot on"></span><span id="net-text">System Online</span></div>
         </div>
-        <div class="flex items-center gap-2">
-        <button onclick="toggleTheme()" class="w-9 h-9 rounded-full bg-slate-900/80 border border-slate-800/80 text-slate-300 hover:text-white" title="Hell / Dunkel"><i data-theme-icon class="fa-solid fa-moon text-sm"></i></button>
-        <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800/80 px-3.5 py-1.5 rounded-full">
-            <span id="net-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span id="net-text" class="text-xs font-medium text-slate-300">System Online</span>
-        </div>
-        </div>
-    </div>
+    </header>
 
-    <main class="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto py-8">
-        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
-                <i class="fa-solid fa-lock text-[10px]"></i> Geschützter Bereich
+    <main class="lg-main">
+        <section class="lg-hero">
+            <div class="lg-pill"><i class="fa-solid fa-lock"></i><span>Geschützter Bereich<span class="lg-pillx"> &middot; Zugang nur mit Einladung</span></span></div>
+            <h1 class="lg-h1">Dein Dashboard<br>für <span class="lg-rotwrap"><span class="lg-rot"><span>Zeit</span><span>Finanzen</span><span>Termine</span><span>Passwörter</span><span>Musik</span><span>Zeit</span></span></span></h1>
+            <p class="lg-lead">Die private Plattform von Julian Mainz. Alles Wichtige an einem Ort, geschützt durch Anmeldung und Freigabe. Fremde haben hier keinen Zutritt.</p>
+            <div class="lg-feats">
+                <div class="lg-feat" style="--c:#34d399"><span class="lg-ft"><i class="fa-solid fa-business-time"></i></span><div><b>Zeiterfassung</b><small>Arbeitszeit, Urlaub, Überstunden</small></div></div>
+                <div class="lg-feat" style="--c:#facc15"><span class="lg-ft"><i class="fa-solid fa-coins"></i></span><div><b>Finanzen</b><small>Budget, Fixkosten, Prognose</small></div></div>
+                <div class="lg-feat" style="--c:#fb923c"><span class="lg-ft"><i class="fa-solid fa-shield-halved"></i></span><div><b>Passwort-Safe</b><small>AES-256 verschlüsselt</small></div></div>
+                <div class="lg-feat" style="--c:#22d3ee"><span class="lg-ft"><i class="fa-solid fa-calendar-days"></i></span><div><b>Kalender</b><small>Termine, Aufgaben, Wandanzeige</small></div></div>
             </div>
-            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-100 leading-tight">
-                Zentrales Verwaltungs- <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Portal</span>
-            </h1>
-            <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                Willkommen auf der privaten Cloud-Plattform von Julian Mainz. Dieses System ist privat und nicht für Fremde geöffnet. Bei Anliegen bitte das Kontaktformular nutzen.
-            </p>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 max-w-lg mx-auto lg:mx-0">
-                <div class="bg-slate-900/40 border border-slate-800/80 p-3 rounded-2xl flex items-center gap-2.5"><i class="fa-solid fa-business-time text-emerald-400"></i><span class="text-xs font-medium text-slate-300">Zeiterfassung</span></div>
-                <div class="bg-slate-900/40 border border-slate-800/80 p-3 rounded-2xl flex items-center gap-2.5"><i class="fa-solid fa-coins text-yellow-400"></i><span class="text-xs font-medium text-slate-300">Finanz-Tools</span></div>
-                <div class="bg-slate-900/40 border border-slate-800/80 p-3 rounded-2xl flex items-center gap-2.5 col-span-2 sm:col-span-1"><i class="fa-solid fa-key text-amber-400"></i><span class="text-xs font-medium text-slate-300">AES-256 Safe</span></div>
-            </div>
-        </div>
+            <div class="lg-live"><div><span id="lg-greet">Hallo</span><br><small id="lg-date"></small></div><b id="lg-clock">--:--</b></div>
+        </section>
 
-        <div class="lg:col-span-5 w-full max-w-md mx-auto">
-            <div class="bg-slate-900/80 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl glow">
-                <div class="mb-6">
-                    <h2 class="text-lg font-bold text-slate-100">Anmelden</h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Geben Sie Ihre Zugangsdaten ein.</p>
+        <div class="lg-cardwrap"><div class="lg-card">
+            <div class="lg-tabs" id="lg-tabs" data-v="login"><i class="lg-tabbar"></i>
+                <button type="button" id="tab-login" onclick="showView('login')">Anmelden</button><button type="button" id="tab-register" onclick="showView('register')">Registrieren</button></div>
+
+            <div id="auth-alert" class="lg-alert hidden"><i class="fa-solid fa-circle-exclamation"></i><span id="auth-alert-text"></span></div>
+
+            <form id="form-login" onsubmit="handleSignIn(event)" class="lg-form lg-enter">
+                <div class="lg-fh"><span class="lg-fico"><i class="fa-solid fa-right-to-bracket"></i></span><div><h2>Willkommen zurück</h2><p>Melde dich mit deinen Zugangsdaten an.</p></div></div>
+                <div class="lg-f"><i class="fa-regular fa-envelope lg-fi"></i><input type="email" id="login-email" required autocomplete="username" placeholder=" " class="lg-in"><label for="login-email">E-Mail-Adresse</label></div>
+                <div class="lg-f"><i class="fa-solid fa-lock lg-fi"></i><input type="password" id="login-password" required autocomplete="current-password" placeholder=" " class="lg-in"><label for="login-password">Passwort</label>
+                    <button type="button" class="lg-eye" onclick="togglePw('login-password', this)" aria-label="Passwort anzeigen"><i class="fa-solid fa-eye"></i></button></div>
+                <div id="caps-login" class="lg-caps hidden"><i class="fa-solid fa-triangle-exclamation"></i>Die Feststelltaste ist aktiv.</div>
+                <div class="lg-row"><button type="button" class="lg-link" onclick="showView('reset')">Passwort vergessen?</button></div>
+                <button type="submit" id="btn-login" class="lg-btn">Anmelden</button>
+            </form>
+
+            <form id="form-register" onsubmit="handleSignUp(event)" class="lg-form hidden">
+                <div class="lg-fh"><span class="lg-fico green"><i class="fa-solid fa-user-plus"></i></span><div><h2>Konto erstellen</h2><p>Du brauchst einen Einladungscode. Danach prüft ein Administrator dein Konto.</p></div></div>
+                <div class="lg-f"><i class="fa-solid fa-ticket lg-fi"></i><input type="text" id="reg-code" required autocomplete="off" spellcheck="false" maxlength="24" oninput="this.value = this.value.toUpperCase()" placeholder=" " class="lg-in code"><label for="reg-code">Einladungscode</label></div>
+                <div class="lg-cols">
+                    <div class="lg-f"><input type="text" id="reg-firstname" required autocomplete="given-name" placeholder=" " class="lg-in nop"><label for="reg-firstname">Vorname</label></div>
+                    <div class="lg-f"><input type="text" id="reg-lastname" required autocomplete="family-name" placeholder=" " class="lg-in nop"><label for="reg-lastname">Nachname</label></div>
                 </div>
+                <div class="lg-f"><i class="fa-regular fa-envelope lg-fi"></i><input type="email" id="reg-email" required autocomplete="username" placeholder=" " class="lg-in"><label for="reg-email">E-Mail-Adresse</label></div>
+                <div><div class="lg-f"><i class="fa-solid fa-lock lg-fi"></i><input type="password" id="reg-password" required minlength="8" autocomplete="new-password" placeholder=" " class="lg-in" oninput="regMeter()"><label for="reg-password">Passwort (mindestens 8 Zeichen)</label>
+                    <button type="button" class="lg-eye" onclick="togglePw('reg-password', this)" aria-label="Passwort anzeigen"><i class="fa-solid fa-eye"></i></button></div>
+                    <div class="lg-meter"><i id="reg-bar"></i></div><div class="lg-meter-t" id="reg-meter-txt"></div></div>
+                <div id="caps-reg" class="lg-caps hidden"><i class="fa-solid fa-triangle-exclamation"></i>Die Feststelltaste ist aktiv.</div>
+                <label class="lg-check"><input type="checkbox" required><span>Ich habe die <a href="/datenschutz.html" target="_blank">Datenschutzerklärung</a> gelesen.</span></label>
+                <button type="submit" id="btn-register" class="lg-btn green">Konto anlegen</button>
+                <div class="lg-row center"><button type="button" class="lg-link" onclick="showRegisterView(false)">&larr; Zurück zum Login</button></div>
+            </form>
 
-                <div id="auth-alert" class="hidden mb-4 p-3 rounded-2xl border bg-rose-500/10 border-rose-500/20 text-rose-400 text-xs text-center flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-circle-exclamation"></i><span id="auth-alert-text"></span>
-                </div>
+            <form id="form-reset" onsubmit="sendReset(event)" class="lg-form hidden">
+                <div class="lg-fh"><span class="lg-fico"><i class="fa-solid fa-key"></i></span><div><h2>Passwort zurücksetzen</h2><p>Wir senden dir einen Link zum Festlegen eines neuen Passworts.</p></div></div>
+                <div class="lg-f"><i class="fa-regular fa-envelope lg-fi"></i><input type="email" id="reset-email" required autocomplete="username" placeholder=" " class="lg-in"><label for="reset-email">E-Mail-Adresse</label></div>
+                <button type="submit" id="btn-reset" class="lg-btn">Link senden</button>
+                <div class="lg-row center"><button type="button" class="lg-link" onclick="showView('login')">&larr; Zurück zum Login</button></div>
+            </form>
 
-                <form id="form-login" onsubmit="handleSignIn(event)" class="space-y-4">
-                    <div><label class="block text-xs font-medium text-slate-400 mb-1 ml-1">E-Mail-Adresse</label>
-                        <input type="email" id="login-email" required autocomplete="username" placeholder="name@julian-mainz.de" class="inp"></div>
-                    <div><label class="block text-xs font-medium text-slate-400 mb-1 ml-1">Passwort</label>
-                        <input type="password" id="login-password" required autocomplete="current-password" placeholder="••••••••" class="inp">
-                        <button type="button" onclick="showView('reset')" class="mt-1.5 ml-1 text-[11px] text-slate-500 hover:text-indigo-300">Passwort vergessen?</button></div>
-                    <div class="pt-2 space-y-3">
-                        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3.5 rounded-2xl shadow-lg shadow-indigo-600/25 text-sm transition-all">Anmelden</button>
-                        <button type="button" onclick="showRegisterView(true)" class="w-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 font-medium py-3 rounded-2xl border border-slate-700/60 text-xs transition-all">Neues Konto beantragen</button>
-                    </div>
-                </form>
-
-                <form id="form-register" onsubmit="handleSignUp(event)" class="space-y-3.5 hidden">
-                    <div><h2 class="text-sm font-bold text-slate-100 mb-1">Konto registrieren</h2>
-                        <p class="text-[11px] text-slate-400">Für die Registrierung brauchen Sie einen Einladungscode. Nach der Erstellung wird das Konto von einem Administrator geprüft.</p></div>
-                    <input type="text" id="reg-code" required autocomplete="off" spellcheck="false" maxlength="24" oninput="this.value = this.value.toUpperCase()" placeholder="Einladungscode" class="inp text-sm py-2.5 font-mono tracking-widest">
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="reg-firstname" required placeholder="Vorname" class="inp text-xs py-2.5">
-                        <input type="text" id="reg-lastname" required placeholder="Nachname" class="inp text-xs py-2.5">
-                    </div>
-                    <input type="email" id="reg-email" required autocomplete="username" placeholder="E-Mail" class="inp text-xs py-2.5">
-                    <input type="password" id="reg-password" required minlength="6" autocomplete="new-password" placeholder="Passwort (min. 6 Zeichen)" class="inp text-xs py-2.5">
-                    <label class="flex items-start gap-2 text-[11px] text-slate-400"><input type="checkbox" required class="mt-0.5 rounded bg-slate-800 border-slate-700"><span>Ich habe die <a href="/datenschutz.html" target="_blank" class="text-indigo-400 underline">Datenschutzerklärung</a> gelesen.</span></label>
-                    <button type="submit" id="btn-register" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl text-xs transition-all shadow-lg shadow-emerald-600/20">Konto anlegen</button>
-                    <button type="button" onclick="showRegisterView(false)" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1 text-center">&larr; Zurück zum Login</button>
-                </form>
-
-                <form id="form-reset" onsubmit="sendReset(event)" class="space-y-3.5 hidden">
-                    <div><h2 class="text-sm font-bold text-slate-100 mb-1">Passwort zurücksetzen</h2>
-                        <p class="text-[11px] text-slate-400">Wir senden einen Link zum Festlegen eines neuen Passworts an Ihre E-Mail-Adresse.</p></div>
-                    <input type="email" id="reset-email" required autocomplete="username" placeholder="E-Mail-Adresse" class="inp text-sm py-2.5">
-                    <button type="submit" id="btn-reset" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-2xl text-sm transition-all">Link senden</button>
-                    <button type="button" onclick="showView('login')" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1 text-center">&larr; Zurück zum Login</button>
-                </form>
-                <div class="mt-5 pt-4 border-t border-slate-800/80 text-center">
-                    <button type="button" onclick="openContact()" class="text-xs text-slate-400 hover:text-indigo-300"><i class="fa-regular fa-envelope mr-1.5"></i>Fragen? Nachricht hinterlassen</button>
-                </div>
-            </div>
-        </div>
+            <div class="lg-contact"><button type="button" class="lg-link" onclick="openContact()"><i class="fa-regular fa-envelope" style="margin-right:7px"></i>Fragen? Nachricht hinterlassen</button></div>
+        </div></div>
     </main>
 
-    <footer class="max-w-6xl w-full mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 py-4 border-t border-slate-900 gap-2">
-        <span>J.Mainz Dashboard &bull; Secured Cloud Environment</span>
-        <span class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1"><a href="/impressum.html" class="hover:text-slate-300">Impressum</a><a href="/datenschutz.html" class="hover:text-slate-300">Datenschutz</a><button type="button" onclick="openContact()" class="hover:text-slate-300">Kontakt</button></span>
+    <footer class="lg-foot">
+        <span>J.Mainz Dashboard &bull; Geschützter Bereich</span>
+        <nav><a href="/impressum.html">Impressum</a><a href="/datenschutz.html">Datenschutz</a><button type="button" onclick="openContact()">Kontakt</button></nav>
     </footer>
 
     <!-- Kontakt-Dialog -->
-    <div id="modal-contact" class="fixed inset-0 z-50 bg-black/70 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-1"><h3 class="text-base font-bold text-slate-100"><i class="fa-regular fa-envelope text-indigo-400 mr-2"></i>Nachricht hinterlassen</h3><button onclick="closeContact()" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
-            <div id="c-sent" class="hidden text-center py-8"><i class="fa-solid fa-circle-check text-4xl text-emerald-400"></i><p class="mt-3 text-sm text-slate-200 font-semibold">Danke, deine Nachricht ist angekommen.</p><p class="text-xs text-slate-400 mt-1">Ich melde mich, sobald ich sie gelesen habe.</p>
-                <button onclick="closeContact()" class="mt-5 px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Schließen</button></div>
-            <form id="c-form" onsubmit="sendContact(event)" class="space-y-3.5">
-                <p class="text-xs text-slate-400">Du hast Fragen oder möchtest einen Zugang? Schreib mir kurz.</p>
-                <div id="c-error" class="hidden p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs"></div>
-                <div><label class="block text-xs text-slate-400 mb-1">Name</label><input id="c-name" required maxlength="80" class="inp text-sm py-2.5"></div>
-                <div><label class="block text-xs text-slate-400 mb-1">E-Mail (für die Antwort)</label><input type="email" id="c-email" maxlength="120" class="inp text-sm py-2.5" placeholder="optional, ohne E-Mail kann ich nicht antworten"></div>
-                <div><label class="block text-xs text-slate-400 mb-1">Nachricht <span id="c-count" class="text-slate-600">0 / 1500</span></label><textarea id="c-msg" required minlength="5" maxlength="1500" rows="5" oninput="$('c-count').innerText = this.value.length + ' / 1500'" class="inp text-sm py-2.5"></textarea></div>
+    <div id="modal-contact" class="lg-modal hidden">
+        <div class="lg-mbox">
+            <div class="lg-mhead"><h3><i class="fa-regular fa-envelope"></i>Nachricht hinterlassen</h3><button type="button" class="lg-x" onclick="closeContact()" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></div>
+            <div id="c-sent" class="hidden" style="text-align:center;padding:26px 0"><i class="fa-solid fa-circle-check" style="font-size:44px;color:#4ade80"></i><p style="margin:14px 0 4px;font-weight:600;font-size:15px">Danke, deine Nachricht ist angekommen.</p><p class="lg-note">Ich melde mich, sobald ich sie gelesen habe.</p>
+                <button type="button" class="lg-mbtn" style="margin-top:20px" onclick="closeContact()">Schließen</button></div>
+            <form id="c-form" onsubmit="sendContact(event)" style="display:flex;flex-direction:column;gap:14px">
+                <p class="lg-note">Du hast Fragen oder möchtest einen Zugang? Schreib mir kurz.</p>
+                <div id="c-error" class="lg-alert bad hidden" style="margin:0"></div>
+                <div><label class="lg-mlabel" for="c-name">Name</label><input id="c-name" required maxlength="80" class="inp"></div>
+                <div><label class="lg-mlabel" for="c-email">E-Mail (für die Antwort)</label><input type="email" id="c-email" maxlength="120" class="inp" placeholder="optional, ohne E-Mail kann ich nicht antworten"></div>
+                <div><label class="lg-mlabel" for="c-msg">Nachricht <span id="c-count" style="color:#64748b">0 / 1500</span></label><textarea id="c-msg" required minlength="5" maxlength="1500" rows="5" oninput="$('c-count').innerText = this.value.length + ' / 1500'" class="inp"></textarea></div>
                 <input id="c-web" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
-                <label class="flex items-start gap-2 text-[11px] text-slate-400"><input type="checkbox" id="c-priv" required class="mt-0.5 rounded bg-slate-800 border-slate-700"><span>Ich habe die <a href="/datenschutz.html" target="_blank" class="text-indigo-400 underline">Datenschutzerklärung</a> gelesen und bin einverstanden, dass meine Angaben zur Bearbeitung gespeichert werden.</span></label>
-                <div class="flex justify-end gap-2 pt-1"><button type="button" onclick="closeContact()" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button id="c-btn" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium">Senden</button></div>
+                <label class="lg-check"><input type="checkbox" id="c-priv" required><span>Ich habe die <a href="/datenschutz.html" target="_blank">Datenschutzerklärung</a> gelesen und bin einverstanden, dass meine Nachricht gespeichert wird.</span></label>
+                <div style="display:flex;justify-content:flex-end;gap:10px"><button type="button" class="lg-mbtn" onclick="closeContact()">Abbrechen</button><button id="c-btn" class="lg-mbtn go">Senden</button></div>
             </form>
         </div>
     </div>
@@ -152,21 +275,23 @@
         });
 
         function setNet() {
-            $('net-dot').className = 'w-2 h-2 rounded-full ' + (navigator.onLine ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400');
+            $('net-dot').className = 'lg-dot ' + (navigator.onLine ? 'on' : 'off');
             $('net-text').innerText = navigator.onLine ? 'System Online' : 'Offline';
         }
         window.addEventListener('online', setNet); window.addEventListener('offline', setNet); setNet();
 
         function showAuthAlert(msg, ok = false) {
             $('auth-alert-text').innerText = msg;
-            $('auth-alert').className = 'mb-4 p-3 rounded-2xl border text-xs text-center flex items-center justify-center gap-2 ' +
-                (ok ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400');
+            $('auth-alert').className = 'lg-alert ' + (ok ? 'ok' : 'bad');
+            $('auth-alert').querySelector('i').className = 'fa-solid ' + (ok ? 'fa-circle-check' : 'fa-circle-exclamation');
         }
 
         function showView(v) {
             $('auth-alert').classList.add('hidden');
             ['login', 'register', 'reset'].forEach(k => $('form-' + k).classList.toggle('hidden', k !== v));
+            $('lg-tabs').dataset.v = v;
             if (v === 'reset' && !$('reset-email').value) $('reset-email').value = $('login-email').value;
+            const f = $('form-' + v); f.classList.remove('lg-enter'); void f.offsetWidth; f.classList.add('lg-enter');   // Formular gleitet beim Wechsel ein
         }
         function showRegisterView(show) { showView(show ? 'register' : 'login'); }
 
@@ -242,7 +367,7 @@
                 if (cred?.user) await cred.user.delete().catch(() => {});
                 showAuthAlert(err.friendly ? err.message
                     : err.code === 'auth/email-already-in-use' ? 'Diese E-Mail ist bereits registriert.'
-                    : err.code === 'auth/weak-password' ? 'Passwort zu schwach (min. 6 Zeichen).'
+                    : err.code === 'auth/weak-password' ? 'Passwort zu schwach (mindestens 8 Zeichen).'
                     : err.code === 'permission-denied' ? 'Der Einladungscode konnte nicht eingelöst werden (bereits verwendet oder abgelaufen).'
                     : 'Registrierung fehlgeschlagen: ' + err.message);
             } finally {
@@ -277,6 +402,36 @@
             const c = normCode(new URLSearchParams(location.search).get('code'));
             if (c) { showView('register'); $('reg-code').value = c; history.replaceState(null, '', location.pathname); }
         })();
+
+        // ---------- Bedienkomfort ----------
+        function togglePw(id, btn) {
+            const i = $(id), show = i.type === 'password'; i.type = show ? 'text' : 'password';
+            btn.querySelector('i').className = 'fa-solid ' + (show ? 'fa-eye-slash' : 'fa-eye'); btn.setAttribute('aria-label', show ? 'Passwort verbergen' : 'Passwort anzeigen'); i.focus();
+        }
+        // Hinweis, wenn die Feststelltaste aktiv ist
+        [['login-password', 'caps-login'], ['reg-password', 'caps-reg']].forEach(([inp, hint]) => {
+            const f = e => { if (e.getModifierState) $(hint).classList.toggle('hidden', !e.getModifierState('CapsLock')); };
+            $(inp).addEventListener('keydown', f); $(inp).addEventListener('keyup', f); $(inp).addEventListener('blur', () => $(hint).classList.add('hidden'));
+        });
+        function regMeter() {
+            const p = $('reg-password').value; let s = 0;
+            if (p.length >= 8) s++; if (p.length >= 12) s++; if (/[a-z]/.test(p) && /[A-Z]/.test(p)) s++; if (/\d/.test(p)) s++; if (/[^A-Za-z0-9]/.test(p)) s++;
+            s = p ? Math.max(1, Math.min(4, s)) : 0;
+            const L = [['', '#475569'], ['Schwach', '#ef4444'], ['Geht so', '#f59e0b'], ['Gut', '#84cc16'], ['Stark', '#22c55e']][s];
+            $('reg-bar').style.width = (p ? Math.max(12, s * 25) : 0) + '%'; $('reg-bar').style.background = L[1]; $('reg-meter-txt').textContent = L[0];
+        }
+        // Begrüßung mit Uhrzeit (nur die Uhr des Geräts, keine Anfrage)
+        function tickLive() {
+            const d = new Date(), h = d.getHours();
+            $('lg-greet').textContent = h < 5 ? 'Gute Nacht' : h < 11 ? 'Guten Morgen' : h < 17 ? 'Guten Tag' : h < 22 ? 'Guten Abend' : 'Gute Nacht';
+            $('lg-clock').textContent = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            $('lg-date').textContent = d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+        }
+        tickLive(); setInterval(tickLive, 20000);
+        // Leuchtfleck folgt der Maus (nur mit Maus und ohne "Bewegung reduzieren")
+        if (matchMedia('(pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            let raf = 0; addEventListener('pointermove', e => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { const s = $('lg-spot'); s.style.setProperty('--mx', e.clientX + 'px'); s.style.setProperty('--my', e.clientY + 'px'); }); }, { passive: true });
+        }
     </script>
 </body>
 </html>
