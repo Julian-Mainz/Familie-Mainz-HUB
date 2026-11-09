@@ -84,6 +84,22 @@ body.sb-lock { overflow: hidden !important; }
 .sb-legal a { color: inherit; text-decoration: none; } .sb-legal a:hover { color: #cbd5e1; text-decoration: underline; }
 #sb-backdrop { position: fixed; inset: 0; z-index: 65; background: rgba(2, 6, 16, .62); opacity: 0; pointer-events: none; transition: opacity .3s ease; }
 
+/* ---------- Untermenü "Web-Apps" ---------- */
+.sb-chev { flex: none; margin-left: auto; margin-right: 4px; font-size: 11px; color: #64748b; transition: transform .32s var(--ui-ease), color .2s; }
+.sb-group.open .sb-chev { transform: rotate(180deg); color: #e2e8f0; }
+.sb-subwrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .34s var(--ui-ease); }
+.sb-group.open .sb-subwrap { grid-template-rows: 1fr; }
+.sb-sub { overflow: hidden; min-height: 0; margin-left: 24px; padding-left: 12px; border-left: 1px dashed rgba(148, 163, 184, .22); }
+.sb-subhead { display: none; }
+.sb-subitem { --c: #38bdf8; display: flex; align-items: center; gap: 10px; margin: 3px 0; padding: 7px 10px 7px 7px; border-radius: 14px; color: #cbd5e1; text-decoration: none; opacity: 0; transform: translateX(-8px); transition: background-color .2s, color .2s, opacity .3s ease, transform .3s var(--ui-ease); }
+.sb-group.open .sb-subitem { opacity: 1; transform: none; transition-delay: .06s; }
+.sb-subitem:hover { background: rgba(148, 163, 184, .1); color: #fff; }
+.sb-subico { flex: none; width: 32px; height: 32px; border-radius: 11px; display: grid; place-items: center; font-size: 14px; color: var(--c); background: rgba(148, 163, 184, .09); transition: transform .3s var(--ui-ease), background-color .25s; }
+.sb-subitem:hover .sb-subico { transform: scale(1.1) rotate(-6deg); background: rgba(56, 189, 248, .22); }
+.sb-subtxt { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; flex: 1; }
+.sb-subtxt b { font-size: 13.5px; font-weight: 600; } .sb-subtxt small { font-size: 10.5px; color: #94a3b8; white-space: normal; }
+.sb-ext { flex: none; font-size: 10px; color: #64748b; transition: color .2s, transform .2s; } .sb-subitem:hover .sb-ext { color: #fff; transform: translate(2px, -2px); }
+
 /* ---------- Desktop: feste Seitenleiste, einklappbar ---------- */
 @media (min-width: 1024px) {
     body.has-sb { padding-left: calc(var(--sbw) + 14px + 18px); transition: padding-left .34s var(--ui-ease); }
@@ -99,6 +115,16 @@ body.sb-lock { overflow: hidden !important; }
     html.sb-collapsed .sb-badge { position: absolute; top: 2px; right: 12px; min-width: 16px; height: 16px; padding: 0 4px; font-size: 9px; }
     html.sb-collapsed .sb-tools { grid-template-columns: 1fr; }
     html.sb-collapsed .sb-user { justify-content: center; padding: 6px 0; background: none; border-color: transparent; }
+    /* Web-Apps bei schmaler Leiste: Auswahlfenster neben dem Symbol */
+    html.sb-collapsed .sb-chev { display: none; }
+    html.sb-collapsed .sb-group { position: relative; }
+    html.sb-collapsed .sb-subwrap { display: block; position: absolute; left: calc(100% + 14px); top: -4px; width: 262px; opacity: 0; pointer-events: none; transform: translateX(-8px); transition: opacity .18s ease, transform .22s var(--ui-ease); z-index: 85; }
+    html.sb-collapsed .sb-subwrap::before { content: ""; position: absolute; left: -18px; top: 0; bottom: 0; width: 18px; }
+    html.sb-collapsed .sb-sub { margin: 0; padding: 8px; overflow: visible; border: 1px solid rgba(148, 163, 184, .22); border-radius: 18px; background: #0f172a; box-shadow: 0 18px 44px rgba(0, 0, 0, .55); }
+    html.sb-collapsed .sb-subhead { display: block; padding: 4px 8px 6px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #64748b; }
+    html.sb-collapsed .sb-subitem { opacity: 1; transform: none; }
+    html.sb-collapsed .sb-group:hover .sb-subwrap, html.sb-collapsed .sb-group:focus-within .sb-subwrap, html.sb-collapsed .sb-group.open .sb-subwrap { opacity: 1; pointer-events: auto; transform: none; }
+    html.sb-collapsed .sb-group:hover > .sb-item::after, html.sb-collapsed .sb-group:focus-within > .sb-item::after { opacity: 0 !important; }
     /* Hinweisfenster bei eingeklappter Leiste */
     html.sb-collapsed .sb-item::after, html.sb-collapsed .sb-tool::after { content: attr(data-tip); position: absolute; left: calc(100% + 14px); top: 50%; transform: translate(-6px, -50%); padding: 6px 11px; border-radius: 10px; background: #0f172a; border: 1px solid rgba(148, 163, 184, .2); color: #f1f5f9; font-size: 12.5px; font-weight: 500; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; box-shadow: 0 8px 24px rgba(0, 0, 0, .4); z-index: 80; }
     html.sb-collapsed .sb-item:hover::after, html.sb-collapsed .sb-tool:hover::after { opacity: 1; transform: translate(0, -50%); }
