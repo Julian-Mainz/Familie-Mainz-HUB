@@ -11,6 +11,11 @@ const DRAWER_LINKS = [
     { href: '/admin.html',          label: 'Admin',          icon: 'fa-user-shield',   c: '#c084fc', group: 'System',    admin: true, badge: true },
 ];
 
+// Web-Apps: eigenständige Seiten, die in einem neuen Tab geöffnet werden. Weitere einfach hier ergänzen.
+const WEB_APPS = [
+    { href: '/Uhr/', label: 'Uhr', desc: 'Große Uhr mit Feierabend-Timer', icon: 'fa-clock', c: '#38bdf8' },
+];
+
 function normPath(p) {
     return p.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1') || '/';
 }
@@ -25,14 +30,28 @@ function renderDrawer() {
         .filter(l => !l.perm || (typeof can === 'function' && can(user, l.perm)))
         .filter(l => !l.admin || (typeof isAdmin === 'function' && isAdmin(user)));
 
-    // Seitenleiste: Einträge nach Gruppen
-    let idx = 0, lastGroup = '';
-    const items = allowed.map(l => {
+    // Seitenleiste: Einträge nach Gruppen. Der Punkt "Web-Apps" (mit Untermenü) steht am Ende der Gruppe "Bereiche".
+    let idx = 0, lastGroup = '', webDone = false;
+    const webOk = WEB_APPS.length > 0 && typeof can === 'function' && can(user, 'webapps');
+    const webGroup = () => {
+        webDone = true;
+        const subs = WEB_APPS.map(a => `<a class="sb-subitem" href="${a.href}" target="_blank" rel="noopener" style="--c:${a.c}"><span class="sb-subico"><i class="fa-solid ${a.icon}"></i></span>
+            <span class="sb-subtxt"><b>${a.label}</b><small>${a.desc || ''}</small></span><i class="fa-solid fa-arrow-up-right-from-square sb-ext"></i></a>`).join('');
+        return `<div class="sb-group" id="sb-webapps">
+            <button type="button" class="sb-item sb-toggle" style="--c:#38bdf8;--i:${idx++}" data-tip="Web-Apps" aria-expanded="false" aria-controls="sb-sub-web">
+                <span class="sb-ico"><i class="fa-solid fa-table-cells-large"></i></span><span class="sb-label">Web-Apps</span><i class="fa-solid fa-chevron-down sb-chev"></i></button>
+            <div class="sb-subwrap" id="sb-sub-web"><div class="sb-sub"><div class="sb-subhead">Web-Apps</div>${subs}</div></div></div>`;
+    };
+    const parts = [];
+    allowed.forEach(l => {
+        if (l.group === 'System' && webOk && !webDone) parts.push(webGroup());
         const head = l.group !== lastGroup ? `<div class="sb-sec">${l.group}</div>` : ''; lastGroup = l.group;
         const on = normPath(l.href) === here;
-        return `${head}<a class="sb-item${on ? ' on' : ''}" href="${l.href}" style="--c:${l.c};--i:${idx++}" data-tip="${l.label}"${on ? ' aria-current="page"' : ''}>
-            <span class="sb-ico"><i class="fa-solid ${l.icon}"></i></span><span class="sb-label">${l.label}</span>${l.badge ? '<em class="sb-badge" id="sb-badge"></em>' : ''}</a>`;
-    }).join('');
+        parts.push(`${head}<a class="sb-item${on ? ' on' : ''}" href="${l.href}" style="--c:${l.c};--i:${idx++}" data-tip="${l.label}"${on ? ' aria-current="page"' : ''}>
+            <span class="sb-ico"><i class="fa-solid ${l.icon}"></i></span><span class="sb-label">${l.label}</span>${l.badge ? '<em class="sb-badge" id="sb-badge"></em>' : ''}</a>`);
+    });
+    if (webOk && !webDone) parts.push(webGroup());
+    const items = parts.join('');
 
     // Tab-Leiste am Handy: Start + die zwei wichtigsten freigegebenen Bereiche + Suche + Menü
     const prio = ['/zeiterfassung.html', '/finanzen.html', '/spotify.html', '/passwort.html', '/wand.html', '/admin.html'];
@@ -74,7 +93,16 @@ function renderDrawer() {
     try { if (localStorage.getItem('sb_collapsed') === '1') document.documentElement.classList.add('sb-collapsed'); } catch (e) { /* ohne Speicher: immer ausgeklappt */ }
 
     // Auf dem Handy: nach einem Klick auf einen Eintrag schließt sich die Leiste
-    document.getElementById('sb').addEventListener('click', e => { if (e.target.closest('a.sb-item')) toggleSideMenu(false); });
+    const sb = document.getElementById('sb');
+    sb.addEventListener('click', e => {
+        if (e.target.closest('a.sb-item, a.sb-subitem')) { toggleSideMenu(false); return; }
+        const tg = e.target.closest('.sb-toggle'); if (!tg) return;
+        const g = document.getElementById('sb-webapps'), open = !g.classList.contains('open');
+        g.classList.toggle('open', open); tg.setAttribute('aria-expanded', String(open));
+        if (!document.documentElement.classList.contains('sb-collapsed')) { try { localStorage.setItem('sb_web_open', open ? '1' : '0'); } catch (x) {} }
+    });
+    document.addEventListener('click', e => { const g = document.getElementById('sb-webapps'); if (g && !g.contains(e.target) && document.documentElement.classList.contains('sb-collapsed')) g.classList.remove('open'); });
+    restoreWebApps();
 
     // Einstellungen, Termin-Logik & Suche nachladen, damit auf den Seiten nichts ergänzt werden muss
     if (!document.getElementById('settings-js')) {
@@ -113,6 +141,14 @@ async function loadAdminBadge() {
 function toggleSidebarWidth() {
     const on = document.documentElement.classList.toggle('sb-collapsed');
     try { localStorage.setItem('sb_collapsed', on ? '1' : '0'); } catch (e) {}
+    restoreWebApps();
+}
+// Untermenü "Web-Apps": breit = aufgeklappt, wenn zuletzt so gewählt. Schmal = Auswahlfenster nur beim Darüberfahren oder Tippen.
+function restoreWebApps() {
+    const g = document.getElementById('sb-webapps'); if (!g) return;
+    let open = false; try { open = localStorage.getItem('sb_web_open') === '1'; } catch (e) {}
+    open = open && !document.documentElement.classList.contains('sb-collapsed');
+    g.classList.toggle('open', open); g.querySelector('.sb-toggle').setAttribute('aria-expanded', String(open));
 }
 
 // Handy: Leiste ein- oder ausfahren
