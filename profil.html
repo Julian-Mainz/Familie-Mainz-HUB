@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mein Profil – J.Mainz Dashboard</title>
+    <meta name="theme-color" content="#080c14">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="J.Mainz">
+    <link rel="stylesheet" href="/assets/css/profil.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
+    <link rel="stylesheet" href="/assets/icons.css">
+    <link rel="stylesheet" href="/assets/ui.css">
+    <script src="/js/vendor/firebase-app-compat.js"></script>
+    <script src="/js/vendor/firebase-auth-compat.js"></script>
+    <script src="/js/vendor/firebase-firestore-compat.js"></script>
+    <script src="/js/firebase-init.js"></script>
+    <script src="/js/drawer.js"></script>
+    <style>
+        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        main > * { flex-shrink: 0; }
+        /* ---------- Profilseite (eigenes CSS, unabhängig vom Tailwind-Build) ---------- */
+        .pf-hero { position: relative; display: flex; align-items: center; gap: 22px; padding: 24px; border-radius: 28px; border: 1px solid rgba(148, 163, 184, .15); overflow: hidden;
+            background: radial-gradient(520px 220px at 0 0, rgba(99, 102, 241, .28), transparent 70%), radial-gradient(420px 220px at 100% 100%, rgba(6, 182, 212, .16), transparent 70%), rgba(15, 23, 42, .6); }
+        .pf-avwrap { position: relative; flex: none; }
+        .pf-av { width: 112px; height: 112px; border-radius: 34px; display: grid; place-items: center; overflow: hidden; font-size: 38px; font-weight: 700; color: #fff; box-shadow: 0 16px 40px -8px rgba(79, 70, 229, .55), 0 0 0 4px rgba(255, 255, 255, .06); transition: transform .35s var(--ui-ease); }
+        .pf-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .pf-avwrap:hover .pf-av { transform: scale(1.04) rotate(-1.5deg); }
+        .pf-cam { position: absolute; right: -8px; bottom: -8px; width: 40px; height: 40px; border-radius: 14px; border: 3px solid #0b1120; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; cursor: pointer; display: grid; place-items: center; font-size: 15px; box-shadow: 0 8px 20px rgba(99, 102, 241, .5); transition: transform .25s var(--ui-ease); }
+        .pf-cam:hover { transform: scale(1.12) rotate(-6deg); }
+        .pf-h2 { font-size: 24px; font-weight: 700; line-height: 1.15; }
+        .pf-sub { color: #94a3b8; font-size: 13.5px; margin-top: 3px; word-break: break-all; }
+        .pf-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .pf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 99px; font-size: 11.5px; background: rgba(148, 163, 184, .1); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, .14); }
+        .pf-chip.role { background: rgba(129, 140, 248, .16); color: #c7d2fe; border-color: rgba(129, 140, 248, .35); }
+        .pf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px; align-items: start; }
+        .pf-card { border-radius: 24px; border: 1px solid rgba(148, 163, 184, .15); background: rgba(15, 23, 42, .6); padding: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, .2); transition: border-color .25s; }
+        .pf-card:hover { border-color: rgba(129, 140, 248, .3); }
+        .pf-title { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 1px solid rgba(148, 163, 184, .13); }
+        .pf-title i { color: #818cf8; } .pf-title small { margin-left: auto; font-size: 11px; font-weight: 400; color: #64748b; }
+        .pf-lbl { display: block; font-size: 11.5px; color: #94a3b8; margin: 0 0 5px; }
+        .pf-in { width: 100%; background: rgba(2, 6, 16, .55); border: 1px solid rgba(148, 163, 184, .2); border-radius: 14px; padding: 10px 13px; font-size: 14px; color: #f1f5f9; outline: none; font-family: inherit; transition: border-color .2s, box-shadow .2s; }
+        .pf-in:focus { border-color: #818cf8; box-shadow: 0 0 0 4px rgba(129, 140, 248, .15); }
+        .pf-in[readonly] { color: #94a3b8; cursor: not-allowed; }
+        .pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .pf-field { margin-bottom: 12px; }
+        .pf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 14px; font-size: 13px; font-weight: 600; border: 1px solid rgba(148, 163, 184, .2); background: rgba(255, 255, 255, .05); color: #e2e8f0; cursor: pointer; font-family: inherit; }
+        .pf-btn:hover { background: rgba(129, 140, 248, .18); border-color: rgba(129, 140, 248, .4); }
+        .pf-btn.primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); border-color: transparent; color: #fff; box-shadow: 0 8px 22px -6px rgba(99, 102, 241, .6); }
+        .pf-btn.primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .pf-btn.danger { color: #fda4af; border-color: rgba(244, 63, 94, .3); background: rgba(244, 63, 94, .08); } .pf-btn.danger:hover { background: rgba(244, 63, 94, .2); border-color: rgba(244, 63, 94, .5); }
+        .pf-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+        .pf-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+        .pf-swatches { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+        .pf-sw { width: 38px; height: 38px; border-radius: 13px; border: 3px solid transparent; cursor: pointer; transition: transform .2s var(--ui-ease), border-color .2s; padding: 0; }
+        .pf-sw:hover { transform: scale(1.12); } .pf-sw.on { border-color: #fff; box-shadow: 0 0 0 2px rgba(129, 140, 248, .6); }
+        .pf-note { font-size: 11.5px; color: #64748b; margin-top: 10px; line-height: 1.5; }
+        .pf-meter { height: 6px; border-radius: 6px; background: rgba(148, 163, 184, .18); overflow: hidden; margin-top: 7px; }
+        .pf-meter i { display: block; height: 100%; width: 0; border-radius: inherit; transition: width .35s var(--ui-ease), background-color .3s; }
+        .pf-meter-t { font-size: 11px; color: #94a3b8; margin-top: 4px; min-height: 14px; }
+        .pf-perms { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .pf-perm { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 12px; font-size: 12.5px; border: 1px solid rgba(148, 163, 184, .15); }
+        .pf-perm.yes { background: rgba(52, 211, 153, .1); color: #a7f3d0; border-color: rgba(52, 211, 153, .3); }
+        .pf-perm.no { background: rgba(148, 163, 184, .06); color: #64748b; text-decoration: line-through; }
+        .pf-grouplbl { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #64748b; margin: 4px 0 7px; }
+        /* Zuschneide-Fenster */
+        .pf-modal { position: fixed; inset: 0; z-index: 90; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(2, 6, 16, .78); }
+        .pf-modal.show { display: flex; animation: uiFade .2s ease; }
+        .pf-modalbox { width: min(100%, 380px); padding: 20px; border-radius: 28px; background: #0f172a; border: 1px solid rgba(148, 163, 184, .2); box-shadow: 0 30px 80px rgba(0, 0, 0, .6); animation: uiPop .3s cubic-bezier(.2, .9, .3, 1.12); }
+        .pf-stage { position: relative; width: 280px; height: 280px; margin: 14px auto; border-radius: 24px; overflow: hidden; background: #020610; touch-action: none; cursor: grab; }
+        .pf-stage:active { cursor: grabbing; } .pf-stage canvas { display: block; width: 280px; height: 280px; }
+        .pf-ring { position: absolute; inset: 0; pointer-events: none; border-radius: 31%; box-shadow: 0 0 0 300px rgba(2, 6, 16, .62), inset 0 0 0 1px rgba(255, 255, 255, .22); }   /* zeigt die spätere Form des Avatars */
+        .pf-zoom { width: 100%; accent-color: #818cf8; }
+        .pf-toast { pointer-events: none; position: fixed; z-index: 95; left: 50%; bottom: 96px; transform: translateX(-50%); padding: 10px 18px; border-radius: 16px; font-size: 13px; font-weight: 500; background: #1e293b; border: 1px solid rgba(148, 163, 184, .25); box-shadow: 0 14px 40px rgba(0, 0, 0, .5); animation: uiPop .3s cubic-bezier(.2, .9, .3, 1.12); max-width: 92vw; }
+        .pf-toast.bad { background: #4c0519; border-color: rgba(244, 63, 94, .5); color: #fecdd3; }
+        @media (max-width: 600px) { .pf-hero { flex-direction: column; text-align: center; } .pf-chips { justify-content: center; } .pf-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+
+    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
+        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span></button>
+        <h1 class="text-sm sm:text-base md:text-xl font-bold tracking-wide truncate px-2"><i class="fa-solid fa-user text-indigo-400 mr-1.5"></i>Mein Profil</h1>
+        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span></button>
+    </header>
+
+    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
+        <section class="pf-hero">
+            <div class="pf-avwrap">
+                <div class="pf-av" id="hero-av"></div>
+                <button class="pf-cam" onclick="$('file').click()" title="Profilbild ändern" aria-label="Profilbild ändern"><i class="fa-solid fa-camera"></i></button>
+                <input type="file" id="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+            </div>
+            <div class="min-w-0">
+                <div class="pf-h2" id="hero-name"></div>
+                <div class="pf-sub" id="hero-mail"></div>
+                <div class="pf-chips" id="hero-chips"></div>
+                <div class="pf-actions" style="margin-top:14px">
+                    <button class="pf-btn primary" onclick="$('file').click()"><i class="fa-solid fa-image"></i>Bild ändern</button>
+                    <button class="pf-btn" id="btn-rmphoto" onclick="removePhoto()"><i class="fa-solid fa-trash-can"></i>Bild entfernen</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="pf-grid">
+            <section class="pf-card">
+                <div class="pf-title"><i class="fa-solid fa-user"></i>Persönliche Daten</div>
+                <form onsubmit="saveProfile(event)">
+                    <div class="pf-row"><div class="pf-field"><label class="pf-lbl" for="f-first">Vorname</label><input class="pf-in" id="f-first" maxlength="40" autocomplete="given-name" required></div>
+                        <div class="pf-field"><label class="pf-lbl" for="f-last">Nachname</label><input class="pf-in" id="f-last" maxlength="40" autocomplete="family-name"></div></div>
+                    <div class="pf-field"><label class="pf-lbl" for="f-mail">E-Mail-Adresse <i class="fa-solid fa-lock" style="font-size:10px"></i></label><input class="pf-in" id="f-mail" readonly></div>
+                    <div class="pf-actions"><button class="pf-btn primary" id="btn-save"><i class="fa-solid fa-check"></i>Speichern</button></div>
+                    <p class="pf-note">Die E-Mail-Adresse ist dein Login und kann hier nicht geändert werden. Wende dich dafür an einen Administrator.</p>
+                </form>
+            </section>
+
+            <section class="pf-card">
+                <div class="pf-title"><i class="fa-solid fa-palette"></i>Avatar-Farbe<small>wenn kein Bild gesetzt ist</small></div>
+                <div class="pf-swatches" id="swatches"></div>
+                <p class="pf-note">Ohne Profilbild siehst du deine Initialen auf dem gewählten Farbverlauf, zum Beispiel links in der Navigation.</p>
+            </section>
+
+            <section class="pf-card">
+                <div class="pf-title"><i class="fa-solid fa-key"></i>Passwort ändern</div>
+                <form onsubmit="changePassword(event)">
+                    <div class="pf-field"><label class="pf-lbl" for="p-cur">Aktuelles Passwort</label><input class="pf-in" type="password" id="p-cur" autocomplete="current-password" required></div>
+                    <div class="pf-field"><label class="pf-lbl" for="p-new">Neues Passwort (mindestens 8 Zeichen)</label><input class="pf-in" type="password" id="p-new" autocomplete="new-password" minlength="8" required oninput="meter()">
+                        <div class="pf-meter"><i id="meter-bar"></i></div><div class="pf-meter-t" id="meter-txt"></div></div>
+                    <div class="pf-field"><label class="pf-lbl" for="p-rep">Neues Passwort wiederholen</label><input class="pf-in" type="password" id="p-rep" autocomplete="new-password" required></div>
+                    <div class="pf-actions"><button class="pf-btn primary" id="btn-pw"><i class="fa-solid fa-lock"></i>Passwort ändern</button></div>
+                </form>
+            </section>
+
+            <section class="pf-card">
+                <div class="pf-title"><i class="fa-solid fa-shield-halved"></i>Meine Rechte<small>vergibt der Administrator</small></div>
+                <div id="perms"></div>
+            </section>
+
+            <section class="pf-card">
+                <div class="pf-title"><i class="fa-solid fa-database"></i>Meine Daten &amp; Konto</div>
+                <p class="pf-note" style="margin:0 0 14px">Lade alle Daten herunter, die zu deinem Konto gespeichert sind, oder lösche dein Konto samt aller Daten.</p>
+                <div class="pf-actions">
+                    <button class="pf-btn" onclick="callOrWait('exportMyData')"><i class="fa-solid fa-download"></i>Meine Daten herunterladen</button>
+                    <button class="pf-btn" onclick="callOrWait('openSettingsModal')"><i class="fa-solid fa-gear"></i>Einstellungen &amp; Alarm</button>
+                    <button class="pf-btn danger" onclick="callOrWait('openDeleteAccount')"><i class="fa-solid fa-trash-can"></i>Konto löschen</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Bild zuschneiden -->
+    <div class="pf-modal" id="crop-modal">
+        <div class="pf-modalbox">
+            <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:16px"><i class="fa-solid fa-image" style="color:#818cf8;margin-right:8px"></i>Bild zuschneiden</b><button class="pf-btn" style="padding:6px 10px" onclick="closeCrop()" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="pf-stage" id="stage"><canvas id="crop-canvas" width="280" height="280"></canvas><div class="pf-ring"></div></div>
+            <input class="pf-zoom" type="range" id="crop-zoom" min="1" max="4" step="0.01" value="1" aria-label="Zoom">
+            <p class="pf-note" style="text-align:center">Bild mit der Maus oder dem Finger verschieben, mit dem Regler vergrößern. Die Rundung zeigt, wie es später aussieht.</p>
+            <div class="pf-actions" style="justify-content:flex-end;margin-top:14px"><button class="pf-btn" onclick="closeCrop()">Abbrechen</button><button class="pf-btn primary" id="btn-crop" onclick="applyCrop()"><i class="fa-solid fa-check"></i>Übernehmen</button></div>
+        </div>
+    </div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const e2 = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const PERM_GROUPS = [['Startseite', { termine: 'Kalender & Termine', pinnwand: 'Pinnwand', aufgaben: 'Aufgaben & Einkauf' }], ['Bereiche', { zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe', wand: 'Wandkalender', spotify: 'Spotify', webapps: 'Web-Apps' }]];
+        const userRef = () => db.collection('users').doc(currentUser.uid);
+        const fmtD = t => t && t.toDate ? t.toDate().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }) : '–';
+        const fmtDT = t => t && t.toDate ? t.toDate().toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' }) : '–';
+        function toast(msg, bad) { document.querySelectorAll('.pf-toast').forEach(x => x.remove()); const t = document.createElement('div'); t.className = 'pf-toast' + (bad ? ' bad' : ''); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3600); }
+        const callOrWait = fn => { if (typeof window[fn] === 'function') window[fn](); else toast('Wird noch geladen. Bitte gleich noch einmal klicken.', true); };
+
+        initAuthGuard(user => {
+            if (!user) return;
+            renderDrawer(); renderAll();
+            $('file').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) openCrop(f); });
+        });
+
+        function renderAll() {
+            const u = currentUser, hasPhoto = PHOTO_OK.test(u.photo || '');
+            $('hero-av').style.background = avatarGradient(u.avatarColor); $('hero-av').innerHTML = avatarInner(u);
+            $('hero-name').textContent = u.name; $('hero-mail').textContent = u.email;
+            $('hero-chips').innerHTML = `<span class="pf-chip role"><i class="fa-solid fa-user-shield"></i>${roleLabel(u)}</span><span class="pf-chip"><i class="fa-regular fa-calendar-days"></i>Mitglied seit ${fmtD(u.createdAt)}</span><span class="pf-chip"><i class="fa-solid fa-clock"></i>Letzter Login ${fmtDT(u.lastLogin)}</span>`;
+            $('btn-rmphoto').style.display = hasPhoto ? '' : 'none';
+            $('f-first').value = u.firstName === (u.email || '').split('@')[0] && !u.lastName ? '' : u.firstName; $('f-last').value = u.lastName || ''; $('f-mail').value = u.email;
+            $('swatches').innerHTML = AVATAR_COLORS.map((_, i) => `<button type="button" class="pf-sw${(+u.avatarColor || 0) % AVATAR_COLORS.length === i ? ' on' : ''}" data-i="${i}" style="background:${avatarGradient(i)}" aria-label="Farbe ${i + 1}"></button>`).join('');
+            $('swatches').onclick = e => { const b = e.target.closest('[data-i]'); if (b) setColor(+b.dataset.i); };
+            $('perms').innerHTML = PERM_GROUPS.map(([g, m]) => `<div class="pf-grouplbl">${g}</div><div class="pf-perms">${Object.entries(m).map(([k, l]) => `<span class="pf-perm ${can(u, k) ? 'yes' : 'no'}"><i class="fa-solid ${can(u, k) ? 'fa-check' : 'fa-xmark'}"></i>${l}</span>`).join('')}</div>`).join('')
+                + (isAdmin(u) ? '<div class="pf-grouplbl">Verwaltung</div><div class="pf-perms"><span class="pf-perm yes"><i class="fa-solid fa-check"></i>Administration</span></div>' : '');
+            refreshSidebarUser();
+        }
+
+        async function saveField(data) { await userRef().update(data); Object.assign(currentUser, data); }
+        async function saveProfile(e) {
+            e.preventDefault();
+            const first = $('f-first').value.trim(), last = $('f-last').value.trim();
+            if (!first) return toast('Bitte einen Vornamen eingeben.', true);
+            const btn = $('btn-save'); btn.disabled = true;
+            try {
+                const displayName = `${first} ${last}`.trim();
+                await saveField({ firstName: first, lastName: last, displayName });
+                currentUser.name = displayName; logSystemEvent('data', 'Profil geändert'); renderAll(); toast('Profil gespeichert');
+            } catch (err) { toast('Speichern fehlgeschlagen: ' + err.message, true); } finally { btn.disabled = false; }
+        }
+        async function setColor(i) { try { await saveField({ avatarColor: i }); renderAll(); } catch (err) { toast('Konnte die Farbe nicht speichern: ' + err.message, true); } }
+        async function removePhoto() {
+            if (!confirm('Profilbild wirklich entfernen?')) return;
+            try { await userRef().update({ photo: firebase.firestore.FieldValue.delete() }); currentUser.photo = ''; logSystemEvent('data', 'Profilbild entfernt'); renderAll(); toast('Bild entfernt'); }
+            catch (err) { toast('Entfernen fehlgeschlagen: ' + err.message, true); }
+        }
+
+        // ---------- Profilbild: zuschneiden und verkleinern ----------
+        const CR = { img: null, size: 280, min: 1, scale: 1, x: 0, y: 0, drag: null }, cv = $('crop-canvas'), cx = cv.getContext('2d');
+        function openCrop(file) {
+            if (!/^image\//.test(file.type)) return toast('Bitte eine Bilddatei auswählen.', true);
+            if (file.size > 15 * 1024 * 1024) return toast('Das Bild ist zu groß (höchstens 15 MB).', true);
+            const url = URL.createObjectURL(file), img = new Image();
+            img.onload = () => {
+                URL.revokeObjectURL(url); CR.img = img; CR.min = CR.size / Math.min(img.width, img.height); CR.scale = CR.min;
+                CR.x = (CR.size - img.width * CR.scale) / 2; CR.y = (CR.size - img.height * CR.scale) / 2; $('crop-zoom').value = 1; drawCrop(); $('crop-modal').classList.add('show');
+            };
+            img.onerror = () => toast('Dieses Bild konnte nicht gelesen werden.', true); img.src = url;
+        }
+        function clampCrop() { const w = CR.img.width * CR.scale, h = CR.img.height * CR.scale; CR.x = Math.min(0, Math.max(CR.size - w, CR.x)); CR.y = Math.min(0, Math.max(CR.size - h, CR.y)); }
+        function drawCrop() { cx.fillStyle = '#0b1220'; cx.fillRect(0, 0, CR.size, CR.size); cx.drawImage(CR.img, CR.x, CR.y, CR.img.width * CR.scale, CR.img.height * CR.scale); }
+        $('crop-zoom').addEventListener('input', e => {       // Zoom um die Mitte
+            const ns = CR.min * +e.target.value, k = ns / CR.scale, c = CR.size / 2; CR.x = c - (c - CR.x) * k; CR.y = c - (c - CR.y) * k; CR.scale = ns; clampCrop(); drawCrop();
+        });
+        const stage = $('stage');
+        stage.addEventListener('pointerdown', e => { CR.drag = { x: e.clientX, y: e.clientY }; stage.setPointerCapture(e.pointerId); });
+        stage.addEventListener('pointermove', e => { if (!CR.drag || !CR.img) return; CR.x += e.clientX - CR.drag.x; CR.y += e.clientY - CR.drag.y; CR.drag = { x: e.clientX, y: e.clientY }; clampCrop(); drawCrop(); });
+        ['pointerup', 'pointercancel'].forEach(t => stage.addEventListener(t, () => { CR.drag = null; }));
+        function closeCrop() { $('crop-modal').classList.remove('show'); CR.img = null; }
+        async function applyCrop() {
+            if (!CR.img) return; const btn = $('btn-crop'); btn.disabled = true;
+            try {
+                const out = document.createElement('canvas'); out.width = out.height = 256; const o = out.getContext('2d'), r = 256 / CR.size;
+                o.fillStyle = '#0b1220'; o.fillRect(0, 0, 256, 256); o.drawImage(CR.img, CR.x * r, CR.y * r, CR.img.width * CR.scale * r, CR.img.height * CR.scale * r);
+                let q = 0.88, data = out.toDataURL('image/jpeg', q);
+                while (data.length > 120000 && q > 0.4) { q -= 0.1; data = out.toDataURL('image/jpeg', q); }          // bleibt klein (Datenbank-Limit)
+                if (!PHOTO_OK.test(data)) throw new Error('Das Bild konnte nicht erstellt werden.');
+                await saveField({ photo: data }); logSystemEvent('data', 'Profilbild geändert'); closeCrop(); renderAll(); toast('Profilbild gespeichert');
+            } catch (err) { toast('Speichern fehlgeschlagen: ' + err.message, true); } finally { btn.disabled = false; }
+        }
+
+        // ---------- Passwort ----------
+        function strength(p) { let s = 0; if (p.length >= 8) s++; if (p.length >= 12) s++; if (/[a-z]/.test(p) && /[A-Z]/.test(p)) s++; if (/\d/.test(p)) s++; if (/[^A-Za-z0-9]/.test(p)) s++; return Math.min(4, s); }
+        function meter() {
+            const p = $('p-new').value, s = p ? Math.max(1, strength(p)) : 0, L = [['', '#475569'], ['Schwach', '#ef4444'], ['Geht so', '#f59e0b'], ['Gut', '#84cc16'], ['Stark', '#22c55e']][s];
+            $('meter-bar').style.width = (p ? Math.max(12, s * 25) : 0) + '%'; $('meter-bar').style.background = L[1]; $('meter-txt').textContent = p ? L[0] : '';
+        }
+        async function changePassword(e) {
+            e.preventDefault();
+            const cur = $('p-cur').value, nw = $('p-new').value, rep = $('p-rep').value;
+            if (nw.length < 8) return toast('Das neue Passwort braucht mindestens 8 Zeichen.', true);
+            if (nw !== rep) return toast('Die beiden neuen Passwörter stimmen nicht überein.', true);
+            if (nw === cur) return toast('Das neue Passwort muss sich vom alten unterscheiden.', true);
+            const btn = $('btn-pw'); btn.disabled = true;
+            try {
+                const u = auth.currentUser; await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email, cur)); await u.updatePassword(nw);
+                logSystemEvent('auth', 'Passwort geändert'); ['p-cur', 'p-new', 'p-rep'].forEach(i => { $(i).value = ''; }); meter(); toast('Passwort geändert');
+            } catch (err) {
+                const m = { 'auth/wrong-password': 'Das aktuelle Passwort stimmt nicht.', 'auth/invalid-credential': 'Das aktuelle Passwort stimmt nicht.', 'auth/weak-password': 'Das neue Passwort ist zu schwach.', 'auth/too-many-requests': 'Zu viele Versuche. Bitte später erneut versuchen.', 'auth/requires-recent-login': 'Bitte melde dich neu an und versuche es noch einmal.' };
+                toast(m[err.code] || 'Passwort ändern fehlgeschlagen: ' + err.message, true);
+            } finally { btn.disabled = false; }
+        }
+    </script>
+</body>
+</html>
