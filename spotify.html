@@ -51,12 +51,12 @@
             <p class="text-xs text-slate-400 mb-4">Damit dieses Dashboard dein Spotify steuern darf, legst du bei Spotify einmal eine kostenlose Entwickler-App an. Du brauchst dafür ein <b class="text-slate-200">Spotify-Premium-Konto</b>. Ohne Premium erlaubt Spotify keine Fernsteuerung.</p>
             <ol class="space-y-3 text-sm text-slate-300 list-decimal pl-5 mb-4">
                 <li>Öffne <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener" class="text-emerald-400 underline">developer.spotify.com/dashboard</a> und melde dich mit deinem Spotify-Konto an.</li>
-                <li>Klicke auf <b>Create app</b>. Name und Beschreibung sind frei wählbar (z. B. „Mainz Hub“). Bei <b>Redirect URI</b> trägst du genau diese Adresse ein und bestätigst mit <b>Add</b>:
+                <li>Klicke auf <b>Create app</b>. Name und Beschreibung sind frei wählbar (z. B. „J.Mainz Dashboard“). Bei <b>Redirect URI</b> trägst du genau diese Adresse ein und bestätigst mit <b>Add</b>:
                     <div class="flex gap-2 mt-2"><input id="redir" readonly class="inp font-mono text-xs"><button onclick="copyRedirect()" class="px-3 rounded-xl text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700">Kopieren</button></div></li>
                 <li>Bei „Which API/SDKs are you planning to use?“ kreuzt du <b>Web API</b> an und speicherst.</li>
                 <li>In der App unter <b>Settings</b> findest du die <b>Client ID</b>. Füge sie hier ein:
                     <input id="cid" placeholder="Client ID (32 Zeichen)" maxlength="64" autocomplete="off" class="inp font-mono text-xs mt-2"></li>
-                <li class="text-slate-400">Weitere Familienmitglieder, die es nutzen: In der App unter <b>User management</b> ihre Spotify-E-Mail eintragen (höchstens 5 Personen).</li>
+                <li class="text-slate-400">Weitere Personen, die es nutzen: In der App unter <b>User management</b> ihre Spotify-E-Mail eintragen (höchstens 5 Personen).</li>
             </ol>
             <button onclick="saveClientId()" class="w-full py-2.5 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white">Speichern und weiter</button>
         </section>
