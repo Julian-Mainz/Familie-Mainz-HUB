@@ -14,6 +14,7 @@
         can(currentUser, 'finanzen') && ['Finanzen', '/finanzen.html', 'fa-coins', 'buchungen geld fixkosten budget lohn sparkasse konto'],
         can(currentUser, 'tresor') && ['Passwort-Safe', '/passwort.html', 'fa-shield-halved', 'tresor passwoerter zugangsdaten'],
         isAdmin(currentUser) && ['Admin', '/admin.html', 'fa-user-shield', 'mitglieder rechte logs system nachrichten fehler'],
+        ['Mein Profil', '/profil.html', 'fa-user', 'profil konto account passwort bild foto avatar name aendern'],
         ['Impressum', '/impressum.html', 'fa-scale-balanced', 'recht anbieter kontakt'],
         ['Datenschutz', '/datenschutz.html', 'fa-lock', 'datenschutzerklaerung dsgvo']
     ].filter(Boolean).map(p => ({ kind: 'page', title: p[0], sub: 'Seite öffnen', icon: p[2], href: p[1], hay: norm(p[0] + ' ' + p[3]) }));
@@ -71,7 +72,7 @@
                     return { kind: 'Termine', title: e.title, sub: gd(d) + (e.time ? ' · ' + e.time : '') + (rec ? ' · ' + C.repeatLabel(e) : '') + (e.isPublic ? '' : ' · privat'), icon: 'fa-calendar-day text-indigo-400', href: '/menu.html', hay: norm(e.title + ' ' + e.date + ' ' + gd(e.date) + ' ' + gd(d)), date: d };
                 }),
                 ...todos.map(t => ({ kind: 'Aufgaben & Einkauf', title: t.text, sub: (t.kind === 'shop' ? 'Einkauf' : 'Aufgabe') + (t.done ? ' · erledigt' : ''), icon: t.kind === 'shop' ? 'fa-cart-shopping text-yellow-400' : 'fa-circle-check text-emerald-400', href: '/menu.html', hay: norm(t.text) })),
-                ...notes.map(n => ({ kind: 'Notizen', title: n.text, sub: n.author || 'Familie', icon: 'fa-note-sticky text-amber-400', href: '/menu.html', hay: norm(n.text + ' ' + (n.author || '')) })),
+                ...notes.map(n => ({ kind: 'Notizen', title: n.text, sub: n.author || 'Mitglied', icon: 'fa-note-sticky text-amber-400', href: '/menu.html', hay: norm(n.text + ' ' + (n.author || '')) })),
                 ...tx.map(t => ({ kind: 'Buchungen', title: t.partner, sub: `${gd(t.date)} · ${eur(t.amount)} · ${t.category || 'Sonstiges'}`, icon: 'fa-coins text-yellow-400', href: '/finanzen.html#tx', hay: norm(`${t.partner} ${t.purpose || ''} ${t.category || ''} ${t.date} ${gd(t.date)} ${String(t.amount).replace('.', ',')}`), date: t.date })),
                 ...work.filter(w => (w.note || '') && w.note !== 'Live erfasst').map(w => ({ kind: 'Arbeitszeiten', title: w.note, sub: `${gd(w.date)} · ${Math.floor((w.netMinutes || 0) / 60)}:${String((w.netMinutes || 0) % 60).padStart(2, '0')} Std`, icon: 'fa-business-time text-emerald-400', href: '/zeiterfassung.html', hay: norm(w.note + ' ' + w.date + ' ' + gd(w.date)), date: w.date }))
             ];
