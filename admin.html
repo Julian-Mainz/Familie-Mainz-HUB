@@ -137,14 +137,14 @@
     <script>
         const $ = id => document.getElementById(id);
         const ROLES = {
-            admin: { label: 'Admin',   perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  admin: true } },
-            user:  { label: 'Familie', perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  admin: false } },
-            guest: { label: 'Gast',    perms: { termine: true, pinnwand: true, aufgaben: true, zeit: false, finanzen: false, tresor: false, wand: false, spotify: false, admin: false } }
+            admin: { label: 'Admin',   perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true,  admin: true } },
+            user:  { label: 'Familie', perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true,  admin: false } },
+            guest: { label: 'Gast',    perms: { termine: true, pinnwand: true, aufgaben: true, zeit: false, finanzen: false, tresor: false, wand: false, spotify: false, webapps: false, admin: false } }
         };
         // Alle einzeln vergebbaren Rechte. Neue Bereiche später hier ergänzen.
         const PERM_GROUPS = [
             ['Startseite', { termine: 'Kalender & Termine', pinnwand: 'Pinnwand', aufgaben: 'Aufgaben & Einkauf' }],
-            ['Bereiche', { zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe', wand: 'Wandkalender', spotify: 'Spotify' }]
+            ['Bereiche', { zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe', wand: 'Wandkalender', spotify: 'Spotify', webapps: 'Web-Apps' }]
         ];
         const PERM_KEYS = PERM_GROUPS.flatMap(([, m]) => Object.keys(m));
         const PERM_LABEL = Object.assign({}, ...PERM_GROUPS.map(([, m]) => m));
