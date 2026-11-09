@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Mainz Hub">
+    <meta name="apple-mobile-web-app-title" content="J.Mainz">
     <link rel="stylesheet" href="/assets/css/admin.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
     <link rel="stylesheet" href="/assets/icons.css">
     <link rel="stylesheet" href="/assets/ui.css">
@@ -138,9 +138,12 @@
         const $ = id => document.getElementById(id);
         const ROLES = {
             admin: { label: 'Admin',   perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true,  admin: true } },
-            user:  { label: 'Familie', perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true,  admin: false } },
+            user:  { label: 'Mitglied', perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true,  admin: false } },
             guest: { label: 'Gast',    perms: { termine: true, pinnwand: true, aufgaben: true, zeit: false, finanzen: false, tresor: false, wand: false, spotify: false, webapps: false, admin: false } }
         };
+        // Avatar-Helfer kommen aus drawer.js; fehlt die Datei, bleibt die Liste trotzdem bedienbar
+        const avGrad = i => (typeof avatarGradient === 'function' ? avatarGradient(i) : '#4f46e5');
+        const avInner = u => (typeof avatarInner === 'function' ? avatarInner(u) : '');
         // Alle einzeln vergebbaren Rechte. Neue Bereiche später hier ergänzen.
         const PERM_GROUPS = [
             ['Startseite', { termine: 'Kalender & Termine', pinnwand: 'Pinnwand', aufgaben: 'Aufgaben & Einkauf' }],
@@ -304,11 +307,11 @@
             $('admin-user-list').innerHTML = rows.length ? rows.map(u => {
                 const self = isSelf(u), s = st(u), perms = u.permissions || {}, admin = isAdmin(u), [bl, bc] = BADGE[s] || BADGE.active;
                 return `<div data-uid="${esc(u.id)}" class="bg-slate-950/40 border ${s === 'pending' ? 'border-amber-500/40' : 'border-slate-800/80'} rounded-2xl p-4 space-y-3 text-xs">
-                    <div class="flex flex-wrap items-center justify-between gap-2"><div>
+                    <div class="flex flex-wrap items-center justify-between gap-2"><div class="flex items-center gap-3 min-w-0"><span class="adm-av" style="background:${avGrad(u.avatarColor)}">${avInner({ ...u, name: u.displayName || u.email })}</span><div class="min-w-0">
                         <div class="font-semibold text-slate-200 text-sm">${esc(u.displayName || u.email)} ${self ? '<span class="text-[10px] text-slate-500 font-normal">(du)</span>' : ''}
                             ${u.notificationsEnabled ? '<i class="fa-solid fa-bell text-yellow-400 text-[10px] ml-1" title="Push aktiv"></i>' : ''}</div>
                         <div class="text-slate-500">${esc(u.email)}</div>
-                        <div class="text-[10px] text-slate-600 mt-0.5">Registriert: ${fmtDate(u.createdAt)} · Letzter Login: ${fmtDate(u.lastLogin)}</div></div>
+                        <div class="text-[10px] text-slate-600 mt-0.5">Registriert: ${fmtDate(u.createdAt)} · Letzter Login: ${fmtDate(u.lastLogin)}</div></div></div>
                         <span class="text-[10px] border px-2 py-1 rounded-lg ${bc}">${bl}</span></div>
                     <div class="flex flex-wrap items-center gap-3">
                         <select data-role class="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 disabled:opacity-50" ${self ? 'disabled title="Eigene Rolle kann nicht geändert werden"' : ''}>
