@@ -76,8 +76,16 @@ body.sb-lock { overflow: hidden !important; }
 .sb-tool:hover { color: #fff; background: rgba(129, 140, 248, .18); border-color: rgba(129, 140, 248, .4); transform: translateY(-2px); }
 .sb-tool.danger:hover { color: #fecdd3; background: rgba(244, 63, 94, .18); border-color: rgba(244, 63, 94, .4); }
 .sb-user { display: flex; align-items: center; gap: 11px; padding: 8px; border-radius: 16px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(148, 163, 184, .1); }
+.sb-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
 .sb-avatar { position: relative; flex: none; width: 38px; height: 38px; border-radius: 13px; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #6366f1, #06b6d4); }
 .sb-avatar i { position: absolute; right: -3px; bottom: -3px; width: 11px; height: 11px; border-radius: 50%; background: #4ade80; border: 2px solid #0b1120; animation: uiPulse 2.4s infinite; }
+a.sb-user { text-decoration: none; color: inherit; position: relative; cursor: pointer; transition: background-color .2s, border-color .2s, transform .2s; }
+a.sb-user:hover { background: rgba(129, 140, 248, .14); border-color: rgba(129, 140, 248, .38); transform: translateY(-1px); }
+a.sb-user.on { background: rgba(129, 140, 248, .18); border-color: rgba(129, 140, 248, .5); }
+.sb-edit { margin-left: auto; margin-right: 4px; font-size: 11px; color: #64748b; opacity: 0; transform: translateX(-5px); transition: opacity .2s, transform .25s var(--ui-ease), color .2s; }
+a.sb-user:hover .sb-edit { opacity: 1; transform: none; color: #fff; }
+.adm-av { flex: none; width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; overflow: hidden; font-weight: 700; font-size: 14px; color: #fff; }
+.adm-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .sb-usertxt { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; white-space: nowrap; }
 .sb-usertxt b { font-size: 13px; overflow: hidden; text-overflow: ellipsis; } .sb-usertxt small { font-size: 11px; color: #94a3b8; }
 .sb-legal { text-align: center; font-size: 10.5px; color: #64748b; white-space: nowrap; }
@@ -115,6 +123,7 @@ body.sb-lock { overflow: hidden !important; }
     html.sb-collapsed .sb-badge { position: absolute; top: 2px; right: 12px; min-width: 16px; height: 16px; padding: 0 4px; font-size: 9px; }
     html.sb-collapsed .sb-tools { grid-template-columns: 1fr; }
     html.sb-collapsed .sb-user { justify-content: center; padding: 6px 0; background: none; border-color: transparent; }
+    html.sb-collapsed .sb-edit { display: none; }
     /* Web-Apps bei schmaler Leiste: Auswahlfenster neben dem Symbol */
     html.sb-collapsed .sb-chev { display: none; }
     html.sb-collapsed .sb-group { position: relative; }
@@ -126,8 +135,8 @@ body.sb-lock { overflow: hidden !important; }
     html.sb-collapsed .sb-group:hover .sb-subwrap, html.sb-collapsed .sb-group:focus-within .sb-subwrap, html.sb-collapsed .sb-group.open .sb-subwrap { opacity: 1; pointer-events: auto; transform: none; }
     html.sb-collapsed .sb-group:hover > .sb-item::after, html.sb-collapsed .sb-group:focus-within > .sb-item::after { opacity: 0 !important; }
     /* Hinweisfenster bei eingeklappter Leiste */
-    html.sb-collapsed .sb-item::after, html.sb-collapsed .sb-tool::after { content: attr(data-tip); position: absolute; left: calc(100% + 14px); top: 50%; transform: translate(-6px, -50%); padding: 6px 11px; border-radius: 10px; background: #0f172a; border: 1px solid rgba(148, 163, 184, .2); color: #f1f5f9; font-size: 12.5px; font-weight: 500; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; box-shadow: 0 8px 24px rgba(0, 0, 0, .4); z-index: 80; }
-    html.sb-collapsed .sb-item:hover::after, html.sb-collapsed .sb-tool:hover::after { opacity: 1; transform: translate(0, -50%); }
+    html.sb-collapsed .sb-item::after, html.sb-collapsed .sb-tool::after, html.sb-collapsed .sb-user::after { content: attr(data-tip); position: absolute; left: calc(100% + 14px); top: 50%; transform: translate(-6px, -50%); padding: 6px 11px; border-radius: 10px; background: #0f172a; border: 1px solid rgba(148, 163, 184, .2); color: #f1f5f9; font-size: 12.5px; font-weight: 500; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; box-shadow: 0 8px 24px rgba(0, 0, 0, .4); z-index: 80; }
+    html.sb-collapsed .sb-item:hover::after, html.sb-collapsed .sb-tool:hover::after, html.sb-collapsed .sb-user:hover::after { opacity: 1; transform: translate(0, -50%); }
 }
 @media (min-width: 1024px) and (max-height: 700px) { .sb-nav { overflow-y: auto; } .sb-legal { display: none; } }
 
