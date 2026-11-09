@@ -111,7 +111,12 @@ function initAuthGuard(onReadyCallback, opts = {}) {
                 status,
                 permissions: data.permissions || {},
                 userPrefs: data.userPrefs || {},
-                notificationsEnabled: !!data.notificationsEnabled
+                notificationsEnabled: !!data.notificationsEnabled,
+                lastName: data.lastName || '',
+                photo: data.photo || '',
+                avatarColor: data.avatarColor || 0,
+                createdAt: data.createdAt || null,
+                lastLogin: data.lastLogin || null
             };
 
             // Seitenrechte prüfen
