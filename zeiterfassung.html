@@ -16,11 +16,13 @@
     <link rel="stylesheet" href="/assets/icons.css">
     <link rel="stylesheet" href="/assets/ui.css">
     <link rel="stylesheet" href="/assets/ux.css">
+    <link rel="stylesheet" href="/assets/layout.css">
     <script src="/js/vendor/firebase-app-compat.js"></script>
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
     <script src="/js/ux.js"></script>
+    <script src="/js/layout.js"></script>
     <script src="/js/drawer.js"></script>
 </head>
 <body class="ux">
@@ -33,12 +35,13 @@
         <div class="ux-pill"><button type="button" onclick="monthShift(1)" aria-label="Älterer Monat"><i class="fa-solid fa-chevron-left"></i></button>
             <select id="work-filter-month" onchange="renderAll(false)" aria-label="Monat wählen"></select>
             <button type="button" onclick="monthShift(-1)" aria-label="Neuerer Monat"><i class="fa-solid fa-chevron-right"></i></button></div>
+        <button class="ux-btn" id="lay-btn" onclick="Layout.toggle()" title="Karten verschieben, Breite ändern, ausblenden"><i class="fa-solid fa-table-columns"></i>Anpassen</button>
         <button class="ux-btn" onclick="openVacReq()"><i class="fa-solid fa-file-pdf"></i>Urlaubsantrag</button>
     </div>
 
-    <div class="ux-grid">
+    <div class="ux-grid lay-grid" id="lay">
         <!-- Stempeluhr -->
-        <section class="ux-card glow c5">
+        <section class="ux-card glow" id="mod-stamp">
             <div class="ux-t"><i class="fa-solid fa-stopwatch"></i>Stempeluhr<small><span id="work-status-badge" class="chip">Inaktiv</span>
                 <button class="ux-ib" onclick="openSettings()" title="Pause &amp; Soll einstellen" aria-label="Pause und Soll einstellen"><i class="fa-solid fa-gear"></i></button></small></div>
             <div style="display:flex;justify-content:center;padding:4px 0">
@@ -57,30 +60,26 @@
         </section>
 
         <!-- Kennzahlen des Monats -->
-        <div class="ux-col c7">
-        <div class="ux-kpis">
-            <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-clock"></i>Ist im Monat</div><div class="v" id="m-ist">–</div><span class="chip g" id="m-days"></span>
+            <section class="ux-card ux-kpi" id="mod-ist"><div class="l"><i class="fa-solid fa-clock"></i>Ist im Monat</div><div class="v" id="m-ist">–</div><span class="chip g" id="m-days"></span>
                 <svg class="spark" width="110" height="46" viewBox="0 0 110 46" aria-hidden="true"><path d="M0 38 C14 34 20 30 32 28 S52 24 62 18 S88 12 110 4" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round"/></svg></section>
-            <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-check"></i>Soll (bis heute)</div><div class="v" id="m-soll">–</div><span class="chip">Tagessoll <span id="cfg-day"></span></span>
+            <section class="ux-card ux-kpi" id="mod-soll"><div class="l"><i class="fa-solid fa-check"></i>Soll (bis heute)</div><div class="v" id="m-soll">–</div><span class="chip">Tagessoll <span id="cfg-day"></span></span>
                 <svg class="spark" width="110" height="46" viewBox="0 0 110 46" aria-hidden="true"><path d="M0 40 L110 6" fill="none" stroke="#64748b" stroke-width="3" stroke-dasharray="2 7" stroke-linecap="round"/></svg></section>
-            <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-arrow-trend-down"></i>Saldo im Monat</div><div class="v" id="m-saldo">–</div><span class="chip" id="m-saldo-chip"></span></section>
-            <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-fire"></i>Überstundenkonto</div><div class="v" id="acct">–</div><span class="chip" id="acct-since"></span></section>
-        </div>
-        <section class="ux-card grow">
+            <section class="ux-card ux-kpi" id="mod-saldo"><div class="l"><i class="fa-solid fa-arrow-trend-down"></i>Saldo im Monat</div><div class="v" id="m-saldo">–</div><span class="chip" id="m-saldo-chip"></span></section>
+            <section class="ux-card ux-kpi" id="mod-konto"><div class="l"><i class="fa-solid fa-fire"></i>Überstundenkonto</div><div class="v" id="acct">–</div><span class="chip" id="acct-since"></span></section>
+        <section class="ux-card" id="mod-week">
             <div class="ux-t"><i class="fa-solid fa-calendar-day"></i>Diese Woche<small id="week-txt"></small></div>
             <div id="week-chart" class="cols week"></div>
             <div class="bar"><i id="week-bar" style="width:0"></i></div>
         </section>
-        </div>
 
         <!-- Stunden pro Tag -->
-        <section class="ux-card c7">
+        <section class="ux-card" id="mod-chart">
             <div class="ux-t"><i class="fa-solid fa-chart-column"></i>Stunden pro Tag<small><span class="chip g">Arbeit</span><span class="chip b">Urlaub</span><span class="chip a">Krank</span><span class="chip">Gleitzeit</span></small></div>
             <div id="chart" class="cols tall"></div>
         </section>
 
         <!-- Urlaubskonto -->
-        <section class="ux-card glow c5">
+        <section class="ux-card glow" id="mod-vac">
             <div class="ux-t"><i class="fa-solid fa-umbrella-beach"></i>Urlaubskonto<small><button class="ux-ib" style="width:30px;height:30px" onclick="vacShift(-1)" aria-label="Vorjahr"><i class="fa-solid fa-chevron-left"></i></button><b id="vac-year" style="min-width:42px;text-align:center;color:#e2e8f0;font-size:13px"></b><button class="ux-ib" style="width:30px;height:30px" onclick="vacShift(1)" aria-label="Nächstes Jahr"><i class="fa-solid fa-chevron-right"></i></button></small></div>
             <div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap">
                 <div class="ring mid2"><svg width="150" height="150" viewBox="0 0 150 150"><defs><linearGradient id="gv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
@@ -94,7 +93,7 @@
         </section>
 
         <!-- Aktionen -->
-        <section class="ux-card c12">
+        <section class="ux-card" id="mod-actions">
             <div class="ux-t"><i class="fa-solid fa-bolt"></i>Aktionen &amp; Export</div>
             <div class="acts-grid">
                 <button class="act" onclick="openWorkModal()"><span class="ic"><i class="fa-solid fa-plus"></i></span><span>Zeit manuell erfassen<small>Start, Ende und Pause nachtragen</small></span></button>
@@ -105,7 +104,7 @@
         </section>
 
         <!-- Einträge -->
-        <section class="ux-card c12">
+        <section class="ux-card" id="mod-entries">
             <div class="ux-t"><i class="fa-solid fa-list-check"></i>Erfasste Zeiten<small><span id="work-table-count">0 Einträge</span></small></div>
             <div id="ent-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
                 <button class="chip on" data-f="all">Alle</button><button class="chip" data-f="work">Arbeit</button><button class="chip" data-f="vacation">Urlaub</button><button class="chip" data-f="sick">Krank</button><button class="chip" data-f="flex">Gleitzeit</button></div>
@@ -189,6 +188,19 @@
         const WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
         const csvCell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
 
+        // ---------- Anpassbares Layout (js/layout.js) ----------
+        // [Kennung, Name, Standardbreite in Zwölfteln]
+        const LAY = [['stamp', 'Stempeluhr', 4], ['ist', 'Ist im Monat', 4], ['soll', 'Soll (bis heute)', 4], ['saldo', 'Saldo im Monat', 4], ['konto', 'Überstundenkonto', 4], ['week', 'Diese Woche', 8], ['chart', 'Stunden pro Tag', 8], ['vac', 'Urlaubskonto', 4], ['actions', 'Aktionen & Export', 12], ['entries', 'Erfasste Zeiten', 12]];
+        const LAY_PRESETS = {
+            'Standard': {},
+            'Kompakt': { order: ['ist', 'soll', 'saldo', 'konto', 'stamp', 'vac', 'entries'], hidden: ['week', 'chart', 'actions'], width: { ist: 3, soll: 3, saldo: 3, konto: 3, stamp: 6, vac: 6, entries: 12 } },
+            'Fokus Stempeluhr': { order: ['stamp', 'konto', 'saldo', 'week', 'vac', 'entries'], hidden: ['ist', 'soll', 'chart', 'actions'], width: { stamp: 6, konto: 3, saldo: 3, week: 6, vac: 6, entries: 12 } }
+        };
+        Layout.init({ key: 'zeit', root: $('lay'), modules: LAY.map(([id, title, w]) => ({ id, title, w, el: $('mod-' + id) })), presets: LAY_PRESETS, save: async l => {
+            await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.layouts.zeit': l });
+            currentUser.userPrefs = { ...(currentUser.userPrefs || {}), layouts: { ...((currentUser.userPrefs || {}).layouts || {}), zeit: l } }; logSystemEvent('data', 'Layout gespeichert', { seite: 'zeit' });
+        } });
+
         // ---------- Einstellungen ----------
         const W = () => ({ pause: 60, after: 6, weekly: 40, vacation: 30, carry: 0, carryYear: 0, ...(currentUser.userPrefs?.work || {}) });
         const dayMin = () => Math.round(W().weekly / 5 * 60);
@@ -234,7 +246,7 @@
         initAuthGuard(user => {
             if (!user || started) return;
             started = true;
-            renderDrawer(); applyConfig(); headDate(); setInterval(headDate, 60000);
+            renderDrawer(); applyConfig(); headDate(); setInterval(headDate, 60000); Layout.load(currentUser.userPrefs?.layouts?.zeit);
             $('ent-filters').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (b) { entFilter = b.dataset.f; renderTable(); } });
             $('custom-start-time').value = fmtT(new Date());
             updateUI(false);
