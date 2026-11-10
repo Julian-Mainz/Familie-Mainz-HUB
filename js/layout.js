@@ -108,7 +108,7 @@
         const el = g.closest('.lay-item'), m = S.byId[el.dataset.mod], r = el.getBoundingClientRect();
         S.dragging = m; S.grab = { dx: e.clientX - r.left, dy: e.clientY - r.top }; S.lastOver = null; el.classList.add('lay-drag'); el.style.transition = 'none';
         try { g.setPointerCapture(e.pointerId); } catch (x) {}
-        const mv = ev => follow(ev), up = () => { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); dragEnd(); };
+        const mv = ev => follow(ev), up = ev => { if (ev && ev.type === 'pointerup') follow(ev); g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); dragEnd(); };
         g.addEventListener('pointermove', mv); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up);
     }
     function follow(e) {
