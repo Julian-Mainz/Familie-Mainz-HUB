@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanzen & Sparkasse – J.Mainz Dashboard</title>
+    <title>Finanzen – J.Mainz Dashboard</title>
     <meta name="theme-color" content="#080c14">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
@@ -13,153 +13,146 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="J.Mainz">
-    <link rel="stylesheet" href="/assets/css/finanzen.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
     <link rel="stylesheet" href="/assets/icons.css">
     <link rel="stylesheet" href="/assets/ui.css">
+    <link rel="stylesheet" href="/assets/ux.css">
     <script src="/js/vendor/firebase-app-compat.js"></script>
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
+    <script src="/js/ux.js"></script>
     <script src="/js/drawer.js"></script>
-    <style>
-        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    </style>
-    <style type="text/tailwindcss">
-        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg p-4; }
-        .inp  { @apply w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500; }
-        .fld  { @apply bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500; }
-        .lbl  { @apply block text-xs text-slate-400 mb-1; }
-        .tab  { @apply px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 whitespace-nowrap; }
-        .tab.on { @apply bg-indigo-600 text-white; }
-        .btn  { @apply px-3 py-2 rounded-xl text-xs font-semibold border; }
-        .h3   { @apply text-xs font-bold text-slate-200 border-b border-slate-800 pb-2.5 mb-3; }
-    </style>
+    <style>.fin .ux-btn.pri, .fin .ux-seg button.on, .fin .ux-ico, .fin button.chip.on, .fin .ux-modal .pri { color: #1c1400; } .ux-seg button i { margin-right: 7px; } @media (max-width: 700px) { .ux-seg button i { display: none; } .ux-seg button { padding: 9px 12px; } }</style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+<body class="ux">
+<main class="ux-page fin" style="--m:#facc15;--m2:#f59e0b;--mr:250,204,21">
 
-    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span></button>
-        <h1 class="text-sm sm:text-base md:text-xl font-bold tracking-wide truncate px-2"><i class="fa-solid fa-coins text-yellow-400 mr-1.5"></i>Finanzen</h1>
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span></button>
-    </header>
-
-    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex gap-1 bg-slate-900/60 border border-slate-800 rounded-2xl p-1 overflow-x-auto">
-                <button class="tab" data-tab="ov" onclick="showTab('ov')"><i class="fa-solid fa-chart-pie mr-1.5"></i>Übersicht</button>
-                <button class="tab" data-tab="tx" onclick="showTab('tx')"><i class="fa-solid fa-list mr-1.5"></i>Buchungen</button>
-                <button class="tab" data-tab="fix" onclick="showTab('fix')"><i class="fa-solid fa-repeat mr-1.5"></i>Fixkosten</button>
-                <button class="tab" data-tab="pay" onclick="showTab('pay')"><i class="fa-solid fa-folder-open mr-1.5"></i>Lohn</button>
-            </div>
-            <select id="fm" onchange="renderAll(false)" class="fld font-semibold"></select>
+    <div class="ux-top">
+        <div class="ux-ico"><i class="fa-solid fa-coins"></i></div>
+        <div><h1 class="ux-h1">Finanzen</h1><div class="ux-sub" id="ux-sub">&nbsp;</div></div>
+        <div class="ux-sp"></div>
+        <div class="ux-seg" role="tablist">
+            <button class="tab" data-tab="ov" onclick="showTab('ov')"><i class="fa-solid fa-chart-pie"></i>Übersicht</button>
+            <button class="tab" data-tab="tx" onclick="showTab('tx')"><i class="fa-solid fa-list"></i>Buchungen</button>
+            <button class="tab" data-tab="fix" onclick="showTab('fix')"><i class="fa-solid fa-repeat"></i>Fixkosten</button>
+            <button class="tab" data-tab="pay" onclick="showTab('pay')"><i class="fa-solid fa-folder-open"></i>Lohn</button>
         </div>
+        <div class="ux-pill"><button type="button" onclick="monthShift(1)" aria-label="Älterer Monat"><i class="fa-solid fa-chevron-left"></i></button>
+            <select id="fm" onchange="renderAll(false)" aria-label="Monat wählen"></select>
+            <button type="button" onclick="monthShift(-1)" aria-label="Neuerer Monat"><i class="fa-solid fa-chevron-right"></i></button></div>
+        <button class="ux-btn pri" onclick="openTx()"><i class="fa-solid fa-plus"></i>Buchung</button>
+    </div>
 
-        <!-- Kennzahlen -->
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
-            <div class="card"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-arrow-down text-emerald-400 mr-1"></i>Einnahmen</span><div id="k-inc" class="text-lg font-bold text-emerald-400 mt-1">–</div></div>
-            <div class="card"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-arrow-up text-rose-400 mr-1"></i>Ausgaben</span><div id="k-exp" class="text-lg font-bold text-rose-400 mt-1">–</div></div>
-            <div class="card"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-wallet text-indigo-400 mr-1"></i>Saldo</span><div id="k-bal" class="text-lg font-bold mt-1">–</div></div>
-            <div class="card"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-piggy-bank text-pink-400 mr-1"></i>Sparquote</span><div id="k-rate" class="text-lg font-bold mt-1">–</div></div>
-            <div class="card col-span-2 lg:col-span-1"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-repeat text-cyan-400 mr-1"></i>Fixkosten / Monat</span><div id="k-fix" class="text-lg font-bold text-cyan-300 mt-1">–</div></div>
+    <!-- Übersicht -->
+    <section id="tab-ov" class="ux-grid">
+        <div class="ux-card glow c5" style="padding:24px">
+            <div class="ux-t"><i class="fa-solid fa-wallet"></i>Saldo im Monat<small><span id="k-delta" class="chip">–</span></small></div>
+            <div class="hero-v" id="k-bal">–</div>
+            <div class="ux-sub" id="k-sum" style="margin-bottom:16px"></div>
+            <svg viewBox="0 0 400 90" width="100%" aria-hidden="true"><defs><linearGradient id="hf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#facc15" stop-opacity=".35"/><stop offset="1" stop-color="#facc15" stop-opacity="0"/></linearGradient></defs>
+                <path id="hero-fill" fill="url(#hf)" d=""/><path id="hero-line" d="" fill="none" stroke="#facc15" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle id="hero-dot" cx="0" cy="80" r="6" fill="#facc15"/></svg>
+            <div style="display:flex;align-items:center;gap:14px;margin-top:16px">
+                <div class="ring" style="width:66px;height:66px"><svg width="66" height="66" viewBox="0 0 66 66"><circle class="trk" cx="33" cy="33" r="26" stroke-width="7"/><circle id="rate-arc" class="arc" cx="33" cy="33" r="26" stroke="#facc15" stroke-width="7"/></svg><div class="mid"><b id="k-rate" style="font-size:15px;margin:0">–</b></div></div>
+                <div><b>Sparquote</b><div class="ux-sub">Anteil der Einnahmen, den du behältst.</div></div></div>
         </div>
-
-        <!-- Übersicht -->
-        <section id="tab-ov" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div class="card lg:col-span-2">
-                <div class="h3 flex justify-between"><span><i class="fa-solid fa-chart-bar text-indigo-400 mr-2"></i>Ausgaben nach Kategorie</span>
-                    <button onclick="openBudgets()" class="text-[11px] text-indigo-400 hover:text-indigo-300"><i class="fa-solid fa-sliders mr-1"></i>Budgets</button></div>
-                <div id="cat-list" class="space-y-3"></div>
+        <div class="ux-col c7">
+            <div class="ux-kpis three">
+                <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-arrow-down" style="color:#4ade80"></i>Einnahmen</div><div class="v pos" id="k-inc" style="font-size:26px">–</div><span class="chip g" id="k-inc-chip"></span></section>
+                <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-arrow-up" style="color:#fb7185"></i>Ausgaben</div><div class="v neg" id="k-exp" style="font-size:26px">–</div><span class="chip" id="k-exp-chip"></span></section>
+                <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-repeat" style="color:#22d3ee"></i>Fixkosten / Monat</div><div class="v" id="k-fix" style="font-size:26px">–</div><span class="chip" id="k-fix-chip"></span></section>
             </div>
-            <div class="space-y-4">
-                <div class="card"><div class="h3"><i class="fa-solid fa-chart-line text-amber-400 mr-2"></i>Prognose Monatsende</div><div id="forecast" class="text-xs space-y-1.5"></div></div>
-                <div class="card"><div class="h3"><i class="fa-solid fa-arrow-trend-up text-emerald-400 mr-2"></i>Letzte 6 Monate</div><div id="trend" class="flex items-end gap-2 h-32"></div>
-                    <div class="flex gap-3 text-[10px] text-slate-500 mt-2"><span><i class="fa-solid fa-square text-emerald-500 mr-1"></i>Einnahmen</span><span><i class="fa-solid fa-square text-rose-500 mr-1"></i>Ausgaben</span></div></div>
-                <div class="card"><div class="h3"><i class="fa-solid fa-ranking-star text-rose-400 mr-2"></i>Größte Ausgaben</div><div id="top-exp" class="space-y-1.5 text-xs"></div></div>
+            <section class="ux-card grow">
+                <div class="ux-t"><i class="fa-solid fa-chart-column"></i>Die letzten 6 Monate<small><span class="chip g">Einnahmen</span><span class="chip r">Ausgaben</span></small></div>
+                <div id="trend" class="cols pair"></div>
+            </section>
+        </div>
+        <section class="ux-card c5">
+            <div class="ux-t"><i class="fa-solid fa-chart-pie"></i>Ausgaben nach Kategorie</div>
+            <div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap">
+                <div class="ring" style="width:170px;height:170px"><svg id="donut" width="170" height="170" viewBox="0 0 170 170" style="filter:none"></svg><div class="mid"><small>gesamt</small><b id="donut-total" style="font-size:20px">–</b></div></div>
+                <div class="leg" id="cat-legend" style="flex:1;min-width:150px"></div></div>
+        </section>
+        <section class="ux-card c7">
+            <div class="ux-t"><i class="fa-solid fa-piggy-bank"></i>Budgets<small><button class="ux-btn" style="padding:7px 12px;font-size:12px" onclick="openBudgets()"><i class="fa-solid fa-sliders"></i>Festlegen</button></small></div>
+            <div id="bud-list"></div>
+        </section>
+        <section class="ux-card c5"><div class="ux-t"><i class="fa-solid fa-chart-line"></i>Prognose Monatsende</div><div id="forecast"></div></section>
+        <section class="ux-card c7"><div class="ux-t"><i class="fa-solid fa-ranking-star"></i>Größte Ausgaben</div><div id="top-exp"></div></section>
+    </section>
+
+    <!-- Buchungen -->
+    <section id="tab-tx" class="hidden">
+        <div class="ux-card">
+            <div class="ux-toolbar">
+                <input id="tx-q" oninput="renderTx()" placeholder="Suchen" class="ux-in" aria-label="Buchungen durchsuchen">
+                <select id="tx-cat" onchange="renderTx()" class="ux-in" aria-label="Kategorie"></select>
+                <select id="tx-type" onchange="renderTx()" class="ux-in" aria-label="Art"><option value="">Alle</option><option value="in">Einnahmen</option><option value="out">Ausgaben</option></select>
+                <div class="ux-sp"></div>
+                <label class="ux-btn" style="cursor:pointer"><i class="fa-solid fa-upload" style="color:#fb7185"></i>Sparkasse-CSV<input type="file" accept=".csv" hidden onchange="handleSparkasseCSV(event)"></label>
+                <button onclick="exportMonthCSV()" class="ux-btn"><i class="fa-solid fa-file-csv" style="color:#4ade80"></i>Export</button>
+                <button onclick="openTx()" class="ux-btn pri"><i class="fa-solid fa-plus"></i>Buchung</button>
             </div>
-        </section>
+            <div id="tx-body"></div>
+            <div id="tx-sum" class="ux-note" style="margin-top:14px"></div>
+        </div>
+    </section>
 
-        <!-- Buchungen -->
-        <section id="tab-tx" class="hidden card flex-1 flex flex-col">
-            <div class="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3 mb-3">
-                <input id="tx-q" oninput="renderTx()" placeholder="Suchen..." class="fld w-40">
-                <select id="tx-cat" onchange="renderTx()" class="fld"></select>
-                <select id="tx-type" onchange="renderTx()" class="fld"><option value="">Alle</option><option value="in">Einnahmen</option><option value="out">Ausgaben</option></select>
-                <div class="flex-1"></div>
-                <label class="btn bg-red-600/10 border-red-500/30 text-red-400 cursor-pointer"><i class="fa-solid fa-upload mr-1.5"></i>Sparkasse-CSV<input type="file" accept=".csv" class="hidden" onchange="handleSparkasseCSV(event)"></label>
-                <button onclick="exportMonthCSV()" class="btn bg-slate-800 border-slate-700 text-slate-200"><i class="fa-solid fa-file-csv mr-1.5 text-emerald-400"></i>Export</button>
-                <button onclick="openTx()" class="btn bg-indigo-600 border-indigo-500 text-white"><i class="fa-solid fa-plus mr-1.5"></i>Buchung</button>
-            </div>
-            <div class="flex-1 overflow-auto"><table class="w-full text-left text-xs">
-                <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800"><tr><th class="p-2">Datum</th><th class="p-2">Partner</th><th class="p-2">Kategorie</th><th class="p-2 text-right">Betrag</th><th class="p-2 text-right"></th></tr></thead>
-                <tbody id="tx-body" class="divide-y divide-slate-800/60"></tbody></table></div>
-            <div id="tx-sum" class="text-[11px] text-slate-500 pt-2"></div>
-        </section>
+    <!-- Fixkosten -->
+    <section id="tab-fix" class="hidden" style="display:flex;flex-direction:column;gap:16px">
+        <div class="ux-card" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px">
+            <div class="ux-note" style="flex:1;min-width:240px"><b>Wiederkehrende Zahlungen</b> wie Miete, Versicherungen, Abos oder Gehalt. Fällige Posten buchst du mit einem Klick in den Monat. Doppelt buchen ist nicht möglich.</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap"><button onclick="bookDue()" class="ux-btn"><i class="fa-solid fa-circle-check" style="color:#4ade80"></i>Fällige buchen</button><button onclick="openFix()" class="ux-btn pri"><i class="fa-solid fa-plus"></i>Fixkosten</button></div>
+        </div>
+        <div id="fix-list" class="fxgrid"></div>
+    </section>
 
-        <!-- Fixkosten -->
-        <section id="tab-fix" class="hidden space-y-4">
-            <div class="card flex flex-wrap items-center justify-between gap-3">
-                <div class="text-xs text-slate-400"><span class="text-slate-200 font-semibold">Wiederkehrende Zahlungen</span> wie Miete, Versicherungen, Abos oder Gehalt. Fällige Posten buchst du mit einem Klick in den Monat. Doppelt buchen ist nicht möglich.</div>
-                <div class="flex gap-2"><button onclick="bookDue()" class="btn bg-emerald-600/20 border-emerald-500/30 text-emerald-300"><i class="fa-solid fa-circle-check mr-1.5"></i>Fällige buchen</button>
-                    <button onclick="openFix()" class="btn bg-indigo-600 border-indigo-500 text-white"><i class="fa-solid fa-plus mr-1.5"></i>Fixkosten</button></div>
-            </div>
-            <div id="fix-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
-        </section>
+    <!-- Lohn -->
+    <section id="tab-pay" class="hidden">
+        <div class="ux-card">
+            <div class="ux-t"><i class="fa-solid fa-folder-open"></i>Lohnabrechnungen <span id="pay-count" class="chip">0</span><small><button onclick="openPayslip()" class="ux-btn" style="padding:7px 12px;font-size:12px"><i class="fa-solid fa-plus" style="color:#4ade80"></i>Abrechnung hochladen</button></small></div>
+            <div id="pay-list" class="paygrid"></div>
+        </div>
+    </section>
+</main>
 
-        <!-- Lohn -->
-        <section id="tab-pay" class="hidden card flex-1">
-            <div class="h3 flex justify-between"><span><i class="fa-solid fa-folder-open text-amber-400 mr-2"></i>Lohnabrechnungen <span id="pay-count" class="ml-1 text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span></span>
-                <button onclick="openPayslip()" class="text-[11px] text-emerald-400 hover:text-emerald-300"><i class="fa-solid fa-plus mr-1"></i>Abrechnung hochladen</button></div>
-            <div id="pay-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2"></div>
-        </section>
-    </main>
+<!-- Fenster: Buchung -->
+<div id="m-tx" class="ux-modal hidden"><div class="ux-box fin" style="--m:#facc15;--m2:#f59e0b;--mr:250,204,21">
+    <h3><i class="fa-solid fa-wallet"></i><span id="tx-title">Buchung</span><button class="ux-ib" onclick="closeModal('m-tx')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Einnahme oder Ausgabe von Hand eintragen.</p>
+    <form onsubmit="saveTx(event)"><input type="hidden" id="tx-id">
+        <div class="ux-row2"><label class="ux-f"><span>Datum</span><input type="date" id="tx-date" required class="ux-in"></label><label class="ux-f"><span>Art</span><select id="tx-kind" class="ux-in"><option value="out">Ausgabe</option><option value="in">Einnahme</option></select></label></div>
+        <label class="ux-f"><span>Partner / Quelle</span><input id="tx-partner" required class="ux-in" placeholder="z. B. Rewe, Gehalt"></label>
+        <div class="ux-row2"><label class="ux-f"><span>Kategorie</span><select id="tx-category" class="ux-in"></select></label><label class="ux-f"><span>Betrag (€)</span><input type="number" step="0.01" min="0" id="tx-amount" required class="ux-in" placeholder="45.50"></label></div>
+        <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-tx')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div>
+    </form></div></div>
 
-    <!-- Modal Buchung -->
-    <div id="m-tx" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
-        <div class="flex justify-between mb-4"><h3 id="tx-title" class="text-base font-bold">Buchung</h3><button onclick="closeModal('m-tx')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
-        <form onsubmit="saveTx(event)" class="space-y-3"><input type="hidden" id="tx-id">
-            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Datum</label><input type="date" id="tx-date" required class="inp"></div>
-                <div><label class="lbl">Art</label><select id="tx-kind" class="inp"><option value="out">Ausgabe</option><option value="in">Einnahme</option></select></div></div>
-            <div><label class="lbl">Partner / Quelle</label><input id="tx-partner" required class="inp" placeholder="z. B. Rewe, Gehalt"></div>
-            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Kategorie</label><select id="tx-category" class="inp"></select></div>
-                <div><label class="lbl">Betrag (€)</label><input type="number" step="0.01" min="0" id="tx-amount" required class="inp" placeholder="45.50"></div></div>
-            <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeModal('m-tx')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button></div>
-        </form></div></div>
+<!-- Fenster: Fixkosten -->
+<div id="m-fix" class="ux-modal hidden"><div class="ux-box fin" style="--m:#facc15;--m2:#f59e0b;--mr:250,204,21">
+    <h3><i class="fa-solid fa-repeat"></i><span id="fx-title">Fixkosten</span><button class="ux-ib" onclick="closeModal('m-fix')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Regelmäßige Zahlung mit Rhythmus und Fälligkeitstag.</p>
+    <form onsubmit="saveFix(event)"><input type="hidden" id="fx-id">
+        <label class="ux-f"><span>Bezeichnung</span><input id="fx-name" required class="ux-in" placeholder="z. B. Miete, Netflix, KFZ-Versicherung"></label>
+        <div class="ux-row2"><label class="ux-f"><span>Art</span><select id="fx-kind" class="ux-in"><option value="out">Ausgabe</option><option value="in">Einnahme</option></select></label><label class="ux-f"><span>Betrag (€)</span><input type="number" step="0.01" min="0" id="fx-amount" required class="ux-in"></label></div>
+        <div class="ux-row2"><label class="ux-f"><span>Kategorie</span><select id="fx-category" class="ux-in"></select></label><label class="ux-f"><span>Rhythmus</span><select id="fx-int" class="ux-in"><option value="1">monatlich</option><option value="3">vierteljährlich</option><option value="6">halbjährlich</option><option value="12">jährlich</option></select></label></div>
+        <div class="ux-row2"><label class="ux-f"><span>Erste Fälligkeit im Monat</span><select id="fx-start" class="ux-in"></select></label><label class="ux-f"><span>Tag im Monat (1–31)</span><input type="number" min="1" max="31" id="fx-day" value="1" required class="ux-in"></label></div>
+        <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-fix')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div>
+    </form></div></div>
 
-    <!-- Modal Fixkosten -->
-    <div id="m-fix" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
-        <div class="flex justify-between mb-4"><h3 id="fx-title" class="text-base font-bold">Fixkosten</h3><button onclick="closeModal('m-fix')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
-        <form onsubmit="saveFix(event)" class="space-y-3"><input type="hidden" id="fx-id">
-            <div><label class="lbl">Bezeichnung</label><input id="fx-name" required class="inp" placeholder="z. B. Miete, Netflix, KFZ-Versicherung"></div>
-            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Art</label><select id="fx-kind" class="inp"><option value="out">Ausgabe</option><option value="in">Einnahme</option></select></div>
-                <div><label class="lbl">Betrag (€)</label><input type="number" step="0.01" min="0" id="fx-amount" required class="inp"></div></div>
-            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Kategorie</label><select id="fx-category" class="inp"></select></div>
-                <div><label class="lbl">Rhythmus</label><select id="fx-int" class="inp"><option value="1">monatlich</option><option value="3">vierteljährlich</option><option value="6">halbjährlich</option><option value="12">jährlich</option></select></div></div>
-            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Erste Fälligkeit im Monat</label><select id="fx-start" class="inp"></select></div>
-                <div><label class="lbl">Tag im Monat (1–31)</label><input type="number" min="1" max="31" id="fx-day" value="1" required class="inp"></div></div>
-            <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeModal('m-fix')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button></div>
-        </form></div></div>
+<!-- Fenster: Budgets -->
+<div id="m-bud" class="ux-modal hidden"><div class="ux-box fin" style="--m:#facc15;--m2:#f59e0b;--mr:250,204,21">
+    <h3><i class="fa-solid fa-piggy-bank"></i>Monatsbudgets<button class="ux-ib" onclick="closeModal('m-bud')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Lege pro Kategorie ein Limit fest. Leer lassen = kein Budget.</p>
+    <form onsubmit="saveBudgets(event)"><div id="bud-fields"></div>
+        <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-bud')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div></form></div></div>
 
-    <!-- Modal Budgets -->
-    <div id="m-bud" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between mb-1"><h3 class="text-base font-bold">Monatsbudgets</h3><button onclick="closeModal('m-bud')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
-        <p class="text-xs text-slate-400 mb-4">Lege pro Kategorie ein Limit fest. Leer lassen = kein Budget.</p>
-        <form onsubmit="saveBudgets(event)"><div id="bud-fields" class="space-y-2.5"></div>
-            <div class="flex justify-end gap-3 pt-4"><button type="button" onclick="closeModal('m-bud')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button></div></form></div></div>
+<!-- Fenster: Lohnabrechnung -->
+<div id="m-pay" class="ux-modal hidden"><div class="ux-box fin" style="--m:#facc15;--m2:#f59e0b;--mr:250,204,21">
+    <h3><i class="fa-solid fa-file-invoice-dollar"></i>Lohnabrechnung ablegen<button class="ux-ib" onclick="closeModal('m-pay')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Die Datei wird verschlüsselt übertragen und in deinem Konto gespeichert. Das Netto wird als Gehalt gebucht.</p>
+    <form onsubmit="savePayslip(event)">
+        <label class="ux-f"><span>Abrechnungsmonat</span><input type="month" id="pay-month" required class="ux-in"></label>
+        <div class="ux-row2"><label class="ux-f"><span>Netto (€)</span><input type="number" step="0.01" id="pay-netto" required class="ux-in"></label><label class="ux-f"><span>Brutto (€, optional)</span><input type="number" step="0.01" id="pay-brutto" class="ux-in"></label></div>
+        <label class="ux-f"><span>Datei (PDF oder Foto, max. ca. 700 KB)</span><input type="file" id="pay-file" required accept=".pdf,image/*" class="ux-in"></label>
+        <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-pay')">Abbrechen</button><button id="pay-btn" class="ux-btn pri">In Cloud speichern</button></div>
+    </form></div></div>
 
-    <!-- Modal Lohn -->
-    <div id="m-pay" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
-        <div class="flex justify-between mb-4"><h3 class="text-base font-bold">Lohnabrechnung ablegen</h3><button onclick="closeModal('m-pay')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
-        <form onsubmit="savePayslip(event)" class="space-y-3">
-            <div><label class="lbl">Abrechnungsmonat</label><input type="month" id="pay-month" required class="inp"></div>
-            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Netto (€)</label><input type="number" step="0.01" id="pay-netto" required class="inp"></div>
-                <div><label class="lbl">Brutto (€, optional)</label><input type="number" step="0.01" id="pay-brutto" class="inp"></div></div>
-            <div><label class="lbl">Datei (PDF oder Foto, max. ca. 700 KB)</label><input type="file" id="pay-file" required accept=".pdf,image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-600/20 file:text-emerald-300"></div>
-            <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeModal('m-pay')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button id="pay-btn" class="px-4 py-2 rounded-xl text-xs bg-emerald-600 text-white font-medium">In Cloud speichern</button></div>
-        </form></div></div>
-
-    <script>
+<script>
         const $ = id => document.getElementById(id);
         const openModal = id => $(id).classList.remove('hidden'), closeModal = id => $(id).classList.add('hidden');
         const run = async fn => { try { await fn(); } catch (e) { alert('Fehler: ' + e.message); } };
@@ -168,8 +161,15 @@
         const sgn = n => (n > 0 ? '+' : '') + eur(n);
         const monthLabel = ym => new Date(+ym.slice(0, 4), +ym.slice(5) - 1, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
         const CATS = ['Supermarkt', 'Gehalt', 'Miete / Wohnen', 'Tanken / Auto', 'Freizeit / Abo', 'Versicherung', 'Sparen / Rücklagen', 'Sonstiges'];
-        const COLOR = { 'Supermarkt': 'bg-emerald-500', 'Gehalt': 'bg-yellow-400', 'Miete / Wohnen': 'bg-indigo-500', 'Tanken / Auto': 'bg-orange-500',
-            'Freizeit / Abo': 'bg-pink-500', 'Versicherung': 'bg-cyan-500', 'Sparen / Rücklagen': 'bg-teal-500', 'Sonstiges': 'bg-slate-500' };
+        // Kategorien: [Farbe, Farbe als r,g,b, Symbol]
+        const CATM = {
+            'Supermarkt': ['#34d399', '52,211,153', 'fa-cart-shopping'], 'Gehalt': ['#facc15', '250,204,21', 'fa-coins'], 'Miete / Wohnen': ['#818cf8', '129,140,248', 'fa-house'],
+            'Tanken / Auto': ['#fb923c', '251,146,60', 'fa-gas-pump'], 'Freizeit / Abo': ['#f472b6', '244,114,182', 'fa-film'], 'Versicherung': ['#22d3ee', '34,211,238', 'fa-shield-halved'],
+            'Sparen / Rücklagen': ['#2dd4bf', '45,212,191', 'fa-piggy-bank'], 'Sonstiges': ['#94a3b8', '148,163,184', 'fa-wallet']
+        };
+        const catM = c => CATM[c] || CATM['Sonstiges'];
+        const tone = n => (n > 0 ? 'pos' : n < 0 ? 'neg' : '');
+        const WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
         const INT = { 1: 'monatlich', 3: 'vierteljährlich', 6: 'halbjährlich', 12: 'jährlich' };
         const csvCell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
 
@@ -215,6 +215,9 @@
         const isBooked = (f, m) => tx.some(t => t.id === fixTxId(f, m));
         const nextDue = f => { for (let i = 0; i < 12; i++) { const m = localDate(new Date(+todayStr.slice(0, 4), +todayStr.slice(5) - 1 + i, 1)).slice(0, 7); if (isDue(f, m)) return m; } return null; };
 
+        const shiftMonth = (m, d) => localDate(new Date(+m.slice(0, 4), +m.slice(5) - 1 + d, 1)).slice(0, 7);
+        function monthShift(dir) { const s = $('fm'), i = s.selectedIndex + dir; if (i >= 0 && i < s.options.length) { s.selectedIndex = i; renderAll(false); } }
+
         function renderAll(refreshMonths = true) {
             if (refreshMonths) {
                 const sel = $('fm'), prev = sel.value, set = new Set([todayStr]);
@@ -222,64 +225,90 @@
                 pays.forEach(p => { if (p.month) set.add(p.month); });
                 const sorted = [...set].sort().reverse();
                 sel.innerHTML = sorted.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
-                sel.value = sorted.includes(prev) ? prev : sorted[0];
+                sel.value = sorted.includes(prev) ? prev : todayStr;      // beim Öffnen der aktuelle Monat (nicht ein späterer mit Lohnabrechnung)
             }
-            const m = ym(), { inc, exp } = sums(monthTx(m)), bal = inc - exp;
+            const m = ym(), cur = monthTx(m), { inc, exp } = sums(cur), bal = inc - exp, prevTx = monthTx(shiftMonth(m, -1)), P = sums(prevTx);
             const fixOut = fixes.filter(f => f.active !== false && f.amount < 0).reduce((s, f) => s - f.amount / f.interval, 0);
-            $('k-inc').innerText = eur(inc); $('k-exp').innerText = eur(exp);
-            $('k-bal').innerText = sgn(bal); $('k-bal').className = 'text-lg font-bold mt-1 ' + (bal >= 0 ? 'text-emerald-400' : 'text-rose-400');
-            $('k-rate').innerText = inc > 0 ? Math.round(bal / inc * 100) + ' %' : '–';
-            $('k-fix').innerText = eur(fixOut);
+            $('ux-sub').textContent = 'Dein Überblick für ' + monthLabel(m);
+            UX.setMoney($('k-bal'), bal, { signed: true, tone: bal >= 0 ? 'pos' : 'neg' }); UX.setMoney($('k-inc'), inc); UX.setMoney($('k-exp'), exp); UX.setMoney($('k-fix'), fixOut);
+            $('k-sum').innerText = `Einnahmen ${eur(inc)} · Ausgaben ${eur(exp)}`;
+            const rate = inc > 0 ? bal / inc : null; $('k-rate').innerText = rate === null ? '–' : Math.round(rate * 100) + ' %'; UX.ring($('rate-arc'), rate > 0 ? rate : 0);
+            const dl = $('k-delta'); if (prevTx.length) { const d = bal - (P.inc - P.exp); dl.innerText = `${sgn(d)} zum Vormonat`; dl.className = 'chip ' + (d >= 0 ? 'g' : 'r'); } else { dl.innerText = 'kein Vormonat'; dl.className = 'chip'; }
+            const ec = $('k-exp-chip'); if (P.exp > 0) { const p = Math.round((exp - P.exp) / P.exp * 100); ec.innerText = `${p > 0 ? '+' : ''}${p} % zum Vormonat`; ec.className = 'chip ' + (p > 0 ? 'r' : 'g'); } else { { const n = cur.filter(t => t.amount < 0).length; ec.innerText = `${n} ${n === 1 ? 'Ausgabe' : 'Ausgaben'}`; } ec.className = 'chip'; }
+            { const n = cur.filter(t => t.amount > 0).length; $('k-inc-chip').innerText = `${n} ${n === 1 ? 'Einnahme' : 'Einnahmen'}`; }
+            const open = fixes.filter(f => isDue(f, m) && !isBooked(f, m)).length, fc = $('k-fix-chip'); fc.innerText = open ? `${open} noch offen` : 'alles gebucht'; fc.className = 'chip ' + (open ? 'a' : 'g');
             renderOverview(m, inc, exp, bal); renderTx(); renderFix(); renderPays();
         }
 
         // ---------- Übersicht ----------
         function renderOverview(m, inc, exp, bal) {
+            // Verlauf des Saldos im Monat (Linie mit Fläche)
+            const dim = new Date(+m.slice(0, 4), +m.slice(5), 0).getDate(), lastDay = m === todayStr ? +localDate().slice(8) : dim, perDay = {};
+            monthTx(m).forEach(t => { const d = +t.date.slice(8); perDay[d] = (perDay[d] || 0) + t.amount; });
+            const cum = []; let acc = 0; for (let d = 1; d <= lastDay; d++) { acc += perDay[d] || 0; cum.push(acc); }
+            const lo = Math.min(0, ...cum), hi = Math.max(0, ...cum), span = hi - lo || 1, Y = v => 80 - (v - lo) / span * 68;
+            const pts = cum.length > 1 ? cum.map((v, i) => [i / (cum.length - 1) * 400, Y(v)]) : [[0, Y(cum[0] || 0)], [400, Y(cum[0] || 0)]];
+            const line = 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L'), end = pts[pts.length - 1];
+            $('hero-line').setAttribute('d', line); $('hero-fill').setAttribute('d', line + ' L400 90 L0 90 Z'); $('hero-dot').setAttribute('cx', end[0].toFixed(1)); $('hero-dot').setAttribute('cy', end[1].toFixed(1));
+
+            // Ausgaben nach Kategorie: Donut und Legende
             const byCat = {};
             monthTx(m).filter(t => t.amount < 0).forEach(t => { const c = t.category || 'Sonstiges'; byCat[c] = (byCat[c] || 0) - t.amount; });
-            Object.keys(budgets).forEach(c => { if (budgets[c] > 0 && !(c in byCat)) byCat[c] = 0; });
-            const rows = Object.entries(byCat).sort((a, b) => b[1] - a[1]), max = rows[0]?.[1] || 1;
-            $('cat-list').innerHTML = rows.length ? rows.map(([c, v]) => {
-                const b = budgets[c], pct = b > 0 ? v / b : 0;
-                const col = b > 0 ? (pct >= 1 ? 'bg-rose-500' : pct >= .8 ? 'bg-amber-400' : 'bg-emerald-500') : (COLOR[c] || 'bg-slate-500');
-                const w = b > 0 ? Math.min(100, pct * 100) : v / max * 100;
-                return `<div><div class="flex justify-between text-xs mb-1"><span class="text-slate-200"><i class="fa-solid fa-circle text-[7px] mr-2 ${(COLOR[c] || '').replace('bg-', 'text-')}"></i>${esc(c)}</span>
-                    <span class="font-mono">${eur(v)}<span class="text-slate-500"> · ${exp ? Math.round(v / exp * 100) : 0} %</span></span></div>
-                    <div class="h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full rounded-full ${col}" style="width:${w}%"></div></div>
-                    ${b > 0 ? `<div class="text-[10px] mt-0.5 ${pct >= 1 ? 'text-rose-400' : 'text-slate-500'}">Budget ${eur(b)} · ${pct >= 1 ? 'überschritten um ' + eur(v - b) : 'noch ' + eur(b - v)}</div>` : ''}</div>`;
-            }).join('') : '<div class="text-xs text-slate-500 text-center py-6">Keine Ausgaben in diesem Monat.</div>';
+            const rows = Object.entries(byCat).sort((a, b) => b[1] - a[1]), total = rows.reduce((s, r) => s + r[1], 0);
+            $('donut').innerHTML = '<circle class="trk" cx="85" cy="85" r="64" stroke-width="22"/>' + rows.map(([c, v]) => `<circle class="arc" data-c="${esc(c)}" cx="85" cy="85" r="64" stroke="${catM(c)[0]}" stroke-width="22" style="stroke-linecap:butt"/>`).join('');
+            let off = 0; $('donut').querySelectorAll('.arc').forEach((el, i) => { const f = rows[i][1] / total; UX.ring(el, f, off); off += f; });
+            $('donut-total').innerText = total ? eur(total) : '–';
+            $('cat-legend').innerHTML = rows.length ? rows.map(([c, v]) => `<div title="${esc(eur(v))}"><i style="background:${catM(c)[0]}"></i>${esc(c)}<b>${Math.round(v / total * 100)} %</b></div>`).join('') : '<div class="ux-note">Keine Ausgaben in diesem Monat.</div>';
 
+            // Budgets
+            const bl = CATS.filter(c => budgets[c] > 0);
+            $('bud-list').innerHTML = bl.length ? bl.map(c => {
+                const v = byCat[c] || 0, b = budgets[c], pct = v / b, col = pct >= 1 ? 'linear-gradient(90deg,#e11d48,#fb7185)' : pct >= .8 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)' : 'linear-gradient(90deg,#10b981,#34d399)';
+                return `<div class="bud" style="--bb:${col}"><div class="h"><i class="fa-solid ${catM(c)[2]}" style="color:${catM(c)[0]}"></i>${esc(c)}<span class="${pct >= 1 ? 'neg' : ''}">${eur(v)} von ${eur(b)}</span></div>
+                    <div class="bar"><i style="width:${Math.min(100, pct * 100).toFixed(1)}%"></i></div><div class="ux-note" style="margin-top:5px">${pct >= 1 ? 'überschritten um ' + eur(v - b) : 'noch ' + eur(b - v)}</div></div>`;
+            }).join('') : '<div class="ux-note">Noch keine Budgets. Lege pro Kategorie ein Limit fest, dann siehst du hier, wie viel noch übrig ist.</div>';
+
+            // Prognose
             const open = fixes.filter(f => isDue(f, m) && !isBooked(f, m)), openSum = open.reduce((s, f) => s + f.amount, 0);
-            $('forecast').innerHTML = m !== todayStr ? '<div class="text-slate-500">Die Prognose gibt es nur für den laufenden Monat.</div>' : `
-                <div class="flex justify-between"><span class="text-slate-400">Aktueller Saldo</span><span class="font-mono">${sgn(bal)}</span></div>
-                <div class="flex justify-between"><span class="text-slate-400">Offene Fixkosten (${open.length})</span><span class="font-mono ${openSum < 0 ? 'text-rose-400' : 'text-emerald-400'}">${sgn(openSum)}</span></div>
-                <div class="flex justify-between border-t border-slate-800 pt-1.5 font-bold"><span>Erwartetes Monatsende</span><span class="font-mono ${bal + openSum >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${sgn(bal + openSum)}</span></div>`;
+            $('forecast').innerHTML = m !== todayStr ? '<div class="ux-note">Die Prognose gibt es nur für den laufenden Monat.</div>' : `
+                <div class="fc"><span>Aktueller Saldo</span><b class="${tone(bal)}">${sgn(bal)}</b></div>
+                <div class="fc"><span>Offene Fixkosten (${open.length})</span><b class="${tone(openSum)}">${sgn(openSum)}</b></div>
+                <div class="fc sum"><span>Erwartetes Monatsende</span><b class="${tone(bal + openSum)}">${sgn(bal + openSum)}</b></div>`;
 
-            const months = Array.from({ length: 6 }, (_, i) => localDate(new Date(+m.slice(0, 4), +m.slice(5) - 1 - (5 - i), 1)).slice(0, 7));
+            // Letzte 6 Monate
+            const months = Array.from({ length: 6 }, (_, i) => shiftMonth(m, -(5 - i)));
             const data = months.map(k => ({ k, ...sums(monthTx(k)) })), top = Math.max(1, ...data.flatMap(d => [d.inc, d.exp]));
-            $('trend').innerHTML = data.map(d => `<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end" title="${monthLabel(d.k)}: +${eur(d.inc)} / -${eur(d.exp)}">
-                <div class="flex items-end gap-0.5 w-full flex-1"><div class="flex-1 bg-emerald-500 rounded-t" style="height:${d.inc / top * 100}%"></div><div class="flex-1 bg-rose-500 rounded-t" style="height:${d.exp / top * 100}%"></div></div>
-                <span class="text-[9px] text-slate-500">${new Date(2000, +d.k.slice(5) - 1, 1).toLocaleString('de-DE', { month: 'short' })}</span></div>`).join('');
+            $('trend').innerHTML = data.map((d, i) => `<div class="col${d.k === m ? ' now' : ''}" title="${esc(monthLabel(d.k))}: +${eur(d.inc)} / −${eur(d.exp)}"><div class="bw">
+                <i style="height:${d.inc ? Math.max(4, d.inc / top * 100) : 0}%;--i:${i * 4};--bc:linear-gradient(180deg,#4ade80,#16a34a)"></i><i style="height:${d.exp ? Math.max(4, d.exp / top * 100) : 0}%;--i:${i * 4 + 2};--bc:linear-gradient(180deg,#fb7185,#e11d48)"></i></div>
+                <span>${new Date(2000, +d.k.slice(5) - 1, 1).toLocaleString('de-DE', { month: 'short' }).replace('.', '')}</span></div>`).join('');
 
+            // Größte Ausgaben
             const big = monthTx(m).filter(t => t.amount < 0).sort((a, b) => a.amount - b.amount).slice(0, 5);
-            $('top-exp').innerHTML = big.length ? big.map(t => `<div class="flex justify-between gap-2"><span class="truncate text-slate-300">${esc(t.partner)}</span><span class="font-mono text-rose-400">${eur(-t.amount)}</span></div>`).join('') : '<div class="text-slate-500">Keine Ausgaben.</div>';
+            $('top-exp').innerHTML = big.length ? big.map((t, i) => `<div class="row"><div class="rank">${i + 1}</div><div class="n"><div class="ell">${esc(t.partner)}</div><small>${esc(t.category || 'Sonstiges')}</small></div><div class="a neg">${eur(-t.amount)}</div></div>`).join('') : '<div class="ux-note">Keine Ausgaben.</div>';
         }
 
         // ---------- Buchungen ----------
+        function dayName(d) {
+            const today = localDate(), y = localDate(new Date(Date.now() - 864e5)); const p = d.split('-');
+            return (d === today ? 'Heute · ' : d === y ? 'Gestern · ' : '') + WD[new Date(+p[0], +p[1] - 1, +p[2]).getDay()] + '., ' + p[2] + '.' + p[1] + '.';
+        }
         function renderTx() {
             const q = $('tx-q').value.toLowerCase(), c = $('tx-cat').value, ty = $('tx-type').value;
             const list = monthTx(ym()).filter(t => (!c || (t.category || 'Sonstiges') === c) && (!ty || (ty === 'in') === (t.amount > 0)) && (!q || `${t.partner} ${t.purpose || ''}`.toLowerCase().includes(q)))
                 .sort((a, b) => b.date.localeCompare(a.date));
-            $('tx-body').innerHTML = list.length ? list.map(t => `<tr class="hover:bg-slate-900/40">
-                <td class="p-2 whitespace-nowrap text-slate-400 font-mono text-[11px]">${esc(t.date)}</td>
-                <td class="p-2 font-medium max-w-[220px] truncate" title="${esc(t.purpose || '')}">${t.fixedId ? '<i class="fa-solid fa-repeat text-cyan-400 mr-1.5 text-[10px]"></i>' : ''}${esc(t.partner)}</td>
-                <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300"><i class="fa-solid fa-circle text-[6px] mr-1.5 ${(COLOR[t.category] || '').replace('bg-', 'text-')}"></i>${esc(t.category || 'Sonstiges')}</span></td>
-                <td class="p-2 text-right font-bold font-mono ${t.amount > 0 ? 'text-emerald-400' : 'text-rose-400'}">${sgn(t.amount)}</td>
-                <td class="p-2 text-right whitespace-nowrap"><button data-act="edit" data-id="${esc(t.id)}" class="text-slate-400 hover:text-indigo-400 p-1" title="Bearbeiten"><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button data-act="del" data-id="${esc(t.id)}" class="text-slate-500 hover:text-rose-400 p-1" title="Löschen"><i class="fa-solid fa-trash-can"></i></button></td></tr>`).join('')
-                : '<tr><td colspan="5" class="text-center py-6 text-slate-500">Keine Buchungen gefunden.</td></tr>';
+            let last = '', html = '';
+            list.forEach((t, i) => {
+                if (t.date !== last) { last = t.date; html += `<div class="day">${esc(dayName(t.date))}</div>`; }
+                const [col, cr, ic] = catM(t.category || 'Sonstiges');
+                html += `<div class="row" style="--c:${col};--cr:${cr};animation-delay:${Math.min(i, 10) * 20}ms"><div class="tile"><i class="fa-solid ${ic}"></i></div>
+                    <div class="n"><div class="ell" title="${esc(t.purpose || '')}">${t.fixedId ? '<i class="fa-solid fa-repeat" style="color:#22d3ee;font-size:11px;margin-right:6px"></i>' : ''}${esc(t.partner)}</div><small>${esc(t.category || 'Sonstiges')}${t.purpose ? ' · ' + esc(t.purpose) : ''}</small></div>
+                    <div class="a ${t.amount > 0 ? 'pos' : 'neg'}">${sgn(t.amount)}</div>
+                    <div class="acts"><button data-act="edit" data-id="${esc(t.id)}" class="ux-ib" title="Bearbeiten" aria-label="Bearbeiten"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button data-act="del" data-id="${esc(t.id)}" class="ux-ib bad" title="Löschen" aria-label="Löschen"><i class="fa-solid fa-trash-can"></i></button></div></div>`;
+            });
+            $('tx-body').innerHTML = html || '<div class="ux-empty"><i class="fa-solid fa-wallet"></i>Keine Buchungen gefunden.</div>';
             const s = sums(list);
-            $('tx-sum').innerText = `${list.length} Buchungen · Einnahmen ${eur(s.inc)} · Ausgaben ${eur(s.exp)}`;
+            $('tx-sum').innerText = `${list.length} ${list.length === 1 ? 'Buchung' : 'Buchungen'} · Einnahmen ${eur(s.inc)} · Ausgaben ${eur(s.exp)}`;
         }
 
         function openTx(id = '') {
@@ -318,17 +347,16 @@
         function renderFix() {
             const m = ym();
             $('fix-list').innerHTML = fixes.length ? [...fixes].sort((a, b) => a.amount - b.amount).map(f => {
-                const due = isDue(f, m), booked = isBooked(f, m), nd = nextDue(f), paused = f.active === false;
-                const badge = paused ? ['pausiert', 'bg-slate-800 text-slate-400'] : booked ? ['gebucht', 'bg-emerald-500/10 text-emerald-400'] : due ? ['offen', 'bg-amber-500/10 text-amber-400'] : ['nicht fällig', 'bg-slate-800 text-slate-400'];
-                return `<div class="card ${paused ? 'opacity-60' : ''}"><div class="flex justify-between gap-2"><div class="min-w-0"><div class="font-semibold text-sm truncate">${esc(f.name)}</div>
-                    <div class="text-[11px] text-slate-500">${esc(f.category)} · ${INT[f.interval]} · am ${f.day}.</div></div><span class="text-[10px] px-2 py-1 rounded-lg h-fit ${badge[1]}">${badge[0]}</span></div>
-                    <div class="flex items-end justify-between mt-3"><div><div class="text-lg font-bold font-mono ${f.amount < 0 ? 'text-rose-400' : 'text-emerald-400'}">${sgn(f.amount)}</div>
-                    <div class="text-[10px] text-slate-500">${f.interval > 1 ? '≈ ' + eur(f.amount / f.interval) + ' / Monat · ' : ''}${nd ? 'nächste: ' + monthLabel(nd) : ''}</div></div>
-                    <div class="flex gap-1">${due && !booked && !paused ? `<button data-act="book" data-id="${esc(f.id)}" class="p-2 text-emerald-400 hover:bg-slate-800 rounded-lg" title="Jetzt buchen"><i class="fa-solid fa-circle-check"></i></button>` : ''}
-                    <button data-act="toggle" data-id="${esc(f.id)}" class="p-2 text-slate-400 hover:bg-slate-800 rounded-lg" title="${paused ? 'Fortsetzen' : 'Pausieren'}"><i class="fa-solid ${paused ? 'fa-play' : 'fa-pause'}"></i></button>
-                    <button data-act="edit" data-id="${esc(f.id)}" class="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button data-act="del" data-id="${esc(f.id)}" class="p-2 text-slate-500 hover:text-rose-400 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-trash-can"></i></button></div></div></div>`;
-            }).join('') : '<div class="card text-center text-xs text-slate-500 md:col-span-2 xl:col-span-3 py-10">Noch keine Fixkosten. Lege Miete, Versicherungen, Abos oder dein Gehalt an, dann siehst du Prognose und Fixkostenlast.</div>';
+                const due = isDue(f, m), booked = isBooked(f, m), nd = nextDue(f), paused = f.active === false, [col, cr, ic] = catM(f.category);
+                const st = paused ? ['pausiert', ''] : booked ? ['gebucht', 'g'] : due ? ['offen', 'a'] : ['nicht fällig', ''];
+                return `<div class="ux-card fx${paused ? ' paused' : ''}" style="--c:${col};--cr:${cr}"><div class="top"><div class="tile"><i class="fa-solid ${ic}"></i></div>
+                    <div class="nm"><div class="ell">${esc(f.name)}</div><small>${esc(f.category)} · ${INT[f.interval]} · am ${f.day}.</small></div><span class="chip ${st[1]}">${st[0]}</span></div>
+                    <div class="bt"><div><div class="amt ${f.amount < 0 ? 'neg' : 'pos'}">${sgn(f.amount)}</div><small>${f.interval > 1 ? '≈ ' + eur(f.amount / f.interval) + ' / Monat · ' : ''}${nd ? 'nächste: ' + monthLabel(nd) : ''}</small></div>
+                    <div class="acts">${due && !booked && !paused ? `<button data-act="book" data-id="${esc(f.id)}" class="ux-ib" style="color:#86efac" title="Jetzt buchen" aria-label="Jetzt buchen"><i class="fa-solid fa-circle-check"></i></button>` : ''}
+                    <button data-act="toggle" data-id="${esc(f.id)}" class="ux-ib" title="${paused ? 'Fortsetzen' : 'Pausieren'}" aria-label="${paused ? 'Fortsetzen' : 'Pausieren'}"><i class="fa-solid ${paused ? 'fa-play' : 'fa-pause'}"></i></button>
+                    <button data-act="edit" data-id="${esc(f.id)}" class="ux-ib" title="Bearbeiten" aria-label="Bearbeiten"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button data-act="del" data-id="${esc(f.id)}" class="ux-ib bad" title="Löschen" aria-label="Löschen"><i class="fa-solid fa-trash-can"></i></button></div></div></div>`;
+            }).join('') : '<div class="ux-card ux-empty" style="grid-column:1/-1"><i class="fa-solid fa-repeat"></i>Noch keine Fixkosten. Lege Miete, Versicherungen, Abos oder dein Gehalt an, dann siehst du Prognose und Fixkostenlast.</div>';
         }
 
         function openFix(id = '') {
@@ -372,8 +400,8 @@
 
         // ---------- Budgets ----------
         function openBudgets() {
-            $('bud-fields').innerHTML = CATS.filter(c => c !== 'Gehalt').map(c => `<div class="flex items-center gap-3"><span class="text-xs text-slate-300 w-40">${esc(c)}</span>
-                <input type="number" min="0" step="1" data-cat="${esc(c)}" value="${budgets[c] || ''}" placeholder="kein Limit" class="inp"></div>`).join('');
+            $('bud-fields').innerHTML = CATS.filter(c => c !== 'Gehalt').map(c => `<label class="ux-f" style="display:flex;align-items:center;gap:12px;margin:0 0 10px"><span style="flex:0 0 150px;margin:0;color:#e2e8f0;font-size:13px"><i class="fa-solid ${catM(c)[2]}" style="color:${catM(c)[0]};margin-right:8px"></i>${esc(c)}</span>
+                <input type="number" min="0" step="1" data-cat="${esc(c)}" value="${budgets[c] || ''}" placeholder="kein Limit" class="ux-in"></label>`).join('');
             openModal('m-bud');
         }
         function saveBudgets(e) {
@@ -461,11 +489,11 @@
         }
         function renderPays() {
             $('pay-count').innerText = pays.length;
-            $('pay-list').innerHTML = pays.length ? [...pays].sort((a, b) => b.month.localeCompare(a.month)).map(p => `<div class="p-3 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex items-center justify-between gap-2 text-xs">
-                <div><span class="font-bold block">${esc(monthLabel(p.month))}</span><span class="text-[10px] text-emerald-400 font-mono">${eur(p.netto)} netto${p.brutto ? ' · ' + eur(p.brutto) + ' brutto' : ''}</span></div>
-                <div class="flex gap-1.5"><a href="${p.fileData}" download="Lohnabrechnung_${esc(p.month)}_${esc(p.fileName)}" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl" title="Herunterladen"><i class="fa-solid fa-download"></i></a>
-                <button data-del="${esc(p.id)}" class="p-2 bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 rounded-xl" title="Löschen"><i class="fa-solid fa-trash-can"></i></button></div></div>`).join('')
-                : '<div class="text-xs text-slate-500 py-6 md:col-span-2 xl:col-span-3 text-center">Keine Lohnabrechnungen hinterlegt.</div>';
+            $('pay-list').innerHTML = pays.length ? [...pays].sort((a, b) => b.month.localeCompare(a.month)).map(p => `<div class="row" style="--c:#fbbf24;--cr:251,191,36"><div class="tile"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <div class="n"><div class="ell">${esc(monthLabel(p.month))}</div><small>${eur(p.netto)} netto${p.brutto ? ' · ' + eur(p.brutto) + ' brutto' : ''}</small></div>
+                <div class="acts"><a href="${/^data:/.test(p.fileData || '') ? p.fileData : '#'}" download="Lohnabrechnung_${esc(p.month)}_${esc(p.fileName)}" class="ux-ib" title="Herunterladen" aria-label="Herunterladen"><i class="fa-solid fa-download"></i></a>
+                <button data-del="${esc(p.id)}" class="ux-ib bad" title="Löschen" aria-label="Löschen"><i class="fa-solid fa-trash-can"></i></button></div></div>`).join('')
+                : '<div class="ux-card ux-empty" style="grid-column:1/-1"><i class="fa-solid fa-folder-open"></i>Keine Lohnabrechnungen hinterlegt.</div>';
         }
         function delPayslip(id) {
             if (!confirm('Diese Lohnabrechnung wirklich löschen? Die zugehörige Gehaltsbuchung wird mit entfernt.')) return;
