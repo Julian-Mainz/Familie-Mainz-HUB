@@ -182,6 +182,14 @@
                 try { const d = await db.collection(c).doc(currentUser.uid).get(); out.daten[k] = d.exists ? plain(d.data()) : null; } catch (e) { out.daten[k] = 'kein Zugriff'; }
             }
             try { const p = plain((await db.collection('users').doc(currentUser.uid).get()).data() || {}); delete p.fcmToken; out.daten.profil = p; } catch (e) { out.daten.profil = 'kein Zugriff'; }
+            if (can(currentUser, 'messenger')) {
+                try {
+                    const uid = currentUser.uid, chats = await db.collection('chats').where('members', 'array-contains', uid).get(), list = [];
+                    for (const c of chats.docs) { const ms = await c.ref.collection('messages').where('from', '==', uid).get(); const x = c.data(); list.push({ chat: c.id, typ: x.type, titel: x.title || null, mitglieder: x.members, eigene_nachrichten: ms.docs.map(m => ({ id: m.id, ...plain(m.data()) })) }); }
+                    const dir = await db.collection('directory').doc(uid).get();
+                    out.daten.messenger = { verzeichnis: dir.exists ? plain(dir.data()) : null, chats: list };
+                } catch (e) { out.daten.messenger = 'kein Zugriff'; }
+            }
             const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' })), download: `Meine_Daten_${localDate()}.json` });
             document.body.appendChild(a); a.click(); a.remove();
             logSystemEvent('data', 'Datenexport erstellt');
@@ -195,7 +203,7 @@
         <div id="modal-delete-account" class="fixed inset-0 z-[70] bg-slate-950/85 hidden flex items-center justify-center p-4">
             <div class="bg-slate-900 border border-rose-500/30 p-5 rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto">
                 <h3 class="text-base font-bold text-rose-300"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Konto endgültig löschen</h3>
-                <p class="text-xs text-slate-400 mt-2 leading-relaxed">Gelöscht werden dein Profil und alle deine Daten: Arbeitszeiten, Buchungen, Fixkosten, Lohnabrechnungen, Tresor-Einträge sowie deine Termine, Notizen und Aufgaben. Das kann nicht rückgängig gemacht werden. Lade vorher am besten deine Daten herunter.</p>
+                <p class="text-xs text-slate-400 mt-2 leading-relaxed">Gelöscht werden dein Profil und alle deine Daten: Arbeitszeiten, Buchungen, Fixkosten, Lohnabrechnungen, Tresor-Einträge sowie deine Termine, Notizen und Aufgaben. Deine Chat-Nachrichten bleiben bei deinen Gesprächspartnern erhalten, dein Name wird dort zu „Gelöschtes Konto“. Das kann nicht rückgängig gemacht werden. Lade vorher am besten deine Daten herunter.</p>
                 <div id="del-admin-note" class="hidden mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">Admin-Konten können nicht selbst gelöscht werden. Lass dich zuerst von einem anderen Admin zum normalen Mitglied herabstufen.</div>
                 <div class="space-y-3 mt-4">
                     <input type="password" id="del-pass" autocomplete="current-password" placeholder="Dein Passwort" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-rose-500">
@@ -234,7 +242,7 @@
             await logSystemEvent('auth', 'Konto selbst gelöscht', { email: currentUser.email });
             const email = currentUser.email, uid = currentUser.uid;
             for (const c of OWNED) { try { await purge(db.collection(c).where('owner', '==', email)); } catch (e) { /* kein Zugriff = nichts zu löschen */ } }
-            await Promise.all([db.collection('active_work').doc(uid).delete().catch(() => {}), db.collection('finance_settings').doc(uid).delete().catch(() => {})]);
+            await Promise.all([db.collection('active_work').doc(uid).delete().catch(() => {}), db.collection('finance_settings').doc(uid).delete().catch(() => {}), db.collection('directory').doc(uid).delete().catch(() => {}), db.collection('users').doc(uid).collection('meta').doc('messenger').delete().catch(() => {})]);
             await db.collection('users').doc(uid).delete();      // zuletzt, danach fehlen die Zugriffsrechte
             await user.delete();
             try { sessionStorage.clear(); } catch (e) {}
