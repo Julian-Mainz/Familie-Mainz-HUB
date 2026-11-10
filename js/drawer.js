@@ -3,6 +3,7 @@
 // Bedienung für die Seiten bleibt gleich: renderDrawer() beim Start, toggleSideMenu(true|false) für das Menü am Handy.
 const DRAWER_LINKS = [
     { href: '/menu.html',           label: 'Start',          icon: 'fa-border-all',    c: '#818cf8', group: 'Übersicht' },
+    { href: '/messenger.html',      label: 'Messenger',      icon: 'fa-comments',      c: '#f472b6', group: 'Übersicht', perm: 'messenger', badgeId: 'sb-msg-badge' },
     { href: '/wand.html',           label: 'Wandkalender',   icon: 'fa-display',       c: '#22d3ee', group: 'Übersicht', perm: 'wand' },
     { href: '/zeiterfassung.html',  label: 'Zeiterfassung',  icon: 'fa-business-time', c: '#34d399', group: 'Bereiche',  perm: 'zeit' },
     { href: '/finanzen.html',       label: 'Finanzen',       icon: 'fa-coins',         c: '#facc15', group: 'Bereiche',  perm: 'finanzen' },
@@ -59,15 +60,15 @@ function renderDrawer() {
         const head = l.group !== lastGroup ? `<div class="sb-sec">${l.group}</div>` : ''; lastGroup = l.group;
         const on = normPath(l.href) === here;
         parts.push(`${head}<a class="sb-item${on ? ' on' : ''}" href="${l.href}" style="--c:${l.c};--i:${idx++}" data-tip="${l.label}"${on ? ' aria-current="page"' : ''}>
-            <span class="sb-ico"><i class="fa-solid ${l.icon}"></i></span><span class="sb-label">${l.label}</span>${l.badge ? '<em class="sb-badge" id="sb-badge"></em>' : ''}</a>`);
+            <span class="sb-ico"><i class="fa-solid ${l.icon}"></i></span><span class="sb-label">${l.label}</span>${l.badgeId ? `<em class="sb-badge" id="${l.badgeId}"></em>` : l.badge ? '<em class="sb-badge" id="sb-badge"></em>' : ''}</a>`);
     });
     if (webOk && !webDone) parts.push(webGroup());
     const items = parts.join('');
 
     // Tab-Leiste am Handy: Start + die zwei wichtigsten freigegebenen Bereiche + Suche + Menü
-    const prio = ['/zeiterfassung.html', '/finanzen.html', '/spotify.html', '/passwort.html', '/wand.html', '/admin.html'];
+    const prio = ['/messenger.html', '/zeiterfassung.html', '/finanzen.html', '/spotify.html', '/passwort.html', '/wand.html', '/admin.html'];
     const picks = [allowed.find(l => l.href === '/menu.html'), ...prio.map(h => allowed.find(l => l.href === h)).filter(Boolean).slice(0, 2)].filter(Boolean);
-    const tab = l => `<a class="tb-item${normPath(l.href) === here ? ' on' : ''}" href="${l.href}" style="--c:${l.c}"><span class="tb-ico"><i class="fa-solid ${l.icon}"></i></span><span>${l.label.replace('Passwort-Safe', 'Safe').replace('Zeiterfassung', 'Zeit')}</span></a>`;
+    const tab = l => `<a class="tb-item${normPath(l.href) === here ? ' on' : ''}" href="${l.href}" style="--c:${l.c}"><span class="tb-ico"><i class="fa-solid ${l.icon}"></i>${l.badgeId ? '<em class="tb-badge" id="tb-msg-badge"></em>' : ''}</span><span>${l.label.replace('Passwort-Safe', 'Safe').replace('Zeiterfassung', 'Zeit')}</span></a>`;
     const tabbar = `<nav id="tabbar" aria-label="Schnellzugriff">${picks.map(tab).join('')}
         <button class="tb-item" onclick="if (typeof openSearch === 'function') openSearch();"><span class="tb-ico"><i class="fa-solid fa-magnifying-glass"></i></span><span>Suche</span></button>
         <button class="tb-item" onclick="toggleSideMenu(true)"><span class="tb-ico"><i class="fa-solid fa-bars"></i></span><span>Mehr</span></button></nav>`;
@@ -133,6 +134,16 @@ function renderDrawer() {
     if (typeof updateThemeButtons === 'function') updateThemeButtons();
     document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleSideMenu(false); });
     if (typeof isAdmin === 'function' && isAdmin(user)) loadAdminBadge();
+    if (typeof can === 'function' && can(user, 'messenger')) loadMessengerCore();
+}
+
+// Messenger im Hintergrund: Ungelesen-Zähler im Menü, Ton, Tab-Titel und Hinweise (nur für freigegebene Konten)
+function loadMessengerCore() {
+    if (window.MSG) return window.MSG.start();
+    if (document.getElementById('msg-core-js')) return;
+    const c = document.createElement('script');
+    c.id = 'msg-core-js'; c.src = '/js/messenger-core.js'; c.onload = () => window.MSG && window.MSG.start();
+    document.head.appendChild(c);
 }
 
 // Inhalt der Profilkarte unten in der Leiste (wird nach Änderungen im Profil neu gezeichnet)
