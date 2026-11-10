@@ -16,11 +16,13 @@
     <link rel="stylesheet" href="/assets/css/menu.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
     <link rel="stylesheet" href="/assets/icons.css">
     <link rel="stylesheet" href="/assets/ui.css">
+    <link rel="stylesheet" href="/assets/layout.css">
     <script src="/js/vendor/firebase-app-compat.js"></script>
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
     <script src="/js/calendar-core.js"></script>
+    <script src="/js/layout.js"></script>
     <script src="/js/drawer.js"></script>
     <style>
         body { background: radial-gradient(1200px 600px at 10% -10%, rgba(99,102,241,.12), transparent), #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -47,7 +49,7 @@
         </div>
         <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide truncate px-2"><span id="greet">Hallo</span>, <span id="user-display-name" class="text-indigo-400 font-semibold"></span> <span id="greet-emoji">👋</span></h1>
         <div class="flex items-center gap-2">
-        <button onclick="openLayout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold" title="Startseite anpassen"><i class="fa-solid fa-table-columns text-indigo-400"></i><span class="hidden md:inline">Anpassen</span></button>
+        <button id="lay-btn" onclick="Layout.toggle()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold" title="Startseite anpassen"><i class="fa-solid fa-table-columns text-indigo-400"></i><span class="hidden md:inline">Anpassen</span></button>
         <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span></button>
         </div>
     </header>
@@ -56,7 +58,7 @@
         <a id="pending-banner" href="/admin.html#users" class="hidden card px-4 py-3 border-amber-500/40 bg-amber-500/10 text-amber-200 text-xs items-center gap-2"><i class="fa-solid fa-user-clock"></i><span id="pending-text"></span><i class="fa-solid fa-chevron-right ml-auto text-[10px]"></i></a>
 
         <!-- Widgets (Reihenfolge und Sichtbarkeit sind anpassbar) -->
-        <div id="widgets" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div id="widgets" class="lay-grid">
             <div data-w="hero" class="card p-6 flex flex-col items-center justify-center text-center bg-gradient-to-br from-indigo-600/20 via-slate-900/60 to-cyan-500/10">
                 <div id="dash-time" class="text-5xl font-mono font-bold tracking-wider">00:00:00</div>
                 <div id="dash-date" class="text-xs font-medium text-indigo-300 uppercase tracking-widest mt-3"></div>
@@ -102,7 +104,7 @@
             </div>
 
         <!-- Kalender -->
-        <div data-w="calendar" class="card p-4 md:p-6 flex flex-col min-h-[420px] md:col-span-2 xl:col-span-3">
+        <div data-w="calendar" class="card p-4 md:p-6 flex flex-col min-h-[420px]">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
                 <div class="flex items-center gap-3"><i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i><h2 class="text-base font-bold text-slate-200">Kalender</h2></div>
                 <div class="flex items-center gap-2">
@@ -140,15 +142,6 @@
                 <div id="q-event-opts" class="hidden space-y-2"><div class="grid grid-cols-2 gap-2"><input type="date" id="q-date" class="inp"><input type="time" id="q-time" class="inp" title="Uhrzeit (optional)"></div><label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" id="q-public" checked class="rounded bg-slate-800 border-slate-700"> Öffentlich für alle sichtbar</label></div>
                 <div class="flex justify-end gap-2"><button type="button" onclick="closeModal('modal-quick')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button></div>
             </form>
-        </div>
-    </div>
-
-    <div id="modal-layout" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-1"><h3 class="text-base font-bold text-slate-100"><i class="fa-solid fa-table-columns text-indigo-400 mr-2"></i>Startseite anpassen</h3><button onclick="closeModal('modal-layout')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
-            <p class="text-xs text-slate-400 mb-3">Mit den Pfeilen sortierst du, mit dem Auge blendest du Bereiche ein oder aus. Die Auswahl gilt auf allen deinen Geräten.</p>
-            <div id="layout-list" class="space-y-2"></div>
-            <div class="flex justify-between pt-4"><button onclick="resetLayout()" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300"><i class="fa-solid fa-rotate-left mr-1.5"></i>Zurücksetzen</button><button onclick="closeModal('modal-layout')" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Fertig</button></div>
         </div>
     </div>
 
@@ -217,7 +210,7 @@
         initAuthGuard(user => {
             if (!user || started) return;
             started = true;
-            renderDrawer(); loadLayout(); applyLayout(); initLayoutEvents(); setupQuickKinds();
+            renderDrawer(); initLayout(); setupQuickKinds();
             if (can(currentUser, 'termine')) initCalendar();
             if (can(currentUser, 'pinnwand')) initNotes();
             if (can(currentUser, 'aufgaben')) initTodos();
@@ -226,50 +219,30 @@
             handleQuickHash();
         });
 
-        // ---------- Widgets anpassen ----------
-        const WIDGETS = { hero: ['Uhr & Datum', 'fa-clock'], weather: ['Wetter', 'fa-cloud-sun'], stamp: ['Arbeitszeit', 'fa-stopwatch'], notes: ['Pinnwand', 'fa-note-sticky'],
-            todos: ['Aufgaben & Einkauf', 'fa-list-check'], upcoming: ['Nächste Termine', 'fa-calendar-check'], calendar: ['Kalender', 'fa-calendar-days'] };
-        const DEFAULT_ORDER = Object.keys(WIDGETS);
+        // ---------- Widgets anpassen (js/layout.js) ----------
+        // Kennung: [Name, Standardbreite in Zwölfteln]
+        const WIDGETS = { hero: ['Uhr & Datum', 4], weather: ['Wetter', 4], stamp: ['Arbeitszeit', 4], notes: ['Pinnwand', 4], todos: ['Aufgaben & Einkauf', 4], upcoming: ['Nächste Termine', 4], calendar: ['Kalender', 12] };
         // Welches Recht ein Widget braucht (ohne Eintrag: für alle)
         const WIDGET_PERM = { stamp: 'zeit', notes: 'pinnwand', todos: 'aufgaben', upcoming: 'termine', calendar: 'termine' };
         const allowed = id => !WIDGET_PERM[id] || can(currentUser, WIDGET_PERM[id]);
-        let layout = { order: [...DEFAULT_ORDER], hidden: [] };
-        function loadLayout() {
-            const l = currentUser.userPrefs?.layout; if (!l) return;
-            const order = (l.order || []).filter(id => WIDGETS[id]);
-            DEFAULT_ORDER.forEach(id => { if (!order.includes(id)) order.push(id); });      // neue Widgets später automatisch ergänzen
-            layout = { order: [...new Set(order)], hidden: (l.hidden || []).filter(id => WIDGETS[id]) };
-        }
-        function applyLayout() {
-            const host = $('widgets');
-            layout.order.forEach(id => { const el = host.querySelector(`[data-w="${id}"]`); if (el) host.appendChild(el); });
-            DEFAULT_ORDER.forEach(id => { const el = host.querySelector(`[data-w="${id}"]`); if (el) el.classList.toggle('hidden', layout.hidden.includes(id) || !allowed(id)); });
-        }
-        function renderLayout() {
-            $('layout-list').innerHTML = layout.order.map((id, i) => {
-                const [label, icon] = WIDGETS[id], off = layout.hidden.includes(id), blocked = !allowed(id);
-                return `<div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-3 py-2 ${off || blocked ? 'opacity-50' : ''}"><i class="fa-solid ${icon} w-5 text-slate-400"></i>
-                    <span class="flex-1 text-sm text-slate-200">${label}${blocked ? ' <span class="text-[10px] text-slate-500">(keine Berechtigung)</span>' : ''}</span>
-                    <button data-act="up" data-id="${id}" ${i === 0 ? 'disabled' : ''} class="p-1.5 text-slate-400 hover:text-white disabled:opacity-20" title="Nach oben"><i class="fa-solid fa-arrow-up"></i></button>
-                    <button data-act="down" data-id="${id}" ${i === layout.order.length - 1 ? 'disabled' : ''} class="p-1.5 text-slate-400 hover:text-white disabled:opacity-20" title="Nach unten"><i class="fa-solid fa-arrow-down"></i></button>
-                    <button data-act="eye" data-id="${id}" class="p-1.5" title="${off ? 'Einblenden' : 'Ausblenden'}"><i class="fa-solid ${off ? 'fa-eye-slash text-slate-500' : 'fa-eye text-emerald-400'}"></i></button></div>`;
-            }).join('');
-        }
-        function saveLayout() {
-            applyLayout(); renderLayout();
-            currentUser.userPrefs = { ...(currentUser.userPrefs || {}), layout };
-            db.collection('users').doc(currentUser.uid).update({ 'userPrefs.layout': layout }).catch(e => toast('Speichern fehlgeschlagen: ' + e.message));
-        }
-        function openLayout() { renderLayout(); openModal('modal-layout'); }
-        function resetLayout() { layout = { order: [...DEFAULT_ORDER], hidden: [] }; saveLayout(); }
-        function moveWidget(id, dir) { const i = layout.order.indexOf(id), j = i + dir; if (i < 0 || j < 0 || j >= layout.order.length) return; [layout.order[i], layout.order[j]] = [layout.order[j], layout.order[i]]; }
-        function initLayoutEvents() {
-            $('layout-list').addEventListener('click', e => {
-                const b = e.target.closest('[data-act]'); if (!b) return; const id = b.dataset.id;
-                if (b.dataset.act === 'up') moveWidget(id, -1); else if (b.dataset.act === 'down') moveWidget(id, 1);
-                else layout.hidden = layout.hidden.includes(id) ? layout.hidden.filter(x => x !== id) : [...layout.hidden, id];
-                saveLayout();
+        const HOME_PRESETS = {
+            'Standard': {},
+            'Kompakt': { order: ['hero', 'stamp', 'upcoming', 'todos', 'calendar'], hidden: ['weather', 'notes'], width: { hero: 6, stamp: 6, upcoming: 6, todos: 6, calendar: 12 } },
+            'Fokus Kalender': { order: ['calendar', 'upcoming', 'hero', 'todos'], hidden: ['weather', 'stamp', 'notes'], width: { calendar: 8, upcoming: 4, hero: 4, todos: 8 } }
+        };
+        function initLayout() {
+            Layout.init({
+                key: 'home', root: $('widgets'), toast, presets: HOME_PRESETS,
+                modules: Object.entries(WIDGETS).map(([id, [title, w]]) => ({ id, title, w, el: `[data-w="${id}"]` })),
+                save: async l => {
+                    await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.layouts.home': l });
+                    currentUser.userPrefs = { ...(currentUser.userPrefs || {}), layouts: { ...((currentUser.userPrefs || {}).layouts || {}), home: l } };
+                }
             });
+            // Widgets ohne Berechtigung bleiben immer verborgen
+            Object.keys(WIDGETS).forEach(id => { const el = document.querySelector(`[data-w="${id}"]`); if (el) el.toggleAttribute('data-na', !allowed(id)); });
+            // Ein früher gespeichertes Layout (nur Reihenfolge und Ausblenden) wird übernommen
+            Layout.load(currentUser.userPrefs?.layouts?.home || currentUser.userPrefs?.layout);
         }
 
         // ---------- Schnell-Erfassung ----------
@@ -309,10 +282,10 @@
         // Aus der Suche: /menu.html#neu-task usw. öffnet die Schnell-Erfassung
         function handleQuickHash() { const m = /^#neu-(task|shop|note|event)$/.exec(location.hash); if (m) { history.replaceState(null, '', location.pathname); openQuick(m[1]); } }
         window.addEventListener('hashchange', handleQuickHash);
-        const MODALS = ['modal-event', 'modal-quick', 'modal-layout', 'modal-settings', 'search-box'];
+        const MODALS = ['modal-event', 'modal-quick', 'modal-settings', 'search-box'];
         const anyModal = () => MODALS.some(id => { const el = document.getElementById(id); return el && !el.classList.contains('hidden'); });
         document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') { ['modal-quick', 'modal-layout'].forEach(closeModal); return; }
+            if (e.key === 'Escape') { closeModal('modal-quick'); return; }
             if (e.key.toLowerCase() === 'n' && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && !anyModal()) { e.preventDefault(); openQuick(); }
         });
 
