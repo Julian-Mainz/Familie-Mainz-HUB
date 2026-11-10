@@ -8,6 +8,7 @@
     const PAGES = () => [
         ['Start', '/menu.html', 'fa-border-all', 'startseite uebersicht dashboard home'],
         can(currentUser, 'wand') && ['Wandkalender', '/wand.html', 'fa-display', 'tablet kueche anzeige kiosk'],
+        can(currentUser, 'messenger') && ['Messenger', '/messenger.html', 'fa-comments', 'chat nachricht schreiben kollegen gruppe unterhaltung'],
         can(currentUser, 'webapps') && ['Uhr (Web-App)', '/Uhr/', 'fa-clock', 'uhr uhrzeit timer feierabend webapp web-app'],
         can(currentUser, 'spotify') && ['Spotify', '/spotify.html', 'fa-headphones', 'musik fernbedienung player lied playlist handy'],
         can(currentUser, 'zeit') && ['Zeiterfassung', '/zeiterfassung.html', 'fa-business-time', 'stempeln stunden arbeitszeit urlaub ueberstunden stundenzettel'],
