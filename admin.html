@@ -137,9 +137,9 @@
     <script>
         const $ = id => document.getElementById(id);
         const ROLES = {
-            admin: { label: 'Admin',   perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true,  admin: true } },
-            user:  { label: 'Mitglied', perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true,  admin: false } },
-            guest: { label: 'Gast',    perms: { termine: true, pinnwand: true, aufgaben: true, zeit: false, finanzen: false, tresor: false, wand: false, spotify: false, webapps: false, admin: false } }
+            admin: { label: 'Admin',   perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true,  messenger: true,  gruppen: true,  admin: true } },
+            user:  { label: 'Mitglied', perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true,  messenger: false, gruppen: false, admin: false } },
+            guest: { label: 'Gast',    perms: { termine: true, pinnwand: true, aufgaben: true, zeit: false, finanzen: false, tresor: false, wand: false, spotify: false, webapps: false, messenger: false, gruppen: false, admin: false } }
         };
         // Avatar-Helfer kommen aus drawer.js; fehlt die Datei, bleibt die Liste trotzdem bedienbar
         const avGrad = i => (typeof avatarGradient === 'function' ? avatarGradient(i) : '#4f46e5');
@@ -147,8 +147,11 @@
         // Alle einzeln vergebbaren Rechte. Neue Bereiche später hier ergänzen.
         const PERM_GROUPS = [
             ['Startseite', { termine: 'Kalender & Termine', pinnwand: 'Pinnwand', aufgaben: 'Aufgaben & Einkauf' }],
-            ['Bereiche', { zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe', wand: 'Wandkalender', spotify: 'Spotify', webapps: 'Web-Apps' }]
+            ['Bereiche', { zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe', wand: 'Wandkalender', spotify: 'Spotify', webapps: 'Web-Apps' }],
+            ['Kommunikation', { messenger: 'Messenger', gruppen: 'Gruppen erstellen' }]
         ];
+        // Opt-in: gelten nur, wenn ausdrücklich erteilt (auch für Admins, und Admins können sie sich selbst geben)
+        const OPT_IN = ['messenger', 'gruppen'];
         const PERM_KEYS = PERM_GROUPS.flatMap(([, m]) => Object.keys(m));
         const PERM_LABEL = Object.assign({}, ...PERM_GROUPS.map(([, m]) => m));
         const BADGE = { active: ['Aktiv', 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'], pending: ['Wartet auf Freigabe', 'bg-amber-500/10 text-amber-400 border-amber-500/20'], blocked: ['Gesperrt', 'bg-rose-500/10 text-rose-400 border-rose-500/20'] };
@@ -254,7 +257,12 @@
 
         // ---------- Benutzer ----------
         async function update(u, data, msg) {
-            try { await db.collection('users').doc(u.id).update(data); logSystemEvent('admin', msg, { ziel: u.email }); }
+            try {
+                await db.collection('users').doc(u.id).update(data); logSystemEvent('admin', msg, { ziel: u.email });
+                // Wer den Messenger nicht mehr nutzen darf (Recht entzogen, gesperrt, Rolle zurückgesetzt), verschwindet aus dem Verzeichnis
+                const p = data.permissions;
+                if (data['permissions.messenger'] === false || (p && p.messenger !== true) || (data.status && data.status !== 'active')) db.collection('directory').doc(u.id).delete().catch(() => {});
+            }
             catch (err) { alert('Fehlgeschlagen: ' + err.message); renderUsers(); }
         }
         function lastAdminBlocked(u, what) {
@@ -273,7 +281,7 @@
             const p = {}; PERM_KEYS.forEach(k => { p[k] = on; }); p.admin = false;
             update(u, { permissions: p }, on ? 'Alle Rechte erteilt' : 'Alle Rechte entzogen');
         }
-        function togglePerm(u, key, checked) { if (isSelf(u)) return renderUsers(); update(u, { [`permissions.${key}`]: checked }, `Recht „${PERM_LABEL[key] || key}“ ${checked ? 'erteilt' : 'entzogen'}`); }
+        function togglePerm(u, key, checked) { if (isSelf(u) && !OPT_IN.includes(key)) return renderUsers(); update(u, { [`permissions.${key}`]: checked }, `Recht „${PERM_LABEL[key] || key}“ ${checked ? 'erteilt' : 'entzogen'}`); }
         function setStatus(u, status) {
             if (status === 'blocked') {
                 if (isSelf(u)) return alert('Du kannst dich nicht selbst sperren.');
@@ -319,8 +327,8 @@
                         ${!admin && !self ? '<span class="flex gap-1.5 ml-auto"><button data-act="allperms" class="act bg-slate-800 border-slate-700 text-slate-300">Alle Rechte</button><button data-act="noperms" class="act bg-slate-800 border-slate-700 text-slate-300">Keine</button></span>' : ''}</div>
                     ${s === 'pending' ? '<div class="text-[11px] text-amber-300/80">Neue Konten starten nur mit Kalender-Rechten. Wähle eine Rolle oder einzelne Rechte und gib das Konto dann frei.</div>' : ''}
                     <div class="space-y-1.5">${PERM_GROUPS.map(([g, m]) => `<div class="flex flex-wrap items-center gap-x-4 gap-y-1.5"><span class="text-[10px] uppercase tracking-wider text-slate-500 w-20 shrink-0">${g}</span>
-                        ${Object.entries(m).map(([k, l]) => `<label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${admin || self ? 'opacity-50' : 'cursor-pointer'}">
-                            <input type="checkbox" data-perm="${k}" ${admin || perms[k] !== false ? 'checked' : ''} ${admin || self ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">${l}</label>`).join('')}</div>`).join('')}</div>
+                        ${Object.entries(m).map(([k, l]) => `<label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${(admin || self) && !OPT_IN.includes(k) ? 'opacity-50' : 'cursor-pointer'}">
+                            <input type="checkbox" data-perm="${k}" ${OPT_IN.includes(k) ? (perms[k] === true ? 'checked' : '') : (admin || perms[k] !== false ? 'checked' : '')} ${(admin || self) && !OPT_IN.includes(k) ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">${l}</label>`).join('')}</div>`).join('')}</div>
                     <div class="flex flex-wrap gap-2 pt-1">
                         ${s !== 'active' ? '<button data-act="approve" class="act bg-emerald-600/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-600/30">Freigeben</button>' : ''}
                         ${s === 'active' && !self ? '<button data-act="block" class="act bg-amber-600/20 border-amber-500/30 text-amber-300 hover:bg-amber-600/30">Sperren</button>' : ''}
