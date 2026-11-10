@@ -27,6 +27,18 @@
         if (el._n.dataset.v !== num) { el._n.dataset.v = num; countTo(el._n, num); }
         if (tone !== undefined) el.className = (el.className.replace(/\b(pos|neg|warn)\b/g, '').trim() + ' ' + (tone || '')).trim();
     }
+    // Geldbetrag setzen und hochzählen lassen: "+1.284,50 €". o.signed zeigt + und − an, o.tone setzt pos/neg/warn
+    function setMoney(el, value, o) {
+        o = o || {}; value = Math.round((Number(value) || 0) * 100) / 100;
+        if (!el._n) { el.innerHTML = '<span class="n"></span><small>€</small>'; el._n = el.firstChild; }
+        const fmt = v => (v > 0 ? (o.signed ? '+' : '') : v < 0 ? '−' : '') + Math.abs(v).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (o.tone !== undefined) el.className = (el.className.replace(/\b(pos|neg|warn)\b/g, '').trim() + ' ' + (o.tone || '')).trim();
+        const prev = el._mv; if (prev === value) return; el._mv = value; cancelAnimationFrame(el._raf);
+        if (reduced() || document.hidden) { el._n.textContent = fmt(value); return; }
+        const from = prev === undefined ? 0 : prev, t0 = performance.now(), dur = prev === undefined ? 850 : 520;
+        const step = now => { const k = Math.min(1, (now - t0) / dur); el._n.textContent = fmt(Math.round((from + (value - from) * ease(k)) * 100) / 100); if (k < 1) el._raf = requestAnimationFrame(step); else el._n.textContent = fmt(value); };
+        el._raf = requestAnimationFrame(step);
+    }
     // Ring zeichnen: frac 0..1, bei der ersten Anzeige wächst er von 0 an. offset = Startanteil (für einen zweiten Bogen)
     function ring(circle, frac, offset) {
         if (!circle) return; const r = +circle.getAttribute('r'), C = 2 * Math.PI * r;
@@ -43,6 +55,6 @@
     // ISO-Kalenderwoche
     function kw(d) { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())), n = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - n); return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7); }
 
-    root.UX = { countTo, setNum, ring, toast, kw };
+    root.UX = { countTo, setNum, setMoney, ring, toast, kw };
     if (typeof module !== 'undefined' && module.exports) module.exports = root.UX;
 })(typeof window !== 'undefined' ? window : globalThis);
