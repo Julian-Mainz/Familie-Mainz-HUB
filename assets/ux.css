@@ -17,7 +17,7 @@ body.ux ::-webkit-scrollbar { width: 5px; height: 5px; } body.ux ::-webkit-scrol
 .ux-h1 { font-size: 28px; font-weight: 800; letter-spacing: -.025em; margin: 0; line-height: 1.1; }
 .ux-sub { color: #94a3b8; font-size: 13px; margin-top: 3px; }
 .ux-sp { flex: 1; }
-.ux-top > div:not(.ux-ico):not(.ux-pill):not(.ux-sp) { flex: 1 1 220px; min-width: 0; }
+.ux-top > div:not(.ux-ico):not(.ux-pill):not(.ux-sp):not(.ux-seg) { flex: 1 1 220px; min-width: 0; }
 @media (max-width: 700px) { .ux-sp { display: none; } .ux-top .ux-pill, .ux-top > .ux-btn { flex: 1 1 auto; justify-content: center; } .ux-pill select { flex: 1; min-width: 0; } .spark { display: none; } }
 .ux-pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px; border-radius: 16px; background: rgba(2, 6, 16, .6); border: 1px solid rgba(148, 163, 184, .16); }
 .ux-pill button { width: 34px; height: 34px; border: 0; border-radius: 12px; background: rgba(255, 255, 255, .05); color: #cbd5e1; font-size: 12px; cursor: pointer; transition: background-color .2s, color .2s, transform .15s; }
