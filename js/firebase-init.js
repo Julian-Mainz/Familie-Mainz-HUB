@@ -207,3 +207,6 @@ document.addEventListener('DOMContentLoaded', () => updateThemeButtons());
         report('Promise: ' + String(r.message || r.code || r).slice(0, 170), { code: r.code || '' });
     });
 })();
+
+// ---------- Hinweis auf neue Versionen (siehe js/update.js) ----------
+(function () { const s = document.createElement('script'); s.src = '/js/update.js'; s.defer = true; document.head.appendChild(s); })();
