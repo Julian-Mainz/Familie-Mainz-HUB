@@ -6,6 +6,11 @@ on:
     paths:
       - '*.html'
       - 'js/**'
+      - 'assets/*.css'
+      - 'Uhr/**'
+      - 'icons/**'
+      - 'manifest.json'
+      - 'firebase-messaging-sw.js'
       - 'build-css.mjs'
       - 'package.json'
       - '.github/workflows/build-css.yml'
@@ -36,16 +41,19 @@ jobs:
       - name: CSS bauen
         run: node build-css.mjs
 
+      - name: Versionsnummer schreiben
+        run: echo "{\"build\":\"$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA::7}\"}" > version.json
+
       - name: Ergebnis speichern
         id: commit
         run: |
           git config user.name "css-build"
           git config user.email "actions@users.noreply.github.com"
-          git add -A assets/css
+          git add -A assets/css version.json
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            git commit -m "CSS neu gebaut"
+            git commit -m "Build: CSS und Versionsnummer"
             pushed=false
             for i in 1 2 3; do
               if git pull --rebase origin main && git push; then pushed=true; break; fi
