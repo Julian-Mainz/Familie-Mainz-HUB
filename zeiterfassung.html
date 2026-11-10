@@ -13,183 +13,158 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="J.Mainz">
-    <link rel="stylesheet" href="/assets/css/zeiterfassung.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
     <link rel="stylesheet" href="/assets/icons.css">
     <link rel="stylesheet" href="/assets/ui.css">
+    <link rel="stylesheet" href="/assets/ux.css">
     <script src="/js/vendor/firebase-app-compat.js"></script>
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
+    <script src="/js/ux.js"></script>
     <script src="/js/drawer.js"></script>
-    <style>
-        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    </style>
-    <style type="text/tailwindcss">
-        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg; }
-        .inp  { @apply w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500; }
-        .lbl  { @apply block text-xs text-slate-400 mb-1; }
-        .btn  { @apply w-full py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-colors; }
-        .chip { @apply px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300; }
-        .bar  { @apply h-2 bg-slate-800 rounded-full overflow-hidden; }
-    </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+<body class="ux">
+<main class="ux-page" style="--m:#34d399;--m2:#06b6d4;--mr:52,211,153">
 
-    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span></button>
-        <h1 class="text-sm sm:text-base md:text-xl font-bold tracking-wide truncate px-2"><i class="fa-solid fa-business-time text-emerald-400 mr-1.5"></i>Zeiterfassung</h1>
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span></button>
-    </header>
+    <div class="ux-top">
+        <div class="ux-ico"><i class="fa-solid fa-business-time"></i></div>
+        <div><h1 class="ux-h1">Zeiterfassung</h1><div class="ux-sub" id="ux-date">&nbsp;</div></div>
+        <div class="ux-sp"></div>
+        <div class="ux-pill"><button type="button" onclick="monthShift(1)" aria-label="Älterer Monat"><i class="fa-solid fa-chevron-left"></i></button>
+            <select id="work-filter-month" onchange="renderAll(false)" aria-label="Monat wählen"></select>
+            <button type="button" onclick="monthShift(-1)" aria-label="Neuerer Monat"><i class="fa-solid fa-chevron-right"></i></button></div>
+        <button class="ux-btn" onclick="openVacReq()"><i class="fa-solid fa-file-pdf"></i>Urlaubsantrag</button>
+    </div>
 
-    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <!-- Stempeluhr -->
-            <div class="card p-5 flex flex-col">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                    <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-stopwatch text-emerald-400 mr-2"></i>Stempeluhr</span>
-                    <div class="flex items-center gap-2"><span id="work-status-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">Inaktiv</span>
-                        <button onclick="openSettings()" class="text-slate-400 hover:text-indigo-400 text-sm" title="Pause &amp; Soll einstellen"><i class="fa-solid fa-gear"></i></button></div>
-                </div>
-                <div class="text-center py-1">
-                    <div id="work-active-timer" class="text-4xl font-mono font-bold tracking-wider">00:00:00</div>
-                    <div id="work-start-hint" class="text-xs text-slate-500 mt-1"></div>
-                    <div id="eta" class="text-xs text-emerald-300 mt-1 min-h-[16px]"></div>
-                </div>
-                <div id="start-time-container" class="pt-2"><label class="lbl">Startzeit (Kommen)</label><input type="time" id="custom-start-time" class="inp text-center font-mono"></div>
-                <div id="live-pause-container" class="pt-2 hidden"><label class="lbl">Pause heute (Minuten)</label>
-                    <div class="flex gap-2"><input type="number" min="0" id="live-pause" onchange="saveLivePause()" class="inp text-center font-mono">
-                        <button class="chip" onclick="setLivePause(0)">0</button><button class="chip" onclick="setLivePause(30)">30</button><button class="chip" onclick="setLivePause(45)">45</button><button class="chip" onclick="setLivePause(60)">60</button></div>
-                    <div id="pause-hint" class="text-[10px] text-slate-500 mt-1"></div></div>
-                <button id="btn-toggle-work" onclick="toggleWorkSession()" class="mt-4 w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white"></button>
+    <div class="ux-grid">
+        <!-- Stempeluhr -->
+        <section class="ux-card glow c5">
+            <div class="ux-t"><i class="fa-solid fa-stopwatch"></i>Stempeluhr<small><span id="work-status-badge" class="chip">Inaktiv</span>
+                <button class="ux-ib" onclick="openSettings()" title="Pause &amp; Soll einstellen" aria-label="Pause und Soll einstellen"><i class="fa-solid fa-gear"></i></button></small></div>
+            <div style="display:flex;justify-content:center;padding:4px 0">
+                <div class="ring big"><svg width="250" height="250" viewBox="0 0 250 250"><defs><linearGradient id="gz" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+                    <circle class="trk" cx="125" cy="125" r="104" stroke-width="15"/><circle id="ring-arc" class="arc" cx="125" cy="125" r="104" stroke="url(#gz)" stroke-width="15"/></svg>
+                    <div class="mid"><small id="work-start-hint">Nicht eingestempelt</small><b id="work-active-timer">00:00:00</b><small id="day-txt"></small></div></div>
             </div>
+            <div id="eta" class="ux-note acc" style="text-align:center;min-height:19px;margin:8px 0 6px"></div>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px"><span class="chip">Standard-Pause <span id="cfg-pause"></span></span></div>
+            <div id="start-time-container"><label class="ux-f"><span>Startzeit (Kommen)</span><input type="time" id="custom-start-time" class="ux-in c"></label></div>
+            <div id="live-pause-container" class="hidden"><label class="ux-f"><span>Pause heute (Minuten)</span>
+                <span class="ux-flex"><input type="number" min="0" id="live-pause" onchange="saveLivePause()" class="ux-in c">
+                    <button type="button" class="chip" onclick="setLivePause(0)">0</button><button type="button" class="chip" onclick="setLivePause(30)">30</button><button type="button" class="chip" onclick="setLivePause(45)">45</button><button type="button" class="chip" onclick="setLivePause(60)">60</button></span></label>
+                <div id="pause-hint" class="ux-note" style="margin:-4px 0 12px 2px"></div></div>
+            <button id="btn-toggle-work" onclick="toggleWorkSession()" class="ux-btn wide pri"></button>
+        </section>
 
-            <!-- Heute & Woche -->
-            <div class="card p-5 flex flex-col">
-                <div class="border-b border-slate-800 pb-2 mb-3"><span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-calendar-day text-sky-400 mr-2"></i>Heute &amp; diese Woche</span></div>
-                <div class="space-y-4 my-auto">
-                    <div><div class="flex justify-between text-xs mb-1"><span class="text-slate-400">Heute</span><span id="day-txt" class="font-mono"></span></div><div class="bar"><div id="day-bar" class="h-full bg-emerald-500 rounded-full" style="width:0"></div></div></div>
-                    <div><div class="flex justify-between text-xs mb-1"><span class="text-slate-400">Woche</span><span id="week-txt" class="font-mono"></span></div><div class="bar"><div id="week-bar" class="h-full bg-indigo-500 rounded-full" style="width:0"></div></div></div>
-                    <div class="grid grid-cols-2 gap-2 text-center pt-1">
-                        <div class="bg-slate-950/50 border border-slate-800/80 p-2 rounded-2xl"><span class="text-[10px] text-slate-400 block">Tagessoll</span><span id="cfg-day" class="text-sm font-bold"></span></div>
-                        <div class="bg-slate-950/50 border border-slate-800/80 p-2 rounded-2xl"><span class="text-[10px] text-slate-400 block">Standard-Pause</span><span id="cfg-pause" class="text-sm font-bold"></span></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Monat -->
-            <div class="card p-5 flex flex-col">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                    <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-chart-pie text-indigo-400 mr-2"></i>Monat</span>
-                    <select id="work-filter-month" onchange="renderAll(false)" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none"></select>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-center">
-                    <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl"><span class="text-[10px] text-slate-400 block">Ist</span><span id="m-ist" class="text-base font-bold text-indigo-300"></span></div>
-                    <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl"><span class="text-[10px] text-slate-400 block">Soll (bis heute)</span><span id="m-soll" class="text-base font-bold"></span></div>
-                    <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl"><span class="text-[10px] text-slate-400 block">Saldo Monat</span><span id="m-saldo" class="text-base font-bold"></span></div>
-                    <div class="bg-slate-950/50 border border-slate-800/80 p-2.5 rounded-2xl"><span class="text-[10px] text-slate-400 block">Arbeitstage · Ø</span><span id="m-days" class="text-base font-bold"></span></div>
-                </div>
-                <div class="mt-3 p-3 rounded-2xl border border-slate-800 bg-slate-950/40 text-center"><span class="text-[10px] text-slate-400 block">Überstundenkonto gesamt <span id="acct-since"></span></span><span id="acct" class="text-lg font-bold"></span></div>
-            </div>
+        <!-- Kennzahlen des Monats -->
+        <div class="ux-col c7">
+        <div class="ux-kpis">
+            <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-clock"></i>Ist im Monat</div><div class="v" id="m-ist">–</div><span class="chip g" id="m-days"></span>
+                <svg class="spark" width="110" height="46" viewBox="0 0 110 46" aria-hidden="true"><path d="M0 38 C14 34 20 30 32 28 S52 24 62 18 S88 12 110 4" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round"/></svg></section>
+            <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-check"></i>Soll (bis heute)</div><div class="v" id="m-soll">–</div><span class="chip">Tagessoll <span id="cfg-day"></span></span>
+                <svg class="spark" width="110" height="46" viewBox="0 0 110 46" aria-hidden="true"><path d="M0 40 L110 6" fill="none" stroke="#64748b" stroke-width="3" stroke-dasharray="2 7" stroke-linecap="round"/></svg></section>
+            <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-arrow-trend-down"></i>Saldo im Monat</div><div class="v" id="m-saldo">–</div><span class="chip" id="m-saldo-chip"></span></section>
+            <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-fire"></i>Überstundenkonto</div><div class="v" id="acct">–</div><span class="chip" id="acct-since"></span></section>
+        </div>
+        <section class="ux-card grow">
+            <div class="ux-t"><i class="fa-solid fa-calendar-day"></i>Diese Woche<small id="week-txt"></small></div>
+            <div id="week-chart" class="cols week"></div>
+            <div class="bar"><i id="week-bar" style="width:0"></i></div>
+        </section>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div class="card p-5 lg:col-span-2">
-                <div class="flex justify-between border-b border-slate-800 pb-2 mb-3"><span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-chart-column text-emerald-400 mr-2"></i>Stunden pro Tag</span>
-                    <span class="text-[10px] text-slate-500 hidden sm:inline"><i class="fa-solid fa-square text-emerald-500"></i> Arbeit <i class="fa-solid fa-square text-sky-500 ml-2"></i> Urlaub <i class="fa-solid fa-square text-amber-500 ml-2"></i> Krank <i class="fa-solid fa-square text-slate-500 ml-2"></i> Gleitzeit · gestrichelt = Tagessoll</span></div>
-                <div id="chart" class="relative flex items-end gap-[3px] h-32"></div>
+        <!-- Stunden pro Tag -->
+        <section class="ux-card c7">
+            <div class="ux-t"><i class="fa-solid fa-chart-column"></i>Stunden pro Tag<small><span class="chip g">Arbeit</span><span class="chip b">Urlaub</span><span class="chip a">Krank</span><span class="chip">Gleitzeit</span></small></div>
+            <div id="chart" class="cols"></div>
+        </section>
+
+        <!-- Urlaubskonto -->
+        <section class="ux-card glow c5">
+            <div class="ux-t"><i class="fa-solid fa-umbrella-beach"></i>Urlaubskonto<small><button class="ux-ib" style="width:30px;height:30px" onclick="vacShift(-1)" aria-label="Vorjahr"><i class="fa-solid fa-chevron-left"></i></button><b id="vac-year" style="min-width:42px;text-align:center;color:#e2e8f0;font-size:13px"></b><button class="ux-ib" style="width:30px;height:30px" onclick="vacShift(1)" aria-label="Nächstes Jahr"><i class="fa-solid fa-chevron-right"></i></button></small></div>
+            <div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap">
+                <div class="ring mid2"><svg width="150" height="150" viewBox="0 0 150 150"><defs><linearGradient id="gv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+                    <circle class="trk" cx="75" cy="75" r="62" stroke-width="13"/><circle id="vac-arc-plan" class="arc" cx="75" cy="75" r="62" stroke="#fbbf24" stroke-width="13"/><circle id="vac-arc-taken" class="arc" cx="75" cy="75" r="62" stroke="url(#gv)" stroke-width="13"/></svg>
+                    <div class="mid"><b id="vac-left">–</b><small>Tage übrig</small></div></div>
+                <div class="leg" id="vac-sub" style="flex:1;min-width:150px"></div>
             </div>
-            <div class="space-y-4">
-                <div class="card p-5">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                        <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-umbrella-beach text-sky-400 mr-2"></i>Urlaubskonto</span>
-                        <span class="flex items-center gap-1"><button onclick="vacShift(-1)" class="p-1 text-slate-400 hover:text-sky-400"><i class="fa-solid fa-chevron-left text-[10px]"></i></button><span id="vac-year" class="text-xs font-semibold w-10 text-center"></span><button onclick="vacShift(1)" class="p-1 text-slate-400 hover:text-sky-400"><i class="fa-solid fa-chevron-right text-[10px]"></i></button></span>
-                    </div>
-                    <div class="flex items-end justify-between"><div><div id="vac-left" class="text-3xl font-bold"></div><div class="text-[11px] text-slate-400">Tage übrig</div></div><div id="vac-sub" class="text-right text-[11px] text-slate-400 space-y-0.5"></div></div>
-                    <div class="h-2.5 bg-slate-800 rounded-full overflow-hidden flex mt-3"><div id="vac-bar-taken" class="bg-sky-500" style="width:0"></div><div id="vac-bar-plan" class="bg-sky-500/40" style="width:0"></div></div>
-                    <div id="vac-ranges" class="mt-3 space-y-1 text-[11px] max-h-24 overflow-y-auto"></div>
-                    <div class="grid grid-cols-2 gap-2 mt-3"><button onclick="openAbsence('vacation')" class="btn bg-sky-600/10 hover:bg-sky-600/20 text-sky-300 border border-sky-500/30"><i class="fa-solid fa-plus"></i>Eintragen</button>
-                        <button onclick="openVacReq()" class="btn bg-sky-600 hover:bg-sky-500 text-white"><i class="fa-solid fa-file-pdf"></i>Urlaubsantrag</button></div>
-                </div>
-                <div class="card p-5 flex flex-col justify-between">
-                <div class="border-b border-slate-800 pb-2 mb-2"><span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-bolt text-amber-400 mr-2"></i>Aktionen &amp; Export</span></div>
-                <div class="space-y-2">
-                    <button onclick="openWorkModal()" class="btn bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-300 border border-indigo-500/30"><i class="fa-solid fa-plus"></i>Zeit manuell erfassen</button>
-                    <button onclick="openAbsence()" class="btn bg-sky-600/10 hover:bg-sky-600/20 text-sky-300 border border-sky-500/30"><i class="fa-solid fa-umbrella-beach"></i>Urlaub / Krank / Gleitzeit</button>
-                    <button onclick="exportWorkCSV()" class="btn bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700"><i class="fa-solid fa-file-csv text-emerald-400"></i>Stundenzettel (CSV)</button>
-                    <button onclick="printWorkTimesheet()" class="btn bg-indigo-600 hover:bg-indigo-500 text-white"><i class="fa-solid fa-print"></i>Stundenzettel drucken / PDF</button>
-                </div>
+            <div id="vac-ranges" style="margin-top:12px;max-height:132px;overflow-y:auto"></div>
+            <div style="display:flex;gap:10px;margin-top:14px"><button onclick="openAbsence('vacation')" class="ux-btn pri" style="flex:1"><i class="fa-solid fa-plus"></i>Eintragen</button>
+                <button onclick="openVacReq()" class="ux-btn" style="flex:1"><i class="fa-solid fa-file-pdf"></i>Antrag</button></div>
+        </section>
+
+        <!-- Aktionen -->
+        <section class="ux-card c12">
+            <div class="ux-t"><i class="fa-solid fa-bolt"></i>Aktionen &amp; Export</div>
+            <div class="acts-grid">
+                <button class="act" onclick="openWorkModal()"><i class="fa-solid fa-plus"></i><span>Zeit manuell erfassen<small>Start, Ende und Pause nachtragen</small></span></button>
+                <button class="act" style="--c:#38bdf8;--cr:56,189,248" onclick="openAbsence()"><i class="fa-solid fa-umbrella-beach"></i><span>Urlaub / Krank / Gleitzeit<small>für einen Zeitraum eintragen</small></span></button>
+                <button class="act" style="--c:#4ade80;--cr:74,222,128" onclick="exportWorkCSV()"><i class="fa-solid fa-file-csv"></i><span>Stundenzettel (CSV)<small>für Excel, ausgewählter Monat</small></span></button>
+                <button class="act" style="--c:#a78bfa;--cr:167,139,250" onclick="printWorkTimesheet()"><i class="fa-solid fa-print"></i><span>Stundenzettel drucken<small>oder als PDF speichern</small></span></button>
             </div>
-            </div>
-        </div>
+        </section>
 
-        <div class="card p-4 md:p-6 flex-1 flex flex-col overflow-hidden min-h-[240px]">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-                <h3 class="text-sm font-bold text-slate-200"><i class="fa-solid fa-list-check text-slate-400 mr-2"></i>Erfasste Zeiten</h3>
-                <span id="work-table-count" class="text-xs text-slate-500">0 Einträge</span>
-            </div>
-            <div class="flex-1 overflow-auto"><table class="w-full text-left text-xs">
-                <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800"><tr><th class="p-2.5">Datum</th><th class="p-2.5">Beginn</th><th class="p-2.5">Ende</th><th class="p-2.5">Pause</th><th class="p-2.5">Netto</th><th class="p-2.5">Art / Tätigkeit</th><th class="p-2.5 text-right"></th></tr></thead>
-                <tbody id="worktime-table-body" class="divide-y divide-slate-800/60"></tbody></table></div>
-        </div>
-    </main>
+        <!-- Einträge -->
+        <section class="ux-card c12">
+            <div class="ux-t"><i class="fa-solid fa-list-check"></i>Erfasste Zeiten<small><span id="work-table-count">0 Einträge</span></small></div>
+            <div id="ent-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+                <button class="chip on" data-f="all">Alle</button><button class="chip" data-f="work">Arbeit</button><button class="chip" data-f="vacation">Urlaub</button><button class="chip" data-f="sick">Krank</button><button class="chip" data-f="flex">Gleitzeit</button></div>
+            <div id="worktime-table-body"></div>
+        </section>
+    </div>
+</main>
 
-    <!-- Modal: Zeit erfassen/bearbeiten -->
-    <div id="modal-work" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
-        <div class="flex justify-between mb-4"><h3 id="work-modal-title" class="text-base font-bold">Arbeitszeit erfassen</h3><button onclick="closeModal('modal-work')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
-        <form onsubmit="saveWorkTime(event)" class="space-y-3.5"><input type="hidden" id="work-id">
-            <div><label class="lbl">Datum</label><input type="date" id="work-date" required class="inp"></div>
-            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Start</label><input type="time" id="work-start" required class="inp"></div><div><label class="lbl">Ende</label><input type="time" id="work-end" required class="inp"></div></div>
-            <div><label class="lbl">Pause (Minuten)</label><div class="flex gap-2"><input type="number" id="work-pause" min="0" class="inp"><button type="button" class="chip" onclick="$('work-pause').value=0">0</button><button type="button" class="chip" onclick="$('work-pause').value=30">30</button><button type="button" class="chip" onclick="$('work-pause').value=45">45</button><button type="button" class="chip" onclick="$('work-pause').value=60">60</button></div></div>
-            <div><label class="lbl">Tätigkeit / Projekt</label><input type="text" id="work-note" class="inp"></div>
-            <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeModal('modal-work')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-emerald-600 text-white font-medium">Speichern</button></div>
-        </form></div></div>
+<!-- Fenster: Zeit erfassen oder bearbeiten -->
+<div id="modal-work" class="ux-modal hidden"><div class="ux-box" style="--m:#34d399;--m2:#06b6d4;--mr:52,211,153">
+    <h3><i class="fa-solid fa-business-time"></i><span id="work-modal-title">Arbeitszeit erfassen</span><button class="ux-ib" onclick="closeModal('modal-work')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Beginn, Ende und Pause, die Nettozeit wird berechnet.</p>
+    <form onsubmit="saveWorkTime(event)"><input type="hidden" id="work-id">
+        <label class="ux-f"><span>Datum</span><input type="date" id="work-date" required class="ux-in"></label>
+        <div class="ux-row2"><label class="ux-f"><span>Start</span><input type="time" id="work-start" required class="ux-in"></label><label class="ux-f"><span>Ende</span><input type="time" id="work-end" required class="ux-in"></label></div>
+        <label class="ux-f"><span>Pause (Minuten)</span><span class="ux-flex"><input type="number" id="work-pause" min="0" class="ux-in"><button type="button" class="chip" onclick="$('work-pause').value=0">0</button><button type="button" class="chip" onclick="$('work-pause').value=30">30</button><button type="button" class="chip" onclick="$('work-pause').value=45">45</button><button type="button" class="chip" onclick="$('work-pause').value=60">60</button></span></label>
+        <label class="ux-f"><span>Tätigkeit / Projekt</span><input type="text" id="work-note" class="ux-in"></label>
+        <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('modal-work')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div>
+    </form></div></div>
 
-    <!-- Modal: Abwesenheit -->
-    <div id="modal-absence" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
-        <div class="flex justify-between mb-1"><h3 class="text-base font-bold">Abwesenheit eintragen</h3><button onclick="closeModal('modal-absence')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
-        <p class="text-xs text-slate-400 mb-4">Für jeden Arbeitstag im Zeitraum wird ein Eintrag angelegt. Wochenenden und Feiertage (NRW) werden übersprungen.</p>
-        <form onsubmit="saveAbsence(event)" class="space-y-3.5">
-            <div><label class="lbl">Art</label><select id="ab-type" class="inp"><option value="vacation">Urlaub (Tagessoll gutgeschrieben)</option><option value="sick">Krank (Tagessoll gutgeschrieben)</option><option value="flex">Gleitzeit / Überstundenabbau (0 Std, Soll bleibt)</option></select></div>
-            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Von</label><input type="date" id="ab-from" required class="inp"></div><div><label class="lbl">Bis</label><input type="date" id="ab-to" required class="inp"></div></div>
-            <div><label class="lbl">Notiz (optional)</label><input type="text" id="ab-note" class="inp"></div>
-            <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeModal('modal-absence')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-sky-600 text-white font-medium">Eintragen</button></div>
-        </form></div></div>
+<!-- Fenster: Abwesenheit -->
+<div id="modal-absence" class="ux-modal hidden"><div class="ux-box" style="--m:#38bdf8;--m2:#6366f1;--mr:56,189,248">
+    <h3><i class="fa-solid fa-umbrella-beach"></i>Abwesenheit eintragen<button class="ux-ib" onclick="closeModal('modal-absence')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3>
+    <p class="sub">Für jeden Arbeitstag im Zeitraum wird ein Eintrag angelegt. Wochenenden und Feiertage (NRW) werden übersprungen.</p>
+    <form onsubmit="saveAbsence(event)">
+        <label class="ux-f"><span>Art</span><select id="ab-type" class="ux-in"><option value="vacation">Urlaub (Tagessoll gutgeschrieben)</option><option value="sick">Krank (Tagessoll gutgeschrieben)</option><option value="flex">Gleitzeit / Überstundenabbau (0 Std, Soll bleibt)</option></select></label>
+        <div class="ux-row2"><label class="ux-f"><span>Von</span><input type="date" id="ab-from" required class="ux-in"></label><label class="ux-f"><span>Bis</span><input type="date" id="ab-to" required class="ux-in"></label></div>
+        <label class="ux-f"><span>Notiz (optional)</span><input type="text" id="ab-note" class="ux-in"></label>
+        <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('modal-absence')">Abbrechen</button><button class="ux-btn pri">Eintragen</button></div>
+    </form></div></div>
 
-    <!-- Modal: Urlaubsantrag -->
-    <div id="modal-vacreq" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto">
-        <div class="flex justify-between mb-1"><h3 class="text-base font-bold"><i class="fa-solid fa-file-pdf text-sky-400 mr-2"></i>Urlaubsantrag</h3><button onclick="closeModal('modal-vacreq')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
-        <p class="text-xs text-slate-400 mb-4">Das Formular öffnet sich zum Drucken. Im Druckdialog kannst du „Als PDF speichern“ wählen.</p>
-        <form onsubmit="submitVacReq(event)" class="space-y-3.5">
-            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Von</label><input type="date" id="vr-from" required oninput="updateVacReq()" class="inp"></div><div><label class="lbl">Bis (einschließlich)</label><input type="date" id="vr-to" required oninput="updateVacReq()" class="inp"></div></div>
-            <div id="vr-info" class="text-xs rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-200 px-3 py-2"></div>
-            <div><label class="lbl">Art des Urlaubs</label><select id="vr-type" onchange="updateVacReq()" class="inp"><option>Erholungsurlaub</option><option>Sonderurlaub</option><option>Unbezahlter Urlaub</option></select></div>
-            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Abteilung / Personal-Nr. (optional)</label><input id="vr-dept" class="inp"></div><div><label class="lbl">An (Vorgesetzte/r, Arbeitgeber)</label><input id="vr-boss" class="inp" placeholder="z. B. Frau Müller"></div></div>
-            <div><label class="lbl">Vertretung (optional)</label><input id="vr-sub" class="inp"></div>
-            <div><label class="lbl">Erreichbar unter (optional)</label><input id="vr-contact" class="inp" placeholder="Telefon / E-Mail während des Urlaubs"></div>
-            <div><label class="lbl">Bemerkung (optional)</label><input id="vr-note" class="inp"></div>
-            <label id="vr-book-wrap" class="flex items-start gap-2 text-xs text-slate-300"><input type="checkbox" id="vr-book" checked class="mt-0.5 rounded bg-slate-800 border-slate-700"><span>Zeitraum gleichzeitig im Urlaubskonto als geplanten Urlaub vormerken <span class="text-slate-500">(nur bei Erholungsurlaub)</span></span></label>
-            <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeModal('modal-vacreq')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-sky-600 text-white font-medium"><i class="fa-solid fa-print mr-1.5"></i>Antrag drucken / PDF</button></div>
-        </form></div></div>
+<!-- Fenster: Urlaubsantrag -->
+<div id="modal-vacreq" class="ux-modal hidden"><div class="ux-box lg" style="--m:#38bdf8;--m2:#6366f1;--mr:56,189,248">
+    <h3><i class="fa-solid fa-file-pdf"></i>Urlaubsantrag<button class="ux-ib" onclick="closeModal('modal-vacreq')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3>
+    <p class="sub">Das Formular öffnet sich zum Drucken. Im Druckdialog kannst du „Als PDF speichern“ wählen.</p>
+    <form onsubmit="submitVacReq(event)">
+        <div class="ux-row2"><label class="ux-f"><span>Von</span><input type="date" id="vr-from" required oninput="updateVacReq()" class="ux-in"></label><label class="ux-f"><span>Bis (einschließlich)</span><input type="date" id="vr-to" required oninput="updateVacReq()" class="ux-in"></label></div>
+        <div id="vr-info" class="ux-info"></div>
+        <label class="ux-f"><span>Art des Urlaubs</span><select id="vr-type" onchange="updateVacReq()" class="ux-in"><option>Erholungsurlaub</option><option>Sonderurlaub</option><option>Unbezahlter Urlaub</option></select></label>
+        <div class="ux-row2"><label class="ux-f"><span>Abteilung / Personal-Nr. (optional)</span><input id="vr-dept" class="ux-in"></label><label class="ux-f"><span>An (Vorgesetzte/r, Arbeitgeber)</span><input id="vr-boss" class="ux-in" placeholder="z. B. Frau Müller"></label></div>
+        <label class="ux-f"><span>Vertretung (optional)</span><input id="vr-sub" class="ux-in"></label>
+        <label class="ux-f"><span>Erreichbar unter (optional)</span><input id="vr-contact" class="ux-in" placeholder="Telefon / E-Mail während des Urlaubs"></label>
+        <label class="ux-f"><span>Bemerkung (optional)</span><input id="vr-note" class="ux-in"></label>
+        <label id="vr-book-wrap" class="ux-check"><input type="checkbox" id="vr-book" checked><span>Zeitraum gleichzeitig im Urlaubskonto als geplanten Urlaub vormerken <span class="mut">(nur bei Erholungsurlaub)</span></span></label>
+        <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('modal-vacreq')">Abbrechen</button><button class="ux-btn pri"><i class="fa-solid fa-print"></i>Antrag drucken / PDF</button></div>
+    </form></div></div>
 
-    <!-- Modal: Einstellungen -->
-    <div id="modal-settings" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
-        <div class="flex justify-between mb-4"><h3 class="text-base font-bold"><i class="fa-solid fa-gear text-indigo-400 mr-2"></i>Pause &amp; Sollzeit</h3><button onclick="closeModal('modal-settings')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
-        <form onsubmit="saveSettings(event)" class="space-y-4">
-            <div><label class="lbl">Standard-Pause pro Tag (Minuten)</label>
-                <div class="flex gap-2"><input type="number" min="0" id="set-pause" required class="inp"><button type="button" class="chip" onclick="$('set-pause').value=0">0</button><button type="button" class="chip" onclick="$('set-pause').value=30">30</button><button type="button" class="chip" onclick="$('set-pause').value=45">45</button><button type="button" class="chip" onclick="$('set-pause').value=60">60</button></div></div>
-            <div><label class="lbl">Pause erst abziehen ab Arbeitsdauer von (Stunden)</label><input type="number" min="0" step="0.25" id="set-after" required class="inp">
-                <p class="text-[10px] text-slate-500 mt-1">Bei kürzeren Tagen wird beim Ausstempeln keine Pause abgezogen. 0 = immer abziehen.</p></div>
-            <div><label class="lbl">Sollstunden pro Woche (5-Tage-Woche)</label><input type="number" min="1" max="60" step="0.5" id="set-weekly" required class="inp"></div>
-            <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Urlaubsanspruch pro Jahr (Tage)</label><input type="number" min="0" step="0.5" id="set-vac" required class="inp"></div>
-                <div><label class="lbl">Resturlaub Vorjahr (Tage)</label><input type="number" min="0" step="0.5" id="set-carry" required class="inp"></div></div>
-            <p class="text-[10px] text-slate-500 -mt-2">Der Resturlaub gilt nur für das laufende Jahr und muss jedes Jahr neu eingetragen werden.</p>
-            <p class="text-[11px] text-slate-500">Die Pause für den aktuellen Tag kannst du beim Arbeiten jederzeit direkt an der Stempeluhr ändern.</p>
-            <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('modal-settings')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button></div>
-        </form></div></div>
+<!-- Fenster: Einstellungen -->
+<div id="modal-settings" class="ux-modal hidden"><div class="ux-box" style="--m:#818cf8;--m2:#a78bfa;--mr:129,140,248">
+    <h3><i class="fa-solid fa-gear"></i>Pause &amp; Sollzeit<button class="ux-ib" onclick="closeModal('modal-settings')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Diese Werte gelten für alle Berechnungen.</p>
+    <form onsubmit="saveSettings(event)">
+        <label class="ux-f"><span>Standard-Pause pro Tag (Minuten)</span><span class="ux-flex"><input type="number" min="0" id="set-pause" required class="ux-in"><button type="button" class="chip" onclick="$('set-pause').value=0">0</button><button type="button" class="chip" onclick="$('set-pause').value=30">30</button><button type="button" class="chip" onclick="$('set-pause').value=45">45</button><button type="button" class="chip" onclick="$('set-pause').value=60">60</button></span></label>
+        <label class="ux-f"><span>Pause erst abziehen ab Arbeitsdauer von (Stunden)</span><input type="number" min="0" step="0.25" id="set-after" required class="ux-in"><span class="ux-note" style="margin-top:5px">Bei kürzeren Tagen wird beim Ausstempeln keine Pause abgezogen. 0 = immer abziehen.</span></label>
+        <label class="ux-f"><span>Sollstunden pro Woche (5-Tage-Woche)</span><input type="number" min="1" max="60" step="0.5" id="set-weekly" required class="ux-in"></label>
+        <div class="ux-row2"><label class="ux-f"><span>Urlaubsanspruch pro Jahr (Tage)</span><input type="number" min="0" step="0.5" id="set-vac" required class="ux-in"></label><label class="ux-f"><span>Resturlaub Vorjahr (Tage)</span><input type="number" min="0" step="0.5" id="set-carry" required class="ux-in"></label></div>
+        <p class="ux-note">Der Resturlaub gilt nur für das laufende Jahr und muss jedes Jahr neu eingetragen werden. Die Pause für den aktuellen Tag änderst du beim Arbeiten direkt an der Stempeluhr.</p>
+        <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('modal-settings')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div>
+    </form></div></div>
 
-    <script>
+<script>
         const $ = id => document.getElementById(id);
         const openModal = id => $(id).classList.remove('hidden'), closeModal = id => $(id).classList.add('hidden');
         const run = async fn => { try { await fn(); } catch (e) { alert('Fehler: ' + e.message); } };
@@ -201,9 +176,16 @@
         const netOf = (s, e, p) => { let d = toMin(e) - toMin(s); if (d < 0) d += 1440; return Math.max(0, d - p); };
         const hm = min => { const s = min < 0 ? '-' : ''; min = Math.abs(Math.round(min)); return `${s}${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')} Std`; };
         const sg = min => (min > 0 ? '+' : '') + hm(min);
-        const col = min => min > 0 ? 'text-emerald-400' : min < 0 ? 'text-rose-400' : 'text-slate-200';
+        const tone = min => (min > 0 ? 'pos' : min < 0 ? 'neg' : '');
+        const disp = s => String(s).replace(/^-/, '−');        // schönes Minuszeichen nur für die Anzeige
         const pauseOf = e => Number(e.pauseMinutes) || 0, typeOf = e => e.type || 'work';
-        const TYPES = { work: ['Arbeit', '', 'bg-emerald-500'], vacation: ['Urlaub', 'fa-umbrella-beach text-sky-400', 'bg-sky-500'], sick: ['Krank', 'fa-notes-medical text-amber-400', 'bg-amber-500'], flex: ['Gleitzeit', 'fa-hourglass-half text-slate-400', 'bg-slate-500'] };
+        // Art: [Name, Symbol, Farbe, Farbe als r,g,b, Chip-Farbe, Balkenfarbe]
+        const TYPES = {
+            work: ['Arbeit', 'fa-business-time', '#34d399', '52,211,153', 'g', ''],
+            vacation: ['Urlaub', 'fa-umbrella-beach', '#38bdf8', '56,189,248', 'b', 'linear-gradient(180deg,#7dd3fc,#0ea5e9)'],
+            sick: ['Krank', 'fa-notes-medical', '#fbbf24', '251,191,36', 'a', 'linear-gradient(180deg,#fcd34d,#f59e0b)'],
+            flex: ['Gleitzeit', 'fa-hourglass-half', '#94a3b8', '148,163,184', '', 'linear-gradient(180deg,#94a3b8,#64748b)']
+        };
         const WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
         const csvCell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
 
@@ -245,13 +227,15 @@
         // ---------- Zustand ----------
         let vacYear = new Date().getFullYear();
         let workEntries = [], active = null, timerId = null, tickN = 0, busy = false, started = false;
+        let entFilter = 'all';
         let todayStr = localDate().slice(0, 7);
         setInterval(() => { todayStr = localDate().slice(0, 7); }, 60000);
 
         initAuthGuard(user => {
             if (!user || started) return;
             started = true;
-            renderDrawer(); applyConfig();
+            renderDrawer(); applyConfig(); headDate(); setInterval(headDate, 60000);
+            $('ent-filters').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (b) { entFilter = b.dataset.f; renderTable(); } });
             $('custom-start-time').value = fmtT(new Date());
             updateUI(false);
             db.collection('worktime').where('owner', '==', currentUser.email).onSnapshot(s => { workEntries = s.docs.map(d => ({ id: d.id, ...d.data() })); renderAll(); });
@@ -277,16 +261,9 @@
         function updateUI(on) {
             const btn = $('btn-toggle-work'), badge = $('work-status-badge');
             $('start-time-container').classList.toggle('hidden', on); $('live-pause-container').classList.toggle('hidden', !on);
-            if (on) {
-                badge.innerText = 'Aktiv am Arbeiten'; badge.className = 'text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full animate-pulse';
-                btn.className = 'mt-4 w-full py-3 rounded-2xl font-semibold text-sm bg-rose-600 hover:bg-rose-500 text-white';
-                btn.innerHTML = '<i class="fa-solid fa-stop mr-2"></i>Ausstempeln';
-            } else {
-                badge.innerText = 'Inaktiv'; badge.className = 'text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full';
-                btn.className = 'mt-4 w-full py-3 rounded-2xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white';
-                btn.innerHTML = '<i class="fa-solid fa-play mr-2"></i>Einstempeln';
-                $('work-start-hint').innerText = 'Nicht eingestempelt'; $('work-active-timer').innerText = '00:00:00'; $('eta').innerText = '';
-            }
+            badge.className = 'chip' + (on ? ' g' : ''); badge.innerHTML = on ? '<span class="dot"></span>Aktiv am Arbeiten' : 'Inaktiv';
+            btn.className = 'ux-btn wide ' + (on ? 'stop run' : 'pri'); btn.innerHTML = on ? '<i class="fa-solid fa-stop"></i>Ausstempeln' : '<i class="fa-solid fa-play"></i>Einstempeln';
+            if (!on) { $('work-start-hint').innerText = 'Nicht eingestempelt'; $('work-active-timer').innerText = '00:00:00'; $('eta').innerText = ''; }
         }
         function startTimer(start) {
             stopTimer(); $('work-start-hint').innerText = `Eingestempelt seit ${fmtT(start)} Uhr`;
@@ -331,7 +308,7 @@
                 workEntries.forEach(w => { if (w.date?.length >= 7) set.add(w.date.slice(0, 7)); });
                 const sorted = [...set].sort().reverse();
                 sel.innerHTML = sorted.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
-                sel.value = sorted.includes(prev) ? prev : sorted[0];
+                sel.value = sorted.includes(prev) ? prev : todayStr;      // beim Öffnen der aktuelle Monat (nicht der neueste mit geplantem Urlaub)
             }
             renderSummary(); renderTable(); renderChart(); renderVacation();
         }
@@ -339,64 +316,83 @@
         function renderSummary() {
             if (!currentUser) return;
             const today = localDate(), live = liveNet(), now = new Date();
-            // Heute
+            // Heute (Ring um die Uhr)
             const bookedToday = sumNet(inRange(today, today)), dIst = bookedToday + live, dSoll = isWork(now) ? dayMin() : 0;
-            $('day-txt').innerText = `${hm(dIst)} / ${hm(dSoll)}`; $('day-bar').style.width = Math.min(100, dSoll ? dIst / dSoll * 100 : 0) + '%';
+            $('day-txt').innerText = dSoll ? `${hm(dIst)} von ${hm(dSoll)}` : `${hm(dIst)} · kein Sollarbeitstag`; UX.ring($('ring-arc'), dSoll ? dIst / dSoll : 0);
             // Woche
             const mon = new Date(now); mon.setDate(now.getDate() - (now.getDay() + 6) % 7);
             const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
             const wIst = sumNet(inRange(localDate(mon), localDate(sun))) + live, wSoll = sollMin(localDate(mon), localDate(sun));
-            $('week-txt').innerText = `${hm(wIst)} / ${hm(wSoll)}`; $('week-bar').style.width = Math.min(100, wSoll ? wIst / wSoll * 100 : 0) + '%';
+            $('week-txt').innerText = `${hm(wIst)} von ${hm(wSoll)}`; $('week-bar').style.width = Math.min(100, wSoll ? wIst / wSoll * 100 : 0) + '%'; renderWeek();
             // Feierabend-Prognose
             if (active?.startTime) {
                 const rest = dayMin() - bookedToday, pause = rest >= W().after * 60 ? livePause() : 0;
                 const eta = new Date(active.startTime.toDate().getTime() + (rest + pause) * 60000);
-                $('eta').innerHTML = dSoll && dIst >= dSoll ? `<i class="fa-solid fa-circle-check mr-1"></i>Tagessoll erreicht (${sg(dIst - dSoll)})` : dSoll ? `Tagessoll erreicht um <b>${fmtT(eta)} Uhr</b>` : 'Heute kein Sollarbeitstag';
+                $('eta').innerHTML = dSoll && dIst >= dSoll ? `<i class="fa-solid fa-circle-check"></i> Tagessoll erreicht (${sg(dIst - dSoll)})` : dSoll ? `Tagessoll erreicht um <b>${fmtT(eta)} Uhr</b>` : 'Heute kein Sollarbeitstag';
             }
             // Monat
             const m = selMonth(), last = `${m}-${String(new Date(+m.slice(0, 4), +m.slice(5), 0).getDate()).padStart(2, '0')}`, to = last < today ? last : today;
             const mist = sumNet(inRange(`${m}-01`, to)), msoll = sollMin(`${m}-01`, to), mw = workEntries.filter(w => w.date?.startsWith(m) && typeOf(w) === 'work');
-            const wd = new Set(mw.map(w => w.date)).size;
-            $('m-ist').innerText = hm(mist); $('m-soll').innerText = hm(msoll);
-            $('m-saldo').innerText = sg(mist - msoll); $('m-saldo').className = 'text-base font-bold ' + col(mist - msoll);
-            $('m-days').innerText = `${wd} · ${wd ? hm(sumNet(mw) / wd) : '–'}`;
+            const wd = new Set(mw.map(w => w.date)).size, diff = mist - msoll;
+            UX.setNum($('m-ist'), hm(mist)); UX.setNum($('m-soll'), hm(msoll)); UX.setNum($('m-saldo'), disp(sg(diff)), tone(diff));
+            $('m-days').innerText = wd ? `${wd} ${wd === 1 ? 'Arbeitstag' : 'Arbeitstage'} · Ø ${hm(sumNet(mw) / wd)}` : 'Noch keine Arbeitstage';
+            const sc = $('m-saldo-chip'); sc.innerText = diff > 0 ? 'über Soll' : diff < 0 ? 'unter Soll' : 'genau im Soll'; sc.className = 'chip ' + (diff > 0 ? 'g' : diff < 0 ? 'r' : '');
             // Gesamtkonto
             const first = workEntries.reduce((a, w) => (!a || w.date < a ? w.date : a), '');
             if (first) {
                 const acc = sumNet(inRange(first, today)) - sollMin(first, today);
-                $('acct').innerText = sg(acc); $('acct').className = 'text-lg font-bold ' + col(acc); $('acct-since').innerText = `(seit ${first.split('-').reverse().join('.')})`;
-            } else { $('acct').innerText = '–'; $('acct-since').innerText = ''; }
+                UX.setNum($('acct'), disp(sg(acc)), tone(acc)); $('acct-since').innerText = `seit ${first.split('-').reverse().join('.')}`; $('acct-since').classList.remove('hidden');
+            } else { UX.setNum($('acct'), '–', ''); $('acct-since').classList.add('hidden'); }
         }
 
         function renderChart() {
-            const m = selMonth(), n = new Date(+m.slice(0, 4), +m.slice(5), 0).getDate(), per = {};
+            const m = selMonth(), n = new Date(+m.slice(0, 4), +m.slice(5), 0).getDate(), per = {}, todayKey = localDate();
             workEntries.filter(w => w.date?.startsWith(m)).forEach(w => {
                 const d = +w.date.slice(8); per[d] = per[d] || { min: 0, type: 'work' };
                 per[d].min += w.netMinutes || 0; if (typeOf(w) !== 'work') per[d].type = typeOf(w);
             });
-            const top = Math.max(dayMin() * 1.4, ...Object.values(per).map(p => p.min), 60);
-            let h = `<div class="absolute left-0 right-0 border-t border-dashed border-slate-600 pointer-events-none" style="bottom:calc(${dayMin() / top * 100}% + 14px)"></div>`;
+            const top = Math.max(dayMin() * 1.3, ...Object.values(per).map(p => p.min), 60);
+            let h = '';
             for (let d = 1; d <= n; d++) {
-                const dt = new Date(+m.slice(0, 4), +m.slice(5) - 1, d), p = per[d], off = !isWork(dt);
-                h += `<div class="flex-1 flex flex-col items-center justify-end h-full gap-1" title="${d}.${m.slice(5)}.: ${p ? hm(p.min) : (off ? 'frei' : '–')}">
-                    <div class="w-full rounded-t ${p ? TYPES[p.type][2] : off ? 'bg-slate-800/60' : 'bg-slate-800'}" style="height:${p ? Math.max(3, p.min / top * 100) : off ? 3 : 2}%"></div>
-                    <span class="text-[8px] ${off ? 'text-slate-600' : 'text-slate-500'} h-3">${d}</span></div>`;
+                const dt = new Date(+m.slice(0, 4), +m.slice(5) - 1, d), p = per[d], off = !isWork(dt), key = `${m}-${String(d).padStart(2, '0')}`;
+                h += `<div class="col${off ? ' off' : ''}${key === todayKey ? ' today' : ''}" title="${d}.${m.slice(5)}.: ${p ? hm(p.min) : (off ? 'frei' : '–')}"><div class="bw">
+                    <i style="height:${p ? Math.max(3, p.min / top * 100) : off ? 3 : 2}%;--i:${d};${p && TYPES[p.type][5] ? '--bc:' + TYPES[p.type][5] : ''}"></i></div><span>${d}</span></div>`;
             }
-            $('chart').innerHTML = h;
+            $('chart').innerHTML = h + `<div class="tgt" style="bottom:calc(17px + (100% - 35px) * ${Math.min(1, dayMin() / top)})"><span>Tagessoll ${hm(dayMin())}</span></div>`;
         }
 
+        // Wochenansicht Mo bis So. Nur bei Änderung neu zeichnen, damit die Balken nicht jede halbe Minute neu wachsen.
+        function renderWeek() {
+            const now = new Date(), mon = new Date(now); mon.setDate(now.getDate() - (now.getDay() + 6) % 7);
+            const live = liveNet(), todayKey = localDate(), days = []; let top = Math.max(dayMin() * 1.3, 60);
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(mon); d.setDate(mon.getDate() + i); const key = localDate(d), es = workEntries.filter(w => w.date === key), other = es.find(x => typeOf(x) !== 'work');
+                const min = sumNet(es) + (key === todayKey ? live : 0); top = Math.max(top, min); days.push({ d, key, min, off: !isWork(d), type: other ? typeOf(other) : 'work' });
+            }
+            const sig = days.map(x => x.min + x.type).join('|') + top + dayMin(); if (renderWeek.sig === sig) return; renderWeek.sig = sig;
+            $('week-chart').innerHTML = days.map((x, i) => `<div class="col${x.off ? ' off' : ''}${x.key === todayKey ? ' today' : ''}" title="${esc(x.key.split('-').reverse().join('.'))}: ${x.min ? hm(x.min) : (x.off ? 'frei' : '–')}"><div class="bw"><i style="height:${x.min ? Math.max(5, x.min / top * 100) : 4}%;--i:${i * 4};${TYPES[x.type][5] ? '--bc:' + TYPES[x.type][5] : ''}"></i></div><span>${WD[x.d.getDay()]}</span><em>${x.min ? hm(x.min).replace(' Std', '') : '–'}</em></div>`).join('')
+                + `<div class="tgt" style="bottom:calc(36px + (100% - 54px) * ${Math.min(1, dayMin() / top)})"><span>Soll ${hm(dayMin())}</span></div>`;
+        }
+        function monthShift(dir) { const s = $('work-filter-month'), i = s.selectedIndex + dir; if (i >= 0 && i < s.options.length) { s.selectedIndex = i; renderAll(false); } }
+        function headDate() { const d = new Date(); $('ux-date').textContent = d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · Kalenderwoche ' + UX.kw(d); }
+
         function renderTable() {
-            const list = workEntries.filter(w => w.date?.startsWith(selMonth())).sort((a, b) => b.date.localeCompare(a.date) || (b.start || '').localeCompare(a.start || ''));
-            $('work-table-count').innerText = `${list.length} Einträge`;
-            $('worktime-table-body').innerHTML = list.length ? list.map(e => {
+            const all = workEntries.filter(w => w.date?.startsWith(selMonth())).sort((a, b) => b.date.localeCompare(a.date) || (b.start || '').localeCompare(a.start || ''));
+            const list = entFilter === 'all' ? all : all.filter(e => typeOf(e) === entFilter), today = localDate();
+            $('work-table-count').innerText = entFilter === 'all' ? `${all.length} ${all.length === 1 ? 'Eintrag' : 'Einträge'}` : `${list.length} von ${all.length}`;
+            document.querySelectorAll('#ent-filters [data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === entFilter));
+            let lastDay = '', html = '';
+            list.forEach((e, i) => {
                 const t = typeOf(e), net = e.netMinutes || 0, T = TYPES[t];
-                return `<tr class="hover:bg-slate-900/40"><td class="p-2.5 font-medium whitespace-nowrap">${WD[parse(e.date).getDay()]} ${esc(e.date.split('-').reverse().slice(0, 2).join('.'))}.</td>
-                    <td class="p-2.5 font-mono text-slate-400">${t === 'work' ? esc(e.start || '--:--') : '—'}</td><td class="p-2.5 font-mono text-slate-400">${t === 'work' ? esc(e.end || '--:--') : '—'}</td>
-                    <td class="p-2.5 text-slate-400">${t === 'work' ? pauseOf(e) + ' Min' : '—'}</td><td class="p-2.5 font-semibold font-mono ${net ? 'text-emerald-400' : 'text-slate-500'}">${hm(net)}</td>
-                    <td class="p-2.5 text-slate-400 max-w-[220px] truncate">${t !== 'work' ? `<i class="fa-solid ${T[1]} mr-1.5"></i>` : ''}${esc(e.note || (t === 'work' ? '-' : T[0]))}</td>
-                    <td class="p-2.5 text-right whitespace-nowrap">${t === 'work' ? `<button data-edit="${esc(e.id)}" class="text-slate-400 hover:text-indigo-400 p-1.5" title="Bearbeiten"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
-                    <button data-del="${esc(e.id)}" class="text-slate-500 hover:text-rose-400 p-1.5" title="Löschen"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
-            }).join('') : '<tr><td colspan="7" class="text-center py-6 text-slate-500">Keine Einträge für diesen Monat.</td></tr>';
+                if (e.date !== lastDay) { lastDay = e.date; html += `<div class="day">${e.date === today ? 'Heute · ' : ''}${WD[parse(e.date).getDay()]}., ${esc(e.date.split('-').reverse().slice(0, 2).join('.'))}.</div>`; }
+                const name = t === 'work' ? (e.note && e.note !== '-' ? e.note : 'Arbeitszeit') : T[0] + (e.note && e.note !== T[0] ? ' · ' + e.note : '');
+                const info = t === 'work' ? `${esc(e.start || '--:--')} – ${esc(e.end || '--:--')} · Pause ${pauseOf(e)} Min` : t === 'flex' ? 'Soll bleibt bestehen' : 'ganzer Tag';
+                html += `<div class="row" style="--c:${T[2]};--cr:${T[3]};animation-delay:${Math.min(i, 10) * 25}ms"><div class="tile"><i class="fa-solid ${T[1]}"></i></div>
+                    <div class="n"><div class="ell">${esc(name)}</div><small>${info}</small></div>${t !== 'work' ? `<span class="chip ${T[4]}">${T[0]}</span>` : ''}
+                    <div class="a ${net ? '' : 'mut'}">${hm(net)}</div><div class="acts">${t === 'work' ? `<button class="ux-ib" data-edit="${esc(e.id)}" title="Bearbeiten" aria-label="Bearbeiten"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
+                    <button class="ux-ib bad" data-del="${esc(e.id)}" title="Löschen" aria-label="Löschen"><i class="fa-solid fa-trash-can"></i></button></div></div>`;
+            });
+            $('worktime-table-body').innerHTML = html || `<div class="ux-empty"><i class="fa-solid fa-calendar-day"></i>${all.length ? 'Keine Einträge in dieser Auswahl.' : 'Keine Einträge für diesen Monat.'}</div>`;
         }
 
         // ---------- Erfassen / Bearbeiten / Abwesenheit ----------
@@ -454,17 +450,15 @@
             if (!currentUser) return;
             const st = vacStats(vacYear), today = localDate();
             $('vac-year').innerText = vacYear;
-            $('vac-left').innerText = String(Math.round(st.left * 2) / 2).replace('.', ',');
-            $('vac-left').className = 'text-3xl font-bold ' + (st.left < 0 ? 'text-rose-400' : st.left <= 3 ? 'text-amber-300' : 'text-sky-300');
-            $('vac-sub').innerHTML = `<div>Anspruch <b class="text-slate-200">${st.total - st.carry}</b>${st.carry ? ` + Rest <b class="text-slate-200">${st.carry}</b>` : ''}</div><div>genommen <b class="text-slate-200">${st.taken}</b> · geplant <b class="text-slate-200">${st.planned}</b></div>`;
-            const pct = n => st.total > 0 ? Math.min(100, n / st.total * 100) : 0;
-            $('vac-bar-taken').style.width = pct(st.taken) + '%'; $('vac-bar-plan').style.width = Math.min(100 - pct(st.taken), pct(st.planned)) + '%';
+            UX.setNum($('vac-left'), String(Math.round(st.left * 2) / 2).replace('.', ','), st.left < 0 ? 'neg' : st.left <= 3 ? 'warn' : '');
+            $('vac-sub').innerHTML = `<div><i style="background:rgba(148,163,184,.5)"></i>Anspruch<b>${st.total - st.carry}${st.carry ? ' + ' + st.carry + ' Rest' : ''}</b></div><div><i style="background:#06b6d4"></i>Genommen<b>${st.taken}</b></div><div><i style="background:#fbbf24"></i>Geplant<b>${st.planned}</b></div>`;
+            const pct = n => st.total > 0 ? Math.min(1, n / st.total) : 0, pt = pct(st.taken);
+            UX.ring($('vac-arc-taken'), pt); UX.ring($('vac-arc-plan'), Math.min(1 - pt, pct(st.planned)), pt);
             const ranges = []; st.dates.forEach(d => { const l = ranges[ranges.length - 1]; if (l && nextWork(l.to) === d) { l.to = d; l.n++; } else ranges.push({ from: d, to: d, n: 1 }); });
-            $('vac-ranges').innerHTML = ranges.length ? ranges.map(r => `<div class="flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2 py-1">
-                <span class="${r.to < today ? 'text-slate-500' : 'text-sky-300'}">${gdShort(r.from)}${r.from !== r.to ? ' – ' + gdShort(r.to) : ''} · ${r.n} ${r.n === 1 ? 'Tag' : 'Tage'}</span>
-                <span class="flex gap-2.5"><button onclick="openVacReq('${r.from}','${r.to}')" class="text-slate-500 hover:text-sky-400" title="Urlaubsantrag drucken"><i class="fa-solid fa-print text-[10px]"></i></button>
-                <button onclick="delVacRange('${r.from}','${r.to}')" class="text-slate-500 hover:text-rose-400" title="Zeitraum löschen"><i class="fa-solid fa-trash-can text-[10px]"></i></button></span></div>`).join('')
-                : '<div class="text-slate-500">Noch kein Urlaub eingetragen.</div>';
+            $('vac-ranges').innerHTML = ranges.length ? ranges.map(r => `<div class="vr"><span class="d ${r.to < today ? 'mut' : ''}"><i class="fa-solid fa-umbrella-beach" style="color:${r.to < today ? '#64748b' : '#38bdf8'};margin-right:7px"></i>${gdShort(r.from)}${r.from !== r.to ? ' – ' + gdShort(r.to) : ''} · ${r.n} ${r.n === 1 ? 'Tag' : 'Tage'}</span>
+                <span class="acts"><button onclick="openVacReq('${r.from}','${r.to}')" class="ux-ib" title="Urlaubsantrag drucken" aria-label="Urlaubsantrag drucken"><i class="fa-solid fa-print"></i></button>
+                <button onclick="delVacRange('${r.from}','${r.to}')" class="ux-ib bad" title="Zeitraum löschen" aria-label="Zeitraum löschen"><i class="fa-solid fa-trash-can"></i></button></span></div>`).join('')
+                : '<div class="ux-note" style="margin-top:8px">Noch kein Urlaub eingetragen.</div>';
         }
         function delVacRange(from, to) {
             const list = workEntries.filter(e => typeOf(e) === 'vacation' && e.date >= from && e.date <= to);
@@ -490,11 +484,11 @@
             if (!from || !to || to < from) { box.innerText = 'Bitte einen gültigen Zeitraum wählen.'; return; }
             const days = wdays(from, to), year = +from.slice(0, 4), st = vacStats(year), have = vacDays();
             const inYear = days.filter(d => d.startsWith(String(year))), already = inYear.filter(d => have.has(d)).length, before = st.left + already, after = before - inYear.length;
-            box.innerHTML = days.length ? `<b>${days.length} Arbeitstage</b> · Resturlaub ${year}: vorher ${before}, nachher <b class="${after < 0 ? 'text-rose-300' : ''}">${after}</b>${after < 0 ? ' (Anspruch überschritten)' : ''}` : 'Im Zeitraum liegt kein Arbeitstag (Wochenende oder Feiertag).';
+            box.innerHTML = days.length ? `<b>${days.length} Arbeitstage</b> · Resturlaub ${year}: vorher ${before}, nachher <b class="${after < 0 ? 'neg' : ''}">${after}</b>${after < 0 ? ' (Anspruch überschritten)' : ''}` : 'Im Zeitraum liegt kein Arbeitstag (Wochenende oder Feiertag).';
             const newDays = days.filter(d => !have.has(d)), bookable = $('vr-type').value === 'Erholungsurlaub' && newDays.length > 0;
             if (bookable && $('vr-book').disabled) $('vr-book').checked = true;
             $('vr-book').disabled = !bookable; if (!bookable) $('vr-book').checked = false;
-            $('vr-book-wrap').classList.toggle('opacity-40', !bookable);
+            $('vr-book-wrap').classList.toggle('dim', !bookable);
         }
         async function bookVacation(days) {
             const b = db.batch();
