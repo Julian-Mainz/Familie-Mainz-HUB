@@ -13,191 +13,196 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="J.Mainz">
-    <link rel="stylesheet" href="/assets/css/menu.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
     <link rel="stylesheet" href="/assets/icons.css">
     <link rel="stylesheet" href="/assets/ui.css">
+    <link rel="stylesheet" href="/assets/ux.css">
     <link rel="stylesheet" href="/assets/layout.css">
     <script src="/js/vendor/firebase-app-compat.js"></script>
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
     <script src="/js/calendar-core.js"></script>
+    <script src="/js/ux.js"></script>
     <script src="/js/layout.js"></script>
     <script src="/js/drawer.js"></script>
     <style>
-        body { background: radial-gradient(1200px 600px at 10% -10%, rgba(99,102,241,.12), transparent), #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    </style>
-    <style type="text/tailwindcss">
-        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg; }
-        .inp  { @apply w-full bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500; }
-        .mini { @apply flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500; }
-        .row  { @apply flex items-center justify-between gap-2 bg-slate-950/50 border border-slate-800 p-1.5 rounded-xl text-[11px]; }
-        .badge { @apply text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full; }
-        .chip { @apply px-2.5 py-1 rounded-lg text-[10px] font-semibold text-slate-400 bg-slate-800/60 hover:text-slate-200; }
-        .chip.on { @apply bg-indigo-600 text-white; }
-        .h3 { @apply flex items-center justify-between border-b border-slate-800 pb-2 mb-2 text-xs font-bold text-slate-200; }
+        .home .ux-h1 #user-display-name { color: var(--m); }
+        .ux-btn kbd { font: inherit; font-size: 10px; color: #64748b; border: 1px solid #334155; border-radius: 6px; padding: 1px 5px; margin-left: 2px; }
+        @media (max-width: 1100px) { .ux-btn kbd { display: none; } }
+        .pend { display: flex; align-items: center; gap: 10px; padding: 12px 16px; margin-bottom: 16px; color: #fde68a; font-size: 13px; text-decoration: none; border-color: rgba(245, 158, 11, .4); background: rgba(245, 158, 11, .1); }
+        .pend span { flex: 1; }
+        .clock { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 50px; font-weight: 800; letter-spacing: .03em; line-height: 1.1; font-variant-numeric: tabular-nums; background: linear-gradient(180deg, #fff, #c7d2fe); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .clock.sm { font-size: 34px; }
+        .hero-c { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 34px 20px; gap: 8px; }
+        .hero-c .dd { font-size: 12.5px; font-weight: 600; color: #a5b4fc; text-transform: uppercase; letter-spacing: .14em; }
+        .wx { display: flex; align-items: center; gap: 16px; margin: 4px 0; }
+        .wx .big { font-size: 46px; } .wx .t { font-size: 34px; font-weight: 800; letter-spacing: -.03em; }
+        .wxs { font-size: 12px; color: #94a3b8; text-align: right; line-height: 1.9; } .wxs i { width: 18px; color: #64748b; }
+        .fcs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+        .fcs > div { text-align: center; padding: 10px 4px; border-radius: 16px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(148, 163, 184, .1); }
+        .scr { max-height: 220px; overflow-y: auto; padding-right: 4px; }
+        .scr .row:first-child { margin-top: 0; }
+        .qf { display: flex; gap: 8px; margin-top: 12px; align-items: stretch; } .qf .ux-in { padding: 10px 13px; font-size: 13.5px; }
+        .tdl { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; cursor: pointer; font-size: 13.5px; }
+        .tdl .done { text-decoration: line-through; color: #64748b; }
+        input[type=checkbox], input[type=radio] { accent-color: var(--m); width: 16px; height: 16px; flex: none; cursor: pointer; }
+        .ux-ck { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #cbd5e1; margin: 2px 0 12px; cursor: pointer; }
+        .ux-pill > span { padding: 0 12px; min-width: 150px; text-align: center; font-weight: 600; font-size: 14px; color: #f1f5f9; white-space: nowrap; }
+        .cal-wrap { overflow-x: auto; padding-bottom: 6px; } .cal-in { min-width: 620px; }
+        .cal-h { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; font-size: 12px; font-weight: 700; color: #94a3b8; padding: 4px 0 10px; } .cal-h div:nth-child(n+6) { color: #64748b; }
+        .cal-g { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        .cal-d { min-height: 96px; display: flex; flex-direction: column; padding: 8px; border-radius: 16px; background: rgba(255, 255, 255, .035); border: 1px solid rgba(148, 163, 184, .12); overflow: hidden; transition: border-color .2s, background-color .2s; }
+        .cal-d:hover { border-color: rgba(var(--mr), .45); } .cal-d.we { background: rgba(255, 255, 255, .02); } .cal-d.today { border-color: rgba(var(--mr), .85); background: rgba(var(--mr), .13); } .cal-d.pad { opacity: .15; background: none; border-style: dashed; }
+        .cal-n { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 12px; } .cal-n b { color: #94a3b8; font-weight: 600; } .cal-d.we .cal-n b { color: #64748b; }
+        .cal-d.today .cal-n b { color: #fff; background: var(--m2); border-radius: 8px; padding: 1px 8px; }
+        .cal-n button { border: 0; background: none; color: #64748b; cursor: pointer; font-size: 10px; padding: 3px 5px; border-radius: 8px; opacity: .55; transition: opacity .2s, color .2s; } .cal-d:hover .cal-n button, .cal-n button:focus-visible { opacity: 1; color: #a5b4fc; }
+        .cal-es { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; min-height: 0; }
+        .cal-e { cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 7px; border-radius: 9px; white-space: nowrap; overflow: hidden; color: #cbd5e1; background: rgba(148, 163, 184, .14); border: 1px solid rgba(148, 163, 184, .2); }
+        .cal-e.pub { color: #c7d2fe; background: rgba(99, 102, 241, .22); border-color: rgba(129, 140, 248, .4); } .cal-e:hover { filter: brightness(1.2); }
+        .cal-e b { font-weight: 700; flex: none; } .cal-e span { overflow: hidden; text-overflow: ellipsis; } .cal-e i { font-size: 8px; opacity: .7; margin-left: auto; flex: none; }
+        @media (max-width: 700px) { .cal-d { min-height: 84px; padding: 6px; } .clock { font-size: 42px; } }
+        #fab { position: fixed; right: 22px; bottom: 22px; z-index: 40; width: 58px; height: 58px; border: 0; border-radius: 50%; cursor: pointer; color: #fff; font-size: 22px; display: grid; place-items: center; background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 16px 36px -8px rgba(99, 102, 241, .8); transition: transform .2s, filter .2s; }
+        #fab:hover { transform: translateY(-2px) scale(1.05); filter: brightness(1.1); } #fab:active { transform: scale(.94); }
+        @media (max-width: 1023.98px) { #fab { bottom: calc(88px + env(safe-area-inset-bottom)); right: 16px; } }
+        body.lay-on #fab { display: none; }
+        #modal-evdel { z-index: 130; }
+        .evb { width: 100%; justify-content: flex-start; margin-bottom: 8px; text-align: left; } .evb.bad { color: #fecdd3; border-color: rgba(244, 63, 94, .4); background: rgba(244, 63, 94, .12); }
     </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+<body class="ux">
+<main class="ux-page home" style="--m:#818cf8;--m2:#6366f1;--mr:129,140,248">
 
-    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <div class="flex items-center gap-2">
-        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-bars text-indigo-400"></i><span>Menü</span></button>
-        <button onclick="window.openSearch && openSearch()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold" title="Suche (Strg+K)"><i class="fa-solid fa-magnifying-glass text-indigo-400"></i><span class="hidden md:inline">Suche</span><kbd class="hidden lg:inline text-[10px] text-slate-500 border border-slate-700 rounded px-1.5">Strg K</kbd></button>
-        </div>
-        <h1 class="text-sm sm:text-base md:text-xl font-bold text-slate-100 tracking-wide truncate px-2"><span id="greet">Hallo</span>, <span id="user-display-name" class="text-indigo-400 font-semibold"></span> <span id="greet-emoji">👋</span></h1>
-        <div class="flex items-center gap-2">
-        <button id="lay-btn" onclick="Layout.toggle()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold" title="Startseite anpassen"><i class="fa-solid fa-table-columns text-indigo-400"></i><span class="hidden md:inline">Anpassen</span></button>
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span></button>
-        </div>
-    </header>
+    <div class="ux-top">
+        <div class="ux-ico"><i class="fa-solid fa-house"></i></div>
+        <div><h1 class="ux-h1"><span id="greet">Hallo</span>, <span id="user-display-name"></span> <span id="greet-emoji">👋</span></h1><div class="ux-sub">Dein Tag im Überblick</div></div>
+        <div class="ux-sp"></div>
+        <button class="ux-btn" onclick="window.openSearch && openSearch()" title="Suche (Strg+K)"><i class="fa-solid fa-magnifying-glass"></i>Suche <kbd>Strg K</kbd></button>
+        <button class="ux-btn" id="lay-btn" onclick="Layout.toggle()" title="Startseite anpassen"><i class="fa-solid fa-table-columns"></i>Anpassen</button>
+    </div>
 
-    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-        <a id="pending-banner" href="/admin.html#users" class="hidden card px-4 py-3 border-amber-500/40 bg-amber-500/10 text-amber-200 text-xs items-center gap-2"><i class="fa-solid fa-user-clock"></i><span id="pending-text"></span><i class="fa-solid fa-chevron-right ml-auto text-[10px]"></i></a>
+    <a id="pending-banner" href="/admin.html#users" class="hidden ux-card pend"><i class="fa-solid fa-user-clock"></i><span id="pending-text"></span><i class="fa-solid fa-chevron-right"></i></a>
 
-        <!-- Widgets (Reihenfolge und Sichtbarkeit sind anpassbar) -->
-        <div id="widgets" class="lay-grid">
-            <div data-w="hero" class="card p-6 flex flex-col items-center justify-center text-center bg-gradient-to-br from-indigo-600/20 via-slate-900/60 to-cyan-500/10">
-                <div id="dash-time" class="text-5xl font-mono font-bold tracking-wider">00:00:00</div>
-                <div id="dash-date" class="text-xs font-medium text-indigo-300 uppercase tracking-widest mt-3"></div>
-                <div id="dash-week" class="text-[11px] text-slate-500 mt-1"></div>
-            </div>
+    <!-- Widgets (Reihenfolge, Breite und Sichtbarkeit sind anpassbar) -->
+    <div id="widgets" class="ux-grid lay-grid">
+        <section data-w="hero" class="ux-card glow hero-c">
+            <div id="dash-time" class="clock">00:00:00</div>
+            <div id="dash-date" class="dd"></div>
+            <div id="dash-week" class="ux-note"></div>
+        </section>
 
-            <div data-w="weather" class="card p-5 flex flex-col">
-                <div class="h3"><span><i class="fa-solid fa-location-dot text-rose-400 mr-1.5"></i>Düren</span><button onclick="loadWeather()" class="text-slate-400 hover:text-indigo-400" title="Aktualisieren"><i class="fa-solid fa-rotate"></i></button></div>
-                <div class="flex items-center gap-4 my-1">
-                    <i id="weather-icon" class="fa-solid fa-cloud-sun text-4xl text-amber-400"></i>
-                    <div class="flex-1"><div id="weather-temp" class="text-3xl font-bold">--°C</div><div id="weather-condition" class="text-xs text-slate-400">Lade Wetter...</div></div>
-                    <div class="text-[11px] text-slate-400 space-y-0.5 text-right"><div><i class="fa-solid fa-wind w-4 text-slate-500"></i><span id="weather-wind">--</span></div><div><i class="fa-solid fa-droplet w-4 text-slate-500"></i><span id="weather-hum">--</span></div><div><i class="fa-solid fa-umbrella w-4 text-slate-500"></i><span id="weather-rain">--</span></div></div>
-                </div>
-                <div id="forecast" class="grid grid-cols-3 gap-2 mt-auto pt-3 border-t border-slate-800/60"></div>
-            </div>
+        <section data-w="weather" class="ux-card" style="--m:#38bdf8;--m2:#0ea5e9;--mr:56,189,248">
+            <div class="ux-t"><i class="fa-solid fa-location-dot" style="color:#fb7185"></i>Düren<small><button class="ux-ib" onclick="loadWeather()" title="Aktualisieren" aria-label="Wetter aktualisieren"><i class="fa-solid fa-rotate"></i></button></small></div>
+            <div class="wx"><i id="weather-icon" class="fa-solid fa-cloud-sun big" style="color:#fbbf24"></i>
+                <div style="flex:1"><div id="weather-temp" class="t">--°C</div><div id="weather-condition" class="ux-note">Lade Wetter...</div></div>
+                <div class="wxs"><div><i class="fa-solid fa-wind"></i><span id="weather-wind">--</span></div><div><i class="fa-solid fa-droplet"></i><span id="weather-hum">--</span></div><div><i class="fa-solid fa-umbrella"></i><span id="weather-rain">--</span></div></div></div>
+            <div id="forecast" class="fcs"></div>
+        </section>
 
-            <div id="st-card" data-w="stamp" class="card p-5 flex flex-col">
-                <div class="h3"><span><i class="fa-solid fa-stopwatch text-emerald-400 mr-1.5"></i>Arbeitszeit</span><span id="st-badge" class="badge">Inaktiv</span></div>
-                <div class="text-center py-1"><div id="st-timer" class="text-3xl font-mono font-bold tracking-wider">00:00:00</div><div id="st-sub" class="text-xs text-slate-500 mt-1">Nicht eingestempelt</div></div>
-                <div class="mt-3"><div class="flex justify-between text-[11px] mb-1"><span class="text-slate-400">Heute (inkl. laufender Zeit)</span><span id="st-today" class="font-mono"></span></div>
-                    <div class="h-2 bg-slate-800 rounded-full overflow-hidden"><div id="st-bar" class="h-full bg-emerald-500 rounded-full" style="width:0"></div></div></div>
-                <a href="/zeiterfassung.html" class="mt-4 text-center text-xs font-semibold bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl py-2.5"><i class="fa-solid fa-arrow-right mr-1.5"></i>Zur Zeiterfassung</a>
-            </div>
-            <div data-w="notes" class="card p-4 flex flex-col">
-                <div class="h3"><span><i class="fa-solid fa-note-sticky text-amber-400 mr-1.5"></i>Pinnwand</span><span id="note-count" class="badge">0</span></div>
-                <div id="notes-list" class="flex-1 overflow-y-auto max-h-44 space-y-1.5 pr-1 text-[11px] text-slate-500"></div>
-                <form onsubmit="saveNewNote(event)" class="mt-2 flex gap-1.5"><input type="text" id="new-note-input" required placeholder="Notiz anpinnen..." class="mini"><button class="bg-amber-500/20 text-amber-300 px-2.5 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-paper-plane"></i></button></form>
-            </div>
+        <section id="st-card" data-w="stamp" class="ux-card" style="--m:#2dd4bf;--m2:#14b8a6;--mr:45,212,191">
+            <div class="ux-t"><i class="fa-solid fa-stopwatch"></i>Arbeitszeit<small><span id="st-badge" class="chip">Inaktiv</span></small></div>
+            <div style="text-align:center;padding:8px 0 4px"><div id="st-timer" class="clock sm">00:00:00</div><div id="st-sub" class="ux-note" style="margin-top:4px">Nicht eingestempelt</div></div>
+            <div class="fc" style="margin-top:12px"><span>Heute (inkl. laufender Zeit)</span><b id="st-today"></b></div>
+            <div class="bar"><i id="st-bar" style="width:0"></i></div>
+            <a href="/zeiterfassung.html" class="ux-btn pri" style="margin-top:16px;width:100%"><i class="fa-solid fa-arrow-right"></i>Zur Zeiterfassung</a>
+        </section>
 
-            <div data-w="todos" class="card p-4 flex flex-col">
-                <div class="h3"><span><i class="fa-solid fa-list-check text-emerald-400 mr-1.5"></i>Aufgaben &amp; Einkauf</span>
-                    <span class="flex items-center gap-2"><span id="todo-count" class="badge">0</span><button onclick="clearDone()" class="text-slate-500 hover:text-rose-400" title="Erledigte löschen"><i class="fa-solid fa-broom"></i></button></span></div>
-                <div class="flex gap-1.5 mb-2"><button class="chip on" data-f="all" onclick="setFilter('all')">Alle</button><button class="chip" data-f="task" onclick="setFilter('task')"><i class="fa-solid fa-circle-check mr-1"></i>Aufgaben</button><button class="chip" data-f="shop" onclick="setFilter('shop')"><i class="fa-solid fa-cart-shopping mr-1"></i>Einkauf</button></div>
-                <div id="todos-list" class="flex-1 overflow-y-auto max-h-44 space-y-1.5 pr-1 text-[11px] text-slate-500"></div>
-                <form onsubmit="saveNewTodo(event)" class="mt-2 flex gap-1.5">
-                    <button type="button" id="kind-btn" onclick="toggleKind()" class="bg-slate-800 text-slate-300 px-2.5 py-1.5 rounded-xl text-xs" title="Art wechseln"><i class="fa-solid fa-circle-check"></i></button>
-                    <input type="text" id="new-todo-input" required placeholder="Neue Aufgabe..." class="mini"><button class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-plus"></i></button></form>
-            </div>
+        <section data-w="notes" class="ux-card" style="--m:#fbbf24;--m2:#f59e0b;--mr:251,191,36">
+            <div class="ux-t"><i class="fa-solid fa-note-sticky"></i>Pinnwand<small><span id="note-count" class="chip">0</span></small></div>
+            <div id="notes-list" class="scr"></div>
+            <form onsubmit="saveNewNote(event)" class="qf"><input type="text" id="new-note-input" required placeholder="Notiz anpinnen..." class="ux-in" aria-label="Neue Notiz"><button class="ux-btn pri" aria-label="Anpinnen"><i class="fa-solid fa-paper-plane"></i></button></form>
+        </section>
 
-            <div data-w="upcoming" class="card p-4 flex flex-col">
-                <div class="h3"><span><i class="fa-solid fa-calendar-check text-indigo-400 mr-1.5"></i>Nächste Termine</span></div>
-                <div id="upcoming" class="space-y-1.5 text-[11px]"></div>
-            </div>
+        <section data-w="todos" class="ux-card" style="--m:#34d399;--m2:#10b981;--mr:52,211,153">
+            <div class="ux-t"><i class="fa-solid fa-list-check"></i>Aufgaben &amp; Einkauf<small><span id="todo-count" class="chip">0</span><button class="ux-ib" onclick="clearDone()" title="Erledigte löschen" aria-label="Erledigte löschen"><i class="fa-solid fa-broom"></i></button></small></div>
+            <div id="todo-filters" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"><button class="chip on" data-f="all" onclick="setFilter('all')">Alle</button><button class="chip" data-f="task" onclick="setFilter('task')"><i class="fa-solid fa-circle-check"></i> Aufgaben</button><button class="chip" data-f="shop" onclick="setFilter('shop')"><i class="fa-solid fa-cart-shopping"></i> Einkauf</button></div>
+            <div id="todos-list" class="scr"></div>
+            <form onsubmit="saveNewTodo(event)" class="qf"><button type="button" id="kind-btn" onclick="toggleKind()" class="ux-ib" style="width:44px;height:auto" title="Art wechseln" aria-label="Art wechseln"><i class="fa-solid fa-circle-check" style="color:#34d399"></i></button>
+                <input type="text" id="new-todo-input" required placeholder="Neue Aufgabe..." class="ux-in" aria-label="Neuer Eintrag"><button class="ux-btn pri" aria-label="Hinzufügen"><i class="fa-solid fa-plus"></i></button></form>
+        </section>
 
-        <!-- Kalender -->
-        <div data-w="calendar" class="card p-4 md:p-6 flex flex-col min-h-[420px]">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
-                <div class="flex items-center gap-3"><i class="fa-regular fa-calendar-days text-xl text-indigo-400"></i><h2 class="text-base font-bold text-slate-200">Kalender</h2></div>
-                <div class="flex items-center gap-2">
-                    <button onclick="goToday()" class="text-xs font-semibold text-slate-300 bg-slate-950 border border-slate-800 hover:border-indigo-500/50 px-3 py-2 rounded-xl">Heute</button>
-                    <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 gap-2">
-                        <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-400"><i class="fa-solid fa-chevron-left"></i></button>
-                        <span id="calendar-month-year" class="text-xs font-semibold text-slate-200 w-28 sm:w-36 text-center truncate"></span>
-                        <button onclick="changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-400"><i class="fa-solid fa-chevron-right"></i></button>
-                    </div>
-                    <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap"><i class="fa-solid fa-plus"></i><span>Termin</span></button>
-                </div>
-            </div>
-            <div class="flex-1 overflow-x-auto pb-2"><div class="min-w-[620px]">
-                <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-2 border-b border-slate-800"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div class="text-slate-500">Sa</div><div class="text-slate-500">So</div></div>
-                <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 pt-2"></div>
+        <section data-w="upcoming" class="ux-card">
+            <div class="ux-t"><i class="fa-solid fa-calendar-check"></i>Nächste Termine</div>
+            <div id="upcoming"></div>
+        </section>
+
+        <section data-w="calendar" class="ux-card" style="min-height:420px">
+            <div class="ux-t" style="flex-wrap:wrap;gap:10px"><i class="fa-regular fa-calendar-days"></i>Kalender<small style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <button class="ux-btn" onclick="goToday()" style="padding:9px 14px">Heute</button>
+                <span class="ux-pill"><button type="button" onclick="changeCalendarMonth(-1)" aria-label="Vorheriger Monat"><i class="fa-solid fa-chevron-left"></i></button><span id="calendar-month-year"></span><button type="button" onclick="changeCalendarMonth(1)" aria-label="Nächster Monat"><i class="fa-solid fa-chevron-right"></i></button></span>
+                <button class="ux-btn pri" onclick="openEventModal()" style="padding:9px 14px"><i class="fa-solid fa-plus"></i>Termin</button></small></div>
+            <div class="cal-wrap"><div class="cal-in">
+                <div class="cal-h"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div>
+                <div id="calendar-days-grid" class="cal-g"></div>
             </div></div>
-        </div>
-        </div>
-    </main>
+        </section>
+    </div>
+</main>
 
-    <!-- Schnell-Erfassung -->
-    <button id="fab" onclick="openQuick()" title="Schnell-Erfassung (Taste N)" class="fixed bottom-5 right-5 z-40 w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xl shadow-xl shadow-indigo-600/30 flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
+<!-- Schnell-Erfassung -->
+<button id="fab" onclick="openQuick()" title="Schnell-Erfassung (Taste N)" aria-label="Schnell-Erfassung"><i class="fa-solid fa-plus"></i></button>
 
-    <div id="modal-quick" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center mb-3"><h3 class="text-base font-bold text-slate-100"><i class="fa-solid fa-bolt text-amber-400 mr-2"></i>Schnell-Erfassung</h3><button onclick="closeModal('modal-quick')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
-            <div id="q-kinds" class="flex flex-wrap gap-1.5 mb-3">
-                <button type="button" class="chip" data-k="task" onclick="setQuick('task')"><i class="fa-solid fa-circle-check mr-1"></i>Aufgabe</button>
-                <button type="button" class="chip" data-k="shop" onclick="setQuick('shop')"><i class="fa-solid fa-cart-shopping mr-1"></i>Einkauf</button>
-                <button type="button" class="chip" data-k="note" onclick="setQuick('note')"><i class="fa-solid fa-note-sticky mr-1"></i>Notiz</button>
-                <button type="button" class="chip" data-k="event" onclick="setQuick('event')"><i class="fa-solid fa-calendar-plus mr-1"></i>Termin</button>
+<div id="modal-quick" class="ux-modal hidden"><div class="ux-box" style="--m:#fbbf24;--m2:#f59e0b;--mr:251,191,36">
+    <h3><i class="fa-solid fa-bolt"></i>Schnell-Erfassung<button class="ux-ib" onclick="closeModal('modal-quick')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3>
+    <div id="q-kinds" style="display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 14px">
+        <button type="button" class="chip" data-k="task" onclick="setQuick('task')"><i class="fa-solid fa-circle-check"></i> Aufgabe</button>
+        <button type="button" class="chip" data-k="shop" onclick="setQuick('shop')"><i class="fa-solid fa-cart-shopping"></i> Einkauf</button>
+        <button type="button" class="chip" data-k="note" onclick="setQuick('note')"><i class="fa-solid fa-note-sticky"></i> Notiz</button>
+        <button type="button" class="chip" data-k="event" onclick="setQuick('event')"><i class="fa-solid fa-calendar-plus"></i> Termin</button>
+    </div>
+    <form onsubmit="saveQuick(event)">
+        <label class="ux-f"><input id="q-text" required maxlength="200" autocomplete="off" class="ux-in" aria-label="Text"></label>
+        <div id="q-event-opts" class="hidden"><div class="ux-row2" style="margin-bottom:12px"><input type="date" id="q-date" class="ux-in"><input type="time" id="q-time" class="ux-in" title="Uhrzeit (optional)"></div>
+            <label class="ux-ck"><input type="checkbox" id="q-public" checked> Öffentlich für alle sichtbar</label></div>
+        <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('modal-quick')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div>
+    </form></div></div>
+
+<div id="modal-event" class="ux-modal hidden"><div class="ux-box" style="--m:#818cf8;--m2:#6366f1;--mr:129,140,248">
+    <h3><i class="fa-solid fa-calendar-plus"></i><span id="ev-heading">Neuen Termin eintragen</span><button class="ux-ib" onclick="closeModal('modal-event')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3>
+    <form id="ev-form" onsubmit="saveCalendarEvent(event)" style="margin-top:14px">
+        <input type="hidden" id="ev-id"><input type="hidden" id="ev-occ">
+        <div id="ev-scope" class="hidden ux-info">
+            <div style="margin-bottom:8px">Dieser Termin wiederholt sich <span id="ev-scope-info"></span>. Was möchtest du ändern?</div>
+            <label class="ux-ck" style="margin:4px 0"><input type="radio" name="evscope" value="one" onchange="applyScope()"> Nur diesen Termin</label>
+            <label class="ux-ck" style="margin:4px 0"><input type="radio" name="evscope" value="all" checked onchange="applyScope()"> Die ganze Serie</label>
+        </div>
+        <label class="ux-f"><span>Titel / Anlass</span><input type="text" id="ev-title" required maxlength="120" class="ux-in"></label>
+        <div class="ux-row2">
+            <label class="ux-f"><span id="ev-date-label">Datum</span><input type="date" id="ev-date" required class="ux-in"></label>
+            <label class="ux-ck" style="align-self:end;padding-bottom:14px"><input type="checkbox" id="ev-allday" checked onchange="toggleAllDay()"> Ganztägig</label>
+        </div>
+        <div id="ev-times" class="ux-row2 hidden">
+            <label class="ux-f"><span>Beginn</span><input type="time" id="ev-time" class="ux-in"></label>
+            <label class="ux-f"><span>Ende (optional)</span><input type="time" id="ev-end" class="ux-in"></label>
+        </div>
+        <div id="ev-repeat-box">
+            <label class="ux-f"><span>Wiederholung</span><select id="ev-repeat" onchange="toggleRepeat()" class="ux-in"><option value="none">Keine Wiederholung</option><option value="daily">Täglich</option><option value="weekly">Wöchentlich</option><option value="monthly">Monatlich</option><option value="yearly">Jährlich</option></select></label>
+            <div id="ev-repeat-opts" class="ux-row2 hidden">
+                <label class="ux-f"><span>Alle</span><span class="ux-flex" style="display:flex"><input type="number" id="ev-interval" min="1" max="99" value="1" class="ux-in"><span id="ev-unit" class="ux-note" style="white-space:nowrap;margin:0">Tag(e)</span></span></label>
+                <label class="ux-f"><span>Bis (optional)</span><input type="date" id="ev-until" class="ux-in"></label>
             </div>
-            <form onsubmit="saveQuick(event)" class="space-y-3">
-                <input id="q-text" required maxlength="200" autocomplete="off" class="inp">
-                <div id="q-event-opts" class="hidden space-y-2"><div class="grid grid-cols-2 gap-2"><input type="date" id="q-date" class="inp"><input type="time" id="q-time" class="inp" title="Uhrzeit (optional)"></div><label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" id="q-public" checked class="rounded bg-slate-800 border-slate-700"> Öffentlich für alle sichtbar</label></div>
-                <div class="flex justify-end gap-2"><button type="button" onclick="closeModal('modal-quick')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button><button class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button></div>
-            </form>
         </div>
-    </div>
-
-    <div id="modal-event" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4"><h3 id="ev-heading" class="text-base font-bold text-slate-100">Neuen Termin eintragen</h3><button onclick="closeModal('modal-event')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
-            <form id="ev-form" onsubmit="saveCalendarEvent(event)" class="space-y-3.5">
-                <input type="hidden" id="ev-id"><input type="hidden" id="ev-occ">
-                <div id="ev-scope" class="hidden p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-slate-200 space-y-1.5">
-                    <div class="text-[11px] text-indigo-300">Dieser Termin wiederholt sich <span id="ev-scope-info"></span>. Was möchtest du ändern?</div>
-                    <label class="flex items-center gap-2"><input type="radio" name="evscope" value="one" onchange="applyScope()"> Nur diesen Termin</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="evscope" value="all" checked onchange="applyScope()"> Die ganze Serie</label>
-                </div>
-                <div><label class="block text-xs text-slate-400 mb-1">Titel / Anlass</label><input type="text" id="ev-title" required maxlength="120" class="inp"></div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div><label id="ev-date-label" class="block text-xs text-slate-400 mb-1">Datum</label><input type="date" id="ev-date" required class="inp"></div>
-                    <label class="flex items-end gap-2 text-xs text-slate-300 pb-3"><input type="checkbox" id="ev-allday" checked onchange="toggleAllDay()" class="rounded bg-slate-800 border-slate-700"> Ganztägig</label>
-                </div>
-                <div id="ev-times" class="hidden grid grid-cols-2 gap-3">
-                    <div><label class="block text-xs text-slate-400 mb-1">Beginn</label><input type="time" id="ev-time" class="inp"></div>
-                    <div><label class="block text-xs text-slate-400 mb-1">Ende (optional)</label><input type="time" id="ev-end" class="inp"></div>
-                </div>
-                <div id="ev-repeat-box">
-                    <label class="block text-xs text-slate-400 mb-1">Wiederholung</label>
-                    <select id="ev-repeat" onchange="toggleRepeat()" class="inp"><option value="none">Keine Wiederholung</option><option value="daily">Täglich</option><option value="weekly">Wöchentlich</option><option value="monthly">Monatlich</option><option value="yearly">Jährlich</option></select>
-                    <div id="ev-repeat-opts" class="hidden grid grid-cols-2 gap-3 mt-2">
-                        <div><label class="block text-xs text-slate-400 mb-1">Alle</label><div class="flex items-center gap-2"><input type="number" id="ev-interval" min="1" max="99" value="1" class="inp"><span id="ev-unit" class="text-xs text-slate-400 whitespace-nowrap">Tag(e)</span></div></div>
-                        <div><label class="block text-xs text-slate-400 mb-1">Bis (optional)</label><input type="date" id="ev-until" class="inp"></div>
-                    </div>
-                </div>
-                <label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" id="ev-public" class="rounded bg-slate-800 border-slate-700"> Öffentlich für alle sichtbar</label>
-                <div id="ev-ro" class="hidden text-xs text-slate-400">Dieser Termin gehört einer anderen Person und ist nur lesbar.</div>
-                <div class="flex items-center gap-2 pt-2">
-                    <button type="button" id="ev-del" onclick="askDeleteEvent()" class="hidden px-4 py-2 rounded-xl text-xs bg-rose-600/20 border border-rose-500/30 text-rose-300"><i class="fa-solid fa-trash-can mr-1.5"></i>Löschen</button>
-                    <div class="flex-1"></div>
-                    <button type="button" onclick="closeModal('modal-event')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Schließen</button>
-                    <button id="ev-save" class="px-4 py-2 rounded-xl text-xs bg-indigo-600 text-white font-medium">Speichern</button>
-                </div>
-            </form>
+        <label class="ux-ck"><input type="checkbox" id="ev-public"> Öffentlich für alle sichtbar</label>
+        <div id="ev-ro" class="hidden ux-note" style="margin-bottom:12px">Dieser Termin gehört einer anderen Person und ist nur lesbar.</div>
+        <div class="ux-acts" style="align-items:center">
+            <button type="button" id="ev-del" onclick="askDeleteEvent()" class="hidden ux-btn" style="color:#fecdd3;border-color:rgba(244,63,94,.4);background:rgba(244,63,94,.12)"><i class="fa-solid fa-trash-can"></i>Löschen</button>
+            <div style="flex:1"></div>
+            <button type="button" onclick="closeModal('modal-event')" class="ux-btn">Schließen</button>
+            <button id="ev-save" class="ux-btn pri">Speichern</button>
         </div>
-    </div>
+    </form></div></div>
 
-    <div id="modal-evdel" class="fixed inset-0 z-[60] bg-slate-950/80 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-2xl w-full max-w-sm">
-            <h3 class="text-base font-bold text-slate-100 mb-1"><i class="fa-solid fa-trash-can text-rose-400 mr-2"></i>Termin löschen</h3>
-            <p id="evdel-text" class="text-xs text-slate-400 mb-4"></p>
-            <div id="evdel-btns" class="space-y-2">
-                <button data-scope="one" class="w-full px-4 py-2.5 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-100 text-left">Nur diesen Termin</button>
-                <button data-scope="following" class="w-full px-4 py-2.5 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-100 text-left">Diesen und alle folgenden</button>
-                <button data-scope="all" class="w-full px-4 py-2.5 rounded-xl text-xs font-medium bg-rose-600/20 border border-rose-500/30 text-rose-300 text-left">Die ganze Serie</button>
-            </div>
-            <button onclick="closeModal('modal-evdel')" class="w-full mt-3 text-xs text-slate-400 hover:text-slate-200 py-1">Abbrechen</button>
-        </div>
+<div id="modal-evdel" class="ux-modal hidden"><div class="ux-box" style="--m:#fb7185;--m2:#e11d48;--mr:251,113,133;width:min(100%,400px)">
+    <h3><i class="fa-solid fa-trash-can"></i>Termin löschen</h3>
+    <p id="evdel-text" class="ux-note" style="margin:6px 0 16px"></p>
+    <div id="evdel-btns">
+        <button data-scope="one" class="ux-btn evb">Nur diesen Termin</button>
+        <button data-scope="following" class="ux-btn evb">Diesen und alle folgenden</button>
+        <button data-scope="all" class="ux-btn evb bad">Die ganze Serie</button>
     </div>
+    <button onclick="closeModal('modal-evdel')" class="ux-btn" style="width:100%;margin-top:4px">Abbrechen</button>
+</div></div>
 
-    <script>
+<script>
         const $ = id => document.getElementById(id);
         const openModal = id => $(id).classList.remove('hidden'), closeModal = id => $(id).classList.add('hidden');
         const run = async fn => { try { await fn(); } catch (e) { alert('Fehler: ' + e.message); } };
@@ -274,11 +279,7 @@
                 closeModal('modal-quick'); toast(QK[quickKind][1] + ' gespeichert ✓');
             } catch (err) { alert('Fehler: ' + err.message); }
         }
-        function toast(msg) {
-            const t = document.createElement('div'); t.textContent = msg;
-            t.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[90] bg-slate-800 border border-slate-700 text-slate-100 text-xs font-medium px-4 py-2.5 rounded-2xl shadow-xl';
-            document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
-        }
+        function toast(msg) { UX.toast(msg); }
         // Aus der Suche: /menu.html#neu-task usw. öffnet die Schnell-Erfassung
         function handleQuickHash() { const m = /^#neu-(task|shop|note|event)$/.exec(location.hash); if (m) { history.replaceState(null, '', location.pathname); openQuick(m[1]); } }
         window.addEventListener('hashchange', handleQuickHash);
@@ -316,7 +317,7 @@
             if (m) parts.push(m === 1 ? '1 neue Nachricht' : `${m} neue Nachrichten`);
             if (!parts.length) return;
             $('pending-text').innerText = parts.join(' · '); $('pending-banner').href = p ? '/admin.html#users' : '/admin.html#messages';
-            $('pending-banner').classList.remove('hidden'); $('pending-banner').classList.add('flex');
+            $('pending-banner').classList.remove('hidden');
         }
 
         // ---------- Arbeitszeit-Widget ----------
@@ -327,7 +328,7 @@
                 activeStart = d.exists && d.data().startTime ? d.data().startTime.toDate() : null;
                 const on = !!activeStart;
                 $('st-badge').innerText = on ? 'Aktiv' : 'Inaktiv';
-                $('st-badge').className = on ? 'text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full animate-pulse' : 'badge';
+                $('st-badge').className = on ? 'chip g' : 'chip';
                 $('st-sub').innerText = on ? `Eingestempelt seit ${activeStart.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr` : 'Nicht eingestempelt';
                 if (!on) $('st-timer').innerText = '00:00:00';
                 tickStamp();
@@ -344,18 +345,19 @@
         }
 
         // ---------- Wetter ----------
-        const WX = [[0, 'Klar', 'fa-sun text-amber-400'], [3, 'Leicht bewölkt', 'fa-cloud-sun text-amber-300'], [48, 'Nebelig', 'fa-smog text-slate-400'], [67, 'Regnerisch', 'fa-cloud-rain text-cyan-400'],
-            [77, 'Schnee', 'fa-snowflake text-indigo-300'], [82, 'Regenschauer', 'fa-cloud-showers-heavy text-cyan-400'], [86, 'Schneeschauer', 'fa-snowflake text-indigo-300'], [99, 'Gewitter', 'fa-cloud-bolt text-amber-500']];
+        // [bis Wettercode, Text, Symbol, Farbe]
+        const WX = [[0, 'Klar', 'fa-sun', '#fbbf24'], [3, 'Leicht bewölkt', 'fa-cloud-sun', '#fcd34d'], [48, 'Nebelig', 'fa-smog', '#94a3b8'], [67, 'Regnerisch', 'fa-cloud-rain', '#22d3ee'],
+            [77, 'Schnee', 'fa-snowflake', '#a5b4fc'], [82, 'Regenschauer', 'fa-cloud-showers-heavy', '#22d3ee'], [86, 'Schneeschauer', 'fa-snowflake', '#a5b4fc'], [99, 'Gewitter', 'fa-cloud-bolt', '#f59e0b']];
         const wx = c => WX.find(w => c <= w[0]) || WX[WX.length - 1];
         async function loadWeather() {
             try {
                 const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.8021&longitude=6.4836&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=4&timezone=auto');
                 const j = await r.json(), c = j.current, d = j.daily, w = wx(c.weather_code);
-                $('weather-temp').innerText = `${Math.round(c.temperature_2m)}°C`; $('weather-condition').innerText = w[1]; $('weather-icon').className = `fa-solid ${w[2]} text-4xl`;
+                $('weather-temp').innerText = `${Math.round(c.temperature_2m)}°C`; $('weather-condition').innerText = w[1]; $('weather-icon').className = `fa-solid ${w[2]} big`; $('weather-icon').style.color = w[3];
                 $('weather-wind').innerText = ` ${Math.round(c.wind_speed_10m)} km/h`; $('weather-hum').innerText = ` ${c.relative_humidity_2m} %`; $('weather-rain').innerText = ` ${d.precipitation_probability_max[0] ?? '–'} %`;
                 $('forecast').innerHTML = [1, 2, 3].map(i => { const f = wx(d.weather_code[i]);
-                    return `<div class="text-center"><div class="text-[10px] text-slate-500">${new Date(d.time[i]).toLocaleDateString('de-DE', { weekday: 'short' })}</div><i class="fa-solid ${f[2]} text-lg my-1" title="${f[1]}"></i>
-                        <div class="text-[11px]"><b>${Math.round(d.temperature_2m_max[i])}°</b> <span class="text-slate-500">${Math.round(d.temperature_2m_min[i])}°</span></div></div>`; }).join('');
+                    return `<div><div class="ux-note">${new Date(d.time[i]).toLocaleDateString('de-DE', { weekday: 'short' })}</div><i class="fa-solid ${f[2]}" style="color:${f[3]};font-size:20px;margin:7px 0;display:block" title="${f[1]}"></i>
+                        <div style="font-size:12.5px"><b>${Math.round(d.temperature_2m_max[i])}°</b> <span class="ux-note">${Math.round(d.temperature_2m_min[i])}°</span></div></div>`; }).join('');
             } catch (e) { $('weather-condition').innerText = 'Wetter offline'; }
         }
 
@@ -376,14 +378,11 @@
             $('calendar-month-year').innerText = new Date(y, mo, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
             const first = (new Date(y, mo, 1).getDay() + 6) % 7, days = new Date(y, mo + 1, 0).getDate();
             const byDay = {}; CAL.expand(calendarEvents, `${y}-${pad2(mo + 1)}-01`, `${y}-${pad2(mo + 1)}-${pad2(days)}`).forEach(o => (byDay[o.date] = byDay[o.date] || []).push(o));
-            let h = '<div class="h-20 md:h-24 rounded-2xl bg-slate-900/20 border border-slate-800/30 opacity-20"></div>'.repeat(first);
+            let h = '<div class="cal-d pad"></div>'.repeat(first);
             for (let d = 1; d <= days; d++) {
                 const ds = `${y}-${pad2(mo + 1)}-${pad2(d)}`, isToday = ds === today, we = [0, 6].includes(new Date(y, mo, d).getDay());
-                const evs = (byDay[ds] || []).map(o => `<div data-ev="${esc(o.id)}" data-occ="${o.date}" title="${esc(o.title)}${o.time ? ' · ' + esc(CAL.timeLabel(o)) : ''}" class="cursor-pointer text-[9px] md:text-[10px] px-1.5 py-0.5 rounded-lg flex items-center gap-1 ${o.isPublic ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}">
-                    ${o.time ? `<b class="font-semibold shrink-0">${esc(o.time)}</b>` : ''}<span class="truncate">${esc(o.title)}</span>${o.recurring ? '<i class="fa-solid fa-repeat text-[8px] opacity-70 ml-auto shrink-0"></i>' : ''}</div>`).join('');
-                h += `<div class="h-20 md:h-24 p-1.5 md:p-2 ${we ? 'bg-slate-900/30' : 'bg-slate-900/60'} border ${isToday ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800'} rounded-2xl flex flex-col overflow-hidden">
-                    <div class="flex items-center justify-between text-[11px] mb-1"><span class="${isToday ? 'font-bold text-white bg-indigo-600 rounded-md px-1.5' : we ? 'text-slate-500' : 'text-slate-400'}">${d}</span>
-                    <button data-add="${ds}" class="text-slate-500 hover:text-indigo-400 text-[10px] p-0.5" title="Termin hinzufügen"><i class="fa-solid fa-plus"></i></button></div><div class="space-y-1 overflow-y-auto">${evs}</div></div>`;
+                const evs = (byDay[ds] || []).map(o => `<div data-ev="${esc(o.id)}" data-occ="${o.date}" title="${esc(o.title)}${o.time ? ' · ' + esc(CAL.timeLabel(o)) : ''}" class="cal-e${o.isPublic ? ' pub' : ''}">${o.time ? `<b>${esc(o.time)}</b>` : ''}<span>${esc(o.title)}</span>${o.recurring ? '<i class="fa-solid fa-repeat"></i>' : ''}</div>`).join('');
+                h += `<div class="cal-d${we ? ' we' : ''}${isToday ? ' today' : ''}"><div class="cal-n"><b>${d}</b><button data-add="${ds}" title="Termin hinzufügen" aria-label="Termin am ${d}. hinzufügen"><i class="fa-solid fa-plus"></i></button></div><div class="cal-es">${evs}</div></div>`;
             }
             $('calendar-days-grid').innerHTML = h;
         }
@@ -391,8 +390,8 @@
             const today = localDate(), tom = CAL.addDays(today, 1), list = CAL.nextOccurrences(calendarEvents, today, 6, 120);
             $('upcoming').innerHTML = list.length ? list.map(o => {
                 const lbl = o.date === today ? 'Heute' : o.date === tom ? 'Morgen' : new Date(o.date).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
-                return `<div class="row cursor-pointer" data-ev="${esc(o.id)}" data-occ="${o.date}"><span class="truncate text-slate-200">${o.time ? `<b class="text-indigo-300 mr-1">${esc(o.time)}</b>` : ''}${esc(o.title)}${o.recurring ? ' <i class="fa-solid fa-repeat text-[9px] text-slate-500"></i>' : ''}</span><span class="${o.date === today ? 'text-indigo-300 font-semibold' : 'text-slate-500'} whitespace-nowrap">${lbl}</span></div>`;
-            }).join('') : '<div class="text-slate-500 py-2">Keine anstehenden Termine.</div>';
+                return `<div class="row" style="cursor:pointer" data-ev="${esc(o.id)}" data-occ="${o.date}"><div class="n"><div class="ell">${o.time ? `<b style="color:#a5b4fc;margin-right:6px">${esc(o.time)}</b>` : ''}${esc(o.title)}${o.recurring ? ' <i class="fa-solid fa-repeat" style="font-size:10px;color:#64748b"></i>' : ''}</div></div><span class="chip${o.date === today ? ' on' : ''}">${lbl}</span></div>`;
+            }).join('') : '<div class="ux-note" style="padding:8px 2px">Keine anstehenden Termine.</div>';
         }
         function changeCalendarMonth(d) { currentCalendarDate.setDate(1); currentCalendarDate.setMonth(currentCalendarDate.getMonth() + d); renderCalendar(); }
         function goToday() { currentCalendarDate = new Date(); renderCalendar(); }
@@ -474,8 +473,8 @@
         function initNotes() {
             db.collection('notes').orderBy('createdAt', 'desc').onSnapshot(s => {
                 familyNotes = s.docs.map(d => ({ id: d.id, ...d.data() })); $('note-count').innerText = familyNotes.length;
-                $('notes-list').innerHTML = familyNotes.length ? familyNotes.map(n => `<div class="row"><div class="flex flex-col min-w-0"><span class="text-slate-200">${esc(n.text)}</span><span class="text-[9px] text-slate-500">${esc(n.author || 'Mitglied')}</span></div>
-                    ${n.owner === currentUser.email || isAdmin(currentUser) ? `<button data-del="${esc(n.id)}" class="text-slate-500 hover:text-rose-400"><i class="fa-solid fa-trash-can text-[10px]"></i></button>` : ''}</div>`).join('') : 'Keine Notizen vorhanden.';
+                $('notes-list').innerHTML = familyNotes.length ? familyNotes.map(n => `<div class="row"><div class="n"><div style="word-break:break-word">${esc(n.text)}</div><small>${esc(n.author || 'Mitglied')}</small></div>
+                    ${n.owner === currentUser.email || isAdmin(currentUser) ? `<button data-del="${esc(n.id)}" class="ux-ib bad" title="Löschen" aria-label="Notiz löschen"><i class="fa-solid fa-trash-can"></i></button>` : ''}</div>`).join('') : '<div class="ux-note" style="padding:6px 2px">Keine Notizen vorhanden.</div>';
             });
             $('notes-list').addEventListener('click', e => { const d = e.target.closest('[data-del]'); if (d) run(() => db.collection('notes').doc(d.dataset.del).delete()); });
         }
@@ -494,16 +493,15 @@
         function renderTodos() {
             const list = familyTodos.filter(t => todoFilter === 'all' || kindOf(t) === todoFilter).sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));
             $('todo-count').innerText = familyTodos.filter(t => !t.done).length;
-            $('todos-list').innerHTML = list.length ? list.map(t => `<div class="row"><label class="flex items-center gap-2 cursor-pointer min-w-0">
-                <input type="checkbox" data-id="${esc(t.id)}" ${t.done ? 'checked' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">
-                <i class="fa-solid ${kindOf(t) === 'shop' ? 'fa-cart-shopping text-yellow-400' : 'fa-circle-check text-emerald-400'} text-[9px]"></i>
-                <span class="truncate ${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${esc(t.text)}</span></label>
-                <button data-del="${esc(t.id)}" class="text-slate-500 hover:text-rose-400"><i class="fa-solid fa-xmark text-[10px]"></i></button></div>`).join('') : 'Alles erledigt! 🎉';
+            $('todos-list').innerHTML = list.length ? list.map(t => `<div class="row"><label class="tdl"><input type="checkbox" data-id="${esc(t.id)}" ${t.done ? 'checked' : ''} aria-label="Erledigt">
+                <i class="fa-solid ${kindOf(t) === 'shop' ? 'fa-cart-shopping' : 'fa-circle-check'}" style="color:${kindOf(t) === 'shop' ? '#facc15' : '#34d399'};font-size:12px"></i>
+                <span class="ell${t.done ? ' done' : ''}">${esc(t.text)}</span></label>
+                <button data-del="${esc(t.id)}" class="ux-ib bad" title="Löschen" aria-label="Eintrag löschen"><i class="fa-solid fa-xmark"></i></button></div>`).join('') : '<div class="ux-note" style="padding:6px 2px">Alles erledigt! 🎉</div>';
         }
-        function setFilter(f) { todoFilter = f; document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.f === f)); renderTodos(); }
+        function setFilter(f) { todoFilter = f; document.querySelectorAll('#todo-filters .chip').forEach(c => c.classList.toggle('on', c.dataset.f === f)); renderTodos(); }
         function toggleKind() {
             todoKind = todoKind === 'task' ? 'shop' : 'task';
-            $('kind-btn').innerHTML = `<i class="fa-solid ${todoKind === 'shop' ? 'fa-cart-shopping text-yellow-400' : 'fa-circle-check text-emerald-400'}"></i>`;
+            $('kind-btn').innerHTML = `<i class="fa-solid ${todoKind === 'shop' ? 'fa-cart-shopping' : 'fa-circle-check'}" style="color:${todoKind === 'shop' ? '#facc15' : '#34d399'}"></i>`;
             $('new-todo-input').placeholder = todoKind === 'shop' ? 'Einkauf: z. B. Milch...' : 'Neue Aufgabe...';
         }
         function saveNewTodo(e) {
