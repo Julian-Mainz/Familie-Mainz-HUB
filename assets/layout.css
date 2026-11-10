@@ -1,0 +1,41 @@
+/* assets/layout.css - Stile für js/layout.js (anpassbares Karten-Raster). Unabhängig von ux.css, damit auch Tailwind-Seiten es nutzen können. */
+.lay-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 16px; }
+.lay-item { position: relative; }
+.lay-grid { grid-auto-rows: 8px; grid-auto-flow: row dense; align-items: start; row-gap: 0; }
+.lay-grid > .lay-item { animation: uiRise .5s cubic-bezier(.2, .8, .2, 1) backwards; }
+.lay-js .lay-grid:not(.lay-ready) { opacity: 0; }
+.lay-grid.lay-ready { animation: uiFade .35s ease; }
+.lay-grid > .lay-item { grid-column: span var(--w, 12); min-width: 0; }
+.lay-grid > .lay-hide, .ux-seg > .lay-hide { display: none !important; }
+@media (max-width: 1100px) { .lay-grid > .lay-item { grid-column: span 12; } }
+.lay-ov { display: none; }
+body.lay-on { padding-bottom: 120px !important; }
+.lay-grid.lay-editing { padding-bottom: 110px; }
+body.lay-on .lay-item { outline: 2px dashed rgba(var(--mr, 129, 140, 248), .55); outline-offset: -2px; }
+body.lay-on .lay-item > .lay-ov { position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column; padding: 10px; background: rgba(8, 12, 20, .52); border-radius: inherit; }
+.lay-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 6px; border-radius: 16px; background: rgba(15, 23, 42, .94); border: 1px solid rgba(148, 163, 184, .28); box-shadow: 0 8px 24px rgba(0, 0, 0, .45); }
+.lay-top button { width: 34px; height: 34px; border-radius: 11px; border: 0; background: rgba(255, 255, 255, .07); color: #e2e8f0; cursor: pointer; display: grid; place-items: center; font-size: 13px; transition: background-color .2s, transform .15s; }
+.lay-top button:hover:not(:disabled) { background: rgba(var(--mr, 129, 140, 248), .35); color: #fff; } .lay-top button:active:not(:disabled) { transform: scale(.92); } .lay-top button:disabled { opacity: .28; cursor: default; }
+.lay-grip { cursor: grab; touch-action: none; } .lay-grip:active { cursor: grabbing; }
+.lay-name { flex: 1; min-width: 0; font-weight: 700; font-size: 13px; padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lay-ctl { flex: 1 0 100%; display: flex; align-items: center; gap: 6px; } .lay-ctl .lay-w { margin-left: auto; }
+.lay-w { display: inline-flex; align-items: center; gap: 4px; } .lay-wl { min-width: 40px; text-align: center; font-size: 13px; font-weight: 700; }
+@media (max-width: 1100px) { .lay-w { display: none; } }
+.lay-item.lay-drag { z-index: 40; box-shadow: 0 30px 70px rgba(0, 0, 0, .65); cursor: grabbing; animation: none !important; }
+.lay-tray { display: none; flex-direction: column; gap: 10px; border-radius: 22px; border: 1px dashed rgba(var(--mr, 129, 140, 248), .55); background: rgba(var(--mr, 129, 140, 248), .07); padding: 14px 16px; }
+body.lay-on .lay-tray { display: flex; }
+.lay-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .lay-row > b { font-size: 11.5px; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; margin-right: 6px; min-width: 88px; }
+.lay-tab { display: inline-flex; align-items: center; gap: 3px; padding: 3px; border-radius: 14px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(148, 163, 184, .2); } .lay-tab > span { padding: 0 8px; font-size: 13px; font-weight: 600; } .lay-tab.off > span { text-decoration: line-through; opacity: .55; }
+.lay-tab button { width: 28px; height: 28px; border: 0; border-radius: 10px; background: rgba(255, 255, 255, .06); color: #e2e8f0; cursor: pointer; display: grid; place-items: center; font-size: 11px; } .lay-tab button:hover:not(:disabled) { background: rgba(var(--mr, 129, 140, 248), .35); } .lay-tab button:disabled { opacity: .3; cursor: default; }
+.lay-edit-bar { position: fixed; z-index: 110; left: 50%; bottom: 22px; transform: translateX(-50%); display: none; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; width: max-content; max-width: 94vw; padding: 10px 12px; border-radius: 22px; background: linear-gradient(180deg, #1b2440, #0f172a); border: 1px solid rgba(129, 140, 248, .5); box-shadow: 0 24px 60px rgba(0, 0, 0, .65); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+body.lay-on .lay-edit-bar { display: flex; animation: uiPop .35s cubic-bezier(.2, .9, .3, 1.15); }
+@media (min-width: 1024px) { .lay-edit-bar { left: calc(50% + (var(--sbw) + 32px) / 2); max-width: calc(94vw - var(--sbw) - 32px); } }
+@media (max-width: 1023.98px) { .lay-edit-bar { bottom: calc(92px + env(safe-area-inset-bottom)); } }
+.lay-ttl { font-weight: 700; font-size: 14px; padding: 0 6px; display: inline-flex; gap: 8px; align-items: center; color: #e2e8f0; } .lay-ttl i { color: #a5b4fc; }
+.lay-sel { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: #94a3b8; } .lay-sel select { font: inherit; font-size: 13px; color: #f1f5f9; background: rgba(2, 6, 16, .7); border: 1px solid rgba(148, 163, 184, .25); border-radius: 12px; padding: 9px 10px; color-scheme: dark; }
+.lay-edit-bar > button { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 13px; font-weight: 600; color: #e2e8f0; background: rgba(255, 255, 255, .07); border: 1px solid rgba(148, 163, 184, .2); border-radius: 14px; padding: 10px 14px; cursor: pointer; transition: transform .15s, filter .2s; } .lay-edit-bar > button:active { transform: scale(.96); }
+.lay-edit-bar > button.pri { color: #fff; border: 0; background: linear-gradient(135deg, #4f46e5, #7c3aed); box-shadow: 0 8px 20px -6px rgba(99, 102, 241, .8); } .lay-edit-bar > button:disabled { opacity: .5; }
+#lay-btn.on { background: rgba(var(--mr), .25); border-color: rgba(var(--mr), .6); color: #fff; }
+
+.lay-chip { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-size: 12.5px; font-weight: 600; color: #e2e8f0; padding: 7px 12px; border-radius: 999px; background: rgba(255, 255, 255, .07); border: 1px solid rgba(148, 163, 184, .22); cursor: pointer; transition: background-color .2s, transform .15s; } .lay-chip:hover { background: rgba(var(--mr, 129, 140, 248), .3); color: #fff; } .lay-chip:active { transform: scale(.96); }
+.lay-note { font-size: 12.5px; color: #94a3b8; }
