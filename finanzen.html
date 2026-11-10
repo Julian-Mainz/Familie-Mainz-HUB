@@ -16,11 +16,13 @@
     <link rel="stylesheet" href="/assets/icons.css">
     <link rel="stylesheet" href="/assets/ui.css">
     <link rel="stylesheet" href="/assets/ux.css">
+    <link rel="stylesheet" href="/assets/layout.css">
     <script src="/js/vendor/firebase-app-compat.js"></script>
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
     <script src="/js/ux.js"></script>
+    <script src="/js/layout.js"></script>
     <script src="/js/drawer.js"></script>
     <style>.fin .ux-btn.pri, .fin .ux-seg button.on, .fin .ux-ico, .fin button.chip.on, .fin .ux-modal .pri { color: #1c1400; } .ux-seg button i { margin-right: 7px; } @media (max-width: 700px) { .ux-seg button i { display: none; } .ux-seg button { padding: 9px 12px; } }</style>
 </head>
@@ -40,12 +42,13 @@
         <div class="ux-pill"><button type="button" onclick="monthShift(1)" aria-label="Älterer Monat"><i class="fa-solid fa-chevron-left"></i></button>
             <select id="fm" onchange="renderAll(false)" aria-label="Monat wählen"></select>
             <button type="button" onclick="monthShift(-1)" aria-label="Neuerer Monat"><i class="fa-solid fa-chevron-right"></i></button></div>
+        <button class="ux-btn" id="lay-btn" onclick="Layout.toggle()" title="Karten und Reiter verschieben, Breite ändern, ausblenden"><i class="fa-solid fa-table-columns"></i>Anpassen</button>
         <button class="ux-btn pri" onclick="openTx()"><i class="fa-solid fa-plus"></i>Buchung</button>
     </div>
 
     <!-- Übersicht -->
-    <section id="tab-ov" class="ux-grid">
-        <div class="ux-card glow c5" style="padding:24px">
+    <section id="tab-ov" class="ux-grid lay-grid">
+        <div class="ux-card glow" id="mod-hero" style="padding:24px">
             <div class="ux-t"><i class="fa-solid fa-wallet"></i>Saldo im Monat<small><span id="k-delta" class="chip">–</span></small></div>
             <div class="hero-v" id="k-bal">–</div>
             <div class="ux-sub" id="k-sum" style="margin-bottom:16px"></div>
@@ -55,29 +58,25 @@
                 <div class="ring" style="width:66px;height:66px"><svg width="66" height="66" viewBox="0 0 66 66"><circle class="trk" cx="33" cy="33" r="26" stroke-width="7"/><circle id="rate-arc" class="arc" cx="33" cy="33" r="26" stroke="#facc15" stroke-width="7"/></svg><div class="mid"><b id="k-rate" style="font-size:15px;margin:0">–</b></div></div>
                 <div><b>Sparquote</b><div class="ux-sub">Anteil der Einnahmen, den du behältst.</div></div></div>
         </div>
-        <div class="ux-col c7">
-            <div class="ux-kpis three">
-                <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-arrow-down" style="color:#4ade80"></i>Einnahmen</div><div class="v pos" id="k-inc" style="font-size:26px">–</div><span class="chip g" id="k-inc-chip"></span></section>
-                <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-arrow-up" style="color:#fb7185"></i>Ausgaben</div><div class="v neg" id="k-exp" style="font-size:26px">–</div><span class="chip" id="k-exp-chip"></span></section>
-                <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-repeat" style="color:#22d3ee"></i>Fixkosten / Monat</div><div class="v" id="k-fix" style="font-size:26px">–</div><span class="chip" id="k-fix-chip"></span></section>
-            </div>
-            <section class="ux-card grow">
+                <section class="ux-card ux-kpi" id="mod-inc"><div class="l"><i class="fa-solid fa-arrow-down" style="color:#4ade80"></i>Einnahmen</div><div class="v pos" id="k-inc" style="font-size:26px">–</div><span class="chip g" id="k-inc-chip"></span></section>
+                <section class="ux-card ux-kpi" id="mod-exp"><div class="l"><i class="fa-solid fa-arrow-up" style="color:#fb7185"></i>Ausgaben</div><div class="v neg" id="k-exp" style="font-size:26px">–</div><span class="chip" id="k-exp-chip"></span></section>
+                <section class="ux-card ux-kpi" id="mod-fix"><div class="l"><i class="fa-solid fa-repeat" style="color:#22d3ee"></i>Fixkosten / Monat</div><div class="v" id="k-fix" style="font-size:26px">–</div><span class="chip" id="k-fix-chip"></span></section>
+            <section class="ux-card" id="mod-trend">
                 <div class="ux-t"><i class="fa-solid fa-chart-column"></i>Die letzten 6 Monate<small><span class="chip g">Einnahmen</span><span class="chip r">Ausgaben</span></small></div>
                 <div id="trend" class="cols pair"></div>
             </section>
-        </div>
-        <section class="ux-card c5">
+        <section class="ux-card" id="mod-cat">
             <div class="ux-t"><i class="fa-solid fa-chart-pie"></i>Ausgaben nach Kategorie</div>
             <div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap">
                 <div class="ring" style="width:170px;height:170px"><svg id="donut" width="170" height="170" viewBox="0 0 170 170" style="filter:none"></svg><div class="mid"><small>gesamt</small><b id="donut-total" style="font-size:20px">–</b></div></div>
                 <div class="leg" id="cat-legend" style="flex:1;min-width:150px"></div></div>
         </section>
-        <section class="ux-card c7">
+        <section class="ux-card" id="mod-bud">
             <div class="ux-t"><i class="fa-solid fa-piggy-bank"></i>Budgets<small><button class="ux-btn" style="padding:7px 12px;font-size:12px" onclick="openBudgets()"><i class="fa-solid fa-sliders"></i>Festlegen</button></small></div>
             <div id="bud-list"></div>
         </section>
-        <section class="ux-card c5"><div class="ux-t"><i class="fa-solid fa-chart-line"></i>Prognose Monatsende</div><div id="forecast"></div></section>
-        <section class="ux-card c7"><div class="ux-t"><i class="fa-solid fa-ranking-star"></i>Größte Ausgaben</div><div id="top-exp"></div></section>
+        <section class="ux-card" id="mod-fc"><div class="ux-t"><i class="fa-solid fa-chart-line"></i>Prognose Monatsende</div><div id="forecast"></div></section>
+        <section class="ux-card" id="mod-top"><div class="ux-t"><i class="fa-solid fa-ranking-star"></i>Größte Ausgaben</div><div id="top-exp"></div></section>
     </section>
 
     <!-- Buchungen -->
@@ -177,6 +176,24 @@
         let todayStr = localDate().slice(0, 7);
         setInterval(() => { todayStr = localDate().slice(0, 7); }, 60000);
 
+        // ---------- Anpassbares Layout (js/layout.js) ----------
+        // [Kennung, Name, Standardbreite in Zwölfteln]
+        const LAY = [['hero', 'Saldo', 4], ['inc', 'Einnahmen', 4], ['exp', 'Ausgaben', 4], ['fix', 'Fixkosten pro Monat', 4], ['fc', 'Prognose Monatsende', 4], ['trend', 'Die letzten 6 Monate', 8], ['cat', 'Ausgaben nach Kategorie', 4], ['bud', 'Budgets', 8], ['top', 'Größte Ausgaben', 4]];
+        const LAY_PRESETS = {
+            'Standard': {},
+            'Kompakt': { order: ['hero', 'inc', 'exp', 'fix', 'bud', 'cat'], hidden: ['trend', 'fc', 'top'], width: { hero: 6, inc: 3, exp: 3, fix: 6, bud: 6, cat: 6 } },
+            'Fokus Budgets': { order: ['bud', 'hero', 'cat', 'fc', 'inc', 'exp'], hidden: ['fix', 'trend', 'top'], width: { bud: 8, hero: 4, cat: 6, fc: 6, inc: 6, exp: 6 } }
+        };
+        Layout.init({
+            key: 'fin', root: $('tab-ov'), modules: LAY.map(([id, title, w]) => ({ id, title, w, el: $('mod-' + id) })), presets: LAY_PRESETS,
+            tabs: { items: [['ov', 'Übersicht'], ['tx', 'Buchungen'], ['fix', 'Fixkosten'], ['pay', 'Lohn']].map(([id, title]) => ({ id, title, el: document.querySelector(`.tab[data-tab="${id}"]`) })) },
+            onTabs: () => { if (started) showTab(curTab); }, onEdit: on => { if (on && started) showTab('ov'); },
+            save: async l => {
+                await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.layouts.fin': l });
+                currentUser.userPrefs = { ...(currentUser.userPrefs || {}), layouts: { ...((currentUser.userPrefs || {}).layouts || {}), fin: l } }; logSystemEvent('data', 'Layout gespeichert', { seite: 'fin' });
+            }
+        });
+
         initAuthGuard(user => {
             if (!user || started) return;
             started = true;
@@ -189,18 +206,23 @@
             $('tx-body').addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) b.dataset.act === 'edit' ? openTx(b.dataset.id) : delTx(b.dataset.id); });
             $('fix-list').addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) fixAction(b.dataset.act, b.dataset.id); });
             $('pay-list').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (b) delPayslip(b.dataset.del); });
-            showTab(location.hash.slice(1) || 'ov');
+            const want = location.hash.slice(1);                       // Adresse merken, bevor das Layout die Reiter neu ordnet
+            Layout.load(currentUser.userPrefs?.layouts?.fin);
+            showTab(want || Layout.firstTab() || 'ov');
             mine('finance_transactions').onSnapshot(s => { tx = list(s); renderAll(); });
             mine('payslips').onSnapshot(s => { pays = list(s); renderAll(); });
             mine('fixed_costs').onSnapshot(s => { fixes = list(s); renderAll(); }, () => {});
             db.collection('finance_settings').doc(currentUser.uid).onSnapshot(d => { budgets = d.exists ? (d.data().budgets || {}) : {}; renderAll(); }, () => {});
         }, { perm: 'finanzen' });
 
+        let curTab = 'ov';
         function showTab(t) {
-            if (!$('tab-' + t)) t = 'ov';
+            if (!$('tab-' + t) || Layout.tabHidden(t)) t = Layout.firstTab() || 'ov';          // ausgeblendete Reiter öffnen nicht
+            curTab = t;
             ['ov', 'tx', 'fix', 'pay'].forEach(k => $('tab-' + k).classList.toggle('hidden', k !== t));
             document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
             history.replaceState(null, '', '#' + t);
+            if (t === 'ov') Layout.refresh();
         }
 
         window.addEventListener('hashchange', () => showTab(location.hash.slice(1) || 'ov'));
