@@ -23,7 +23,7 @@ let currentUser = null;
 // ---------- Rechte ----------
 // perm: 'termine' | 'pinnwand' | 'aufgaben' | 'zeit' | 'finanzen' | 'tresor' | 'wand' | 'spotify'  (nicht vergebene Rechte gelten als erlaubt, außer sie sind ausdrücklich false)
 // Opt-in-Rechte gelten nur, wenn sie ausdrücklich true sind (auch für Admins). Alle anderen: erlaubt, außer ausdrücklich false.
-const OPT_IN_PERMS = { messenger: 1, gruppen: 1 };
+const OPT_IN_PERMS = { messenger: 1, gruppen: 1, dokumente: 1 };
 const can = (u, key) => !!u && (OPT_IN_PERMS[key] ? (u.permissions || {})[key] === true : (u.role === 'admin' || (u.permissions || {})[key] !== false));
 const isAdmin = u => !!u && (u.role === 'admin' || (u.permissions || {}).admin === true);
 
