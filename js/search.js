@@ -13,6 +13,7 @@
         can(currentUser, 'spotify') && ['Spotify', '/spotify.html', 'fa-headphones', 'musik fernbedienung player lied playlist handy'],
         can(currentUser, 'zeit') && ['Zeiterfassung', '/zeiterfassung.html', 'fa-business-time', 'stempeln stunden arbeitszeit urlaub ueberstunden stundenzettel'],
         can(currentUser, 'finanzen') && ['Finanzen', '/finanzen.html', 'fa-coins', 'buchungen geld fixkosten budget lohn sparkasse konto'],
+        can(currentUser, 'dokumente') && ['Dokumente', '/dokumente.html', 'fa-folder-open', 'dateien dokumente ordner upload hochladen lohnabrechnung vertrag pdf'],
         can(currentUser, 'tresor') && ['Passwort-Safe', '/passwort.html', 'fa-shield-halved', 'tresor passwoerter zugangsdaten'],
         isAdmin(currentUser) && ['Admin', '/admin.html', 'fa-user-shield', 'mitglieder rechte logs system nachrichten fehler'],
         ['Mein Profil', '/profil.html', 'fa-user', 'profil konto account passwort bild foto avatar name aendern'],
