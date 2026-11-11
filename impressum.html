@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Impressum – J.Mainz Dashboard</title>
-    <meta name="theme-color" content="#05080f">
+    <meta name="theme-color" content="#080c14">
+    <meta name="robots" content="noindex">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
@@ -12,46 +13,55 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="J.Mainz">
-    <meta name="robots" content="noindex">
-    <link rel="stylesheet" href="/assets/css/impressum.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
+    <link rel="stylesheet" href="/assets/icons.css">
+    <link rel="stylesheet" href="/assets/ux.css">
     <style>
-        body { background: #05080f; color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; }
-        h2 { margin-top: 2rem; margin-bottom: .5rem; font-size: 1.05rem; font-weight: 700; color: #f8fafc; }
-        p { font-size: .9rem; line-height: 1.7; color: #cbd5e1; margin-bottom: .6rem; }
-        a { color: #818cf8; } a:hover { text-decoration: underline; }
+        body.ux { padding: 22px; } .wrap { max-width: 860px; margin: 0 auto; }
+        .nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px; font-size: 13px; } .nav a { color: #94a3b8; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, .16); background: rgba(255, 255, 255, .04); transition: color .2s, border-color .2s; } .nav a:hover { color: #fff; border-color: rgba(var(--mr), .5); }
+        .nav .r { display: flex; gap: 8px; flex-wrap: wrap; } .nav button { font: inherit; cursor: pointer; color: #94a3b8; display: inline-flex; gap: 8px; align-items: center; padding: 9px 14px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, .16); background: rgba(255, 255, 255, .04); } .nav button:hover { color: #fff; }
+        .lg { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; } @media (max-width: 900px) { .lg { grid-template-columns: 1fr; } .toc { display: none; } }
+        .toc { position: sticky; top: 18px; padding: 18px; max-height: calc(100vh - 36px); overflow-y: auto; } .toc a { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; color: #94a3b8; font-size: 13px; text-decoration: none; transition: background-color .2s, color .2s; }
+        .toc a b { min-width: 26px; height: 24px; padding: 0 5px; border-radius: 8px; display: grid; place-items: center; font-size: 11.5px; background: rgba(255, 255, 255, .06); } .toc a:hover { color: #fff; } .toc a.on { color: #fff; background: rgba(var(--mr), .16); } .toc a.on b { background: var(--m2); color: #fff; }
+        .lcol { display: flex; flex-direction: column; gap: 14px; min-width: 0; } .ls { display: flex; gap: 18px; padding: 22px 24px; scroll-margin-top: 18px; }
+        .num { width: 42px; min-width: 42px; height: 42px; padding: 0 4px; border-radius: 14px; display: grid; place-items: center; font-weight: 800; font-size: 15px; flex: none; color: var(--m); background: rgba(var(--mr), .14); } .lb { min-width: 0; flex: 1; }
+        .lb h2 { margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #f8fafc; line-height: 1.35; } .lb p, .lb li { font-size: 14px; line-height: 1.75; color: #cbd5e1; } .lb p { margin: 0 0 10px; } .lb p:last-child { margin-bottom: 0; }
+        .lb ul { list-style: disc; padding-left: 1.4rem; margin: 0 0 10px; } .lb b { color: #f1f5f9; } .lb a { color: var(--m); word-break: break-word; } .lb a:hover { text-decoration: underline; }
+        .stand { margin: 18px 4px 0; font-size: 12px; color: #64748b; text-align: center; }
+        @media (max-width: 560px) { body.ux { padding: 12px; } .ls { padding: 18px 16px; gap: 12px; } .num { width: 34px; min-width: 34px; height: 34px; font-size: 13px; } }
+        @media print { body.ux { background: #fff; padding: 0; } .nav, .toc { display: none; } .ux-card { background: none; border: 0; box-shadow: none; } .lb p, .lb li, .lb h2, .lb b { color: #000; } .ls { page-break-inside: avoid; } }
     </style>
 </head>
-<body class="min-h-screen px-4 py-8">
-    <div class="max-w-3xl mx-auto">
-        <div class="flex items-center justify-between mb-8 text-sm">
-            <a href="/" class="text-slate-400 hover:text-white">&larr; Zurück zur Anmeldung</a>
-            <a href="/datenschutz.html" class="text-slate-400 hover:text-white">Datenschutzerklärung</a>
-        </div>
-        <h1 class="text-3xl font-extrabold text-white">Impressum</h1>
-
-        <h2>Angaben gemäß § 5 DDG</h2>
-        <p>Julian Mainz<br>
+<body class="ux">
+<main class="wrap ux-page" style="--m:#818cf8;--m2:#6366f1;--mr:129,140,248;max-width:none;padding:0">
+  <div class="wrap">
+    <div class="nav"><a href="/"><i class="fa-solid fa-arrow-left"></i>Zurück zur Anmeldung</a><div class="r"><a href="/datenschutz.html"><i class="fa-solid fa-scale-balanced"></i>Datenschutzerklärung</a></div></div>
+    <div class="ux-top" style="margin-bottom:18px"><div class="ux-ico"><i class="fa-solid fa-scale-balanced"></i></div><div><h1 class="ux-h1">Impressum</h1><div class="ux-sub">Angaben gemäß § 5 DDG</div></div></div>
+    <div class="lg"><div class="lcol">
+<section class="ux-card ls" id="s1"><div class="num"><i class="fa-solid fa-id-card"></i></div><div class="lb"><h2>Angaben gemäß § 5 DDG</h2>
+<p>Julian Mainz<br>
            Rütger von Scheven Str. 82<br>
            52349 Düren<br>
            Deutschland</p>
-
-        <h2>Kontakt</h2>
-        <p>E-Mail: Kontakt@julian-mainz.de</p>
+</div></section>
+<section class="ux-card ls" id="s2"><div class="num"><i class="fa-solid fa-envelope"></i></div><div class="lb"><h2>Kontakt</h2>
+<p>E-Mail: Kontakt@julian-mainz.de</p>
         <p>Außerdem erreichen Sie mich über das <a href="/">Kontaktformular auf der Startseite</a> („Nachricht hinterlassen“).</p>
-
-        <h2>Art des Angebots</h2>
-        <p>Dieses Portal ist eine private, nicht kommerzielle Anwendung für eingeladene Personen. Der Zugang zu den Funktionen ist nur nach Freigabe möglich.</p>
-
-        <h2>Haftung für Inhalte</h2>
-        <p>Die Inhalte dieses Angebots wurden mit größtmöglicher Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte kann ich jedoch keine Gewähr übernehmen. Berechnungen (zum Beispiel zu Arbeitszeiten, Urlaub oder Finanzen) dienen der persönlichen Orientierung und ersetzen keine verbindliche Auskunft des Arbeitgebers, einer Bank oder einer Steuerberatung.</p>
-
-        <h2>Haftung für Links</h2>
-        <p>Dieses Angebot enthält nur wenige Verweise auf externe Seiten. Auf deren Inhalte habe ich keinen Einfluss und übernehme dafür keine Gewähr. Für die Inhalte verlinkter Seiten ist stets der jeweilige Anbieter verantwortlich. Bei Bekanntwerden von Rechtsverletzungen entferne ich entsprechende Links umgehend.</p>
-
-        <h2>Urheberrecht</h2>
-        <p>Die auf dieser Seite erstellten Inhalte und Werke unterliegen dem deutschen Urheberrecht. Vervielfältigung, Bearbeitung und Verbreitung außerhalb der Grenzen des Urheberrechts bedürfen der Zustimmung des jeweiligen Autors. Verwendete Symbole stammen von Font Awesome Free (Lizenz CC BY 4.0, fontawesome.com/license/free).</p>
-
-        <p class="mt-10 text-xs text-slate-500">Stand: November 2026</p>
-    </div>
+</div></section>
+<section class="ux-card ls" id="s3"><div class="num"><i class="fa-solid fa-circle-info"></i></div><div class="lb"><h2>Art des Angebots</h2>
+<p>Dieses Portal ist eine private, nicht kommerzielle Anwendung für eingeladene Personen. Der Zugang zu den Funktionen ist nur nach Freigabe möglich.</p>
+</div></section>
+<section class="ux-card ls" id="s4"><div class="num"><i class="fa-solid fa-file-lines"></i></div><div class="lb"><h2>Haftung für Inhalte</h2>
+<p>Die Inhalte dieses Angebots wurden mit größtmöglicher Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte kann ich jedoch keine Gewähr übernehmen. Berechnungen (zum Beispiel zu Arbeitszeiten, Urlaub oder Finanzen) dienen der persönlichen Orientierung und ersetzen keine verbindliche Auskunft des Arbeitgebers, einer Bank oder einer Steuerberatung.</p>
+</div></section>
+<section class="ux-card ls" id="s5"><div class="num"><i class="fa-solid fa-link"></i></div><div class="lb"><h2>Haftung für Links</h2>
+<p>Dieses Angebot enthält nur wenige Verweise auf externe Seiten. Auf deren Inhalte habe ich keinen Einfluss und übernehme dafür keine Gewähr. Für die Inhalte verlinkter Seiten ist stets der jeweilige Anbieter verantwortlich. Bei Bekanntwerden von Rechtsverletzungen entferne ich entsprechende Links umgehend.</p>
+</div></section>
+<section class="ux-card ls" id="s6"><div class="num"><i class="fa-solid fa-copyright"></i></div><div class="lb"><h2>Urheberrecht</h2>
+<p>Die auf dieser Seite erstellten Inhalte und Werke unterliegen dem deutschen Urheberrecht. Vervielfältigung, Bearbeitung und Verbreitung außerhalb der Grenzen des Urheberrechts bedürfen der Zustimmung des jeweiligen Autors. Verwendete Symbole stammen von Font Awesome Free (Lizenz CC BY 4.0, fontawesome.com/license/free).</p>
+</div></section>
+    </div></div>
+    <p class="stand">Stand: November 2026</p>
+  </div>
+</main>
 </body>
 </html>
