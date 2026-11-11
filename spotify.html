@@ -6,115 +6,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify – J.Mainz Dashboard</title>
     <meta name="theme-color" content="#080c14">
-    <link rel="stylesheet" href="/assets/css/spotify.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="J.Mainz">
     <link rel="stylesheet" href="/assets/icons.css">
     <link rel="stylesheet" href="/assets/ui.css">
+    <link rel="stylesheet" href="/assets/ux.css">
     <script src="/js/vendor/firebase-app-compat.js"></script>
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
+    <script src="/js/ux.js"></script>
     <script src="/js/drawer.js"></script>
     <style>
-        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        main > * { flex-shrink: 0; }
-        input[type=range] { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 6px; background: #1e293b; outline: none; cursor: pointer; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; }
-        input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: #fff; }
-        input[type=range]:disabled { opacity: .35; cursor: not-allowed; }
-    </style>
-    <style type="text/tailwindcss">
-        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg p-5; }
-        .inp  { @apply w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500; }
-        .h3   { @apply flex items-center justify-between text-xs font-bold text-slate-200 border-b border-slate-800 pb-2.5 mb-3; }
-        .ctl  { @apply w-10 h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 transition-colors; }
-        .ctl.on { @apply text-emerald-400; }
-        .tabb { @apply px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200; }
-        .tabb.on { @apply bg-emerald-600 text-white; }
-        .row  { @apply flex items-center gap-3 w-full text-left rounded-2xl bg-slate-950/50 border border-slate-800 hover:border-emerald-500/40 px-3 py-2; }
+        .ux-btn.pri { color: #03170a; } .neg { color: #fda4af; }
+        .center { display: grid; place-items: center; min-height: min(520px, 70vh); }
+        .box { width: min(100%, 520px); padding: 34px 30px; text-align: center; } .box h2 { margin: 16px 0 6px; font-size: 24px; letter-spacing: -.02em; }
+        .bigico { width: 84px; height: 84px; margin: 0 auto; border-radius: 28px; display: grid; place-items: center; font-size: 36px; color: #03170a; background: linear-gradient(135deg, #4ade80, #16a34a); box-shadow: 0 20px 50px -10px rgba(30, 215, 96, .6); }
+        .wide { width: 100%; justify-content: center; margin-top: 8px; padding: 14px; }
+        .setup { max-width: 760px; margin: 0 auto; padding: 24px; } .setup > p { color: #94a3b8; font-size: 13.5px; line-height: 1.65; margin: 0 0 18px; } .setup b { color: #e2e8f0; } .setup a { color: var(--m); }
+        .steps { list-style: none; counter-reset: s; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 14px; } .steps li { counter-increment: s; position: relative; padding-left: 44px; font-size: 14px; color: #cbd5e1; line-height: 1.6; }
+        .steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: var(--m); background: rgba(var(--mr), .14); }
+        .steps .rw { display: flex; gap: 8px; margin-top: 8px; } .steps .ux-in { font-family: ui-monospace, Menlo, monospace; font-size: 13px; margin-top: 8px; } .steps .rw .ux-in { margin: 0; }
+        .ux-ck { display: flex; align-items: center; gap: 10px; justify-content: center; font-size: 13px; color: #cbd5e1; margin: 16px 0; cursor: pointer; } .ux-ck small { color: #64748b; } input[type=checkbox] { accent-color: var(--m); width: 16px; height: 16px; }
+        .errbox { margin-top: 14px; padding: 10px 14px; border-radius: 14px; background: rgba(244, 63, 94, .1); border: 1px solid rgba(244, 63, 94, .3); color: #fda4af; font-size: 13px; }
+        .sg { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; align-items: start; } .sg .col { display: flex; flex-direction: column; gap: 16px; } @media (max-width: 1100px) { .sg { grid-template-columns: 1fr; } }
+        .player { padding: 26px; display: flex; gap: 26px; align-items: center; flex-wrap: wrap; }
+        #cover { width: 230px; max-width: 100%; aspect-ratio: 1; border-radius: 26px; display: grid; place-items: center; font-size: 72px; color: rgba(255, 255, 255, .8); flex: none; background: linear-gradient(135deg, #334155, #1e293b) center / cover no-repeat; box-shadow: 0 30px 60px -16px rgba(0, 0, 0, .6); }
+        .pi { flex: 1; min-width: 240px; } .pi .lbl { text-transform: uppercase; letter-spacing: .14em; font-size: 11px; color: var(--m); font-weight: 700; } .pi h2 { font-size: 26px; letter-spacing: -.02em; margin: 6px 0 2px; line-height: 1.15; word-break: break-word; }
+        .pi .ar { color: #cbd5e1; font-size: 15px; } .pi .dv { color: #94a3b8; font-size: 12.5px; margin-top: 4px; }
+        .seekw { margin: 20px 0 6px; } .seekt { display: flex; justify-content: space-between; font-size: 11.5px; color: #94a3b8; font-variant-numeric: tabular-nums; margin-top: 2px; }
+        input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 99px; background: rgba(148, 163, 184, .22); outline: none; cursor: pointer; } input[type=range]:disabled { opacity: .5; cursor: default; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .5); } input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border: 0; border-radius: 50%; background: #fff; }
+        .ctls { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; } .ctl { width: 44px; height: 44px; font-size: 16px; } .ctl.on { color: var(--m); border-color: rgba(var(--mr), .5); background: rgba(var(--mr), .12); }
+        #b-play { width: 66px; height: 66px; border: 0; border-radius: 50%; font-size: 24px; cursor: pointer; color: #03170a; background: linear-gradient(135deg, #4ade80, #16a34a); box-shadow: 0 14px 34px -8px rgba(30, 215, 96, .7); transition: transform .2s; } #b-play:hover { transform: scale(1.06); } #b-play:active { transform: scale(.95); }
+        .volw { display: flex; align-items: center; gap: 12px; margin: 18px auto 0; max-width: 320px; color: #94a3b8; font-size: 12px; } #vol-note { font-size: 11px; color: #64748b; text-align: center; margin-top: 6px; }
+        .dev { width: 100%; cursor: pointer; text-align: left; font: inherit; color: inherit; } .dev.on { border-color: rgba(var(--mr), .5); background: rgba(var(--mr), .07); } .dev .di { width: 22px; text-align: center; color: #94a3b8; } .dev.on .di { color: var(--m); } .dev .sw2 { color: #64748b; }
+        .devf { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(148, 163, 184, .12); font-size: 12px; color: #94a3b8; }
+        .res { width: 100%; cursor: pointer; text-align: left; font: inherit; color: inherit; margin-top: 0; } .res .cv { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; flex: none; background: #1e293b; display: grid; place-items: center; color: #475569; } .res .pl { color: #64748b; font-size: 12px; } .res:hover .pl { color: var(--m); }
+        .rsec { margin-top: 16px; } .rsec:first-child { margin-top: 0; } .rt { text-transform: uppercase; letter-spacing: .12em; font-size: 11px; color: #64748b; margin-bottom: 8px; } .rg { display: flex; flex-direction: column; gap: 8px; }
+        #lists { display: flex; flex-direction: column; gap: 8px; }
+        .sp-toast { position: fixed; z-index: 95; bottom: calc(26px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); max-width: 92vw; padding: 12px 18px; border-radius: 18px; font-size: 13px; font-weight: 500; color: #f1f5f9; background: #1e293b; border: 1px solid rgba(148, 163, 184, .3); box-shadow: 0 20px 50px rgba(0, 0, 0, .55); animation: uiPop .3s cubic-bezier(.2, .9, .3, 1.15); }
+        .sp-toast.bad { background: #4c0519; border-color: rgba(244, 63, 94, .5); color: #fecdd3; } .sp-act { margin-left: 10px; padding: 6px 12px; border: 0; border-radius: 10px; font: inherit; font-weight: 700; font-size: 12px; cursor: pointer; color: #03170a; background: #4ade80; }
+        @media (max-width: 1023.98px) { .sp-toast { bottom: calc(92px + env(safe-area-inset-bottom)); } }
     </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+<body class="ux">
+<main class="ux-page" style="--m:#1ed760;--m2:#16a34a;--mr:30,215,96">
 
-    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span></button>
-        <h1 class="text-sm sm:text-base md:text-xl font-bold tracking-wide truncate px-2"><i class="fa-solid fa-headphones text-emerald-400 mr-1.5"></i>Spotify-Fernbedienung</h1>
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span></button>
-    </header>
+    <div class="ux-top">
+        <div class="ux-ico" style="color:#03170a"><i class="fa-solid fa-headphones"></i></div>
+        <div><h1 class="ux-h1">Spotify-Fernbedienung</h1><div class="ux-sub">Steuere die Wiedergabe auf deinen Geräten</div></div>
+    </div>
 
-    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
+    <!-- Einrichtung -->
+    <section id="v-setup" class="ux-card setup hidden">
+        <div class="ux-t"><i class="fa-solid fa-gear"></i>Einmalige Einrichtung</div>
+        <p>Damit dieses Dashboard dein Spotify steuern darf, legst du bei Spotify einmal eine kostenlose Entwickler-App an. Du brauchst dafür ein <b>Spotify-Premium-Konto</b>. Es dauert etwa zwei Minuten.</p>
+        <ol class="steps">
+            <li>Öffne <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">developer.spotify.com/dashboard</a> und melde dich mit deinem Spotify-Konto an.</li>
+            <li>Klicke auf <b>Create app</b>. Name und Beschreibung sind frei wählbar (z. B. „J.Mainz Dashboard“). Bei <b>Redirect URI</b> trägst du genau diese Adresse ein und bestätigst mit <b>Add</b>:
+                <div class="rw"><input id="redir" readonly class="ux-in" style="font-family:ui-monospace,Menlo,monospace;font-size:13px"><button onclick="copyRedirect()" class="ux-btn">Kopieren</button></div></li>
+            <li>Bei „Which API/SDKs are you planning to use?“ kreuzt du <b>Web API</b> an und speicherst.</li>
+            <li>In der App unter <b>Settings</b> findest du die <b>Client ID</b>. Füge sie hier ein:
+                <input id="cid" placeholder="Client ID (32 Zeichen)" maxlength="64" autocomplete="off" class="ux-in"></li>
+            <li style="color:#94a3b8">Weitere Personen, die es nutzen: In der App unter <b>User management</b> ihre Spotify-E-Mail eintragen (höchstens 5 Personen).</li>
+        </ol>
+        <button onclick="saveClientId()" class="ux-btn pri wide">Speichern und weiter</button>
+    </section>
 
-        <!-- Einrichtung -->
-        <section id="v-setup" class="card hidden max-w-3xl w-full mx-auto">
-            <div class="h3"><span><i class="fa-solid fa-gear text-emerald-400 mr-2"></i>Einmalige Einrichtung</span></div>
-            <p class="text-xs text-slate-400 mb-4">Damit dieses Dashboard dein Spotify steuern darf, legst du bei Spotify einmal eine kostenlose Entwickler-App an. Du brauchst dafür ein <b class="text-slate-200">Spotify-Premium-Konto</b>. Ohne Premium erlaubt Spotify keine Fernsteuerung.</p>
-            <ol class="space-y-3 text-sm text-slate-300 list-decimal pl-5 mb-4">
-                <li>Öffne <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener" class="text-emerald-400 underline">developer.spotify.com/dashboard</a> und melde dich mit deinem Spotify-Konto an.</li>
-                <li>Klicke auf <b>Create app</b>. Name und Beschreibung sind frei wählbar (z. B. „J.Mainz Dashboard“). Bei <b>Redirect URI</b> trägst du genau diese Adresse ein und bestätigst mit <b>Add</b>:
-                    <div class="flex gap-2 mt-2"><input id="redir" readonly class="inp font-mono text-xs"><button onclick="copyRedirect()" class="px-3 rounded-xl text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700">Kopieren</button></div></li>
-                <li>Bei „Which API/SDKs are you planning to use?“ kreuzt du <b>Web API</b> an und speicherst.</li>
-                <li>In der App unter <b>Settings</b> findest du die <b>Client ID</b>. Füge sie hier ein:
-                    <input id="cid" placeholder="Client ID (32 Zeichen)" maxlength="64" autocomplete="off" class="inp font-mono text-xs mt-2"></li>
-                <li class="text-slate-400">Weitere Personen, die es nutzen: In der App unter <b>User management</b> ihre Spotify-E-Mail eintragen (höchstens 5 Personen).</li>
-            </ol>
-            <button onclick="saveClientId()" class="w-full py-2.5 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white">Speichern und weiter</button>
-        </section>
+    <!-- Verbinden -->
+    <section id="v-connect" class="center hidden"><div class="ux-card glow box">
+        <div class="bigico"><i class="fa-solid fa-headphones"></i></div>
+        <h2>Mit Spotify verbinden</h2>
+        <p class="ux-note">Du wirst kurz zu Spotify weitergeleitet und bestätigst dort die Verbindung. Deine Spotify-Zugangsdaten sieht dieses Portal nie.</p>
+        <label class="ux-ck"><input type="checkbox" id="keep"> Auf diesem Gerät angemeldet bleiben <small>(nicht am Firmen-PC empfohlen)</small></label>
+        <button onclick="connect()" class="ux-btn pri wide"><i class="fa-solid fa-link"></i>Mit Spotify verbinden</button>
+        <div id="cb-error" class="errbox hidden"></div>
+        <button onclick="showSetup()" class="ux-btn" style="margin-top:16px;font-size:12px;padding:8px 14px">Client ID ändern</button>
+    </div></section>
 
-        <!-- Verbinden -->
-        <section id="v-connect" class="card hidden max-w-xl w-full mx-auto text-center">
-            <i class="fa-solid fa-headphones text-5xl text-emerald-400 mb-3"></i>
-            <h2 class="text-lg font-bold">Mit Spotify verbinden</h2>
-            <p class="text-xs text-slate-400 mt-1 mb-4">Du wirst kurz zu Spotify weitergeleitet und bestätigst dort die Verbindung. Deine Spotify-Zugangsdaten sieht dieses Portal nie.</p>
-            <label class="flex items-center justify-center gap-2 text-xs text-slate-300 mb-4"><input type="checkbox" id="keep" class="rounded bg-slate-800 border-slate-700"> Auf diesem Gerät angemeldet bleiben <span class="text-slate-500">(nicht am Firmen-PC empfohlen)</span></label>
-            <button onclick="connect()" class="w-full py-3 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white"><i class="fa-solid fa-link mr-2"></i>Mit Spotify verbinden</button>
-            <div id="cb-error" class="hidden mt-3 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs"></div>
-            <button onclick="showSetup()" class="mt-4 text-[11px] text-slate-500 hover:text-slate-300">Client ID ändern</button>
-        </section>
-
-        <!-- Player -->
-        <section id="v-player" class="hidden grid grid-cols-1 lg:grid-cols-5 gap-4">
-            <div class="card lg:col-span-3">
-                <div class="flex flex-col sm:flex-row gap-5">
-                    <div class="w-full sm:w-56 shrink-0"><div id="cover" class="aspect-square w-full rounded-2xl bg-slate-800 bg-cover bg-center flex items-center justify-center text-slate-600 text-5xl"><i class="fa-solid fa-music"></i></div></div>
-                    <div class="flex-1 min-w-0 flex flex-col justify-between">
-                        <div><div class="text-[10px] uppercase tracking-widest text-emerald-400" id="np-label">Zuletzt aktiv</div>
-                            <div id="np-title" class="text-xl md:text-2xl font-bold leading-tight mt-1 break-words">Nichts wird abgespielt</div>
-                            <div id="np-artist" class="text-sm text-slate-400 mt-1"></div>
-                            <div id="np-device" class="text-xs text-slate-500 mt-2"></div></div>
-                        <div class="mt-4">
-                            <input id="seek" type="range" min="0" max="1000" value="0" class="w-full" disabled>
-                            <div class="flex justify-between text-[11px] text-slate-500 font-mono mt-1"><span id="t-pos">0:00</span><span id="t-dur">0:00</span></div>
-                            <div class="flex items-center justify-center gap-2 mt-2">
-                                <button id="b-shuffle" onclick="toggleShuffle()" class="ctl" title="Zufall"><i class="fa-solid fa-shuffle"></i></button>
-                                <button onclick="cmd('/me/player/previous','POST')" class="ctl w-11 h-11 text-lg" title="Zurück"><i class="fa-solid fa-backward-step"></i></button>
-                                <button id="b-play" onclick="togglePlay()" class="w-14 h-14 rounded-full bg-white text-slate-900 hover:scale-105 transition-transform flex items-center justify-center text-xl" title="Wiedergabe / Pause (Leertaste)"><i class="fa-solid fa-play"></i></button>
-                                <button onclick="cmd('/me/player/next','POST')" class="ctl w-11 h-11 text-lg" title="Weiter"><i class="fa-solid fa-forward-step"></i></button>
-                                <button id="b-repeat" onclick="cycleRepeat()" class="ctl" title="Wiederholen"><i class="fa-solid fa-repeat"></i></button>
-                            </div>
-                            <div class="flex items-center gap-3 mt-3 max-w-xs mx-auto"><i class="fa-solid fa-volume-low text-slate-500 text-xs"></i><input id="vol" type="range" min="0" max="100" value="50" class="flex-1"><i class="fa-solid fa-volume-high text-slate-500 text-xs"></i></div>
-                            <div id="vol-note" class="hidden text-[10px] text-slate-500 text-center mt-1">Die Lautstärke dieses Geräts lässt sich nur am Gerät selbst ändern.</div>
-                        </div>
+    <!-- Player -->
+    <section id="v-player" class="sg hidden">
+        <div class="col">
+            <div class="ux-card glow player">
+                <div id="cover"><i class="fa-solid fa-music"></i></div>
+                <div class="pi">
+                    <div class="lbl" id="np-label">Zuletzt aktiv</div>
+                    <h2 id="np-title">Nichts wird abgespielt</h2>
+                    <div class="ar" id="np-artist"></div>
+                    <div class="dv" id="np-device"></div>
+                    <div class="seekw"><input id="seek" type="range" min="0" max="1000" value="0" disabled aria-label="Position"><div class="seekt"><span id="t-pos">0:00</span><span id="t-dur">0:00</span></div></div>
+                    <div class="ctls">
+                        <button id="b-shuffle" onclick="toggleShuffle()" class="ux-ib ctl" title="Zufall" aria-label="Zufall"><i class="fa-solid fa-shuffle"></i></button>
+                        <button onclick="cmd('/me/player/previous','POST')" class="ux-ib ctl" title="Zurück" aria-label="Zurück"><i class="fa-solid fa-backward-step"></i></button>
+                        <button id="b-play" onclick="togglePlay()" title="Wiedergabe / Pause (Leertaste)" aria-label="Wiedergabe oder Pause"><i class="fa-solid fa-play"></i></button>
+                        <button onclick="cmd('/me/player/next','POST')" class="ux-ib ctl" title="Weiter" aria-label="Weiter"><i class="fa-solid fa-forward-step"></i></button>
+                        <button id="b-repeat" onclick="cycleRepeat()" class="ux-ib ctl" title="Wiederholen" aria-label="Wiederholen"><i class="fa-solid fa-repeat"></i></button>
                     </div>
+                    <div class="volw"><i class="fa-solid fa-volume-low"></i><input id="vol" type="range" min="0" max="100" value="50" aria-label="Lautstärke"><i class="fa-solid fa-volume-high"></i></div>
+                    <div id="vol-note" class="hidden">Die Lautstärke dieses Geräts lässt sich nur am Gerät selbst ändern.</div>
                 </div>
             </div>
-
-            <div class="card lg:col-span-2">
-                <div class="h3"><span><i class="fa-solid fa-mobile-screen text-emerald-400 mr-2"></i>Geräte</span><button onclick="loadDevices(true)" class="text-slate-400 hover:text-emerald-400" title="Aktualisieren"><i class="fa-solid fa-rotate"></i></button></div>
-                <div id="devices" class="space-y-2"></div>
-                <p class="text-[11px] text-slate-500 mt-3 leading-relaxed">Dein Handy erscheint hier, sobald die Spotify-App darauf geöffnet ist oder kürzlich lief. Fehlt es, starte am Handy einmal kurz einen Titel.</p>
-                <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500"><span id="acct"></span><button onclick="disconnect()" class="hover:text-rose-400"><i class="fa-solid fa-link-slash mr-1"></i>Trennen</button></div>
+            <div class="ux-card" style="padding:20px">
+                <div class="ux-t"><i class="fa-solid fa-mobile-screen"></i>Geräte<small><button onclick="loadDevices(true)" class="ux-ib" title="Aktualisieren" aria-label="Geräte aktualisieren"><i class="fa-solid fa-rotate"></i></button></small></div>
+                <div id="devices" style="display:flex;flex-direction:column;gap:8px"></div>
+                <p class="ux-note" style="margin-top:12px">Dein Handy erscheint hier, sobald die Spotify-App darauf geöffnet ist oder kürzlich lief. Fehlt es, starte am Handy einmal kurz einen Titel.</p>
+                <div class="devf"><span id="acct"></span><button onclick="disconnect()" class="ux-btn" style="padding:7px 12px;font-size:12px"><i class="fa-solid fa-link-slash"></i>Trennen</button></div>
             </div>
+        </div>
+        <div class="ux-card" style="padding:20px">
+            <div class="ux-seg" id="sp-tabs" style="margin-bottom:14px"><button class="on" data-tab="search" onclick="showTab('search')"><i class="fa-solid fa-magnifying-glass"></i>Suche</button><button data-tab="lists" onclick="showTab('lists')"><i class="fa-solid fa-list"></i>Meine Listen</button></div>
+            <div id="tab-search"><input id="q" placeholder="Titel, Album, Künstler oder Playlist suchen..." autocomplete="off" class="ux-in" style="margin-bottom:14px" aria-label="Suche"><div id="results"></div></div>
+            <div id="tab-lists" class="hidden"><div id="lists"></div></div>
+        </div>
+    </section>
+</main>
 
-            <div class="card lg:col-span-5">
-                <div class="flex gap-1 mb-3"><button class="tabb on" data-tab="search" onclick="showTab('search')"><i class="fa-solid fa-magnifying-glass mr-1.5"></i>Suche</button><button class="tabb" data-tab="lists" onclick="showTab('lists')"><i class="fa-solid fa-list mr-1.5"></i>Meine Playlists</button></div>
-                <div id="tab-search"><input id="q" placeholder="Titel, Album, Künstler oder Playlist suchen..." autocomplete="off" class="inp mb-3"><div id="results" class="space-y-4"></div></div>
-                <div id="tab-lists" class="hidden"><div id="lists" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2"></div></div>
-            </div>
-        </section>
-    </main>
-
-    <script>
+<script>
         const $ = id => document.getElementById(id);
         const API = 'https://api.spotify.com/v1', AUTH = 'https://accounts.spotify.com';
         const SCOPES = 'user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative';
@@ -124,9 +137,9 @@
         const ls = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }, del: k => { try { localStorage.removeItem(k); } catch (e) {} } };
         const view = v => ['setup', 'connect', 'player'].forEach(k => $('v-' + k).classList.toggle('hidden', k !== v));
         function toast(msg, bad, action) {
-            const t = document.createElement('div'); t.textContent = msg + ' ';
-            t.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] max-w-[92vw] text-xs font-medium px-4 py-2.5 rounded-2xl shadow-xl border ' + (bad ? 'bg-rose-950 border-rose-500/40 text-rose-200' : 'bg-slate-800 border-slate-700 text-slate-100');
-            if (action) { const b = document.createElement('button'); b.textContent = action.label; b.className = 'ml-2 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold'; b.onclick = () => { t.remove(); action.fn(); }; t.appendChild(b); }
+            const t = document.createElement('div'); t.textContent = msg + ' '; t.setAttribute('role', 'status');
+            t.className = 'sp-toast' + (bad ? ' bad' : '');
+            if (action) { const b = document.createElement('button'); b.textContent = action.label; b.className = 'sp-act'; b.onclick = () => { t.remove(); action.fn(); }; t.appendChild(b); }
             document.body.appendChild(t); setTimeout(() => t.remove(), action ? 14000 : 4200);
         }
 
@@ -260,11 +273,11 @@
         setInterval(renderProgress, 500);
         function renderDevices() {
             const icon = { Smartphone: 'fa-mobile-screen', Computer: 'fa-laptop', TV: 'fa-tv', Tablet: 'fa-tablet-screen-button' };
-            $('devices').innerHTML = devices.length ? devices.map(d => `<button data-id="${esc(d.id)}" class="row ${d.is_active ? 'border-emerald-500/50 bg-emerald-500/5' : ''}">
-                <i class="fa-solid ${icon[d.type] || 'fa-volume-high'} w-5 text-center ${d.is_active ? 'text-emerald-400' : 'text-slate-400'}"></i>
-                <span class="flex-1 min-w-0"><span class="block text-sm truncate">${esc(d.name)}</span><span class="block text-[10px] text-slate-500">${esc(d.type)}${d.is_active ? ' · aktiv' : ''}</span></span>
-                ${d.is_active ? '<i class="fa-solid fa-circle text-emerald-400 text-[7px]"></i>' : '<span class="text-[10px] text-slate-500">Hierher wechseln</span>'}</button>`).join('')
-                : '<div class="text-xs text-slate-500 py-3">Kein Gerät gefunden. Öffne Spotify auf deinem Handy.</div>';
+            $('devices').innerHTML = devices.length ? devices.map(d => `<button data-id="${esc(d.id)}" class="row dev${d.is_active ? ' on' : ''}">
+                <i class="fa-solid ${icon[d.type] || 'fa-volume-high'} di"></i>
+                <span class="n"><span class="ell">${esc(d.name)}</span><small>${esc(d.type)}${d.is_active ? ' · aktiv' : ''}</small></span>
+                ${d.is_active ? '<i class="fa-solid fa-circle" style="color:var(--m);font-size:8px"></i>' : '<small class="sw2">Hierher wechseln</small>'}</button>`).join('')
+                : '<div class="ux-note" style="padding:10px 2px">Kein Gerät gefunden. Öffne Spotify auf deinem Handy.</div>';
         }
         async function loadDevices(manual) {
             devT = Date.now();
@@ -304,29 +317,29 @@
 
         // ---------- Suche & Playlists ----------
         function showTab(t) {
-            document.querySelectorAll('.tabb').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+            document.querySelectorAll('#sp-tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
             $('tab-search').classList.toggle('hidden', t !== 'search'); $('tab-lists').classList.toggle('hidden', t !== 'lists');
             if (t === 'lists' && !$('lists').children.length) loadLists();
         }
         const thumb = im => im && im.length ? im[im.length > 1 ? im.length - 1 : 0].url : '';
-        const resRow = (uri, kind, img, title, sub) => `<button data-play="${esc(uri)}" data-kind="${kind}" class="row">${img ? `<img src="${esc(img)}" alt="" class="w-10 h-10 rounded-lg object-cover bg-slate-800" loading="lazy">` : '<span class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-600"><i class="fa-solid fa-music"></i></span>'}
-            <span class="flex-1 min-w-0"><span class="block text-sm truncate">${esc(title)}</span><span class="block text-[11px] text-slate-500 truncate">${esc(sub)}</span></span><i class="fa-solid fa-play text-slate-500 text-xs"></i></button>`;
+        const resRow = (uri, kind, img, title, sub) => `<button data-play="${esc(uri)}" data-kind="${kind}" class="row res">${img ? `<img src="${esc(img)}" alt="" class="cv" loading="lazy">` : '<span class="cv ph"><i class="fa-solid fa-music"></i></span>'}
+            <span class="n"><span class="ell">${esc(title)}</span><small class="ell">${esc(sub)}</small></span><i class="fa-solid fa-play pl"></i></button>`;
         let qT; $('q').addEventListener('input', () => { clearTimeout(qT); qT = setTimeout(search, 400); });
         async function search() {
             const q = $('q').value.trim(); if (q.length < 2) { $('results').innerHTML = ''; return; }
             try {
                 const j = await api('/search?type=track,album,playlist&limit=6&q=' + encodeURIComponent(q));
-                const sec = (title, arr) => arr.length ? `<div><div class="text-[10px] uppercase tracking-wider text-slate-500 mb-1.5">${title}</div><div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">${arr.join('')}</div></div>` : '';
+                const sec = (title, arr) => arr.length ? `<div class="rsec"><div class="rt">${title}</div><div class="rg">${arr.join('')}</div></div>` : '';
                 const t = ((j.tracks && j.tracks.items) || []).filter(Boolean).map(x => resRow(x.uri, 'track', thumb(x.album && x.album.images), x.name, x.artists.map(a => a.name).join(', ')));
                 const a = ((j.albums && j.albums.items) || []).filter(Boolean).map(x => resRow(x.uri, 'ctx', thumb(x.images), x.name, 'Album · ' + x.artists.map(y => y.name).join(', ')));
                 const p = ((j.playlists && j.playlists.items) || []).filter(Boolean).map(x => resRow(x.uri, 'ctx', thumb(x.images), x.name, 'Playlist' + (x.owner && x.owner.display_name ? ' · ' + x.owner.display_name : '')));
-                $('results').innerHTML = (sec('Titel', t) + sec('Alben', a) + sec('Playlists', p)) || '<div class="text-xs text-slate-500">Nichts gefunden.</div>';
+                $('results').innerHTML = (sec('Titel', t) + sec('Alben', a) + sec('Playlists', p)) || '<div class="ux-note">Nichts gefunden.</div>';
             } catch (e) { toast(explain(e), true); }
         }
         async function loadLists() {
             try {
                 const j = await api('/me/playlists?limit=30');
-                $('lists').innerHTML = ((j && j.items) || []).filter(Boolean).map(x => resRow(x.uri, 'ctx', thumb(x.images), x.name, 'Playlist')).join('') || '<div class="text-xs text-slate-500">Keine Playlists gefunden.</div>';
+                $('lists').innerHTML = ((j && j.items) || []).filter(Boolean).map(x => resRow(x.uri, 'ctx', thumb(x.images), x.name, 'Playlist')).join('') || '<div class="ux-note">Keine Playlists gefunden.</div>';
             } catch (e) { toast(explain(e), true); }
         }
         ['results', 'lists'].forEach(id => $(id).addEventListener('click', e => {
@@ -350,6 +363,6 @@
             view('player'); startPolling();
             document.addEventListener('visibilitychange', () => { if (!document.hidden && getTok()) poll(); });
         }, { perm: 'spotify' });
-    </script>
+</script>
 </body>
 </html>
