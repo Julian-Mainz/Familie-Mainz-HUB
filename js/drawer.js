@@ -7,6 +7,7 @@ const DRAWER_LINKS = [
     { href: '/wand.html',           label: 'Wandkalender',   icon: 'fa-display',       c: '#22d3ee', group: 'Übersicht', perm: 'wand' },
     { href: '/zeiterfassung.html',  label: 'Zeiterfassung',  icon: 'fa-business-time', c: '#34d399', group: 'Bereiche',  perm: 'zeit' },
     { href: '/finanzen.html',       label: 'Finanzen',       icon: 'fa-coins',         c: '#facc15', group: 'Bereiche',  perm: 'finanzen' },
+    { href: '/dokumente.html',      label: 'Dokumente',      icon: 'fa-folder-open',   c: '#38bdf8', group: 'Bereiche',  perm: 'dokumente' },
     { href: '/passwort.html',       label: 'Passwort-Safe',  icon: 'fa-shield-halved', c: '#fb923c', group: 'Bereiche',  perm: 'tresor' },
     { href: '/spotify.html',        label: 'Spotify',        icon: 'fa-headphones',    c: '#4ade80', group: 'Bereiche',  perm: 'spotify' },
     { href: '/admin.html',          label: 'Admin',          icon: 'fa-user-shield',   c: '#c084fc', group: 'System',    admin: true, badge: true },
@@ -66,7 +67,7 @@ function renderDrawer() {
     const items = parts.join('');
 
     // Tab-Leiste am Handy: Start + die zwei wichtigsten freigegebenen Bereiche + Suche + Menü
-    const prio = ['/messenger.html', '/zeiterfassung.html', '/finanzen.html', '/spotify.html', '/passwort.html', '/wand.html', '/admin.html'];
+    const prio = ['/messenger.html', '/zeiterfassung.html', '/finanzen.html', '/dokumente.html', '/spotify.html', '/passwort.html', '/wand.html', '/admin.html'];
     const picks = [allowed.find(l => l.href === '/menu.html'), ...prio.map(h => allowed.find(l => l.href === h)).filter(Boolean).slice(0, 2)].filter(Boolean);
     const tab = l => `<a class="tb-item${normPath(l.href) === here ? ' on' : ''}" href="${l.href}" style="--c:${l.c}"><span class="tb-ico"><i class="fa-solid ${l.icon}"></i>${l.badgeId ? '<em class="tb-badge" id="tb-msg-badge"></em>' : ''}</span><span>${l.label.replace('Passwort-Safe', 'Safe').replace('Zeiterfassung', 'Zeit')}</span></a>`;
     const tabbar = `<nav id="tabbar" aria-label="Schnellzugriff">${picks.map(tab).join('')}
