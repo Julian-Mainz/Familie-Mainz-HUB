@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Datenschutzerklärung – J.Mainz Dashboard</title>
-    <meta name="theme-color" content="#05080f">
+    <meta name="theme-color" content="#080c14">
+    <meta name="robots" content="noindex">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
@@ -12,49 +13,54 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="J.Mainz">
-    <meta name="robots" content="noindex">
-    <link rel="stylesheet" href="/assets/css/datenschutz.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
+    <link rel="stylesheet" href="/assets/icons.css">
+    <link rel="stylesheet" href="/assets/ux.css">
     <style>
-        body { background: #05080f; color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; }
-        h2 { margin-top: 2rem; margin-bottom: .5rem; font-size: 1.05rem; font-weight: 700; color: #f8fafc; }
-        p, li { font-size: .9rem; line-height: 1.7; color: #cbd5e1; }
-        p { margin-bottom: .6rem; }
-        ul { list-style: disc; padding-left: 1.4rem; margin-bottom: .6rem; }
-        a { color: #818cf8; } a:hover { text-decoration: underline; }
+        body.ux { padding: 22px; } .wrap { max-width: 1180px; margin: 0 auto; }
+        .nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px; font-size: 13px; } .nav a { color: #94a3b8; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, .16); background: rgba(255, 255, 255, .04); transition: color .2s, border-color .2s; } .nav a:hover { color: #fff; border-color: rgba(var(--mr), .5); }
+        .nav .r { display: flex; gap: 8px; flex-wrap: wrap; } .nav button { font: inherit; cursor: pointer; color: #94a3b8; display: inline-flex; gap: 8px; align-items: center; padding: 9px 14px; border-radius: 14px; border: 1px solid rgba(148, 163, 184, .16); background: rgba(255, 255, 255, .04); } .nav button:hover { color: #fff; }
+        .lg { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; align-items: start; } @media (max-width: 900px) { .lg { grid-template-columns: 1fr; } .toc { display: none; } }
+        .toc { position: sticky; top: 18px; padding: 18px; max-height: calc(100vh - 36px); overflow-y: auto; } .toc a { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; color: #94a3b8; font-size: 13px; text-decoration: none; transition: background-color .2s, color .2s; }
+        .toc a b { min-width: 26px; height: 24px; padding: 0 5px; border-radius: 8px; display: grid; place-items: center; font-size: 11.5px; background: rgba(255, 255, 255, .06); } .toc a:hover { color: #fff; } .toc a.on { color: #fff; background: rgba(var(--mr), .16); } .toc a.on b { background: var(--m2); color: #fff; }
+        .lcol { display: flex; flex-direction: column; gap: 14px; min-width: 0; } .ls { display: flex; gap: 18px; padding: 22px 24px; scroll-margin-top: 18px; }
+        .num { width: 42px; min-width: 42px; height: 42px; padding: 0 4px; border-radius: 14px; display: grid; place-items: center; font-weight: 800; font-size: 15px; flex: none; color: var(--m); background: rgba(var(--mr), .14); } .lb { min-width: 0; flex: 1; }
+        .lb h2 { margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #f8fafc; line-height: 1.35; } .lb p, .lb li { font-size: 14px; line-height: 1.75; color: #cbd5e1; } .lb p { margin: 0 0 10px; } .lb p:last-child { margin-bottom: 0; }
+        .lb ul { list-style: disc; padding-left: 1.4rem; margin: 0 0 10px; } .lb b { color: #f1f5f9; } .lb a { color: var(--m); word-break: break-word; } .lb a:hover { text-decoration: underline; }
+        .stand { margin: 18px 4px 0; font-size: 12px; color: #64748b; text-align: center; }
+        @media (max-width: 560px) { body.ux { padding: 12px; } .ls { padding: 18px 16px; gap: 12px; } .num { width: 34px; min-width: 34px; height: 34px; font-size: 13px; } }
+        @media print { body.ux { background: #fff; padding: 0; } .nav, .toc { display: none; } .ux-card { background: none; border: 0; box-shadow: none; } .lb p, .lb li, .lb h2, .lb b { color: #000; } .ls { page-break-inside: avoid; } }
     </style>
 </head>
-<body class="min-h-screen px-4 py-8">
-    <div class="max-w-3xl mx-auto">
-        <div class="flex items-center justify-between mb-8 text-sm">
-            <a href="/" class="text-slate-400 hover:text-white">&larr; Zurück zur Anmeldung</a>
-            <a href="/impressum.html" class="text-slate-400 hover:text-white">Impressum</a>
-        </div>
-        <h1 class="text-3xl font-extrabold text-white">Datenschutzerklärung</h1>
-
-        <h2>1. Verantwortlicher</h2>
-        <p>Verantwortlich für die Datenverarbeitung auf diesem Portal im Sinne der Datenschutz-Grundverordnung (DSGVO) ist:</p>
+<body class="ux">
+<main class="wrap ux-page" style="--m:#818cf8;--m2:#6366f1;--mr:129,140,248;max-width:none;padding:0">
+  <div class="wrap">
+    <div class="nav"><a href="/"><i class="fa-solid fa-arrow-left"></i>Zurück zur Anmeldung</a><div class="r"><a href="/impressum.html"><i class="fa-solid fa-scale-balanced"></i>Impressum</a><button onclick="window.print()"><i class="fa-solid fa-print"></i>Drucken</button></div></div>
+    <div class="ux-top" style="margin-bottom:18px"><div class="ux-ico"><i class="fa-solid fa-scale-balanced"></i></div><div><h1 class="ux-h1">Datenschutzerklärung</h1><div class="ux-sub">Wie dieses Portal mit deinen Daten umgeht</div></div></div>
+    <div class="lg"><aside class="ux-card toc"><div class="ux-t"><i class="fa-solid fa-list"></i>Inhalt</div><a href="#s1"><b>1</b>Verantwortlicher</a><a href="#s2"><b>2</b>Worum es geht</a><a href="#s3"><b>3</b>Hosting und Server-Verbindungsdaten</a><a href="#s4"><b>4</b>Eingebundene Ressourcen</a><a href="#s5"><b>5</b>Firebase (Google): Anmeldung, Datenbank, Benachrichtigungen</a><a href="#s6"><b>6</b>Registrierung und Benutzerkonto</a><a href="#s7"><b>7</b>Inhalte nach der Anmeldung</a><a href="#s8"><b>8</b>Protokollierung</a><a href="#s9"><b>9</b>Kontaktformular („Nachricht hinterlassen“)</a><a href="#s10"><b>10</b>Wetterdaten</a><a href="#s10a"><b>10a</b>Spotify-Fernbedienung (optional)</a><a href="#s10b"><b>10b</b>Messenger (nur für freigegebene Konten)</a><a href="#s11"><b>11</b>Push-Benachrichtigungen</a><a href="#s12"><b>12</b>Speicherung im Browser, Cookies</a><a href="#s13"><b>13</b>Speicherdauer</a><a href="#s14"><b>14</b>Ihre Rechte</a><a href="#s15"><b>15</b>Sicherheit</a><a href="#s16"><b>16</b>Änderungen</a></aside><div class="lcol">
+<section class="ux-card ls" id="s1"><div class="num">1</div><div class="lb"><h2>Verantwortlicher</h2>
+<p>Verantwortlich für die Datenverarbeitung auf diesem Portal im Sinne der Datenschutz-Grundverordnung (DSGVO) ist:</p>
         <p>Julian Mainz, Rütger von Scheven Str. 82, 52349 Düren<br>
-           E-Mail: Kontakt@julian-mainz.de</p>
-
-        <h2>2. Worum es geht</h2>
-        <p>Dieses Portal ist eine private Anwendung für eingeladene Personen. Besucher ohne Konto können die Startseite sehen, ein Konto beantragen oder mir eine Nachricht hinterlassen. Alle weiteren Funktionen sind nur für freigegebene Mitglieder nach der Anmeldung nutzbar. Es werden keine Werbe- oder Tracking-Dienste eingesetzt, und es findet keine automatisierte Entscheidungsfindung oder Profilbildung statt.</p>
-
-        <h2>3. Hosting und Server-Verbindungsdaten</h2>
-        <p>Die Seiten werden über <b>GitHub Pages</b> (GitHub Inc., ein Unternehmen des Microsoft-Konzerns, USA) ausgeliefert. Beim Aufruf werden technisch notwendige Verbindungsdaten verarbeitet, insbesondere die IP-Adresse, Datum und Uhrzeit, die abgerufene Datei und Browserangaben. Die Domain wird bei der <b>Strato AG</b> verwaltet, dabei werden DNS-Anfragen verarbeitet.</p>
+           E-Mail: Kontakt@julian-mainz.de Im Bereich <b>Dokumente</b> kannst du eigene Dateien (PDF, Fotos, Office-Dateien, bis 3 MB je Datei) in Ordnern ablegen. Sie werden in der Datenbank gespeichert, sind nur für dich lesbar und werden beim Löschen deines Kontos entfernt. Zusätzlich zeigt der Bereich deine bereits hochgeladenen Lohnabrechnungen, deine Bilder aus dem Messenger und dein Profilbild an. Die Dateien sind nicht zusätzlich mit einem Master-Passwort verschlüsselt.</p>
+</div></section>
+<section class="ux-card ls" id="s2"><div class="num">2</div><div class="lb"><h2>Worum es geht</h2>
+<p>Dieses Portal ist eine private Anwendung für eingeladene Personen. Besucher ohne Konto können die Startseite sehen, ein Konto beantragen oder mir eine Nachricht hinterlassen. Alle weiteren Funktionen sind nur für freigegebene Mitglieder nach der Anmeldung nutzbar. Es werden keine Werbe- oder Tracking-Dienste eingesetzt, und es findet keine automatisierte Entscheidungsfindung oder Profilbildung statt.</p>
+</div></section>
+<section class="ux-card ls" id="s3"><div class="num">3</div><div class="lb"><h2>Hosting und Server-Verbindungsdaten</h2>
+<p>Die Seiten werden über <b>GitHub Pages</b> (GitHub Inc., ein Unternehmen des Microsoft-Konzerns, USA) ausgeliefert. Beim Aufruf werden technisch notwendige Verbindungsdaten verarbeitet, insbesondere die IP-Adresse, Datum und Uhrzeit, die abgerufene Datei und Browserangaben. Die Domain wird bei der <b>Strato AG</b> verwaltet, dabei werden DNS-Anfragen verarbeitet.</p>
         <p>Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (Interesse an einem sicheren und stabilen Betrieb). Soweit Daten in die USA übermittelt werden, geschieht dies auf Grundlage des EU-US Data Privacy Framework bzw. von Standardvertragsklauseln.</p>
-
-        <h2>4. Eingebundene Ressourcen</h2>
-        <p>Das Design (CSS), alle Symbole und die Firebase-Software werden von diesem Portal selbst ausgeliefert. Beim bloßen Aufruf der Startseite werden deshalb keine Server anderer Anbieter kontaktiert. Erst wenn Sie sich anmelden, ein Konto beantragen, eine Nachricht senden oder das Portal nach der Anmeldung nutzen, verbindet sich Ihr Browser direkt mit den Servern von Google (Firebase, siehe Abschnitt 5). Nur wenn Sie Push-Benachrichtigungen einschalten, lädt Ihr Browser zusätzlich die Firebase-Messaging-Software von Google (<i>www.gstatic.com</i>).</p>
-
-        <h2>5. Firebase (Google): Anmeldung, Datenbank, Benachrichtigungen</h2>
-        <p>Für Anmeldung, Speicherung der Inhalte und Push-Benachrichtigungen nutze ich <b>Firebase Authentication</b>, <b>Cloud Firestore</b> und <b>Firebase Cloud Messaging</b> von Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland (teilweise auch Google LLC, USA). Der Datenbankstandort ist eur3 (Europa). Übermittlungen in Drittländer erfolgen auf Grundlage des EU-US Data Privacy Framework bzw. Standardvertragsklauseln.</p>
+</div></section>
+<section class="ux-card ls" id="s4"><div class="num">4</div><div class="lb"><h2>Eingebundene Ressourcen</h2>
+<p>Das Design (CSS), alle Symbole und die Firebase-Software werden von diesem Portal selbst ausgeliefert. Beim bloßen Aufruf der Startseite werden deshalb keine Server anderer Anbieter kontaktiert. Erst wenn Sie sich anmelden, ein Konto beantragen, eine Nachricht senden oder das Portal nach der Anmeldung nutzen, verbindet sich Ihr Browser direkt mit den Servern von Google (Firebase, siehe Abschnitt 5). Nur wenn Sie Push-Benachrichtigungen einschalten, lädt Ihr Browser zusätzlich die Firebase-Messaging-Software von Google (<i>www.gstatic.com</i>).</p>
+</div></section>
+<section class="ux-card ls" id="s5"><div class="num">5</div><div class="lb"><h2>Firebase (Google): Anmeldung, Datenbank, Benachrichtigungen</h2>
+<p>Für Anmeldung, Speicherung der Inhalte und Push-Benachrichtigungen nutze ich <b>Firebase Authentication</b>, <b>Cloud Firestore</b> und <b>Firebase Cloud Messaging</b> von Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland (teilweise auch Google LLC, USA). Der Datenbankstandort ist eur3 (Europa). Übermittlungen in Drittländer erfolgen auf Grundlage des EU-US Data Privacy Framework bzw. Standardvertragsklauseln.</p>
         <p>Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung des Zugangs für Mitglieder) sowie lit. f DSGVO (sicherer Betrieb).</p>
-
-        <h2>6. Registrierung und Benutzerkonto</h2>
-        <p>Für ein Konto werden Vorname, Nachname, E-Mail-Adresse und ein Passwort erhoben. Das Passwort wird von Firebase nur in geschützter Form (Hash) gespeichert. Zusätzlich speichere ich Rolle, Rechte, Freigabestatus, Zeitpunkt der Registrierung und des letzten Logins sowie Ihre Einstellungen. Für die Registrierung ist ein Einladungscode erforderlich, den ich vergebe. Dazu speichere ich den Code, einen eventuellen Vermerk von mir, das Ablaufdatum und – nach dem Einlösen – welches Konto den Code verwendet hat. Neue Konten sind zunächst gesperrt und werden von mir geprüft und freigegeben. In Ihrem Profil können Sie Ihren Namen ändern und optional ein Profilbild hinterlegen. Das Bild wird zugeschnitten und stark verkleinert in Ihrem Profil gespeichert und ist nur für Sie und Administratoren sichtbar. Wenn Sie die Anordnung von Startseite, Zeiterfassung oder Finanzen anpassen (Reihenfolge, Breite, ausgeblendete Karten und Reiter), wird diese Auswahl ebenfalls in Ihrem Profil gespeichert, damit sie auf allen Ihren Geräten gleich ist. Sie können Ihr Konto jederzeit in den Einstellungen selbst löschen oder die Löschung von mir verlangen. Wenn Sie die Funktion „Passwort vergessen“ nutzen, wird eine E-Mail über Firebase versandt.</p>
-
-        <h2>7. Inhalte nach der Anmeldung</h2>
-        <p>Je nach Freigabe können Mitglieder folgende Bereiche nutzen. Die Eingaben werden in der Datenbank gespeichert:</p>
+</div></section>
+<section class="ux-card ls" id="s6"><div class="num">6</div><div class="lb"><h2>Registrierung und Benutzerkonto</h2>
+<p>Für ein Konto werden Vorname, Nachname, E-Mail-Adresse und ein Passwort erhoben. Das Passwort wird von Firebase nur in geschützter Form (Hash) gespeichert. Zusätzlich speichere ich Rolle, Rechte, Freigabestatus, Zeitpunkt der Registrierung und des letzten Logins sowie Ihre Einstellungen. Für die Registrierung ist ein Einladungscode erforderlich, den ich vergebe. Dazu speichere ich den Code, einen eventuellen Vermerk von mir, das Ablaufdatum und – nach dem Einlösen – welches Konto den Code verwendet hat. Neue Konten sind zunächst gesperrt und werden von mir geprüft und freigegeben. In Ihrem Profil können Sie Ihren Namen ändern und optional ein Profilbild hinterlegen. Das Bild wird zugeschnitten und stark verkleinert in Ihrem Profil gespeichert und ist nur für Sie und Administratoren sichtbar. Wenn Sie die Anordnung von Startseite, Zeiterfassung oder Finanzen anpassen (Reihenfolge, Breite, ausgeblendete Karten und Reiter), wird diese Auswahl ebenfalls in Ihrem Profil gespeichert, damit sie auf allen Ihren Geräten gleich ist. Sie können Ihr Konto jederzeit in den Einstellungen selbst löschen oder die Löschung von mir verlangen. Wenn Sie die Funktion „Passwort vergessen“ nutzen, wird eine E-Mail über Firebase versandt.</p>
+</div></section>
+<section class="ux-card ls" id="s7"><div class="num">7</div><div class="lb"><h2>Inhalte nach der Anmeldung</h2>
+<p>Je nach Freigabe können Mitglieder folgende Bereiche nutzen. Die Eingaben werden in der Datenbank gespeichert:</p>
         <ul>
             <li><b>Zeiterfassung:</b> Arbeitszeiten, Pausen, Notizen, Urlaubs- und Krankheitstage, Einstellungen zu Soll- und Urlaubstagen. Nur für das jeweilige Mitglied sichtbar.</li>
             <li><b>Finanzen:</b> Buchungen (auch aus importierten Kontoumsätzen), Fixkosten, Budgets, Lohnabrechnungen als hochgeladene Dateien. Nur für das jeweilige Mitglied sichtbar.</li>
@@ -62,44 +68,53 @@
             <li><b>Kalender, Pinnwand, Aufgaben und Einkauf:</b> Inhalte sind für freigegebene Mitglieder sichtbar. Termine können als privat gekennzeichnet werden.</li>
         </ul>
         <p>Technisch ist der Zugriff durch Regeln in der Datenbank so begrenzt, dass die privaten Bereiche nur vom jeweiligen Mitglied gelesen werden können. Als Betreiber der Datenbank habe ich über die Firebase-Konsole technisch Zugriff auf die gespeicherten Daten, mit Ausnahme der verschlüsselten Inhalte des Passwort-Safes. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO bzw. die Einwilligung der Mitglieder (Art. 6 Abs. 1 lit. a DSGVO).</p>
-
-        <h2>8. Protokollierung</h2>
-        <p>Zur Sicherheit und Nachvollziehbarkeit werden Ereignisse protokolliert, zum Beispiel Anmeldungen und fehlgeschlagene Anmeldeversuche, Seitenaufrufe, Änderungen an Daten und Verwaltungsaktionen. Gespeichert werden Zeitpunkt, Benutzername und E-Mail, Ereignis, Gerätetyp, Browserkennung, aufgerufene Adresse und ggf. die eingegebene E-Mail bei fehlgeschlagenen Anmeldungen. Außerdem werden technische Fehlermeldungen des Browsers (Fehlertext, Datei, Zeile und aufgerufene Seite) protokolliert, um Fehler zu finden und zu beheben. Die Protokolle sind nur für Administratoren einsehbar und werden in der Regel nach 30 Tagen gelöscht. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (IT-Sicherheit, Missbrauchserkennung).</p>
-
-        <h2>9. Kontaktformular („Nachricht hinterlassen“)</h2>
-        <p>Wenn Sie mir über das Formular auf der Startseite eine Nachricht senden, speichere ich Ihren Namen, Ihre optional angegebene E-Mail-Adresse, den Nachrichtentext und den Zeitpunkt. Die Angaben sind freiwillig, ohne E-Mail-Adresse kann ich jedoch nicht antworten. Die Nachricht ist nur für Administratoren einsehbar und wird gelöscht, sobald die Anfrage erledigt ist, spätestens nach 6 Monaten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (Bearbeitung von Anfragen) bzw. lit. b DSGVO, wenn die Anfrage mit einem Nutzungsverhältnis zusammenhängt.</p>
-
-        <h2>10. Wetterdaten</h2>
-        <p>Nach der Anmeldung werden Wetterdaten über die Schnittstelle von <b>Open-Meteo</b> (open-meteo.com) abgerufen. Dabei wird Ihre IP-Adresse an den Anbieter übermittelt. Der Standort für die Abfrage ist fest eingestellt; Standortdaten Ihres Geräts werden nicht übertragen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO.</p>
-
-        <h2>10a. Spotify-Fernbedienung (optional)</h2>
-        <p>Mitglieder können freiwillig ihr Spotify-Konto verbinden, um die Wiedergabe auf ihren Geräten zu steuern. Dabei wird Ihr Browser mit den Servern von Spotify AB, Schweden (<i>accounts.spotify.com</i>, <i>api.spotify.com</i>, Titelbilder von <i>i.scdn.co</i>) verbunden und übermittelt dabei unter anderem Ihre IP-Adresse. Die Anmeldung erfolgt direkt bei Spotify; dieses Portal erhält Ihr Spotify-Passwort nicht. Die Zugriffsschlüssel von Spotify werden nur im Speicher Ihres Browsers abgelegt (bei „angemeldet bleiben“ dauerhaft auf diesem Gerät) und nicht auf meinen Servern gespeichert. In Ihrem Profil wird nur die Client ID der eigenen Spotify-Entwickler-App gespeichert. Rechtsgrundlage ist Ihre Einwilligung durch das Verbinden (Art. 6 Abs. 1 lit. a DSGVO). Sie können die Verbindung jederzeit auf der Seite „Spotify“ trennen und in Ihrem Spotify-Konto unter den App-Berechtigungen widerrufen.</p>
-
-        <h2>10b. Messenger (nur für freigegebene Konten)</h2>
-        <p>Für Konten, denen der Administrator den Zugang ausdrücklich freigegeben hat, gibt es einen Messenger für Einzel- und Gruppenchats. Gespeichert werden der Inhalt der Nachrichten (Text und verkleinerte Bilder), Absender, Zeitpunkt, Reaktionen und Antworten, die Mitglieder eines Chats sowie je Chat, wann Nachrichten gelesen wurden. Im Verzeichnis für freigegebene Konten stehen Ihr Name, ein stark verkleinertes Profilbild, Ihre Avatar-Farbe und, wenn Sie es nicht abschalten, wann Sie zuletzt aktiv waren. E-Mail-Adressen sind dort nicht sichtbar. Ihre Lesebestätigung und die Anzeige „zuletzt aktiv“ können Sie in den Messenger-Einstellungen ausschalten. Die Daten liegen bei Google (Firebase, siehe Abschnitt 5) und werden verschlüsselt übertragen. <b>Eine Ende-zu-Ende-Verschlüsselung gibt es nicht: Technisch hat der Betreiber dieses Portals Zugriff auf die gespeicherten Nachrichten.</b> In der Anwendung selbst können Administratoren fremde Chats nicht lesen. Nachrichten werden nach 90 Tagen gelöscht; eigene Nachrichten können Sie jederzeit bearbeiten oder löschen. Wenn Sie Ihr Konto löschen, bleiben Ihre Nachrichten bei den Gesprächspartnern erhalten und Ihr Name wird dort als „Gelöschtes Konto“ angezeigt. Ihr Verzeichniseintrag wird gelöscht. In der Datenauskunft (Einstellungen, „Meine Daten herunterladen“) sind Ihre Nachrichten enthalten. Rechtsgrundlage ist die Bereitstellung der von Ihnen genutzten Funktion (Art. 6 Abs. 1 lit. b DSGVO) und mein berechtigtes Interesse an einem sicheren Betrieb (Art. 6 Abs. 1 lit. f DSGVO). Bitte senden Sie über den Messenger keine Betriebsgeheimnisse, Kundendaten oder Passwörter.</p>
+</div></section>
+<section class="ux-card ls" id="s8"><div class="num">8</div><div class="lb"><h2>Protokollierung</h2>
+<p>Zur Sicherheit und Nachvollziehbarkeit werden Ereignisse protokolliert, zum Beispiel Anmeldungen und fehlgeschlagene Anmeldeversuche, Seitenaufrufe, Änderungen an Daten und Verwaltungsaktionen. Gespeichert werden Zeitpunkt, Benutzername und E-Mail, Ereignis, Gerätetyp, Browserkennung, aufgerufene Adresse und ggf. die eingegebene E-Mail bei fehlgeschlagenen Anmeldungen. Außerdem werden technische Fehlermeldungen des Browsers (Fehlertext, Datei, Zeile und aufgerufene Seite) protokolliert, um Fehler zu finden und zu beheben. Die Protokolle sind nur für Administratoren einsehbar und werden in der Regel nach 30 Tagen gelöscht. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (IT-Sicherheit, Missbrauchserkennung).</p>
+</div></section>
+<section class="ux-card ls" id="s9"><div class="num">9</div><div class="lb"><h2>Kontaktformular („Nachricht hinterlassen“)</h2>
+<p>Wenn Sie mir über das Formular auf der Startseite eine Nachricht senden, speichere ich Ihren Namen, Ihre optional angegebene E-Mail-Adresse, den Nachrichtentext und den Zeitpunkt. Die Angaben sind freiwillig, ohne E-Mail-Adresse kann ich jedoch nicht antworten. Die Nachricht ist nur für Administratoren einsehbar und wird gelöscht, sobald die Anfrage erledigt ist, spätestens nach 6 Monaten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (Bearbeitung von Anfragen) bzw. lit. b DSGVO, wenn die Anfrage mit einem Nutzungsverhältnis zusammenhängt.</p>
+</div></section>
+<section class="ux-card ls" id="s10"><div class="num">10</div><div class="lb"><h2>Wetterdaten</h2>
+<p>Nach der Anmeldung werden Wetterdaten über die Schnittstelle von <b>Open-Meteo</b> (open-meteo.com) abgerufen. Dabei wird Ihre IP-Adresse an den Anbieter übermittelt. Der Standort für die Abfrage ist fest eingestellt; Standortdaten Ihres Geräts werden nicht übertragen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO.</p>
+</div></section>
+<section class="ux-card ls" id="s10a"><div class="num">10a</div><div class="lb"><h2>Spotify-Fernbedienung (optional)</h2>
+<p>Mitglieder können freiwillig ihr Spotify-Konto verbinden, um die Wiedergabe auf ihren Geräten zu steuern. Dabei wird Ihr Browser mit den Servern von Spotify AB, Schweden (<i>accounts.spotify.com</i>, <i>api.spotify.com</i>, Titelbilder von <i>i.scdn.co</i>) verbunden und übermittelt dabei unter anderem Ihre IP-Adresse. Die Anmeldung erfolgt direkt bei Spotify; dieses Portal erhält Ihr Spotify-Passwort nicht. Die Zugriffsschlüssel von Spotify werden nur im Speicher Ihres Browsers abgelegt (bei „angemeldet bleiben“ dauerhaft auf diesem Gerät) und nicht auf meinen Servern gespeichert. In Ihrem Profil wird nur die Client ID der eigenen Spotify-Entwickler-App gespeichert. Rechtsgrundlage ist Ihre Einwilligung durch das Verbinden (Art. 6 Abs. 1 lit. a DSGVO). Sie können die Verbindung jederzeit auf der Seite „Spotify“ trennen und in Ihrem Spotify-Konto unter den App-Berechtigungen widerrufen.</p>
+</div></section>
+<section class="ux-card ls" id="s10b"><div class="num">10b</div><div class="lb"><h2>Messenger (nur für freigegebene Konten)</h2>
+<p>Für Konten, denen der Administrator den Zugang ausdrücklich freigegeben hat, gibt es einen Messenger für Einzel- und Gruppenchats. Gespeichert werden der Inhalt der Nachrichten (Text und verkleinerte Bilder), Absender, Zeitpunkt, Reaktionen und Antworten, die Mitglieder eines Chats sowie je Chat, wann Nachrichten gelesen wurden. Im Verzeichnis für freigegebene Konten stehen Ihr Name, ein stark verkleinertes Profilbild, Ihre Avatar-Farbe und, wenn Sie es nicht abschalten, wann Sie zuletzt aktiv waren. E-Mail-Adressen sind dort nicht sichtbar. Ihre Lesebestätigung und die Anzeige „zuletzt aktiv“ können Sie in den Messenger-Einstellungen ausschalten. Die Daten liegen bei Google (Firebase, siehe Abschnitt 5) und werden verschlüsselt übertragen. <b>Eine Ende-zu-Ende-Verschlüsselung gibt es nicht: Technisch hat der Betreiber dieses Portals Zugriff auf die gespeicherten Nachrichten.</b> In der Anwendung selbst können Administratoren fremde Chats nicht lesen. Nachrichten werden nach 90 Tagen gelöscht; eigene Nachrichten können Sie jederzeit bearbeiten oder löschen. Wenn Sie Ihr Konto löschen, bleiben Ihre Nachrichten bei den Gesprächspartnern erhalten und Ihr Name wird dort als „Gelöschtes Konto“ angezeigt. Ihr Verzeichniseintrag wird gelöscht. In der Datenauskunft (Einstellungen, „Meine Daten herunterladen“) sind Ihre Nachrichten enthalten. Rechtsgrundlage ist die Bereitstellung der von Ihnen genutzten Funktion (Art. 6 Abs. 1 lit. b DSGVO) und mein berechtigtes Interesse an einem sicheren Betrieb (Art. 6 Abs. 1 lit. f DSGVO). Bitte senden Sie über den Messenger keine Betriebsgeheimnisse, Kundendaten oder Passwörter.</p>
         <p>Auf dem Gerät speichert der Messenger, wenn Sie es einstellen, Ihre Wahl zu Ton und Browser-Hinweisen. Browser-Hinweise erscheinen nur, solange das Portal in einem Tab geöffnet ist, und zeigen auf Wunsch nur „Neue Nachricht“ statt des Textes.</p>
-
-        <h2>11. Push-Benachrichtigungen</h2>
-        <p>Push-Mitteilungen sind freiwillig. Wenn Sie sie in den Einstellungen aktivieren und im Browser zulassen, wird ein Geräte-Token in Ihrem Profil gespeichert, damit Nachrichten zugestellt werden können. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie können sie jederzeit in den Einstellungen oder im Browser widerrufen.</p>
-
-        <h2>12. Speicherung im Browser, Cookies</h2>
-        <p>Dieses Portal setzt selbst <b>keine Cookies</b> und verwendet keine Werbe- oder Analyse-Werkzeuge. Beim bloßen Aufruf der Startseite wird von dieser Anwendung nichts im Browser gespeichert (abgesehen von dem, was die Anmeldesoftware von Google für den Login selbst benötigt). Erst bei Ihrer Nutzung kommt der lokale Speicher Ihres Browsers (Local/Session Storage, IndexedDB) für technisch erforderliche Zwecke zum Einsatz: Anmeldestatus nach dem Login, kurze Hinweise nach einer Weiterleitung sowie von Ihnen gewählte Einstellungen, zum Beispiel das Design (hell/dunkel), die Breite der Seitenleiste, Ton und Hinweise des Messengers, die Darstellung der Uhr oder Angaben beim Urlaubsantrag. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG in Verbindung mit Art. 6 Abs. 1 lit. f DSGVO.</p>
-
-        <h2>13. Speicherdauer</h2>
-        <p>Daten werden gelöscht, sobald der Zweck entfällt, spätestens wenn ein Konto gelöscht wird, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen. Details zu Protokollen, Kontaktnachrichten und den Chats des Messengers (90 Tage) finden Sie oben.</p>
-
-        <h2>14. Ihre Rechte</h2>
-        <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen Verarbeitungen auf Grundlage berechtigter Interessen (Art. 21). Eine erteilte Einwilligung können Sie jederzeit mit Wirkung für die Zukunft widerrufen. Wenden Sie sich dazu an die oben genannte E-Mail-Adresse.</p>
+</div></section>
+<section class="ux-card ls" id="s11"><div class="num">11</div><div class="lb"><h2>Push-Benachrichtigungen</h2>
+<p>Push-Mitteilungen sind freiwillig. Wenn Sie sie in den Einstellungen aktivieren und im Browser zulassen, wird ein Geräte-Token in Ihrem Profil gespeichert, damit Nachrichten zugestellt werden können. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie können sie jederzeit in den Einstellungen oder im Browser widerrufen.</p>
+</div></section>
+<section class="ux-card ls" id="s12"><div class="num">12</div><div class="lb"><h2>Speicherung im Browser, Cookies</h2>
+<p>Dieses Portal setzt selbst <b>keine Cookies</b> und verwendet keine Werbe- oder Analyse-Werkzeuge. Beim bloßen Aufruf der Startseite wird von dieser Anwendung nichts im Browser gespeichert (abgesehen von dem, was die Anmeldesoftware von Google für den Login selbst benötigt). Erst bei Ihrer Nutzung kommt der lokale Speicher Ihres Browsers (Local/Session Storage, IndexedDB) für technisch erforderliche Zwecke zum Einsatz: Anmeldestatus nach dem Login, kurze Hinweise nach einer Weiterleitung sowie von Ihnen gewählte Einstellungen, zum Beispiel das Design (hell/dunkel), die Breite der Seitenleiste, Ton und Hinweise des Messengers, die Darstellung der Uhr oder Angaben beim Urlaubsantrag. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG in Verbindung mit Art. 6 Abs. 1 lit. f DSGVO.</p>
+</div></section>
+<section class="ux-card ls" id="s13"><div class="num">13</div><div class="lb"><h2>Speicherdauer</h2>
+<p>Daten werden gelöscht, sobald der Zweck entfällt, spätestens wenn ein Konto gelöscht wird, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen. Details zu Protokollen, Kontaktnachrichten und den Chats des Messengers (90 Tage) finden Sie oben.</p>
+</div></section>
+<section class="ux-card ls" id="s14"><div class="num">14</div><div class="lb"><h2>Ihre Rechte</h2>
+<p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen Verarbeitungen auf Grundlage berechtigter Interessen (Art. 21). Eine erteilte Einwilligung können Sie jederzeit mit Wirkung für die Zukunft widerrufen. Wenden Sie sich dazu an die oben genannte E-Mail-Adresse.</p>
         <p>Viele dieser Rechte können Mitglieder direkt im Portal wahrnehmen: In den Einstellungen lassen sich alle gespeicherten Daten als Datei herunterladen (Auskunft und Datenübertragbarkeit), und das Konto kann dort mit allen zugehörigen Daten selbst gelöscht werden (Löschung).</p>
         <p>Sie haben außerdem das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren, zum Beispiel bei der <b>Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen</b>, Kavalleriestraße 2-4, 40213 Düsseldorf, Telefon 0211 38424-0, E-Mail poststelle@ldi.nrw.de, <a href="https://www.ldi.nrw.de" target="_blank" rel="noopener">www.ldi.nrw.de</a>.</p>
-
-        <h2>15. Sicherheit</h2>
-        <p>Die Übertragung erfolgt verschlüsselt (HTTPS). Der Zugriff auf Daten ist durch Anmeldung, Freigabe und Zugriffsregeln begrenzt. Trotzdem kann bei der Datenübertragung im Internet keine absolute Sicherheit garantiert werden.</p>
-
-        <h2>16. Änderungen</h2>
-        <p>Ich passe diese Erklärung an, wenn sich das Portal oder die Rechtslage ändert. Es gilt die jeweils hier veröffentlichte Fassung.</p>
-
-        <p class="mt-10 text-xs text-slate-500">Stand: November 2026</p>
-    </div>
+</div></section>
+<section class="ux-card ls" id="s15"><div class="num">15</div><div class="lb"><h2>Sicherheit</h2>
+<p>Die Übertragung erfolgt verschlüsselt (HTTPS). Der Zugriff auf Daten ist durch Anmeldung, Freigabe und Zugriffsregeln begrenzt. Trotzdem kann bei der Datenübertragung im Internet keine absolute Sicherheit garantiert werden.</p>
+</div></section>
+<section class="ux-card ls" id="s16"><div class="num">16</div><div class="lb"><h2>Änderungen</h2>
+<p>Ich passe diese Erklärung an, wenn sich das Portal oder die Rechtslage ändert. Es gilt die jeweils hier veröffentlichte Fassung.</p>
+</div></section>
+    </div></div>
+    <p class="stand">Stand: November 2026</p>
+  </div>
+</main>
+<script>
+    // Inhaltsverzeichnis: aktuellen Abschnitt hervorheben
+    (function () { const links = [...document.querySelectorAll('.toc a')]; if (!links.length || !('IntersectionObserver' in window)) return;
+        const map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+        const io = new IntersectionObserver(es => { es.forEach(e => { if (e.isIntersecting) { links.forEach(l => l.classList.remove('on')); const a = map.get(e.target.id); if (a) a.classList.add('on'); } }); }, { rootMargin: '-10% 0px -80% 0px' });
+        map.forEach((_, id) => { const el = document.getElementById(id); if (el) io.observe(el); }); if (links[0]) links[0].classList.add('on'); })();
+</script>
 </body>
 </html>
