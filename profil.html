@@ -13,18 +13,17 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="J.Mainz">
-    <link rel="stylesheet" href="/assets/css/profil.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
     <link rel="stylesheet" href="/assets/icons.css">
     <link rel="stylesheet" href="/assets/ui.css">
+    <link rel="stylesheet" href="/assets/ux.css">
     <script src="/js/vendor/firebase-app-compat.js"></script>
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
+    <script src="/js/ux.js"></script>
     <script src="/js/drawer.js"></script>
     <style>
-        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 4px; height: 4px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        main > * { flex-shrink: 0; }
         /* ---------- Profilseite (eigenes CSS, unabhängig vom Tailwind-Build) ---------- */
         .pf-hero { position: relative; display: flex; align-items: center; gap: 22px; padding: 24px; border-radius: 28px; border: 1px solid rgba(148, 163, 184, .15); overflow: hidden;
             background: radial-gradient(520px 220px at 0 0, rgba(99, 102, 241, .28), transparent 70%), radial-gradient(420px 220px at 100% 100%, rgba(6, 182, 212, .16), transparent 70%), rgba(15, 23, 42, .6); }
@@ -40,21 +39,8 @@
         .pf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 99px; font-size: 11.5px; background: rgba(148, 163, 184, .1); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, .14); }
         .pf-chip.role { background: rgba(129, 140, 248, .16); color: #c7d2fe; border-color: rgba(129, 140, 248, .35); }
         .pf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px; align-items: start; }
-        .pf-card { border-radius: 24px; border: 1px solid rgba(148, 163, 184, .15); background: rgba(15, 23, 42, .6); padding: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, .2); transition: border-color .25s; }
-        .pf-card:hover { border-color: rgba(129, 140, 248, .3); }
-        .pf-title { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 1px solid rgba(148, 163, 184, .13); }
-        .pf-title i { color: #818cf8; } .pf-title small { margin-left: auto; font-size: 11px; font-weight: 400; color: #64748b; }
-        .pf-lbl { display: block; font-size: 11.5px; color: #94a3b8; margin: 0 0 5px; }
-        .pf-in { width: 100%; background: rgba(2, 6, 16, .55); border: 1px solid rgba(148, 163, 184, .2); border-radius: 14px; padding: 10px 13px; font-size: 14px; color: #f1f5f9; outline: none; font-family: inherit; transition: border-color .2s, box-shadow .2s; }
-        .pf-in:focus { border-color: #818cf8; box-shadow: 0 0 0 4px rgba(129, 140, 248, .15); }
-        .pf-in[readonly] { color: #94a3b8; cursor: not-allowed; }
-        .pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .pf-field { margin-bottom: 12px; }
-        .pf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 14px; font-size: 13px; font-weight: 600; border: 1px solid rgba(148, 163, 184, .2); background: rgba(255, 255, 255, .05); color: #e2e8f0; cursor: pointer; font-family: inherit; }
-        .pf-btn:hover { background: rgba(129, 140, 248, .18); border-color: rgba(129, 140, 248, .4); }
-        .pf-btn.primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); border-color: transparent; color: #fff; box-shadow: 0 8px 22px -6px rgba(99, 102, 241, .6); }
-        .pf-btn.primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        .pf-btn.danger { color: #fda4af; border-color: rgba(244, 63, 94, .3); background: rgba(244, 63, 94, .08); } .pf-btn.danger:hover { background: rgba(244, 63, 94, .2); border-color: rgba(244, 63, 94, .5); }
-        .pf-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+        .ux-btn.danger { color: #fda4af; border-color: rgba(244, 63, 94, .3); background: rgba(244, 63, 94, .08); } .ux-btn.danger:hover { background: rgba(244, 63, 94, .2); border-color: rgba(244, 63, 94, .5); }
+        .ux-btn:disabled { opacity: .5; cursor: not-allowed; }
         .pf-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
         .pf-swatches { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
         .pf-sw { width: 38px; height: 38px; border-radius: 13px; border: 3px solid transparent; cursor: pointer; transition: transform .2s var(--ui-ease), border-color .2s; padding: 0; }
@@ -78,18 +64,15 @@
         .pf-zoom { width: 100%; accent-color: #818cf8; }
         .pf-toast { pointer-events: none; position: fixed; z-index: 95; left: 50%; bottom: 96px; transform: translateX(-50%); padding: 10px 18px; border-radius: 16px; font-size: 13px; font-weight: 500; background: #1e293b; border: 1px solid rgba(148, 163, 184, .25); box-shadow: 0 14px 40px rgba(0, 0, 0, .5); animation: uiPop .3s cubic-bezier(.2, .9, .3, 1.12); max-width: 92vw; }
         .pf-toast.bad { background: #4c0519; border-color: rgba(244, 63, 94, .5); color: #fecdd3; }
-        @media (max-width: 600px) { .pf-hero { flex-direction: column; text-align: center; } .pf-chips { justify-content: center; } .pf-row { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) { .pf-hero { flex-direction: column; text-align: center; } .pf-chips { justify-content: center; } }
     </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
-
-    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span></button>
-        <h1 class="text-sm sm:text-base md:text-xl font-bold tracking-wide truncate px-2"><i class="fa-solid fa-user text-indigo-400 mr-1.5"></i>Mein Profil</h1>
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span></button>
-    </header>
-
-    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
+<body class="ux">
+<main class="ux-page" style="--m:#60a5fa;--m2:#3b82f6;--mr:96,165,250">
+    <div class="ux-top">
+        <div class="ux-ico"><i class="fa-solid fa-user"></i></div>
+        <div><h1 class="ux-h1">Mein Profil</h1><div class="ux-sub">Dein Konto und deine Einstellungen</div></div>
+    </div>
         <section class="pf-hero">
             <div class="pf-avwrap">
                 <div class="pf-av" id="hero-av"></div>
@@ -101,66 +84,66 @@
                 <div class="pf-sub" id="hero-mail"></div>
                 <div class="pf-chips" id="hero-chips"></div>
                 <div class="pf-actions" style="margin-top:14px">
-                    <button class="pf-btn primary" onclick="$('file').click()"><i class="fa-solid fa-image"></i>Bild ändern</button>
-                    <button class="pf-btn" id="btn-rmphoto" onclick="removePhoto()"><i class="fa-solid fa-trash-can"></i>Bild entfernen</button>
+                    <button class="ux-btn pri" onclick="$('file').click()"><i class="fa-solid fa-image"></i>Bild ändern</button>
+                    <button class="ux-btn" id="btn-rmphoto" onclick="removePhoto()"><i class="fa-solid fa-trash-can"></i>Bild entfernen</button>
                 </div>
             </div>
         </section>
 
         <div class="pf-grid">
-            <section class="pf-card">
-                <div class="pf-title"><i class="fa-solid fa-user"></i>Persönliche Daten</div>
+            <section class="ux-card">
+                <div class="ux-t"><i class="fa-solid fa-user"></i>Persönliche Daten</div>
                 <form onsubmit="saveProfile(event)">
-                    <div class="pf-row"><div class="pf-field"><label class="pf-lbl" for="f-first">Vorname</label><input class="pf-in" id="f-first" maxlength="40" autocomplete="given-name" required></div>
-                        <div class="pf-field"><label class="pf-lbl" for="f-last">Nachname</label><input class="pf-in" id="f-last" maxlength="40" autocomplete="family-name"></div></div>
-                    <div class="pf-field"><label class="pf-lbl" for="f-mail">E-Mail-Adresse <i class="fa-solid fa-lock" style="font-size:10px"></i></label><input class="pf-in" id="f-mail" readonly></div>
-                    <div class="pf-actions"><button class="pf-btn primary" id="btn-save"><i class="fa-solid fa-check"></i>Speichern</button></div>
+                    <div class="ux-row2"><label class="ux-f"><span>Vorname</span><input class="ux-in" id="f-first" maxlength="40" autocomplete="given-name" required></label>
+                        <label class="ux-f"><span>Nachname</span><input class="ux-in" id="f-last" maxlength="40" autocomplete="family-name"></label></div>
+                    <label class="ux-f"><span>E-Mail-Adresse <i class="fa-solid fa-lock" style="font-size:10px"></i></span><input class="ux-in" id="f-mail" readonly></label>
+                    <div class="ux-acts"><button class="ux-btn pri" id="btn-save"><i class="fa-solid fa-check"></i>Speichern</button></div>
                     <p class="pf-note">Die E-Mail-Adresse ist dein Login und kann hier nicht geändert werden. Wende dich dafür an einen Administrator.</p>
                 </form>
             </section>
 
-            <section class="pf-card">
-                <div class="pf-title"><i class="fa-solid fa-palette"></i>Avatar-Farbe<small>wenn kein Bild gesetzt ist</small></div>
+            <section class="ux-card">
+                <div class="ux-t"><i class="fa-solid fa-palette"></i>Avatar-Farbe<small>wenn kein Bild gesetzt ist</small></div>
                 <div class="pf-swatches" id="swatches"></div>
                 <p class="pf-note">Ohne Profilbild siehst du deine Initialen auf dem gewählten Farbverlauf, zum Beispiel links in der Navigation.</p>
             </section>
 
-            <section class="pf-card">
-                <div class="pf-title"><i class="fa-solid fa-key"></i>Passwort ändern</div>
+            <section class="ux-card">
+                <div class="ux-t"><i class="fa-solid fa-key"></i>Passwort ändern</div>
                 <form onsubmit="changePassword(event)">
-                    <div class="pf-field"><label class="pf-lbl" for="p-cur">Aktuelles Passwort</label><input class="pf-in" type="password" id="p-cur" autocomplete="current-password" required></div>
-                    <div class="pf-field"><label class="pf-lbl" for="p-new">Neues Passwort (mindestens 8 Zeichen)</label><input class="pf-in" type="password" id="p-new" autocomplete="new-password" minlength="8" required oninput="meter()">
-                        <div class="pf-meter"><i id="meter-bar"></i></div><div class="pf-meter-t" id="meter-txt"></div></div>
-                    <div class="pf-field"><label class="pf-lbl" for="p-rep">Neues Passwort wiederholen</label><input class="pf-in" type="password" id="p-rep" autocomplete="new-password" required></div>
-                    <div class="pf-actions"><button class="pf-btn primary" id="btn-pw"><i class="fa-solid fa-lock"></i>Passwort ändern</button></div>
+                    <label class="ux-f"><span>Aktuelles Passwort</span><input class="ux-in" id="p-cur" type="password" autocomplete="current-password" required></label>
+                    <label class="ux-f"><span>Neues Passwort (mindestens 8 Zeichen)</span><input class="ux-in" type="password" id="p-new" autocomplete="new-password" minlength="8" required oninput="meter()">
+                        <div class="pf-meter"><i id="meter-bar"></i></div><div class="pf-meter-t" id="meter-txt"></div></label>
+                    <label class="ux-f"><span>Neues Passwort wiederholen</span><input class="ux-in" id="p-rep" type="password" autocomplete="new-password" required></label>
+                    <div class="ux-acts"><button class="ux-btn pri" id="btn-pw"><i class="fa-solid fa-lock"></i>Passwort ändern</button></div>
                 </form>
             </section>
 
-            <section class="pf-card">
-                <div class="pf-title"><i class="fa-solid fa-shield-halved"></i>Meine Rechte<small>vergibt der Administrator</small></div>
+            <section class="ux-card">
+                <div class="ux-t"><i class="fa-solid fa-shield-halved"></i>Meine Rechte<small>vergibt der Administrator</small></div>
                 <div id="perms"></div>
             </section>
 
-            <section class="pf-card">
-                <div class="pf-title"><i class="fa-solid fa-database"></i>Meine Daten &amp; Konto</div>
+            <section class="ux-card">
+                <div class="ux-t"><i class="fa-solid fa-database"></i>Meine Daten &amp; Konto</div>
                 <p class="pf-note" style="margin:0 0 14px">Lade alle Daten herunter, die zu deinem Konto gespeichert sind, oder lösche dein Konto samt aller Daten.</p>
-                <div class="pf-actions">
-                    <button class="pf-btn" onclick="callOrWait('exportMyData')"><i class="fa-solid fa-download"></i>Meine Daten herunterladen</button>
-                    <button class="pf-btn" onclick="callOrWait('openSettingsModal')"><i class="fa-solid fa-gear"></i>Einstellungen &amp; Alarm</button>
-                    <button class="pf-btn danger" onclick="callOrWait('openDeleteAccount')"><i class="fa-solid fa-trash-can"></i>Konto löschen</button>
+                <div class="ux-acts">
+                    <button class="ux-btn" onclick="callOrWait('exportMyData')"><i class="fa-solid fa-download"></i>Meine Daten herunterladen</button>
+                    <button class="ux-btn" onclick="callOrWait('openSettingsModal')"><i class="fa-solid fa-gear"></i>Einstellungen &amp; Alarm</button>
+                    <button class="ux-btn danger" onclick="callOrWait('openDeleteAccount')"><i class="fa-solid fa-trash-can"></i>Konto löschen</button>
                 </div>
             </section>
         </div>
-    </main>
+</main>
 
     <!-- Bild zuschneiden -->
     <div class="pf-modal" id="crop-modal">
         <div class="pf-modalbox">
-            <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:16px"><i class="fa-solid fa-image" style="color:#818cf8;margin-right:8px"></i>Bild zuschneiden</b><button class="pf-btn" style="padding:6px 10px" onclick="closeCrop()" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:16px"><i class="fa-solid fa-image" style="color:#818cf8;margin-right:8px"></i>Bild zuschneiden</b><button class="ux-btn" style="padding:6px 10px" onclick="closeCrop()" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></div>
             <div class="pf-stage" id="stage"><canvas id="crop-canvas" width="280" height="280"></canvas><div class="pf-ring"></div></div>
             <input class="pf-zoom" type="range" id="crop-zoom" min="1" max="4" step="0.01" value="1" aria-label="Zoom">
             <p class="pf-note" style="text-align:center">Bild mit der Maus oder dem Finger verschieben, mit dem Regler vergrößern. Die Rundung zeigt, wie es später aussieht.</p>
-            <div class="pf-actions" style="justify-content:flex-end;margin-top:14px"><button class="pf-btn" onclick="closeCrop()">Abbrechen</button><button class="pf-btn primary" id="btn-crop" onclick="applyCrop()"><i class="fa-solid fa-check"></i>Übernehmen</button></div>
+            <div class="pf-actions" style="justify-content:flex-end;margin-top:14px"><button class="ux-btn" onclick="closeCrop()">Abbrechen</button><button class="ux-btn pri" id="btn-crop" onclick="applyCrop()"><i class="fa-solid fa-check"></i>Übernehmen</button></div>
         </div>
     </div>
 
