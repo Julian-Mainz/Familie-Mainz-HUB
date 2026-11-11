@@ -321,7 +321,7 @@
                         <select data-role class="ux-in rsel" ${self ? 'disabled title="Eigene Rolle kann nicht geändert werden"' : ''}>${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${(u.role || 'user') === k ? 'selected' : ''}>${r.label}</option>`).join('')}</select></div>
                     ${s === 'pending' ? '<div class="ux-note pnote">Neue Konten starten nur mit Kalender-Rechten. Wähle eine Rolle oder einzelne Rechte und gib das Konto dann frei.</div>' : ''}
                     <div class="pg">${PERM_GROUPS.map(([g, m]) => `<div class="pgrow"><span class="uppercase grp">${g}</span>${Object.entries(m).map(([k, l]) => {
-                        const lock = (admin || self) && !OPT_IN.includes(k), on = OPT_IN.includes(k) ? perms[k] === true : (admin || perms[k] !== false);
+                        const auto = admin && k === 'dokumente', lock = auto || ((admin || self) && !OPT_IN.includes(k)), on = auto ? true : OPT_IN.includes(k) ? perms[k] === true : (admin || perms[k] !== false);   // Admins haben "Dokumente" automatisch
                         return `<label class="sw${lock ? ' lock' : ''}"><input type="checkbox" class="swi" data-perm="${k}" ${on ? 'checked' : ''} ${lock ? 'disabled' : ''}>${l}</label>`; }).join('')}</div>`).join('')}</div>
                     <div class="ua">
                         ${!admin && !self ? '<span class="uset"><button data-act="allperms" class="ux-btn sm">Alle Rechte</button><button data-act="noperms" class="ux-btn sm">Keine</button></span>' : ''}
