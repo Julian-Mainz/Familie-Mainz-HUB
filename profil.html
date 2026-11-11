@@ -150,7 +150,7 @@
     <script>
         const $ = id => document.getElementById(id);
         const e2 = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-        const PERM_GROUPS = [['Startseite', { termine: 'Kalender & Termine', pinnwand: 'Pinnwand', aufgaben: 'Aufgaben & Einkauf' }], ['Bereiche', { zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe', wand: 'Wandkalender', spotify: 'Spotify', webapps: 'Web-Apps' }], ['Kommunikation', { messenger: 'Messenger', gruppen: 'Gruppen erstellen' }]];
+        const PERM_GROUPS = [['Startseite', { termine: 'Kalender & Termine', pinnwand: 'Pinnwand', aufgaben: 'Aufgaben & Einkauf' }], ['Bereiche', { zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe', wand: 'Wandkalender', spotify: 'Spotify', webapps: 'Web-Apps', dokumente: 'Dokumente' }], ['Kommunikation', { messenger: 'Messenger', gruppen: 'Gruppen erstellen' }]];
         const userRef = () => db.collection('users').doc(currentUser.uid);
         const fmtD = t => t && t.toDate ? t.toDate().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }) : '–';
         const fmtDT = t => t && t.toDate ? t.toDate().toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' }) : '–';
