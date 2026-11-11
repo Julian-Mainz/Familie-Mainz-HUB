@@ -178,6 +178,8 @@
                 try { out.daten[c] = (await db.collection(c).where('owner', '==', currentUser.email).get()).docs.map(d => ({ id: d.id, ...plain(d.data()) })); }
                 catch (e) { out.daten[c] = 'kein Zugriff'; }
             }
+            try { out.daten.dokumente = (await db.collection('documents').where('owner', '==', currentUser.email).get()).docs.map(d => { const x = plain(d.data()); delete x.thumb; return { id: d.id, ...x, hinweis: 'Den Dateiinhalt lädst du im Bereich Dokumente herunter.' }; }); }
+            catch (e) { out.daten.dokumente = 'kein Zugriff'; }
             for (const [c, k] of [['active_work', 'laufende_stempelung'], ['finance_settings', 'budgets']]) {
                 try { const d = await db.collection(c).doc(currentUser.uid).get(); out.daten[k] = d.exists ? plain(d.data()) : null; } catch (e) { out.daten[k] = 'kein Zugriff'; }
             }
@@ -241,6 +243,11 @@
             catch (e) { throw new Error(/password|credential/i.test(e.code + e.message) ? 'Das Passwort ist nicht korrekt.' : e.message); }
             await logSystemEvent('auth', 'Konto selbst gelöscht', { email: currentUser.email });
             const email = currentUser.email, uid = currentUser.uid;
+            try {      // Dokumente: erst die Dateiteile, dann die Kopfdaten
+                const ds = await db.collection('documents').where('owner', '==', email).get();
+                for (const d of ds.docs) { try { await purge(d.ref.collection('chunks')); } catch (e) {} }
+                await purge(db.collection('documents').where('owner', '==', email));
+            } catch (e) { /* kein Zugriff = nichts zu löschen */ }
             for (const c of OWNED) { try { await purge(db.collection(c).where('owner', '==', email)); } catch (e) { /* kein Zugriff = nichts zu löschen */ } }
             await Promise.all([db.collection('active_work').doc(uid).delete().catch(() => {}), db.collection('finance_settings').doc(uid).delete().catch(() => {}), db.collection('directory').doc(uid).delete().catch(() => {}), db.collection('users').doc(uid).collection('meta').doc('messenger').delete().catch(() => {})]);
             await db.collection('users').doc(uid).delete();      // zuletzt, danach fehlen die Zugriffsrechte
