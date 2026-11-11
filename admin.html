@@ -13,128 +13,128 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="J.Mainz">
-    <link rel="stylesheet" href="/assets/css/admin.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
     <link rel="stylesheet" href="/assets/icons.css">
     <link rel="stylesheet" href="/assets/ui.css">
+    <link rel="stylesheet" href="/assets/ux.css">
     <script src="/js/vendor/firebase-app-compat.js"></script>
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
+    <script src="/js/ux.js"></script>
     <script src="/js/drawer.js"></script>
     <style>
-        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        /* Direkte Kinder von <main> dürfen nie zusammengedrückt werden, auch nicht bei langen Seiten */
-        main > * { flex-shrink: 0; }
-    </style>
-    <style type="text/tailwindcss">
-        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg p-4; }
-        .fld  { @apply bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500; }
-        .tab  { @apply px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 whitespace-nowrap; }
-        .tab.on { @apply bg-indigo-600 text-white; }
-        .act  { @apply px-3 py-1.5 rounded-xl border text-xs; }
-        .btn  { @apply px-3 py-2 rounded-xl text-xs font-semibold border; }
-        .h3   { @apply text-xs font-bold text-slate-200 border-b border-slate-800 pb-2.5 mb-3; }
-        .stat { @apply flex justify-between p-2.5 bg-slate-950/50 rounded-xl border border-slate-800 text-xs; }
+        .kp { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+        button.kb { font: inherit; color: inherit; text-align: left; cursor: pointer; width: 100%; transition: transform .2s, border-color .2s; } button.kb:hover { transform: translateY(-2px); border-color: rgba(var(--mr), .5); }
+        .kdot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; background: #34d399; box-shadow: 0 0 0 4px rgba(52, 211, 153, .18); } .kdot.warn { background: #fbbf24; box-shadow: 0 0 0 4px rgba(251, 191, 36, .18); } .kdot.bad { background: #fb7185; box-shadow: 0 0 0 4px rgba(251, 113, 133, .18); }
+        .neg { color: #fda4af; } .dim { color: #64748b; } .strong { color: #e2e8f0; font-weight: 600; } .nw { white-space: nowrap; } .uppercase { text-transform: uppercase; }
+        .ux-btn.sm { padding: 7px 12px; font-size: 12px; border-radius: 12px; } .ux-btn.danger { color: #fda4af; border-color: rgba(244, 63, 94, .3); background: rgba(244, 63, 94, .08); } .ux-btn.danger:hover { background: rgba(244, 63, 94, .2); }
+        .tabs { margin: 18px 0; } #msg-badge { margin-left: 8px; padding: 1px 8px; }
+        .sec { display: flex; flex-direction: column; gap: 16px; }
+        .invc { padding: 20px; } .invf { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 14px; } .invf .ux-in { width: auto; min-width: 200px; flex: 1; } .invl { display: flex; flex-direction: column; gap: 8px; }
+        .inv { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 14px; border-radius: 16px; background: rgba(255, 255, 255, .03); border: 1px solid rgba(148, 163, 184, .12); opacity: .75; } .inv.open { opacity: 1; border-color: rgba(var(--mr), .35); }
+        .inv .code { font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing: .1em; font-size: 15px; color: #94a3b8; text-decoration: line-through; } .inv.open .code { color: #ddd6fe; text-decoration: none; } .inv .inote { flex: 1; min-width: 160px; margin: 0; } .inv .inote b { color: #cbd5e1; }
+        .ugrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); gap: 16px; align-items: start; }
+        .usr { padding: 18px; } .usr.pend { border-color: rgba(251, 191, 36, .45); background: linear-gradient(180deg, rgba(251, 191, 36, .07), transparent 60%); }
+        .uh { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; } .un { flex: 1; min-width: 170px; } .un b { font-size: 15px; } .un small { display: block; color: #94a3b8; font-size: 12.5px; margin-top: 2px; } .un small.dim { font-size: 11px; color: #64748b; } .rsel { width: auto; padding: 8px 10px; font-size: 13px; }
+        .adm-av { width: 46px; height: 46px; border-radius: 16px; display: grid; place-items: center; overflow: hidden; color: #fff; font-weight: 800; font-size: 15px; flex: none; } .adm-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .pnote { margin: 12px 0 0; color: #fcd34d; } .pg { margin: 14px 0 4px; display: flex; flex-direction: column; gap: 8px; } .pgrow { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; } .grp { width: 116px; flex: none; font-size: 10.5px; letter-spacing: .12em; color: #64748b; }
+        .sw { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px 5px 7px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: #94a3b8; border: 1px solid rgba(148, 163, 184, .2); background: rgba(255, 255, 255, .04); cursor: pointer; transition: background-color .2s, border-color .2s, color .2s; }
+        .sw:has(.swi:checked) { color: #e2e8f0; border-color: rgba(var(--mr), .45); background: rgba(var(--mr), .12); } .sw.lock { opacity: .55; cursor: default; }
+        .swi { appearance: none; -webkit-appearance: none; flex: none; width: 26px; height: 15px; border-radius: 99px; background: #334155; position: relative; cursor: inherit; margin: 0; transition: background-color .2s; }
+        .swi::after { content: ""; position: absolute; left: 2px; top: 2px; width: 11px; height: 11px; border-radius: 50%; background: #94a3b8; transition: transform .2s, background-color .2s; } .swi:checked { background: var(--m2); } .swi:checked::after { transform: translateX(11px); background: #fff; }
+        .swi:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+        .ua { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 12px; } .uset { display: flex; gap: 8px; margin-right: auto; }
+        .tbl { padding: 0; overflow: hidden; } .tw { overflow-x: auto; } table.lt { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        .lt th { text-align: left; padding: 11px 14px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #94a3b8; background: rgba(2, 6, 16, .45); position: sticky; top: 0; } .lt td { padding: 10px 14px; border-top: 1px solid rgba(148, 163, 184, .1); color: #cbd5e1; vertical-align: top; }
+        .lt tbody tr:hover td { background: rgba(255, 255, 255, .03); } .lt .trunc { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .lt .empty { text-align: center; padding: 26px; color: #64748b; }
+        .msgc { padding: 18px; } .msgc.new { border-color: rgba(251, 191, 36, .45); } .mh { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 10px; } .mh small { display: block; color: #94a3b8; font-size: 12.5px; margin-top: 2px; } .ma { display: flex; gap: 8px; align-items: center; }
+        .msgc p { margin: 12px 0 0; color: #cbd5e1; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+        .sgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; align-items: start; } .sgrid .ux-card { padding: 20px; } .sgrid .fc b { font-variant-numeric: tabular-nums; color: #c4b5fd; }
+        @media (max-width: 700px) { .grp { width: 100%; } }
     </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+<body class="ux">
+<main class="ux-page" style="--m:#a78bfa;--m2:#8b5cf6;--mr:167,139,250">
 
-    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span></button>
-        <h1 class="text-sm sm:text-base md:text-xl font-bold text-amber-400 tracking-wide truncate px-2"><i class="fa-solid fa-user-shield mr-1.5"></i>Admin</h1>
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span></button>
-    </header>
+    <div class="ux-top">
+        <div class="ux-ico"><i class="fa-solid fa-user-shield"></i></div>
+        <div><h1 class="ux-h1">Admin</h1><div class="ux-sub">Benutzer, Rechte, Logs und System</div></div>
+    </div>
 
-    <main class="flex-1 w-full flex flex-col gap-4 overflow-y-auto pr-0 md:pr-1">
-        <!-- Kennzahlen -->
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
-            <button onclick="jumpPending()" class="card text-left hover:border-amber-500/40"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-user-clock text-amber-400 mr-1"></i>Offene Freigaben</span><div id="k-pend" class="text-lg font-bold text-amber-300 mt-1">–</div></button>
-            <div class="card"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-users text-indigo-400 mr-1"></i>Mitglieder</span><div id="k-users" class="text-lg font-bold mt-1">–</div></div>
-            <button onclick="jumpFails()" class="card text-left hover:border-rose-500/40"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-triangle-exclamation text-rose-400 mr-1"></i>Fehl-Logins heute</span><div id="k-fail" class="text-lg font-bold mt-1">–</div><span id="k-err" role="button" onclick="event.stopPropagation(); jumpErrors()" class="block text-[10px] text-slate-500 hover:text-rose-300 mt-0.5"></span></button>
-            <div class="card"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-laptop text-cyan-400 mr-1"></i>Heute aktiv</span><div id="k-active" class="text-lg font-bold mt-1">–</div></div>
-            <div class="card col-span-2 lg:col-span-1"><span class="text-[11px] text-slate-400"><i class="fa-solid fa-database text-emerald-400 mr-1"></i>Datenbank</span><div id="k-db" class="text-lg font-bold mt-1">–</div></div>
+    <!-- Kennzahlen -->
+    <div class="kp">
+        <button class="ux-card ux-kpi kb" onclick="jumpPending()" style="--m:#fbbf24;--m2:#f59e0b;--mr:251,191,36"><div class="l"><i class="fa-solid fa-user-clock" style="color:#fbbf24"></i>Offene Freigaben</div><div class="v" id="k-pend">–</div></button>
+        <div class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-users" style="color:#a78bfa"></i>Mitglieder</div><div class="v" id="k-users" style="font-size:24px">–</div></div>
+        <button class="ux-card ux-kpi kb" onclick="jumpFails()"><div class="l"><i class="fa-solid fa-triangle-exclamation" style="color:#fb7185"></i>Fehl-Logins heute</div><div class="v" id="k-fail">–</div><span id="k-err" class="chip" role="button" onclick="event.stopPropagation(); jumpErrors()"></span></button>
+        <div class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-bolt" style="color:#34d399"></i>Heute aktiv</div><div class="v" id="k-active" style="font-size:24px">–</div></div>
+        <div class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-database" style="color:#38bdf8"></i>Datenbank</div><div class="v" id="k-db" style="font-size:24px">–</div></div>
+    </div>
+
+    <div class="ux-seg tabs" role="tablist">
+        <button class="tab on" data-tab="users" onclick="showTab('users')"><i class="fa-solid fa-users"></i>Benutzer &amp; Rechte</button>
+        <button class="tab" data-tab="logs" onclick="showTab('logs')"><i class="fa-solid fa-clipboard-list"></i>Logs</button>
+        <button class="tab" data-tab="system" onclick="showTab('system')"><i class="fa-solid fa-server"></i>System</button>
+        <button class="tab" data-tab="messages" onclick="showTab('messages')"><i class="fa-solid fa-envelope"></i>Nachrichten<span id="msg-badge" class="chip r hidden"></span></button>
+    </div>
+
+    <!-- Benutzer -->
+    <section id="tab-users" class="sec">
+        <div class="ux-card invc">
+            <div class="ux-t"><i class="fa-solid fa-ticket"></i>Einladungen<small>Nur wer einen Code hat, kann sich registrieren.</small></div>
+            <div class="invf"><input id="inv-note" maxlength="60" placeholder="Für wen? (optional)" class="ux-in" aria-label="Notiz zur Einladung">
+                <select id="inv-exp" class="ux-in" style="flex:0 0 auto;min-width:160px" aria-label="Gültigkeit"><option value="7">7 Tage gültig</option><option value="30">30 Tage gültig</option><option value="1">1 Tag gültig</option><option value="0">unbegrenzt</option></select>
+                <button onclick="createInvite()" class="ux-btn pri"><i class="fa-solid fa-plus"></i>Code erzeugen</button></div>
+            <div id="inv-list" class="invl"><div class="ux-note">Lade Einladungen...</div></div>
         </div>
-
-        <div class="flex gap-1 bg-slate-900/60 border border-slate-800 rounded-2xl p-1 w-fit max-w-full overflow-x-auto shrink-0">
-            <button class="tab" data-tab="users" onclick="showTab('users')"><i class="fa-solid fa-users-gear mr-1.5"></i>Benutzer &amp; Rechte</button>
-            <button class="tab" data-tab="logs" onclick="showTab('logs')"><i class="fa-solid fa-timeline mr-1.5"></i>Logs</button>
-            <button class="tab" data-tab="system" onclick="showTab('system')"><i class="fa-solid fa-server mr-1.5"></i>System</button>
-            <button class="tab" data-tab="messages" onclick="showTab('messages')"><i class="fa-solid fa-envelope mr-1.5"></i>Nachrichten<span id="msg-badge" class="hidden ml-1.5 text-[10px] bg-amber-500 text-slate-950 font-bold rounded-full px-1.5"></span></button>
+        <div class="ux-toolbar" style="margin:4px 0 0">
+            <input id="adm-search" placeholder="Suchen (Name, E-Mail)..." class="ux-in" style="min-width:260px" aria-label="Benutzer suchen">
+            <select id="adm-status" class="ux-in" aria-label="Status"><option value="all">Alle</option><option value="pending">Wartet auf Freigabe</option><option value="active">Aktiv</option><option value="blocked">Gesperrt</option></select>
+            <div class="ux-sp"></div>
+            <button id="btn-approve-all" onclick="approveAll()" class="ux-btn hidden"><i class="fa-solid fa-user-check" style="color:#4ade80"></i><span></span></button>
         </div>
+        <div id="admin-user-list" class="ugrid"><div class="ux-card ux-empty" style="grid-column:1/-1">Lade Benutzer...</div></div>
+    </section>
 
-        <!-- Benutzer -->
-        <section id="tab-users" class="card">
-            <div class="mb-5 pb-5 border-b border-slate-800">
-                <div class="flex flex-wrap items-center gap-2 mb-3">
-                    <span class="text-sm font-bold text-slate-200"><i class="fa-solid fa-ticket text-amber-400 mr-2"></i>Einladungen</span>
-                    <span class="text-[11px] text-slate-500">Nur wer einen Code hat, kann sich registrieren.</span>
-                    <div class="flex-1"></div>
-                    <input id="inv-note" maxlength="60" placeholder="Für wen? (optional)" class="fld w-44">
-                    <select id="inv-exp" class="fld"><option value="7">7 Tage gültig</option><option value="30">30 Tage gültig</option><option value="1">1 Tag gültig</option><option value="0">unbegrenzt</option></select>
-                    <button onclick="createInvite()" class="btn bg-amber-500/20 border-amber-500/30 text-amber-300"><i class="fa-solid fa-plus mr-1.5"></i>Code erzeugen</button>
-                </div>
-                <div id="inv-list" class="space-y-2"><div class="text-xs text-slate-500">Lade Einladungen...</div></div>
-            </div>
-            <div class="flex flex-wrap items-center gap-2 mb-4">
-                <input id="adm-search" placeholder="Suchen (Name, E-Mail)..." class="fld w-56">
-                <select id="adm-status" class="fld"><option value="all">Alle</option><option value="pending">Wartet auf Freigabe</option><option value="active">Aktiv</option><option value="blocked">Gesperrt</option></select>
-                <div class="flex-1"></div>
-                <button id="btn-approve-all" onclick="approveAll()" class="btn bg-emerald-600/20 border-emerald-500/30 text-emerald-300 hidden"><i class="fa-solid fa-check-double mr-1.5"></i><span></span></button>
-            </div>
-            <div id="admin-user-list" class="space-y-3"><div class="text-xs text-slate-500 text-center py-6">Lade Benutzer...</div></div>
-        </section>
+    <!-- Logs -->
+    <section id="tab-logs" class="sec hidden">
+        <div class="ux-toolbar" style="margin:0">
+            <select id="log-period" onchange="loadLogs(true)" class="ux-in" aria-label="Zeitraum"><option value="0">Heute</option><option value="7" selected>7 Tage</option><option value="30">30 Tage</option><option value="all">Alles</option></select>
+            <select id="log-cat" onchange="renderLogs()" class="ux-in" aria-label="Kategorie"><option value="">Alle Kategorien</option><option value="auth">Logins / Auth</option><option value="data">Datenänderungen</option><option value="admin">Sicherheit &amp; Rechte</option><option value="visit">Seitenbesuche</option><option value="error">Browser-Fehler</option></select>
+            <input id="log-q" oninput="renderLogs()" placeholder="Filtern (Person, Ereignis, Details)..." class="ux-in" style="min-width:260px" aria-label="Logs filtern">
+            <div class="ux-sp"></div>
+            <button onclick="loadLogs(true)" class="ux-btn"><i class="fa-solid fa-arrows-rotate"></i>Neu laden</button>
+            <button onclick="exportLogs()" class="ux-btn"><i class="fa-solid fa-file-csv" style="color:#4ade80"></i>Export</button>
+            <button onclick="clearLogs(30)" class="ux-btn" title="Löscht Logs, die älter als 30 Tage sind"><i class="fa-solid fa-broom"></i>Älter als 30 Tage</button>
+            <button onclick="clearLogs(0)" class="ux-btn danger"><i class="fa-solid fa-trash-can"></i>Alle löschen</button>
+        </div>
+        <div class="ux-card tbl"><div class="tw"><table class="lt"><thead><tr><th>Zeitpunkt</th><th>Kategorie</th><th>Benutzer</th><th>Ereignis</th><th>Details</th></tr></thead><tbody id="logs-body"></tbody></table></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span id="log-info" class="ux-note"></span><button id="log-more" onclick="loadLogs(false)" class="ux-btn hidden">Mehr laden</button></div>
+    </section>
 
-        <!-- Logs -->
-        <section id="tab-logs" class="hidden card flex flex-col">
-            <div class="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3 mb-3">
-                <select id="log-period" onchange="loadLogs(true)" class="fld"><option value="0">Heute</option><option value="7" selected>7 Tage</option><option value="30">30 Tage</option><option value="all">Alles</option></select>
-                <select id="log-cat" onchange="renderLogs()" class="fld"><option value="">Alle Kategorien</option><option value="auth">Logins / Auth</option><option value="data">Datenänderungen</option><option value="admin">Sicherheit &amp; Rechte</option><option value="visit">Seitenbesuche</option><option value="error">Browser-Fehler</option></select>
-                <input id="log-q" oninput="renderLogs()" placeholder="Filtern (Person, Ereignis, Details)..." class="fld w-56">
-                <div class="flex-1"></div>
-                <button onclick="loadLogs(true)" class="btn bg-slate-800 border-slate-700 text-slate-200"><i class="fa-solid fa-rotate mr-1.5"></i>Neu laden</button>
-                <button onclick="exportLogs()" class="btn bg-slate-800 border-slate-700 text-slate-200"><i class="fa-solid fa-file-csv mr-1.5 text-emerald-400"></i>Export</button>
-                <button onclick="clearLogs(30)" class="btn bg-amber-500/10 border-amber-500/20 text-amber-300" title="Löscht Logs, die älter als 30 Tage sind"><i class="fa-solid fa-broom mr-1.5"></i>Älter als 30 Tage</button>
-                <button onclick="clearLogs(0)" class="btn bg-rose-500/10 border-rose-500/20 text-rose-400"><i class="fa-solid fa-trash-can mr-1.5"></i>Alle löschen</button>
-            </div>
-            <div class="overflow-auto max-h-[60vh]"><table class="w-full text-left text-xs">
-                <thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800 sticky top-0"><tr><th class="p-2.5">Zeitpunkt</th><th class="p-2.5">Kategorie</th><th class="p-2.5">Benutzer</th><th class="p-2.5">Ereignis</th><th class="p-2.5">Details</th></tr></thead>
-                <tbody id="logs-body" class="divide-y divide-slate-800/60 font-mono text-[11px]"></tbody></table></div>
-            <div class="flex items-center justify-between pt-3"><span id="log-info" class="text-[11px] text-slate-500"></span>
-                <button id="log-more" onclick="loadLogs(false)" class="btn bg-slate-800 border-slate-700 text-slate-200 hidden">Mehr laden</button></div>
-        </section>
+    <!-- Nachrichten -->
+    <section id="tab-messages" class="sec hidden">
+        <div class="ux-toolbar" style="margin:0"><span id="msg-info" class="ux-note"></span><div class="ux-sp"></div><button onclick="markAllRead()" class="ux-btn"><i class="fa-solid fa-check-double"></i>Alle als gelesen</button></div>
+        <div id="msg-list" class="sec"></div>
+    </section>
 
-        <!-- Nachrichten -->
-        <section id="tab-messages" class="hidden card">
-            <div class="flex items-center justify-between mb-3"><span id="msg-info" class="text-xs text-slate-400"></span><button onclick="markAllRead()" class="btn bg-slate-800 border-slate-700 text-slate-200"><i class="fa-solid fa-check-double mr-1.5"></i>Alle als gelesen</button></div>
-            <div id="msg-list" class="space-y-3"></div>
-        </section>
+    <!-- System -->
+    <section id="tab-system" class="sec hidden">
+        <div class="ux-toolbar" style="margin:0"><span id="sys-update" class="ux-note"></span><div class="ux-sp"></div><button onclick="loadSystem()" class="ux-btn"><i class="fa-solid fa-arrows-rotate"></i>Aktualisieren</button></div>
+        <div class="sgrid">
+            <div class="ux-card"><div class="ux-t"><i class="fa-solid fa-database"></i>Dokumente in der Datenbank</div><div id="col-stats"></div></div>
+            <div class="ux-card"><div class="ux-t"><i class="fa-solid fa-gauge-high"></i>Kontingent (Spark-Plan)</div>
+                <div class="fc"><span>Lesevorgänge pro Tag</span><b>50.000 frei</b></div>
+                <div class="fc"><span>Schreibvorgänge pro Tag</span><b>20.000 frei</b></div>
+                <div class="fc"><span>Speicher</span><b>1 GiB frei</b></div>
+                <div class="fc"><span>Von dieser Seite verbraucht (Schätzung)</span><b id="reads-est">–</b></div>
+                <p class="ux-note" style="margin-top:12px">Den echten Tagesverbrauch zeigt nur Firebase selbst. <a href="https://console.firebase.google.com/project/familie-mainz-netzwerk/usage" target="_blank" rel="noopener" style="color:#c4b5fd">Verbrauch in der Konsole öffnen</a>.</p></div>
+            <div class="ux-card"><div class="ux-t"><i class="fa-solid fa-user-clock"></i>Aktivität heute pro Person</div><div class="tw"><table class="lt"><thead><tr><th>Person</th><th>Ereignisse</th><th>Geräte</th><th>Zuletzt aktiv</th></tr></thead><tbody id="people-body"></tbody></table></div></div>
+            <div class="ux-card"><div class="ux-t"><i class="fa-solid fa-laptop"></i>Letzte Aktivitäten mit Gerät</div><div class="tw"><table class="lt"><thead><tr><th>Zeit</th><th>Benutzer</th><th>Ereignis</th><th>Gerät</th><th>Browser</th></tr></thead><tbody id="devices-body"></tbody></table></div></div>
+        </div>
+    </section>
+</main>
 
-        <!-- System -->
-        <section id="tab-system" class="hidden space-y-4">
-            <div class="flex items-center justify-between"><span id="sys-update" class="text-xs text-slate-500"></span>
-                <button onclick="loadSystem()" class="btn bg-slate-900 border-slate-800 text-indigo-300"><i class="fa-solid fa-rotate mr-1.5"></i>Aktualisieren</button></div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div class="card"><div class="h3"><i class="fa-solid fa-folder-tree text-indigo-400 mr-2"></i>Dokumente in der Datenbank</div><div id="col-stats" class="space-y-2"></div></div>
-                <div class="card"><div class="h3"><i class="fa-solid fa-gauge-high text-yellow-400 mr-2"></i>Kontingent (Spark-Plan)</div>
-                    <div class="space-y-2 text-slate-400">
-                        <div class="stat"><span>Lesevorgänge pro Tag</span><span class="font-mono text-slate-200">50.000 frei</span></div>
-                        <div class="stat"><span>Schreibvorgänge pro Tag</span><span class="font-mono text-slate-200">20.000 frei</span></div>
-                        <div class="stat"><span>Speicher</span><span class="font-mono text-slate-200">1 GiB frei</span></div>
-                        <div class="stat"><span>Von dieser Seite verbraucht (Schätzung)</span><span id="reads-est" class="font-mono text-amber-300">–</span></div>
-                        <p class="text-[11px] leading-relaxed pt-1">Den echten Tagesverbrauch zeigt nur Firebase selbst. <a href="https://console.firebase.google.com/project/familie-mainz-netzwerk/usage" target="_blank" rel="noopener" class="text-indigo-400 underline">Verbrauch in der Konsole öffnen</a>.</p></div></div>
-            </div>
-            <div class="card"><div class="h3"><i class="fa-solid fa-user-clock text-cyan-400 mr-2"></i>Aktivität heute pro Person</div>
-                <div class="overflow-auto"><table class="w-full text-left text-xs"><thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800"><tr><th class="p-2">Person</th><th class="p-2">Ereignisse</th><th class="p-2">Geräte</th><th class="p-2">Zuletzt aktiv</th></tr></thead>
-                    <tbody id="people-body" class="divide-y divide-slate-800/60"></tbody></table></div></div>
-            <div class="card"><div class="h3"><i class="fa-solid fa-clipboard-list text-cyan-400 mr-2"></i>Letzte Aktivitäten mit Gerät</div>
-                <div class="overflow-auto max-h-72"><table class="w-full text-left text-xs"><thead class="text-slate-400 bg-slate-950/40 border-b border-slate-800"><tr><th class="p-2">Zeit</th><th class="p-2">Benutzer</th><th class="p-2">Ereignis</th><th class="p-2">Gerät</th><th class="p-2">Browser</th></tr></thead>
-                    <tbody id="devices-body" class="divide-y divide-slate-800/60 text-[11px]"></tbody></table></div></div>
-        </section>
-    </main>
-
-    <script>
+<script>
         const $ = id => document.getElementById(id);
         const ROLES = {
             admin: { label: 'Admin',   perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true,  messenger: true,  gruppen: true,  admin: true } },
@@ -154,8 +154,8 @@
         const OPT_IN = ['messenger', 'gruppen'];
         const PERM_KEYS = PERM_GROUPS.flatMap(([, m]) => Object.keys(m));
         const PERM_LABEL = Object.assign({}, ...PERM_GROUPS.map(([, m]) => m));
-        const BADGE = { active: ['Aktiv', 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'], pending: ['Wartet auf Freigabe', 'bg-amber-500/10 text-amber-400 border-amber-500/20'], blocked: ['Gesperrt', 'bg-rose-500/10 text-rose-400 border-rose-500/20'] };
-        const CAT_COLOR = { auth: 'text-indigo-300', data: 'text-emerald-300', admin: 'text-amber-300', visit: 'text-slate-400', error: 'text-rose-300' };
+        const BADGE = { active: ['Aktiv', 'g'], pending: ['Wartet auf Freigabe', 'a'], blocked: ['Gesperrt', 'r'] };
+        const CAT_COLOR = { auth: '#a5b4fc', data: '#6ee7b7', admin: '#fcd34d', visit: '#94a3b8', error: '#fda4af' };
         const st = u => u.status || 'active';
         const fmtDate = t => t?.toDate ? t.toDate().toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) : '–';
         const csvCell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
@@ -169,7 +169,7 @@
             started = true;
             renderDrawer();
             db.collection('users').onSnapshot(s => { allUsers = s.docs.map(d => ({ id: d.id, ...d.data() })); renderUsers(); renderInvites(); },
-                err => { $('admin-user-list').innerHTML = `<div class="text-xs text-rose-400 text-center py-6">Benutzer konnten nicht geladen werden: ${esc(err.message)}</div>`; });
+                err => { $('admin-user-list').innerHTML = `<div class="ux-card ux-empty neg" style="grid-column:1/-1">Benutzer konnten nicht geladen werden: ${esc(err.message)}</div>`; });
             $('adm-search').addEventListener('input', e => { fText = e.target.value.toLowerCase(); renderUsers(); });
             $('adm-status').addEventListener('change', e => { fStatus = e.target.value; renderUsers(); });
             $('admin-user-list').addEventListener('change', e => { const u = userOf(e.target); if (!u) return; if ('role' in e.target.dataset) setRole(u, e.target.value); if (e.target.dataset.perm) togglePerm(u, e.target.dataset.perm, e.target.checked); });
@@ -203,13 +203,13 @@
                 const snap = await db.collection('system_logs').where('timestamp', '>=', firebase.firestore.Timestamp.fromDate(start)).orderBy('timestamp', 'desc').limit(500).get();
                 const ms = Math.round(performance.now() - t0); reads += snap.size;
                 todayLogs = snap.docs.map(d => d.data());
-                $('k-db').innerHTML = `<span class="inline-block w-2.5 h-2.5 rounded-full ${ms < 1500 ? 'bg-emerald-400' : 'bg-amber-400'} mr-2"></span>${ms} ms`;
+                $('k-db').innerHTML = `<span class="kdot${ms < 1500 ? '' : ' warn'}"></span>${ms} <small>ms</small>`;
                 const fails = todayLogs.filter(l => (l.action || '').includes('Fehlgeschlagen')).length;
-                $('k-fail').innerText = fails; $('k-fail').className = 'text-lg font-bold mt-1 ' + (fails ? 'text-rose-400' : 'text-emerald-400');
+                $('k-fail').innerText = fails; $('k-fail').className = 'v ' + (fails ? 'neg' : 'pos');
                 const errs = todayLogs.filter(l => l.category === 'error').length;
-                $('k-err').innerText = errs ? `${errs} Browser-Fehler heute` : 'keine Browser-Fehler'; $('k-err').className = 'block text-[10px] mt-0.5 ' + (errs ? 'text-rose-300' : 'text-slate-500');
+                $('k-err').innerText = errs ? `${errs} Browser-Fehler heute` : 'keine Browser-Fehler'; $('k-err').className = 'chip ' + (errs ? 'r' : 'g');
                 $('k-active').innerText = new Set(todayLogs.filter(l => l.userEmail && l.userEmail !== 'Gast / Anonym').map(l => l.userEmail)).size + ' Personen';
-            } catch (e) { $('k-db').innerHTML = '<span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-400 mr-2"></span>Fehler'; }
+            } catch (e) { $('k-db').innerHTML = '<span class="kdot bad"></span>Fehler'; }
         }
 
         // ---------- Einladungen ----------
@@ -219,11 +219,11 @@
         const showCode = c => c.replace(/(.{5})(?=.)/g, '$1-');
         async function copyText(t, btn) {
             try { await navigator.clipboard.writeText(t); } catch (e) { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); }
-            if (btn) { const old = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>Kopiert'; setTimeout(() => { btn.innerHTML = old; }, 1400); }
+            if (btn) { const old = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-check"></i>Kopiert'; setTimeout(() => { btn.innerHTML = old; }, 1400); }
         }
         function initInvites() {
             db.collection('invites').orderBy('createdAt', 'desc').limit(60).onSnapshot(s => { invites = s.docs.map(d => ({ id: d.id, ...d.data() })); renderInvites(); },
-                err => { $('inv-list').innerHTML = `<div class="text-xs text-rose-400">Einladungen konnten nicht geladen werden: ${esc(err.message)} (sind die neuen Firestore-Regeln veröffentlicht?)</div>`; });
+                err => { $('inv-list').innerHTML = `<div class="ux-note neg">Einladungen konnten nicht geladen werden: ${esc(err.message)} (sind die neuen Firestore-Regeln veröffentlicht?)</div>`; });
             $('inv-list').addEventListener('click', e => {
                 const b = e.target.closest('[data-i]'); if (!b) return; const id = b.dataset.id;
                 if (b.dataset.i === 'code') copyText(showCode(id), b);
@@ -243,16 +243,15 @@
             $('inv-list').innerHTML = invites.length ? invites.map(i => {
                 const exp = i.expiresAt && i.expiresAt.toDate ? i.expiresAt.toDate() : null, expired = !i.used && exp && exp.getTime() < now;
                 const who = i.used ? allUsers.find(u => u.id === i.usedBy) : null;
-                const [lbl, cls] = i.used ? ['Eingelöst', 'bg-slate-700/40 text-slate-300'] : expired ? ['Abgelaufen', 'bg-rose-500/10 text-rose-300'] : ['Offen', 'bg-emerald-500/10 text-emerald-300'];
+                const [lbl, cls] = i.used ? ['Eingelöst', ''] : expired ? ['Abgelaufen', 'r'] : ['Offen', 'g'];
                 const info = i.used ? `von ${esc(who ? who.displayName || who.email : 'unbekannt')} am ${fmtDate(i.usedAt)}` : (exp ? `gültig bis ${exp.toLocaleDateString('de-DE')}` : 'unbegrenzt gültig');
                 const open = !i.used && !expired;
-                return `<div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 bg-slate-950/40 border ${open ? 'border-amber-500/30' : 'border-slate-800/80 opacity-70'} rounded-2xl px-3.5 py-2.5 text-xs">
-                    <span class="font-mono text-sm tracking-widest ${open ? 'text-amber-300' : 'text-slate-500 line-through'}">${esc(showCode(i.id))}</span>
-                    <span class="px-2 py-0.5 rounded-lg text-[10px] ${cls}">${lbl}</span>
-                    <span class="text-slate-400 flex-1 min-w-[160px] truncate">${i.note ? '<b class="text-slate-300">' + esc(i.note) + '</b> · ' : ''}${info}</span>
-                    ${open ? `<button data-i="code" data-id="${esc(i.id)}" class="act bg-slate-800 border-slate-700 text-slate-300">Code kopieren</button><button data-i="link" data-id="${esc(i.id)}" class="act bg-indigo-600/20 border-indigo-500/30 text-indigo-300"><i class="fa-solid fa-link mr-1"></i>Link kopieren</button>` : ''}
-                    <button data-i="del" data-id="${esc(i.id)}" class="act bg-rose-600/20 border-rose-500/30 text-rose-300" title="Löschen"><i class="fa-solid fa-trash-can"></i></button></div>`;
-            }).join('') : '<div class="text-xs text-slate-500">Noch keine Einladungen. Erzeuge einen Code und schicke ihn der Person.</div>';
+                return `<div class="inv${open ? ' open' : ''}">
+                    <b class="code">${esc(showCode(i.id))}</b><span class="chip ${cls}">${lbl}</span>
+                    <span class="ux-note inote">${i.note ? '<b>' + esc(i.note) + '</b> · ' : ''}${info}</span>
+                    ${open ? `<button data-i="code" data-id="${esc(i.id)}" class="ux-btn sm">Code kopieren</button><button data-i="link" data-id="${esc(i.id)}" class="ux-btn sm"><i class="fa-solid fa-link"></i>Link kopieren</button>` : ''}
+                    <button data-i="del" data-id="${esc(i.id)}" class="ux-ib bad" title="Löschen" aria-label="Einladung löschen"><i class="fa-solid fa-trash-can"></i></button></div>`;
+            }).join('') : '<div class="ux-note">Noch keine Einladungen. Erzeuge einen Code und schicke ihn der Person.</div>';
         }
 
         // ---------- Benutzer ----------
@@ -314,34 +313,30 @@
                 .sort((a, b) => (st(b) === 'pending') - (st(a) === 'pending') || (a.displayName || a.email).localeCompare(b.displayName || b.email, 'de'));
             $('admin-user-list').innerHTML = rows.length ? rows.map(u => {
                 const self = isSelf(u), s = st(u), perms = u.permissions || {}, admin = isAdmin(u), [bl, bc] = BADGE[s] || BADGE.active;
-                return `<div data-uid="${esc(u.id)}" class="bg-slate-950/40 border ${s === 'pending' ? 'border-amber-500/40' : 'border-slate-800/80'} rounded-2xl p-4 space-y-3 text-xs">
-                    <div class="flex flex-wrap items-center justify-between gap-2"><div class="flex items-center gap-3 min-w-0"><span class="adm-av" style="background:${avGrad(u.avatarColor)}">${avInner({ ...u, name: u.displayName || u.email })}</span><div class="min-w-0">
-                        <div class="font-semibold text-slate-200 text-sm">${esc(u.displayName || u.email)} ${self ? '<span class="text-[10px] text-slate-500 font-normal">(du)</span>' : ''}
-                            ${u.notificationsEnabled ? '<i class="fa-solid fa-bell text-yellow-400 text-[10px] ml-1" title="Push aktiv"></i>' : ''}</div>
-                        <div class="text-slate-500">${esc(u.email)}</div>
-                        <div class="text-[10px] text-slate-600 mt-0.5">Registriert: ${fmtDate(u.createdAt)} · Letzter Login: ${fmtDate(u.lastLogin)}</div></div></div>
-                        <span class="text-[10px] border px-2 py-1 rounded-lg ${bc}">${bl}</span></div>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <select data-role class="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 disabled:opacity-50" ${self ? 'disabled title="Eigene Rolle kann nicht geändert werden"' : ''}>
-                            ${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${(u.role || 'user') === k ? 'selected' : ''}>${r.label}</option>`).join('')}</select>
-                        ${!admin && !self ? '<span class="flex gap-1.5 ml-auto"><button data-act="allperms" class="act bg-slate-800 border-slate-700 text-slate-300">Alle Rechte</button><button data-act="noperms" class="act bg-slate-800 border-slate-700 text-slate-300">Keine</button></span>' : ''}</div>
-                    ${s === 'pending' ? '<div class="text-[11px] text-amber-300/80">Neue Konten starten nur mit Kalender-Rechten. Wähle eine Rolle oder einzelne Rechte und gib das Konto dann frei.</div>' : ''}
-                    <div class="space-y-1.5">${PERM_GROUPS.map(([g, m]) => `<div class="flex flex-wrap items-center gap-x-4 gap-y-1.5"><span class="text-[10px] uppercase tracking-wider text-slate-500 w-20 shrink-0">${g}</span>
-                        ${Object.entries(m).map(([k, l]) => `<label class="flex items-center gap-1.5 text-[11px] text-slate-300 ${(admin || self) && !OPT_IN.includes(k) ? 'opacity-50' : 'cursor-pointer'}">
-                            <input type="checkbox" data-perm="${k}" ${OPT_IN.includes(k) ? (perms[k] === true ? 'checked' : '') : (admin || perms[k] !== false ? 'checked' : '')} ${(admin || self) && !OPT_IN.includes(k) ? 'disabled' : ''} class="rounded bg-slate-800 border-slate-700 w-3.5 h-3.5">${l}</label>`).join('')}</div>`).join('')}</div>
-                    <div class="flex flex-wrap gap-2 pt-1">
-                        ${s !== 'active' ? '<button data-act="approve" class="act bg-emerald-600/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-600/30">Freigeben</button>' : ''}
-                        ${s === 'active' && !self ? '<button data-act="block" class="act bg-amber-600/20 border-amber-500/30 text-amber-300 hover:bg-amber-600/30">Sperren</button>' : ''}
-                        ${!self ? '<button data-act="reset" class="act bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-key mr-1"></i>Passwort-Reset</button>' : ''}
-                        ${!self ? '<button data-act="delete" class="act bg-rose-600/20 border-rose-500/30 text-rose-300 hover:bg-rose-600/30">Profil löschen</button>' : ''}</div></div>`;
-            }).join('') : '<div class="text-xs text-slate-500 text-center py-6">Keine Benutzer gefunden.</div>';
+                return `<div data-uid="${esc(u.id)}" class="ux-card usr${s === 'pending' ? ' pend' : ''}">
+                    <div class="uh"><span class="adm-av" style="background:${avGrad(u.avatarColor)}">${avInner({ ...u, name: u.displayName || u.email })}</span>
+                        <div class="un"><b>${esc(u.displayName || u.email)}</b> ${self ? '<span class="chip">Du</span>' : ''}${u.notificationsEnabled ? ' <i class="fa-solid fa-bell" style="color:#facc15;font-size:11px" title="Push aktiv"></i>' : ''}
+                            <small>${esc(u.email)}</small><small class="dim">Registriert: ${fmtDate(u.createdAt)} · Letzter Login: ${fmtDate(u.lastLogin)}</small></div>
+                        <span class="chip ${bc}">${bl}</span>
+                        <select data-role class="ux-in rsel" ${self ? 'disabled title="Eigene Rolle kann nicht geändert werden"' : ''}>${Object.entries(ROLES).map(([k, r]) => `<option value="${k}" ${(u.role || 'user') === k ? 'selected' : ''}>${r.label}</option>`).join('')}</select></div>
+                    ${s === 'pending' ? '<div class="ux-note pnote">Neue Konten starten nur mit Kalender-Rechten. Wähle eine Rolle oder einzelne Rechte und gib das Konto dann frei.</div>' : ''}
+                    <div class="pg">${PERM_GROUPS.map(([g, m]) => `<div class="pgrow"><span class="uppercase grp">${g}</span>${Object.entries(m).map(([k, l]) => {
+                        const lock = (admin || self) && !OPT_IN.includes(k), on = OPT_IN.includes(k) ? perms[k] === true : (admin || perms[k] !== false);
+                        return `<label class="sw${lock ? ' lock' : ''}"><input type="checkbox" class="swi" data-perm="${k}" ${on ? 'checked' : ''} ${lock ? 'disabled' : ''}>${l}</label>`; }).join('')}</div>`).join('')}</div>
+                    <div class="ua">
+                        ${!admin && !self ? '<span class="uset"><button data-act="allperms" class="ux-btn sm">Alle Rechte</button><button data-act="noperms" class="ux-btn sm">Keine</button></span>' : ''}
+                        ${s !== 'active' ? '<button data-act="approve" class="ux-btn pri sm"><i class="fa-solid fa-user-check"></i>Freigeben</button>' : ''}
+                        ${s === 'active' && !self ? '<button data-act="block" class="ux-btn sm"><i class="fa-solid fa-ban"></i>Sperren</button>' : ''}
+                        ${!self ? '<button data-act="reset" class="ux-btn sm"><i class="fa-solid fa-key"></i>Passwort-Reset</button>' : ''}
+                        ${!self ? '<button data-act="delete" class="ux-btn sm danger">Profil löschen</button>' : ''}</div></div>`;
+            }).join('') : '<div class="ux-card ux-empty" style="grid-column:1/-1">Keine Benutzer gefunden.</div>';
         }
 
         // ---------- Nachrichten (Kontaktformular der Startseite) ----------
         let messages = [];
         function initMessages() {
             db.collection('contact_messages').orderBy('createdAt', 'desc').limit(100).onSnapshot(s => { messages = s.docs.map(d => ({ id: d.id, ...d.data() })); renderMessages(); },
-                err => { $('msg-list').innerHTML = `<div class="text-xs text-rose-400 text-center py-6">Nachrichten konnten nicht geladen werden: ${esc(err.message)}</div>`; });
+                err => { $('msg-list').innerHTML = `<div class="ux-card ux-empty neg">Nachrichten konnten nicht geladen werden: ${esc(err.message)}</div>`; });
             $('msg-list').addEventListener('click', e => {
                 const b = e.target.closest('[data-m]'); if (!b) return;
                 const m = messages.find(x => x.id === b.dataset.id); if (!m) return;
@@ -353,13 +348,12 @@
             const unread = messages.filter(m => !m.read).length;
             $('msg-badge').innerText = unread; $('msg-badge').classList.toggle('hidden', !unread);
             $('msg-info').innerText = `${messages.length} Nachrichten · ${unread} ungelesen`;
-            $('msg-list').innerHTML = messages.length ? messages.map(m => `<div class="bg-slate-950/40 border ${m.read ? 'border-slate-800/80' : 'border-amber-500/40'} rounded-2xl p-4 text-xs space-y-2">
-                <div class="flex flex-wrap items-start justify-between gap-2"><div><div class="font-semibold text-slate-200 text-sm">${esc(m.name)} ${m.read ? '' : '<span class="text-[10px] text-amber-400 ml-1">neu</span>'}</div>
-                    <div class="text-slate-500">${m.email ? esc(m.email) : 'keine E-Mail angegeben'} · ${fmtDate(m.createdAt)}</div></div>
-                    <div class="flex gap-2">${m.email ? `<a href="mailto:${esc(m.email)}?subject=${encodeURIComponent('Antwort auf deine Nachricht')}" class="act bg-indigo-600/20 border-indigo-500/30 text-indigo-300"><i class="fa-solid fa-reply mr-1"></i>Antworten</a>` : ''}
-                    <button data-m="read" data-id="${esc(m.id)}" class="act bg-slate-800 border-slate-700 text-slate-300">${m.read ? 'Als ungelesen' : 'Gelesen'}</button>
-                    <button data-m="del" data-id="${esc(m.id)}" class="act bg-rose-600/20 border-rose-500/30 text-rose-300"><i class="fa-solid fa-trash-can"></i></button></div></div>
-                <p class="text-slate-300 text-[13px] whitespace-pre-wrap break-words">${esc(m.message)}</p></div>`).join('') : '<div class="text-xs text-slate-500 text-center py-6">Noch keine Nachrichten.</div>';
+            $('msg-list').innerHTML = messages.length ? messages.map(m => `<div class="ux-card msgc${m.read ? '' : ' new'}">
+                <div class="mh"><div><b>${esc(m.name)}</b> ${m.read ? '' : '<span class="chip a">neu</span>'}<small>${m.email ? esc(m.email) : 'keine E-Mail angegeben'} · ${fmtDate(m.createdAt)}</small></div>
+                    <div class="ma">${m.email ? `<a href="mailto:${esc(m.email)}?subject=${encodeURIComponent('Antwort auf deine Nachricht')}" class="ux-btn sm"><i class="fa-solid fa-reply"></i>Antworten</a>` : ''}
+                    <button data-m="read" data-id="${esc(m.id)}" class="ux-btn sm">${m.read ? 'Als ungelesen' : 'Gelesen'}</button>
+                    <button data-m="del" data-id="${esc(m.id)}" class="ux-ib bad" aria-label="Nachricht löschen"><i class="fa-solid fa-trash-can"></i></button></div></div>
+                <p>${esc(m.message)}</p></div>`).join('') : '<div class="ux-card ux-empty"><i class="fa-solid fa-envelope-open"></i>Noch keine Nachrichten.</div>';
         }
         async function markAllRead() {
             const list = messages.filter(m => !m.read); if (!list.length) return;
@@ -383,7 +377,7 @@
                 logCursor = snap.docs[snap.docs.length - 1] || logCursor;
                 $('log-more').classList.toggle('hidden', snap.size < 100);
                 renderLogs();
-            } catch (e) { $('logs-body').innerHTML = `<tr><td colspan="5" class="text-center py-6 text-rose-400 font-sans">Logs konnten nicht geladen werden: ${esc(e.message)}</td></tr>`; }
+            } catch (e) { $('logs-body').innerHTML = `<tr><td colspan="5" class="empty neg">Logs konnten nicht geladen werden: ${esc(e.message)}</td></tr>`; }
         }
         function filteredLogs() {
             const c = $('log-cat').value, q = $('log-q').value.toLowerCase();
@@ -392,11 +386,11 @@
         function renderLogs() {
             const list = filteredLogs();
             $('log-info').innerText = `${list.length} von ${logs.length} geladenen Einträgen`;
-            $('logs-body').innerHTML = list.length ? list.map(l => `<tr class="hover:bg-slate-900/50"><td class="p-2.5 text-slate-400 whitespace-nowrap">${esc(logTime(l))}</td>
-                <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 ${CAT_COLOR[l.category] || 'text-slate-400'}">${esc(l.category || 'info')}</span></td>
-                <td class="p-2.5">${esc(l.userName || 'Unbekannt')}</td><td class="p-2.5 font-medium font-sans">${esc(l.action || '-')}</td>
-                <td class="p-2.5 text-slate-500 max-w-[280px] truncate" title="${esc(detailsOf(l))}">${esc(detailsOf(l) || '-')}</td></tr>`).join('')
-                : '<tr><td colspan="5" class="text-center py-6 text-slate-500 font-sans">Keine Logs gefunden.</td></tr>';
+            $('logs-body').innerHTML = list.length ? list.map(l => `<tr><td class="nw dim">${esc(logTime(l))}</td>
+                <td><span class="chip" style="color:${CAT_COLOR[l.category] || '#94a3b8'}">${esc(l.category || 'info')}</span></td>
+                <td>${esc(l.userName || 'Unbekannt')}</td><td class="strong">${esc(l.action || '-')}</td>
+                <td class="dim trunc" title="${esc(detailsOf(l))}">${esc(detailsOf(l) || '-')}</td></tr>`).join('')
+                : '<tr><td colspan="5" class="empty">Keine Logs gefunden.</td></tr>';
         }
         function exportLogs() {
             const list = filteredLogs(); if (!list.length) return alert('Keine Logs zum Exportieren.');
@@ -429,16 +423,16 @@
         async function loadSystem() {
             sysLoaded = true;
             const counts = await Promise.all(COLS.map(([n, , priv]) => priv ? null : countDocs(db.collection(n))));
-            $('col-stats').innerHTML = COLS.map(([, label, priv], i) => `<div class="stat"><span class="text-slate-300">${label}</span><span class="font-mono font-bold text-indigo-300">${priv ? '<span class="text-slate-500 font-sans">privat</span>' : counts[i] === null ? '–' : counts[i]}</span></div>`).join('');
+            $('col-stats').innerHTML = COLS.map(([, label, priv], i) => `<div class="fc"><span>${label}</span><b>${priv ? '<span class="dim">privat</span>' : counts[i] === null ? '–' : counts[i]}</b></div>`).join('');
             await loadToday();
             const by = {};
             todayLogs.filter(l => l.userEmail && l.userEmail !== 'Gast / Anonym').forEach(l => { const p = by[l.userEmail] = by[l.userEmail] || { name: l.userName, n: 0, ua: new Set(), last: l.timestamp }; p.n++; p.ua.add(l.userAgent); });
-            $('people-body').innerHTML = Object.values(by).map(p => `<tr><td class="p-2 text-slate-200">${esc(p.name)}</td><td class="p-2 font-mono">${p.n}</td><td class="p-2 font-mono">${p.ua.size}</td><td class="p-2 text-slate-400">${p.last?.toDate ? p.last.toDate().toLocaleTimeString('de-DE') : '–'}</td></tr>`).join('') || '<tr><td colspan="4" class="text-center py-4 text-slate-500">Heute noch keine Aktivität.</td></tr>';
-            $('devices-body').innerHTML = todayLogs.slice(0, 25).map(l => `<tr class="hover:bg-slate-900/50"><td class="p-2 text-slate-400 whitespace-nowrap">${l.timestamp?.toDate ? l.timestamp.toDate().toLocaleTimeString('de-DE') : '--'}</td><td class="p-2 text-slate-200">${esc(l.userName || l.userEmail)}</td>
-                <td class="p-2 text-slate-300">${esc(l.action || '-')}</td><td class="p-2 text-cyan-400 font-semibold">${esc(l.device || '-')}</td><td class="p-2 text-slate-500 font-mono" title="${esc(l.userAgent || '')}">${esc((l.userAgent || '').slice(0, 60))}</td></tr>`).join('')
-                || '<tr><td colspan="5" class="text-center py-4 text-slate-500">Heute noch keine Aktivität.</td></tr>';
+            $('people-body').innerHTML = Object.values(by).map(p => `<tr><td class="strong">${esc(p.name)}</td><td>${p.n}</td><td>${p.ua.size}</td><td class="dim">${p.last?.toDate ? p.last.toDate().toLocaleTimeString('de-DE') : '–'}</td></tr>`).join('') || '<tr><td colspan="4" class="empty">Heute noch keine Aktivität.</td></tr>';
+            $('devices-body').innerHTML = todayLogs.slice(0, 25).map(l => `<tr><td class="nw dim">${l.timestamp?.toDate ? l.timestamp.toDate().toLocaleTimeString('de-DE') : '--'}</td><td class="strong">${esc(l.userName || l.userEmail)}</td>
+                <td>${esc(l.action || '-')}</td><td style="color:#22d3ee;font-weight:600">${esc(l.device || '-')}</td><td class="dim trunc" title="${esc(l.userAgent || '')}">${esc((l.userAgent || '').slice(0, 60))}</td></tr>`).join('')
+                || '<tr><td colspan="5" class="empty">Heute noch keine Aktivität.</td></tr>';
             $('reads-est').innerText = '≈ ' + reads + ' Lesevorgänge'; $('sys-update').innerText = 'Zuletzt aktualisiert: ' + new Date().toLocaleTimeString('de-DE');
         }
-    </script>
+</script>
 </body>
 </html>
