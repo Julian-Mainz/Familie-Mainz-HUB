@@ -137,9 +137,9 @@
 <script>
         const $ = id => document.getElementById(id);
         const ROLES = {
-            admin: { label: 'Admin',   perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true,  messenger: true,  gruppen: true,  admin: true } },
-            user:  { label: 'Mitglied', perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true,  messenger: false, gruppen: false, admin: false } },
-            guest: { label: 'Gast',    perms: { termine: true, pinnwand: true, aufgaben: true, zeit: false, finanzen: false, tresor: false, wand: false, spotify: false, webapps: false, messenger: false, gruppen: false, admin: false } }
+            admin: { label: 'Admin',   perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true, dokumente: true,  messenger: true,  gruppen: true,  admin: true } },
+            user:  { label: 'Mitglied', perms: { termine: true, pinnwand: true, aufgaben: true, zeit: true,  finanzen: true,  tresor: true,  wand: true,  spotify: true,  webapps: true, dokumente: true,  messenger: false, gruppen: false, admin: false } },
+            guest: { label: 'Gast',    perms: { termine: true, pinnwand: true, aufgaben: true, zeit: false, finanzen: false, tresor: false, wand: false, spotify: false, webapps: false, dokumente: false, messenger: false, gruppen: false, admin: false } }
         };
         // Avatar-Helfer kommen aus drawer.js; fehlt die Datei, bleibt die Liste trotzdem bedienbar
         const avGrad = i => (typeof avatarGradient === 'function' ? avatarGradient(i) : '#4f46e5');
@@ -147,11 +147,11 @@
         // Alle einzeln vergebbaren Rechte. Neue Bereiche später hier ergänzen.
         const PERM_GROUPS = [
             ['Startseite', { termine: 'Kalender & Termine', pinnwand: 'Pinnwand', aufgaben: 'Aufgaben & Einkauf' }],
-            ['Bereiche', { zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe', wand: 'Wandkalender', spotify: 'Spotify', webapps: 'Web-Apps' }],
+            ['Bereiche', { zeit: 'Zeiterfassung', finanzen: 'Finanzen', tresor: 'Passwort-Safe', wand: 'Wandkalender', spotify: 'Spotify', webapps: 'Web-Apps', dokumente: 'Dokumente' }],
             ['Kommunikation', { messenger: 'Messenger', gruppen: 'Gruppen erstellen' }]
         ];
         // Opt-in: gelten nur, wenn ausdrücklich erteilt (auch für Admins, und Admins können sie sich selbst geben)
-        const OPT_IN = ['messenger', 'gruppen'];
+        const OPT_IN = ['messenger', 'gruppen', 'dokumente'];
         const PERM_KEYS = PERM_GROUPS.flatMap(([, m]) => Object.keys(m));
         const PERM_LABEL = Object.assign({}, ...PERM_GROUPS.map(([, m]) => m));
         const BADGE = { active: ['Aktiv', 'g'], pending: ['Wartet auf Freigabe', 'a'], blocked: ['Gesperrt', 'r'] };
@@ -415,7 +415,7 @@
         // ---------- System ----------
         // Dritter Wert true = private Daten, die auch Admins laut Regeln nicht sehen dürfen
         const COLS = [['users', 'Benutzer'], ['worktime', 'Arbeitszeiten', true], ['active_work', 'Laufende Stempelungen', true], ['finance_transactions', 'Finanz-Buchungen', true], ['fixed_costs', 'Fixkosten', true],
-            ['payslips', 'Lohnabrechnungen', true], ['vault', 'Tresor-Einträge', true], ['events', 'Termine'], ['notes', 'Notizen'], ['todos', 'Aufgaben'], ['system_logs', 'System-Logs'], ['contact_messages', 'Nachrichten']];
+            ['payslips', 'Lohnabrechnungen', true], ['vault', 'Tresor-Einträge', true], ['documents', 'Dokumente', true], ['events', 'Termine'], ['notes', 'Notizen'], ['todos', 'Aufgaben'], ['system_logs', 'System-Logs'], ['contact_messages', 'Nachrichten']];
         async function countDocs(q) {
             try { const n = (await q.count().get()).data().count; reads += Math.max(1, Math.ceil(n / 1000)); return n; }
             catch (e) { try { const s = await q.get(); reads += Math.max(1, s.size); return s.size; } catch (e2) { return null; } }
