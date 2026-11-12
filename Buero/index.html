@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Büro-Imperium</title>
+<meta name="theme-color" content="#060b18">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='10' y='8' width='44' height='50' rx='6' fill='%23f1f5f9'/%3E%3Crect x='17' y='18' width='30' height='4' rx='2' fill='%2394a3b8'/%3E%3Crect x='17' y='27' width='30' height='4' rx='2' fill='%2394a3b8'/%3E%3Crect x='17' y='36' width='18' height='4' rx='2' fill='%2394a3b8'/%3E%3Ccircle cx='44' cy='46' r='9' fill='%2338bdf8'/%3E%3C/svg%3E">
+<style>
+:root { --a: #38bdf8; --ar: 56,189,248; --bg: #060b18; --t: #f1f5f9; --mu: #94a3b8; --ln: rgba(148,163,184,.16); --gl: rgba(20,16,36,.72); }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--t); background: radial-gradient(900px 600px at 15% -10%, rgba(var(--ar), .16), transparent 60%), radial-gradient(800px 600px at 100% 110%, rgba(99,102,241,.16), transparent 60%), var(--bg); overflow: hidden; user-select: none; -webkit-user-select: none; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.app { height: 100dvh; display: grid; grid-template-columns: minmax(340px, 42%) minmax(0, 1fr); gap: 16px; padding: 16px; padding-top: max(16px, env(safe-area-inset-top)); padding-bottom: max(16px, env(safe-area-inset-bottom)); position: relative; z-index: 1; }
+.card { background: var(--gl); border: 1px solid var(--ln); border-radius: 26px; box-shadow: 0 24px 60px -24px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.05); }
+/* ---- links: Hauptknopf ---- */
+.left { display: flex; flex-direction: column; min-height: 0; padding: 18px; position: relative; overflow: hidden; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.top a { color: var(--mu); text-decoration: none; font-size: 13px; padding: 7px 12px; border-radius: 12px; border: 1px solid var(--ln); background: rgba(255,255,255,.04); } .top a:hover { color: #fff; }
+.name { font-weight: 800; letter-spacing: -.02em; font-size: 18px; } .name small { display: block; font-weight: 500; font-size: 11px; color: var(--mu); letter-spacing: .12em; text-transform: uppercase; }
+.score { text-align: center; margin: 14px 0 4px; } .score .n { font-size: clamp(34px, 5.5vw, 56px); font-weight: 800; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1; background: linear-gradient(180deg, #fff, #bae6fd); -webkit-background-clip: text; background-clip: text; color: transparent; word-break: break-word; }
+.score .l { font-size: 12px; text-transform: uppercase; letter-spacing: .16em; color: var(--mu); margin-top: 6px; } .score .ps { margin-top: 8px; font-size: 14px; color: #7dd3fc; font-variant-numeric: tabular-nums; } .score .ps b { color: #fff; }
+.buffs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; min-height: 28px; margin-top: 8px; } .buff { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: rgba(236,72,153,.18); border: 1px solid rgba(236,72,153,.5); color: #fbcfe8; animation: pulse 1.4s ease-in-out infinite; }
+.field { flex: 1; min-height: 0; display: grid; place-items: center; position: relative; }
+#cookie { width: min(72%, 44vh, 320px); aspect-ratio: 1; border: 0; background: none; padding: 0; border-radius: 22%; position: relative; transition: transform .08s ease; filter: drop-shadow(0 30px 40px rgba(0,0,0,.55)) drop-shadow(0 0 40px rgba(var(--ar), .25)); touch-action: manipulation; animation: breathe 4s ease-in-out infinite; }
+#cookie:hover { transform: scale(1.03); } #cookie:active, #cookie.press { transform: scale(.94); } #cookie:focus-visible { outline: 3px solid #fff; outline-offset: 6px; } #cookie svg { width: 100%; height: 100%; display: block; pointer-events: none; }
+.cps-info { text-align: center; font-size: 12px; color: var(--mu); } .cps-info b { color: #e2e8f0; }
+.fl { position: absolute; z-index: 5; pointer-events: none; font-weight: 800; font-size: 20px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.7), 0 0 14px rgba(var(--ar), .8); animation: rise .95s ease-out forwards; white-space: nowrap; }
+.crumb { position: absolute; z-index: 4; width: 9px; height: 11px; border-radius: 2px; background: #e2e8f0; pointer-events: none; animation: crumb .7s ease-out forwards; }
+#golden { position: absolute; z-index: 8; width: 74px; height: 74px; border: 0; padding: 0; background: none; cursor: pointer; animation: gpop .4s cubic-bezier(.2,.9,.3,1.3), gfloat 2.2s ease-in-out infinite .4s; filter: drop-shadow(0 0 18px rgba(255,214,10,.9)); }
+#golden svg { width: 100%; height: 100%; pointer-events: none; }
+#toasts { position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 60; width: min(92vw, 520px); display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+.toast { max-width: 100%; padding: 12px 18px; border-radius: 18px; background: #1e293b; border: 1px solid rgba(148,163,184,.3); box-shadow: 0 20px 50px rgba(0,0,0,.6); font-size: 14px; text-align: center; animation: tin .35s cubic-bezier(.2,.9,.3,1.2); }
+.toast.gold { background: linear-gradient(135deg, #0c4a6e, #075985); border-color: #38bdf8; color: #e0f2fe; } .toast.ach { border-color: rgba(var(--ar), .6); }
+.rain { position: fixed; top: -40px; z-index: 0; font-size: 26px; opacity: .25; pointer-events: none; animation: fall linear forwards; }
+/* ---- rechts: Shop ---- */
+.right { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.tabs { display: flex; gap: 4px; padding: 10px; border-bottom: 1px solid var(--ln); overflow-x: auto; scrollbar-width: none; } .tabs::-webkit-scrollbar { display: none; }
+.tabs button { flex: 1 0 auto; border: 0; background: none; color: var(--mu); padding: 10px 14px; border-radius: 14px; font-weight: 600; font-size: 13.5px; white-space: nowrap; position: relative; transition: color .2s, background-color .2s; } .tabs button:hover { color: #fff; }
+.tabs button[aria-selected="true"] { color: #1a1002; background: linear-gradient(135deg, #bae6fd, var(--a)); box-shadow: 0 8px 20px -8px rgba(var(--ar), .8); }
+.tabs .dot { position: absolute; top: 5px; right: 6px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 99px; background: #ec4899; color: #fff; font-size: 10px; display: grid; place-items: center; font-weight: 800; }
+.panel { flex: 1; min-height: 0; overflow-y: auto; padding: 14px; scrollbar-width: thin; scrollbar-color: #334155 transparent; } .hidden { display: none !important; }
+.amt { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; font-size: 12.5px; color: var(--mu); } .amt button { border: 1px solid var(--ln); background: rgba(255,255,255,.05); color: var(--mu); padding: 6px 12px; border-radius: 10px; font-weight: 700; } .amt button[aria-pressed="true"] { color: #1a1002; background: var(--a); border-color: var(--a); }
+.b { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 12px 14px; margin-bottom: 8px; border-radius: 20px; border: 1px solid var(--ln); background: rgba(255,255,255,.035); transition: transform .15s, border-color .2s, background-color .2s; position: relative; overflow: hidden; }
+.b .em { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 28px; background: rgba(var(--ar), .1); flex: none; } .b .in { flex: 1; min-width: 0; } .b .nm { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; } .b .own { margin-left: auto; font-size: 22px; font-weight: 800; color: rgba(255,255,255,.28); font-variant-numeric: tabular-nums; }
+.b .ds { font-size: 12px; color: var(--mu); margin-top: 2px; } .b .cost { font-size: 13.5px; margin-top: 4px; font-weight: 700; color: #fca5a5; font-variant-numeric: tabular-nums; } .b .cost em { font-style: normal; font-weight: 500; color: var(--mu); font-size: 12px; }
+.b.can { border-color: rgba(var(--ar), .45); background: rgba(var(--ar), .07); } .b.can .cost { color: #86efac; } .b.can:hover { transform: translateX(3px); } .b:not(.can) { opacity: .62; } .b:active { transform: scale(.985); }
+.ug { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; } .u { padding: 12px; border-radius: 18px; border: 1px solid var(--ln); background: rgba(255,255,255,.035); text-align: left; display: flex; flex-direction: column; gap: 4px; transition: transform .15s, border-color .2s; }
+.u .un { font-weight: 700; font-size: 13.5px; } .u .ud { font-size: 11.5px; color: var(--mu); line-height: 1.35; flex: 1; } .u .uc { font-size: 12.5px; font-weight: 800; color: #fca5a5; margin-top: 4px; font-variant-numeric: tabular-nums; } .u.can { border-color: rgba(var(--ar), .5); background: rgba(var(--ar), .08); } .u.can .uc { color: #86efac; } .u.can:hover { transform: translateY(-2px); } .u:not(.can) { opacity: .62; }
+.ag { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; } .a { padding: 12px; border-radius: 18px; border: 1px solid var(--ln); background: rgba(255,255,255,.03); display: flex; gap: 10px; align-items: center; } .a .ai { font-size: 26px; filter: grayscale(1) opacity(.35); } .a.on { border-color: rgba(var(--ar), .45); background: rgba(var(--ar), .07); } .a.on .ai { filter: none; } .a .at { font-size: 13px; font-weight: 700; } .a .ad { font-size: 11.5px; color: var(--mu); margin-top: 2px; } .a:not(.on) .at { color: #94a3b8; }
+.sec { margin: 0 0 16px; } .sec h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: var(--mu); }
+.kv { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--ln); font-size: 14px; } .kv span { color: var(--mu); } .kv b { font-variant-numeric: tabular-nums; text-align: right; }
+.pbox { padding: 18px; border-radius: 20px; border: 1px solid rgba(236,72,153,.4); background: linear-gradient(135deg, rgba(236,72,153,.12), rgba(var(--ar), .06)); margin-bottom: 14px; } .pbox h3 { margin: 0 0 6px; font-size: 18px; } .pbox p { margin: 6px 0; font-size: 13.5px; color: #cbd5e1; line-height: 1.55; }
+.btn { border: 1px solid var(--ln); background: rgba(255,255,255,.06); padding: 11px 16px; border-radius: 14px; font-weight: 700; font-size: 13.5px; transition: filter .2s, transform .15s; } .btn:hover { filter: brightness(1.2); } .btn:active { transform: scale(.97); } .btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.pri { color: #1a1002; border: 0; background: linear-gradient(135deg, #bae6fd, var(--a)); box-shadow: 0 10px 24px -10px rgba(var(--ar), .9); } .btn.pink { color: #fff; border: 0; background: linear-gradient(135deg, #ec4899, #be185d); } .btn.bad { color: #fecdd3; border-color: rgba(244,63,94,.4); background: rgba(244,63,94,.12); }
+.opt { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--ln); font-size: 14px; } .opt small { display: block; color: var(--mu); font-size: 12px; margin-top: 2px; }
+.sw { width: 46px; height: 26px; border-radius: 99px; border: 0; background: #334155; position: relative; flex: none; transition: background-color .2s; } .sw::after { content: ""; position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .2s; } .sw[aria-checked="true"] { background: var(--a); } .sw[aria-checked="true"]::after { transform: translateX(20px); }
+.modal { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; background: rgba(5,3,12,.8); } .modal .box { width: min(100%, 520px); padding: 22px; } .modal h3 { margin: 0 0 8px; } .modal textarea { width: 100%; height: 130px; border-radius: 14px; border: 1px solid var(--ln); background: rgba(2,6,16,.7); color: var(--t); padding: 12px; font: 12px ui-monospace, Menlo, monospace; resize: none; user-select: text; -webkit-user-select: text; } .modal .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
+@keyframes breathe { 50% { transform: scale(1.015); } } @keyframes pulse { 50% { opacity: .65; } } @keyframes rise { to { transform: translateY(-90px); opacity: 0; } } @keyframes crumb { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
+@keyframes gpop { from { transform: scale(0); } } @keyframes gfloat { 50% { transform: translateY(-8px) rotate(6deg); } } @keyframes tin { from { transform: translateY(20px); opacity: 0; } } @keyframes fall { to { transform: translateY(calc(100dvh + 80px)) rotate(240deg); } }
+@media (prefers-reduced-motion: reduce) { #cookie, .buff, #golden { animation: none; } .fl, .crumb, .rain { display: none; } }
+body.calm #cookie, body.calm .buff { animation: none; } body.calm .rain, body.calm .crumb { display: none; }
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: minmax(0, 46%) minmax(0, 1fr); gap: 10px; padding: 10px; padding-top: max(10px, env(safe-area-inset-top)); padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+  .left { padding: 12px; } .score { margin: 6px 0 2px; } .score .l { display: none; } .cps-info { display: none; } #cookie { width: min(70%, 30vh); } .name small { display: none; } .score .n { font-size: clamp(28px, 9vw, 42px); }
+  .b { padding: 10px 12px; gap: 12px; } .b .em { width: 44px; height: 44px; font-size: 24px; } .b .ds { display: none; }
+}
+@media (max-height: 560px) and (min-width: 901px) { #cookie { width: min(60%, 36vh); } }
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="card left" id="left">
+    <div class="top"><div class="name">🏢 Büro-Imperium<small id="rank">Praktikant</small></div><a href="/menu.html" aria-label="Zurück zum Dashboard">← Dashboard</a></div>
+    <div class="score"><div class="n"><span id="cnt">0</span> €</div><div class="l">Kontostand</div><div class="ps">Einkommen pro Sekunde: <b id="cps">0</b> €</div><div class="buffs" id="buffs"></div></div>
+    <div class="field" id="field"><button id="cookie" aria-label="Aufgabe erledigen"><svg viewBox="0 0 200 200" aria-hidden="true"><defs>
+      <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dbe4f0"/></linearGradient>
+      <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a5f"/><stop offset="1" stop-color="#0f1d36"/></linearGradient></defs>
+      <rect x="6" y="6" width="188" height="188" rx="42" fill="url(#bg2)" stroke="rgba(125,211,252,.45)" stroke-width="3"/>
+      <g transform="rotate(-6 100 106)"><rect x="40" y="36" width="120" height="146" rx="8" fill="#b6c4d8"/></g><g transform="rotate(4 100 106)"><rect x="40" y="32" width="120" height="146" rx="8" fill="#cfd9e8"/></g>
+      <rect x="40" y="28" width="120" height="146" rx="8" fill="url(#pg)"/>
+      <g fill="#94a3b8"><rect x="56" y="48" width="64" height="7" rx="3.5"/><rect x="56" y="68" width="88" height="6" rx="3"/><rect x="56" y="84" width="88" height="6" rx="3"/><rect x="56" y="100" width="88" height="6" rx="3"/><rect x="56" y="116" width="52" height="6" rx="3"/></g>
+      <g transform="rotate(-14 112 146)"><rect x="62" y="124" width="100" height="40" rx="8" fill="rgba(239,68,68,.08)" stroke="#ef4444" stroke-width="4"/><text x="112" y="152" text-anchor="middle" font-family="system-ui,Arial" font-weight="900" font-size="23" letter-spacing="1.5" fill="#ef4444">ERLEDIGT</text></g>
+      <path d="M52 40c18-8 40-10 60-6" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="5" stroke-linecap="round"/></svg></button></div>
+    <div class="cps-info">Eine Aufgabe bringt <b id="cv">1</b> €</div>
+  </section>
+  <section class="card right">
+    <div class="tabs" id="tabs" role="tablist">
+      <button role="tab" data-tab="bld" aria-selected="true">Büro</button><button role="tab" data-tab="upg" aria-selected="false">Upgrades<span class="dot hidden" id="dot-upg">0</span></button>
+      <button role="tab" data-tab="ach" aria-selected="false">Erfolge</button><button role="tab" data-tab="stat" aria-selected="false">Status</button><button role="tab" data-tab="pres" aria-selected="false">Karriere<span class="dot hidden" id="dot-pres">!</span></button><button role="tab" data-tab="opt" aria-selected="false">Optionen</button>
+    </div>
+    <div class="panel" id="p-bld"><div class="amt" id="amt">Kaufen: <button data-n="1" aria-pressed="true">1</button><button data-n="10" aria-pressed="false">10</button><button data-n="100" aria-pressed="false">100</button><button data-n="0" aria-pressed="false">Max</button></div><div id="bld"></div></div>
+    <div class="panel hidden" id="p-upg"><div class="sec"><h3>Verfügbare Upgrades</h3><div class="ug" id="upg"></div><div id="upg-empty" class="hidden" style="color:var(--mu);font-size:13.5px;padding:8px 2px">Aktuell gibt es nichts Neues. Kaufe mehr Einrichtungen oder verdiene mehr, dann werden neue Upgrades frei.</div></div><div class="kv"><span>Gekaufte Upgrades</span><b id="upg-have">0</b></div></div>
+    <div class="panel hidden" id="p-ach"><div class="kv" style="border:0;padding-top:0"><span>Freigeschaltet</span><b id="ach-have">0</b></div><div class="ag" id="ach"></div></div>
+    <div class="panel hidden" id="p-stat"><div class="sec"><h3>Dieser Durchlauf</h3><div id="st1"></div></div><div class="sec"><h3>Insgesamt</h3><div id="st2"></div></div></div>
+    <div class="panel hidden" id="p-pres"><div class="pbox"><h3>📈 Beförderung</h3><p>Lass dich befördern und erhalte dafür dauerhaft <b>Karrierepunkte</b>. Jeder Punkt erhöht dein Einkommen und den Wert jeder Aufgabe um <b>2 %</b>, für immer. Einrichtungen, Upgrades und Kontostand werden dabei zurückgesetzt, Erfolge, Karrierepunkte und dein Rang bleiben.</p>
+      <p>Du hast: <b id="pr-have">0</b> Karrierepunkte (+<b id="pr-bonus">0</b> % Einkommen)</p><p>Bei einer Beförderung jetzt: <b id="pr-new">0</b> neue Karrierepunkte</p><p style="color:var(--mu);font-size:12.5px" id="pr-hint"></p>
+      <button class="btn pink" id="pr-btn" style="margin-top:8px">Befördert werden</button></div></div>
+    <div class="panel hidden" id="p-opt">
+      <div class="opt"><div>Ton<small>Ein leiser Klick-Ton beim Arbeiten</small></div><button class="sw" id="o-sound" role="switch" aria-checked="false" aria-label="Ton"></button></div>
+      <div class="opt"><div>Ruhige Animationen<small>Keine Partikel und fallenden Geldscheine (spart Akku)</small></div><button class="sw" id="o-calm" role="switch" aria-checked="false" aria-label="Ruhige Animationen"></button></div>
+      <div class="opt"><div>Sicherung<small>Spielstand als Code kopieren oder von einem anderen Gerät einfügen</small></div><span style="display:flex;gap:8px"><button class="btn" id="o-exp">Exportieren</button><button class="btn" id="o-imp">Importieren</button></span></div>
+      <div class="opt"><div>Alles zurücksetzen<small>Löscht den gesamten Spielstand, auch Karrierepunkte und Erfolge</small></div><button class="btn bad" id="o-reset">Zurücksetzen</button></div>
+      <p style="color:var(--mu);font-size:12.5px;line-height:1.55;margin-top:14px">Dein Spielstand liegt nur auf diesem Gerät im Browser. Er wird alle 10 Sekunden automatisch gespeichert.</p>
+    </div>
+  </section>
+</div>
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="card box"><h3 id="m-t"></h3><p id="m-p" style="color:var(--mu);font-size:13.5px;margin:0 0 10px"></p><textarea id="m-ta" spellcheck="false"></textarea><div class="row" id="m-r"></div></div></div>
+
+<script>
+'use strict';
+// ================= Spieldaten =================
+const KEY = 'buero-imperium-v1', GROW = 1.15, CHIP_BONUS = 0.02, ACH_BONUS = 0.01, OFFLINE_CAP = 8 * 3600, OFFLINE_RATE = 0.5;
+const RANKS = ['Praktikant', 'Sachbearbeiter', 'Teamleiter', 'Abteilungsleiter', 'Direktor', 'Geschäftsführer', 'Vorstand'];
+const B = [
+  { id: 'ofen', n: 'Kaffeemaschine', e: '☕', c: 15, p: 0.1, d: 'Ohne Kaffee läuft hier gar nichts.' },
+  { id: 'lehrling', n: 'Praktikant', e: '🧑‍💻', c: 100, p: 1, d: 'Arbeitet für Erfahrung und Kaffee.' },
+  { id: 'baeckerei', n: 'Team', e: '👥', c: 1100, p: 8, d: 'Ein eingespieltes Team mit Tischkicker.' },
+  { id: 'fabrik', n: 'Abteilung', e: '🏢', c: 12000, p: 47, d: 'Eigene Etage, eigene Kaffeeküche.' },
+  { id: 'mine', n: 'Großes Meeting', e: '📊', c: 130000, p: 260, d: 'Hätte eine E-Mail sein können, bringt aber Geld.' },
+  { id: 'rakete', n: 'Eigene Software', e: '💾', c: 1400000, p: 1400, d: 'Läuft nachts, wenn alle schlafen.' },
+  { id: 'portal', n: 'KI-Assistent', e: '🤖', c: 20000000, p: 7800, d: 'Schreibt Berichte, bevor du fragst.' },
+  { id: 'zeit', n: 'Konzernzentrale', e: '🏦', c: 330000000, p: 44000, d: 'Glasfassade, Dachterrasse, Parkhaus.' },
+  { id: 'kosmos', n: 'Mond-Büro', e: '🌙', c: 5100000000, p: 260000, d: 'Homeoffice, aber mit Aussicht.' }
+];
+const BY = Object.fromEntries(B.map(b => [b.id, b]));
+const UPG = [];
+[['finger1', 'Bessere Tastatur', 100], ['finger2', 'Zweiter Monitor', 500], ['finger3', 'Höhenverstellbarer Tisch', 10000], ['finger4', 'Makros und Skripte', 1e6], ['finger5', 'Vollautomatisierung', 1e9]].forEach(([id, n, c], i, a) => UPG.push({ id, n, d: 'Jede Aufgabe bringt doppelt so viel ein.', cost: c, click: 2, after: a[i - 1] ? a[i - 1][0] : null }));
+[['lern1', 'Routine', 50000, 0.01], ['lern2', 'Erfahrung', 5e6, 0.04], ['lern3', 'Expertise', 5e8, 0.1]].forEach(([id, n, c, f], i, a) => UPG.push({ id, n, d: `Jede Aufgabe bringt zusätzlich ${Math.round(f * 100)} % deines Einkommens pro Sekunde.`, cost: c, clickPs: f, after: a[i - 1] ? a[i - 1][0] : null }));
+B.forEach(b => [[1, 10], [10, 100], [25, 1000], [50, 10000]].forEach(([t, m], j) => UPG.push({ id: `b_${b.id}_${t}`, n: `${b.n}: Stufe ${j + 1}`, d: `Verdoppelt den Ertrag von „${b.n}“. Braucht ${t} davon.`, cost: b.c * m, bld: b.id, need: t })));
+[['zucker', 'Betriebsklima', 5000, 1.05, '+5 % auf alles'], ['schoko', 'Bonuszahlung', 50000, 1.05, '+5 % auf alles'], ['vanille', 'Firmenwagen', 5e6, 1.1, '+10 % auf alles'], ['sterne', 'Aktienoptionen', 5e8, 1.1, '+10 % auf alles']].forEach(([id, n, c, g, d]) => UPG.push({ id, n, d, cost: c, glob: g }));
+const UBY = Object.fromEntries(UPG.map(u => [u.id, u]));
+const ACH = [
+  ['click1', '👆', 'Der erste Handgriff', 'Erledige 1 Aufgabe.', s => s.clicks >= 1], ['click100', '👏', 'Fleißige Finger', 'Erledige 100 Aufgaben.', s => s.clicks >= 100], ['click1k', '📁', 'Aktenfresser', 'Erledige 1.000 Aufgaben.', s => s.clicks >= 1000], ['click10k', '🗄️', 'Schreibtischtäter', 'Erledige 10.000 Aufgaben.', s => s.clicks >= 10000],
+  ['bake100', '💶', 'Erstes Gehalt', 'Verdiene 100 €.', s => s.allTime >= 100], ['bake1k', '💰', 'Taschengeld', 'Verdiene 1.000 €.', s => s.allTime >= 1e3], ['bake100k', '💳', 'Gutverdiener', 'Verdiene 100.000 €.', s => s.allTime >= 1e5], ['bake10m', '🏆', 'Millionär', 'Verdiene 10 Mio. €.', s => s.allTime >= 1e7], ['bake1b', '👑', 'Milliardär', 'Verdiene 1 Mrd. €.', s => s.allTime >= 1e9], ['bake1t', '🌌', 'Konzernlenker', 'Verdiene 1 Bio. €.', s => s.allTime >= 1e12],
+  ['cps1', '⏱️', 'Passives Einkommen', 'Erreiche 1 € pro Sekunde.', (s, c) => c.cps >= 1], ['cps100', '⚙️', 'Läuft von allein', 'Erreiche 100 € pro Sekunde.', (s, c) => c.cps >= 100], ['cps10k', '🚄', 'Hochbetrieb', 'Erreiche 10.000 € pro Sekunde.', (s, c) => c.cps >= 1e4], ['cps1m', '🛰️', 'Industrie', 'Erreiche 1 Mio. € pro Sekunde.', (s, c) => c.cps >= 1e6],
+  ['bld10', '🏗️', 'Aufbau', 'Besitze 10 Gebäude und Einrichtungen.', (s, c) => c.nb >= 10], ['bld100', '🏙️', 'Metropole', 'Besitze 100 davon.', (s, c) => c.nb >= 100], ['bld400', '🌆', 'Imperium', 'Besitze 400 davon.', (s, c) => c.nb >= 400], ['all9', '🧩', 'Alles dabei', 'Besitze jede Sorte mindestens einmal.', s => B.every(b => (s.bld[b.id] || 0) >= 1)],
+  ['upg10', '🛒', 'Aufrüster', 'Kaufe 10 Upgrades.', s => s.upg.length >= 10], ['upg30', '🧰', 'Optimierer', 'Kaufe 30 Upgrades.', s => s.upg.length >= 30],
+  ['gold1', '🌟', 'Chef-Lob', 'Fange einen Bonus.', s => s.golden >= 1], ['gold7', '🍀', 'Lieblingsmitarbeiter', 'Fange 7 Boni.', s => s.golden >= 7],
+  ['pres1', '📈', 'Erste Beförderung', 'Lass dich zum ersten Mal befördern.', s => s.prestiges >= 1]
+].map(([id, e, n, d, f]) => ({ id, e, n, d, f }));
+// ================= Zustand =================
+const fresh = () => ({ v: 1, cookies: 0, total: 0, allTime: 0, clicks: 0, bld: {}, upg: [], ach: [], chips: 0, prestiges: 0, golden: 0, startedAt: Date.now(), runStart: Date.now(), playMs: 0, lastSave: Date.now(), frenzyUntil: 0, clickFrenzyUntil: 0, sound: false, calm: false });
+let S = fresh(), buyN = 1, nextGolden = Date.now() + 90000, goldenEl = null, dirty = true, last = Date.now(), lastRender = 0, lastUnlockSig = '';
+const $ = id => document.getElementById(id);
+// ================= Zahlen =================
+const NAMES = [[1e24, 'Quad.'], [1e21, 'Trd.'], [1e18, 'Trio.'], [1e15, 'Brd.'], [1e12, 'Bio.'], [1e9, 'Mrd.'], [1e6, 'Mio.']];
+function fmt(n, dec) {
+  if (!isFinite(n)) return '∞'; n = Math.max(0, n);
+  for (const [v, s] of NAMES) if (n >= v) { const x = n / v; return (x >= 100 ? x.toFixed(1) : x.toFixed(2)).replace('.', ',') + ' ' + s; }
+  if (n >= 1e27) return n.toExponential(2).replace('.', ',').replace('e+', ' e');
+  if (dec && n < 100) return n.toFixed(n < 10 ? 2 : 1).replace('.', ',');
+  return Math.floor(n).toLocaleString('de-DE');
+}
+const fmtT = ms => { const s = Math.floor(ms / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60); return d ? `${d} T ${h} Std` : h ? `${h} Std ${m} Min` : m ? `${m} Min ${s % 60} Sek` : `${s} Sek`; };
+// ================= Rechnen =================
+function calc() {
+  const own = id => S.bld[id] || 0, has = id => S.upg.includes(id);
+  let glob = 1 + ACH_BONUS * S.ach.length, clickMult = 1, clickPs = 0; const bm = {};
+  glob *= 1 + CHIP_BONUS * S.chips;
+  UPG.forEach(u => { if (!has(u.id)) return; if (u.glob) glob *= u.glob; if (u.click) clickMult *= u.click; if (u.clickPs) clickPs += u.clickPs; if (u.bld) bm[u.bld] = (bm[u.bld] || 1) * 2; });
+  let base = 0, nb = 0; B.forEach(b => { base += own(b.id) * b.p * (bm[b.id] || 1); nb += own(b.id); });
+  const now = Date.now(), fr = S.frenzyUntil > now ? 7 : 1, cfr = S.clickFrenzyUntil > now ? 777 : 1, cpsPlain = base * glob;
+  return { cps: cpsPlain * fr, cpsPlain, click: (clickMult + clickPs * cpsPlain) * glob * cfr, glob, nb, bm, fr, cfr };
+}
+const costN = (b, owned, n) => Math.ceil(b.c * Math.pow(GROW, owned) * (Math.pow(GROW, n) - 1) / (GROW - 1));
+function maxN(b, owned, cookies) { const k = Math.floor(Math.log(1 + cookies * (GROW - 1) / (b.c * Math.pow(GROW, owned))) / Math.log(GROW)); let n = Math.max(0, k); while (n > 0 && costN(b, owned, n) > cookies) n--; return n; }
+function addCookies(x) { S.cookies += x; S.total += x; S.allTime += x; }
+const chipsTotal = () => Math.floor(Math.sqrt(S.allTime / 1e7)), chipsPending = () => Math.max(0, chipsTotal() - S.chips);
+// ================= Aktionen =================
+function click(x, y, silent) {
+  const c = calc(); addCookies(c.click); S.clicks++; dirty = true; checkAch(); if (!silent) { floatText('+' + fmt(c.click, true), x, y); crumbs(x, y); blip(); }
+}
+function buy(id, n) {
+  const b = BY[id], owned = S.bld[id] || 0; if (n === 0) n = maxN(b, owned, S.cookies); if (n < 1) return false;
+  const cost = costN(b, owned, n); if (S.cookies < cost) return false; S.cookies -= cost; S.bld[id] = owned + n; dirty = true; checkAch(); return true;
+}
+function buyUpg(id) { const u = UBY[id]; if (!u || S.upg.includes(id) || S.cookies < u.cost || !unlocked(u)) return false; S.cookies -= u.cost; S.upg.push(id); dirty = true; checkAch(); return true; }
+function unlocked(u) { if (u.bld) return (S.bld[u.bld] || 0) >= u.need; if (u.after && !S.upg.includes(u.after)) return false; return S.allTime >= u.cost * 0.2; }
+function prestige() {
+  const n = chipsPending(); if (n < 1) return false; S.chips += n; S.prestiges++; Object.assign(S, { cookies: 0, total: 0, bld: {}, upg: [], runStart: Date.now(), frenzyUntil: 0, clickFrenzyUntil: 0 }); dirty = true; lastUnlockSig = ''; checkAch(); save(); return true;
+}
+function tick(ms) {                          // ms: vergangene Zeit; auch für Tests aufrufbar
+  const c = calc(), dt = ms / 1000; addCookies(c.cps * dt); S.playMs += ms; dirty = dirty || c.cps > 0; checkAch(c);
+}
+function offline(sec) { const c = calc(), e = Math.min(sec, OFFLINE_CAP), g = c.cpsPlain * e * OFFLINE_RATE; if (g > 0) { addCookies(g); toast(`🌙 Willkommen zurück! In ${fmtT(e * 1000)} hat dein Büro ${fmt(g)} € verdient.`); } }
+function checkAch(c) { c = c || calc(); ACH.forEach(a => { if (!S.ach.includes(a.id) && a.f(S, c)) { S.ach.push(a.id); toast(`🏆 Erfolg: ${a.n}`, 'ach'); dirty = true; } }); }
+// ================= Goldener Bonus =================
+const GOLD_SVG = '<svg viewBox="0 0 100 100"><defs><radialGradient id="gg" cx="40%" cy="35%"><stop offset="0" stop-color="#fff7c2"/><stop offset=".6" stop-color="#fcd34d"/><stop offset="1" stop-color="#d97706"/></radialGradient></defs><circle cx="50" cy="50" r="44" fill="url(#gg)" stroke="#f59e0b" stroke-width="3"/><circle cx="50" cy="50" r="33" fill="none" stroke="#b45309" stroke-opacity=".5" stroke-width="3"/><text x="50" y="64" text-anchor="middle" font-family="system-ui,Arial" font-weight="900" font-size="44" fill="#92400e">€</text><path d="M22 30c8-10 22-14 36-10" stroke="#fff" stroke-opacity=".7" stroke-width="5" fill="none" stroke-linecap="round"/></svg>';
+function spawnGolden() {
+  if (goldenEl) return; const f = $('left').getBoundingClientRect(), g = document.createElement('button'); g.id = 'golden'; g.setAttribute('aria-label', 'Bonus, jetzt anklicken!'); g.innerHTML = GOLD_SVG;
+  g.style.left = Math.round(30 + Math.random() * Math.max(20, f.width - 140)) + 'px'; g.style.top = Math.round(110 + Math.random() * Math.max(20, f.height - 260)) + 'px';
+  g.onclick = e => { e.stopPropagation(); catchGolden(); }; $('left').appendChild(g); goldenEl = g; g._t = setTimeout(() => { if (goldenEl === g) { g.remove(); goldenEl = null; } }, 12000);
+}
+function catchGolden() {
+  if (!goldenEl) return; clearTimeout(goldenEl._t); goldenEl.remove(); goldenEl = null; S.golden++; nextGolden = Date.now() + 60000 + Math.random() * 120000; const c = calc(), r = Math.random(), now = Date.now();
+  if (r < 0.5) { const g = Math.max(13, Math.min(S.cookies * 0.15, c.cpsPlain * 900)); addCookies(g); toast(`🌟 Sonderzahlung! +${fmt(g)} €`, 'gold'); }
+  else if (r < 0.9) { S.frenzyUntil = now + 77000; toast('⚡ Überstunden-Rausch! 77 Sekunden lang 7-faches Einkommen', 'gold'); }
+  else { S.clickFrenzyUntil = now + 13000; toast('🎯 Fokus-Modus! 13 Sekunden lang 777-fache Aufgaben', 'gold'); }
+  dirty = true; checkAch(); renderHead();
+}
+// ================= Effekte =================
+const calm = () => S.calm || matchMedia('(prefers-reduced-motion: reduce)').matches;
+function floatText(t, x, y) { if (calm()) return; const f = $('left').getBoundingClientRect(), e = document.createElement('div'); e.className = 'fl'; e.textContent = t; e.style.left = (x - f.left - 20) + 'px'; e.style.top = (y - f.top - 30) + 'px'; $('left').appendChild(e); setTimeout(() => e.remove(), 1000); }
+function crumbs(x, y) { if (calm()) return; const f = $('left').getBoundingClientRect(); for (let i = 0; i < 5; i++) { const e = document.createElement('i'); e.className = 'crumb'; e.style.left = (x - f.left) + 'px'; e.style.top = (y - f.top) + 'px'; e.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px'); e.style.setProperty('--dy', (Math.random() * 90 + 20) + 'px'); $('left').appendChild(e); setTimeout(() => e.remove(), 750); } }
+function toast(msg, cls) { let box = $('toasts'); if (!box) { box = document.createElement('div'); box.id = 'toasts'; box.setAttribute('aria-live', 'polite'); document.body.appendChild(box); } while (box.children.length >= 5) box.firstChild.remove(); const t = document.createElement('div'); t.className = 'toast ' + (cls || ''); t.textContent = msg; box.appendChild(t); setTimeout(() => t.remove(), cls === 'ach' ? 3600 : 5200); }
+let AC = null; function blip() { if (!S.sound) return; try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(); o.type = 'triangle'; o.frequency.value = 520 + Math.random() * 120; g.gain.value = .05; g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + .09); o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime + .1); } catch (e) {} }
+let rainN = 0; function rain() { if (calm() || document.hidden || rainN > 14) return; const c = calc(); if (c.cps < 1) return; rainN++; const e = document.createElement('div'); e.className = 'rain'; e.textContent = '💶'; e.style.left = Math.random() * 100 + 'vw'; e.style.animationDuration = (5 + Math.random() * 5) + 's'; e.style.fontSize = (16 + Math.random() * 20) + 'px'; document.body.appendChild(e); setTimeout(() => { e.remove(); rainN--; }, 10500); }
+// ================= Speichern =================
+function save() { try { S.lastSave = Date.now(); localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function sanitize(o) {
+  const d = fresh(), s = Object.assign(fresh(), o && typeof o === 'object' ? o : {}); ['cookies', 'total', 'allTime', 'clicks', 'chips', 'prestiges', 'golden', 'playMs', 'startedAt', 'runStart', 'lastSave', 'frenzyUntil', 'clickFrenzyUntil'].forEach(k => { if (typeof s[k] !== 'number' || !isFinite(s[k]) || s[k] < 0) s[k] = d[k]; });
+  s.bld = Object.fromEntries(Object.entries(s.bld && typeof s.bld === 'object' ? s.bld : {}).filter(([k, v]) => BY[k] && typeof v === 'number' && isFinite(v) && v > 0).map(([k, v]) => [k, Math.floor(v)])); s.upg = Array.isArray(s.upg) ? [...new Set(s.upg.filter(id => UBY[id]))] : []; s.ach = Array.isArray(s.ach) ? [...new Set(s.ach.filter(id => ACH.some(a => a.id === id)))] : [];
+  s.sound = s.sound === true; s.calm = s.calm === true; s.allTime = Math.max(s.allTime, s.total); return s;
+}
+function load() { try { const r = localStorage.getItem(KEY); if (r) { S = sanitize(JSON.parse(r)); const gap = (Date.now() - S.lastSave) / 1000; if (gap > 60) offline(gap); } } catch (e) { S = fresh(); } }
+const encode = () => btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+function decode(code) { let o; try { o = JSON.parse(decodeURIComponent(escape(atob(String(code).trim())))); } catch (e) { throw new Error('Das ist kein gültiger Sicherungscode.'); } if (!o || typeof o !== 'object' || o.v !== 1 || typeof o.cookies !== 'number') throw new Error('Das ist kein gültiger Sicherungscode.'); return sanitize(o); }
+// ================= Anzeige =================
+let tab = 'bld';
+function showTab(t) { tab = t; document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t)); ['bld', 'upg', 'ach', 'stat', 'pres', 'opt'].forEach(k => $('p-' + k).classList.toggle('hidden', k !== t)); dirty = true; renderAll(true); }
+function buildShop() {
+  $('bld').innerHTML = B.map(b => `<button class="b" data-id="${b.id}"><div class="em">${b.e}</div><div class="in"><div class="nm">${b.n}<span class="own">0</span></div><div class="ds">${b.d}</div><div class="cost"></div></div></button>`).join('');
+  $('ach').innerHTML = ACH.map(a => `<div class="a" data-id="${a.id}"><div class="ai">${a.e}</div><div><div class="at">${a.n}</div><div class="ad">${a.d}</div></div></div>`).join('');
+}
+function renderHead() {
+  const c = calc(), now = Date.now(); $('cnt').textContent = fmt(S.cookies); $('cps').textContent = fmt(c.cps, true); $('cv').textContent = fmt(c.click, true); document.title = `${fmt(S.cookies)} € – Büro-Imperium`; $('rank').textContent = RANKS[Math.min(S.prestiges, RANKS.length - 1)];
+  const buffs = []; if (S.frenzyUntil > now) buffs.push(`⚡ Überstunden ${Math.ceil((S.frenzyUntil - now) / 1000)} s`); if (S.clickFrenzyUntil > now) buffs.push(`🎯 Fokus-Modus ${Math.ceil((S.clickFrenzyUntil - now) / 1000)} s`); const h = buffs.map(t => `<span class="buff">${t}</span>`).join(''); if ($('buffs').innerHTML !== h) $('buffs').innerHTML = h;
+}
+function renderAll(force) {
+  renderHead(); const c = calc();
+  if (tab === 'bld') document.querySelectorAll('#bld .b').forEach(el => {
+    const b = BY[el.dataset.id], own = S.bld[b.id] || 0, n = buyN === 0 ? Math.max(1, maxN(b, own, S.cookies)) : buyN, cost = costN(b, own, n), can = S.cookies >= cost;
+    el.classList.toggle('can', can); el.querySelector('.own').textContent = own; el.querySelector('.cost').innerHTML = `${fmt(cost)} € <em>für ${n}×</em> · <em>${fmt(b.p * (c.bm[b.id] || 1) * c.glob, true)} €/s je</em>`;
+  });
+  const avail = UPG.filter(u => !S.upg.includes(u.id) && unlocked(u)).sort((a, b) => a.cost - b.cost), sig = avail.map(u => u.id).join();
+  const canN = avail.filter(u => S.cookies >= u.cost).length; $('dot-upg').textContent = canN; $('dot-upg').classList.toggle('hidden', !canN);
+  if (tab === 'upg') {
+    if (force || sig !== lastUnlockSig) { $('upg').innerHTML = avail.map(u => `<button class="u" data-id="${u.id}" title="${u.d}"><div class="un">${u.n}</div><div class="ud">${u.d}</div><div class="uc">${fmt(u.cost)} €</div></button>`).join(''); $('upg-empty').classList.toggle('hidden', avail.length > 0); lastUnlockSig = sig; }
+    document.querySelectorAll('#upg .u').forEach(el => el.classList.toggle('can', S.cookies >= UBY[el.dataset.id].cost)); $('upg-have').textContent = `${S.upg.length} von ${UPG.length}`;
+  }
+  if (tab === 'ach') { document.querySelectorAll('#ach .a').forEach(el => el.classList.toggle('on', S.ach.includes(el.dataset.id))); $('ach-have').textContent = `${S.ach.length} von ${ACH.length} (+${(S.ach.length * ACH_BONUS * 100).toFixed(0)} % Produktion)`; }
+  if (tab === 'stat') {
+    const kv = (a, b) => `<div class="kv"><span>${a}</span><b>${b}</b></div>`;
+    $('st1').innerHTML = kv('Verdient', fmt(S.total) + ' €') + kv('Pro Sekunde', fmt(c.cps, true) + ' €') + kv('Wert je Aufgabe', fmt(c.click, true) + ' €') + kv('Einrichtungen', c.nb) + kv('Gesamt-Faktor', '×' + c.glob.toFixed(2).replace('.', ',')) + kv('Laufzeit', fmtT(Date.now() - S.runStart));
+    $('st2').innerHTML = kv('Insgesamt verdient', fmt(S.allTime) + ' €') + kv('Rang', RANKS[Math.min(S.prestiges, RANKS.length - 1)]) + kv('Erledigte Aufgaben', S.clicks.toLocaleString('de-DE')) + kv('Boni gefangen', S.golden) + kv('Beförderungen', S.prestiges) + kv('Karrierepunkte', S.chips) + kv('Spielzeit', fmtT(S.playMs));
+  }
+  const pend = chipsPending(); $('pr-have').textContent = S.chips; $('pr-bonus').textContent = (S.chips * CHIP_BONUS * 100).toFixed(0); $('pr-new').textContent = pend;
+  const nextAt = Math.pow(chipsTotal() + 1, 2) * 1e7; $('pr-hint').textContent = pend ? 'Du kannst dich jetzt befördern lassen und deine Karrierepunkte abholen.' : `Der nächste Karrierepunkt kommt bei insgesamt ${fmt(nextAt)} € Verdienst (bisher ${fmt(S.allTime)} €).`;
+  $('pr-btn').disabled = pend < 1; $('dot-pres').classList.toggle('hidden', pend < 1);
+  $('o-sound').setAttribute('aria-checked', S.sound); $('o-calm').setAttribute('aria-checked', S.calm); document.body.classList.toggle('calm', S.calm);
+}
+// ================= Bedienung =================
+function openModal(title, text, value, buttons) { $('m-t').textContent = title; $('m-p').textContent = text; $('m-ta').value = value || ''; $('m-ta').classList.toggle('hidden', value === null); $('m-r').innerHTML = ''; buttons.forEach(([label, cls, fn]) => { const b = document.createElement('button'); b.className = 'btn ' + cls; b.textContent = label; b.onclick = fn; $('m-r').appendChild(b); }); $('modal').classList.remove('hidden'); setTimeout(() => $('m-ta').classList.contains('hidden') ? 0 : $('m-ta').focus(), 30); }
+const closeModal = () => $('modal').classList.add('hidden');
+function wire() {
+  const ck = $('cookie'); ck.addEventListener('pointerdown', () => ck.classList.add('press')); ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => ck.addEventListener(ev, () => ck.classList.remove('press')));
+  ck.addEventListener('click', e => { const r = ck.getBoundingClientRect(); click(e.clientX || r.left + r.width / 2, e.clientY || r.top + r.height / 2); renderHead(); });
+  $('tabs').onclick = e => { const b = e.target.closest('button'); if (b) showTab(b.dataset.tab); };
+  $('amt').onclick = e => { const b = e.target.closest('button'); if (!b) return; buyN = +b.dataset.n; $('amt').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); renderAll(); };
+  $('bld').onclick = e => { const b = e.target.closest('.b'); if (b && buy(b.dataset.id, buyN)) { renderAll(); save(); } };
+  $('upg').onclick = e => { const b = e.target.closest('.u'); if (b && buyUpg(b.dataset.id)) { renderAll(true); save(); } };
+  $('pr-btn').onclick = () => { const n = chipsPending(); if (n < 1) return; openModal('Befördert werden?', `Du erhältst ${n} Karrierepunkte (+${n * 2} % dauerhaft). Einrichtungen, Upgrades und Kontostand werden zurückgesetzt.`, null, [['Abbrechen', '', closeModal], ['Befördern', 'pink', () => { closeModal(); if (prestige()) { toast(`📈 Beförderung zum ${RANKS[Math.min(S.prestiges, RANKS.length - 1)]}! Karrierepunkte: ${S.chips}`, 'gold'); showTab('bld'); } }]]); };
+  $('o-sound').onclick = () => { S.sound = !S.sound; if (S.sound) blip(); renderAll(); save(); }; $('o-calm').onclick = () => { S.calm = !S.calm; renderAll(); save(); };
+  $('o-exp').onclick = () => openModal('Spielstand sichern', 'Kopiere diesen Code und bewahre ihn auf. Mit „Importieren“ stellst du ihn wieder her.', encode(), [['Schließen', '', closeModal], ['Kopieren', 'pri', () => { $('m-ta').select(); try { navigator.clipboard.writeText($('m-ta').value).then(() => toast('Code kopiert')); } catch (e) { document.execCommand('copy'); toast('Code kopiert'); } }]]);
+  $('o-imp').onclick = () => openModal('Spielstand einfügen', 'Füge hier einen Sicherungscode ein. Dein aktueller Spielstand wird dabei ersetzt.', '', [['Abbrechen', '', closeModal], ['Einfügen', 'pri', () => { try { const n = decode($('m-ta').value); if (!confirm('Aktuellen Spielstand durch den eingefügten ersetzen?')) return; S = n; dirty = true; lastUnlockSig = ''; save(); closeModal(); renderAll(true); toast('Spielstand geladen'); } catch (e) { toast(e.message || 'Der Code ist ungültig.'); } }]]);
+  $('o-reset').onclick = () => { if (confirm('Wirklich ALLES löschen, auch Karrierepunkte und Erfolge?')) { S = fresh(); lastUnlockSig = ''; save(); renderAll(true); toast('Spielstand gelöscht'); } };
+  $('modal').onclick = e => { if (e.target === $('modal')) closeModal(); }; document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) save(); else { last = Date.now(); } }); window.addEventListener('pagehide', save); window.addEventListener('beforeunload', save);
+}
+function loop() {
+  const now = Date.now(), dt = now - last; last = now;
+  if (dt > 10000) offline(dt / 1000); else tick(dt);
+  if (!goldenEl && now >= nextGolden && !document.hidden) spawnGolden();
+  if (now - lastRender >= 250 || dirty) { renderAll(); lastRender = now; dirty = false; } else renderHead();
+}
+// ================= Start =================
+buildShop(); load(); wire(); showTab('bld'); renderAll(true);
+setInterval(loop, 100); setInterval(save, 10000); setInterval(rain, 900);
+window.BUERO = { get S() { return S; }, tick, calc, click, buy, buyUpg, prestige, spawnGolden, catchGolden, fmt, chipsPending, save, load, encode, decode, costN, maxN, set(o) { Object.assign(S, o); dirty = true; renderAll(true); }, setNext(t) { nextGolden = t; } };
+</script>
+</body>
+</html>
