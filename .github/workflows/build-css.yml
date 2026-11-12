@@ -8,6 +8,7 @@ on:
       - 'js/**'
       - 'assets/*.css'
       - 'Uhr/**'
+      - 'Keks/**'
       - 'icons/**'
       - 'manifest.json'
       - 'firebase-messaging-sw.js'
