@@ -10,6 +10,7 @@
         can(currentUser, 'wand') && ['Wandkalender', '/wand.html', 'fa-display', 'tablet kueche anzeige kiosk'],
         can(currentUser, 'messenger') && ['Messenger', '/messenger.html', 'fa-comments', 'chat nachricht schreiben kollegen gruppe unterhaltung'],
         can(currentUser, 'webapps') && ['Uhr (Web-App)', '/Uhr/', 'fa-clock', 'uhr uhrzeit timer feierabend webapp web-app'],
+        can(currentUser, 'webapps') && ['Keks-Fabrik (Spiel)', '/Keks/', 'fa-cookie-bite', 'keks spiel game cookie clicker idle langeweile webapp web-app'],
         can(currentUser, 'spotify') && ['Spotify', '/spotify.html', 'fa-headphones', 'musik fernbedienung player lied playlist handy'],
         can(currentUser, 'zeit') && ['Zeiterfassung', '/zeiterfassung.html', 'fa-business-time', 'stempeln stunden arbeitszeit urlaub ueberstunden stundenzettel'],
         can(currentUser, 'finanzen') && ['Finanzen', '/finanzen.html', 'fa-coins', 'buchungen geld fixkosten budget lohn sparkasse konto'],
