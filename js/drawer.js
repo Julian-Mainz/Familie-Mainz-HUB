@@ -17,6 +17,8 @@ const DRAWER_LINKS = [
 const WEB_APPS = [
     { href: '/Uhr/', label: 'Uhr', desc: 'Große Uhr mit Feierabend-Timer', icon: 'fa-clock', c: '#38bdf8' },
     { href: '/Keks/', label: 'Keks-Fabrik', desc: 'Idle-Spiel gegen die Langeweile', icon: 'fa-cookie-bite', c: '#fbbf24' },
+    { href: '/Ballon/', label: 'Ballon-Alarm', desc: 'Tower Defense ohne Ende', icon: 'fa-bullseye', c: '#34d399' },
+    { href: '/Buero/', label: 'Büro-Imperium', desc: 'Idle-Spiel: Vom Praktikanten zum Vorstand', icon: 'fa-building', c: '#38bdf8' },
 ];
 
 // Avatar: Profilbild (nur geprüfte Bild-Daten) oder Initialen auf farbigem Verlauf. Wird auch von Profil- und Admin-Seite genutzt.
