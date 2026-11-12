@@ -91,9 +91,8 @@
         body.idle { cursor: none; }
         body.idle #ctl { opacity: 0; pointer-events: none; }
         #syncinfo { width: 100%; text-align: center; font-size: 12px; opacity: .85; padding: 2px 4px 0; }
-        #warn { display: none; position: fixed; z-index: 6; right: 14px; bottom: 14px; font-size: 13px; color: #fbbf24; background: rgba(0,0,0,.6); padding: 7px 11px; border-radius: 10px; }
-        body.unsynced #warn { display: block; }
-        body.unsynced #clock, body.unsynced #timer { opacity: .3; }
+        #warn { display: none; position: fixed; z-index: 6; right: 14px; top: max(14px, env(safe-area-inset-top)); pointer-events: none; font-size: 13px; color: #fbbf24; background: rgba(0,0,0,.6); padding: 7px 11px; border-radius: 10px; }
+        body.unsynced #warn { display: block; max-width: min(92vw, 520px); line-height: 1.35; }
         #clock { transition: opacity .6s; }
         @media (prefers-reduced-motion: reduce) { body::before, .c, .g.flip { animation: none !important; } }
         noscript { position: fixed; inset: 0; display: grid; place-items: center; font-size: 1.2rem; color: #fff; }
@@ -117,6 +116,7 @@
         <span id="tmcfg" title="Arbeitszeit für den Feierabend-Timer"><input type="time" id="t-start" onchange="setTimerTimes()" aria-label="Arbeitsbeginn"> – <input type="time" id="t-end" onchange="setTimerTimes()" aria-label="Feierabend"></span>
         <button id="b-tz" onclick="toggle('berlin')">Zone</button>
         <button id="b-fs" onclick="toggleFs()">Vollbild</button>
+        <button id="b-sync" onclick="sync(true)" title="Zeit jetzt mit dem Server abgleichen">Abgleichen</button>
     </nav>
     <footer id="legal"><a href="/impressum.html">Impressum</a> &middot; <a href="/datenschutz.html">Datenschutz</a></footer>
     <div id="warn">Zeit wird abgeglichen …</div>
@@ -173,24 +173,38 @@
             if (h) out.push(h + ' Std'); if (m) out.push(m + ' Min'); if (!h && (sec || !m)) out.push(sec + ' s');
             return out.join(' ');
         };
+        const WHY = { net: 'Server nicht erreichbar (Netzwerk oder Firewall)', status: 'Anfrage wurde abgelehnt (Firewall oder Proxy)', nodate: 'Antwort ohne Zeitangabe (Proxy)', cached: 'Antwort aus dem Zwischenspeicher (Proxy)' };
         function updateStatus() {
-            document.body.classList.toggle('unsynced', !synced);
-            $('warn').textContent = failed ? '⚠ Gerätezeit – Abgleich nicht möglich (offline?)' : 'Zeit wird abgeglichen …';
-            if (!synced) { $('syncinfo').textContent = failed ? 'Zeit des Geräts, nicht abgeglichen' : ''; return; }
+            // Die Uhr bleibt immer gut lesbar. Nur wenn der Abgleich nicht klappt, erscheint ein kleiner Hinweis mit dem Grund.
+            document.body.classList.toggle('unsynced', !synced && failed);
+            $('warn').textContent = '⚠ Gerätezeit, Abgleich nicht möglich' + (why ? ': ' + (WHY[why] || why) : '') + '. Neuer Versuch folgt.';
+            if (!synced) { $('syncinfo').textContent = failed ? 'Zeit des Geräts, nicht abgeglichen' : 'Zeit wird abgeglichen …'; return; }
             const dev = -offset;      // Abweichung der PC-Uhr (positiv = PC geht vor)
             $('syncinfo').textContent = Math.abs(dev) < 1500 ? 'Abgeglichen: Die PC-Uhr stimmt' + (accuracy != null ? ' (±' + Math.max(0.05, accuracy / 1000).toFixed(1).replace('.', ',') + ' s)' : '')
                 : 'Abgeglichen: Die PC-Uhr geht ' + dur(dev) + (dev > 0 ? ' vor' : ' nach') + (accuracy != null ? ' (±' + Math.max(0.05, accuracy / 1000).toFixed(1).replace('.', ',') + ' s)' : '');
         }
-        async function sync() {
-            if (syncing) return; syncing = true;
-            let lo = -Infinity, hi = Infinity, ok = 0; const mids = [];
+        // Zuerst die leichte HEAD-Anfrage. Wird sie von einer Firewall blockiert, folgt eine kleine Datei per GET. Klappt gar nichts, läuft die Uhr
+        // mit der Gerätezeit weiter (gut lesbar) und versucht es mit wachsenden Abständen erneut (10 s, 20 s, 40 s, 1, 2, dann alle 5 Minuten).
+        const SRC = [['HEAD', '/Uhr/'], ['GET', '/version.json']], RETRY = [10, 20, 40, 60, 120, 300];
+        let src = 0, why = '', tries = 0, retryT = 0;
+        async function probe() {
+            const [method, path] = SRC[src], ts = local(); let res;
+            try { res = await fetch(path + '?sync=' + Math.random().toString(36).slice(2), { method, cache: 'no-store' }); } catch (e) { return { err: 'net' }; }
+            const tr = local(), d = res.headers.get('date');
+            if (!res.ok) return { err: 'status' };
+            if (!d || isNaN(Date.parse(d))) return { err: 'nodate' };
+            if ((+res.headers.get('age') || 0) > 0) return { err: 'cached' };      // nur frische, nicht zwischengespeicherte Antworten
+            return { ts, tr, d };
+        }
+        async function sync(manual) {
+            if (syncing) return; syncing = true; clearTimeout(retryT);
+            if (manual) { tries = 0; if (!synced) { failed = false; updateStatus(); } else $('syncinfo').textContent = 'Zeit wird abgeglichen …'; }
+            let lo = -Infinity, hi = Infinity, ok = 0, bad = 0; const mids = [];
             try {
-                for (let i = 0; i < 14 && (ok < 4 || hi - lo > 160); i++) {
-                    const ts = local(); let res;
-                    try { res = await fetch('/Uhr/?sync=' + Math.random().toString(36).slice(2), { method: 'HEAD', cache: 'no-store' }); } catch (e) { break; }
-                    const tr = local(), d = res.headers.get('date');
-                    if (!res.ok || !d || (+res.headers.get('age') || 0) > 0) continue;       // nur frische, nicht zwischengespeicherte Antworten
-                    const sec = Math.floor(Date.parse(d) / 1000) * 1000, l = sec - tr, h = sec + 1000 - ts;   // wahre Serverzeit liegt in [sec, sec+1000)
+                for (let i = 0; i < 24 && (ok < 4 || hi - lo > 160) && bad < 8; i++) {
+                    const r = await probe();
+                    if (r.err) { why = r.err; bad++; if (!ok && bad % 2 === 0) src = (src + 1) % SRC.length; await sleep(250); continue; }     // blockiert? dann eine andere Art von Anfrage
+                    const sec = Math.floor(Date.parse(r.d) / 1000) * 1000, l = sec - r.tr, h = sec + 1000 - r.ts;   // wahre Serverzeit liegt in [sec, sec+1000)
                     mids.push((l + h) / 2); ok++;
                     if (Math.max(lo, l) <= Math.min(hi, h)) { lo = Math.max(lo, l); hi = Math.min(hi, h); } else { lo = l; hi = h; }
                     await sleep(90 + Math.random() * 300);
@@ -198,12 +212,12 @@
                 if (ok >= 2) {
                     mids.sort((a, b) => a - b);
                     offset = hi >= lo ? (lo + hi) / 2 : mids[Math.floor(mids.length / 2)];
-                    accuracy = hi >= lo ? (hi - lo) / 2 : null; synced = true; failed = false;
-                } else if (!synced) failed = true;
+                    accuracy = hi >= lo ? (hi - lo) / 2 : null; synced = true; failed = false; why = ''; tries = 0;
+                } else if (!synced) { failed = true; tries++; }
             } finally { syncing = false; }
             updateStatus();
             if (synced) { render(trueNow()); fit(); }
-            if (!synced) setTimeout(sync, 10000);       // bei Fehlschlag in 10 Sekunden erneut versuchen
+            if (!synced) retryT = setTimeout(sync, RETRY[Math.min(tries, RETRY.length) - 1] * 1000);
         }
         // ---------- Feierabend-Timer: läuft jeden Tag zwischen Beginn und Ende (Standard 07:00 bis 16:00), davor und danach steht ein Hinweis ----------
         const toSec = hhmm => { const a = hhmm.split(':'); return +a[0] * 3600 + +a[1] * 60; };
@@ -236,7 +250,7 @@
         }
         function apply() {
             const st = STYLES[S.style], ac = ACC[S.acc], r = document.documentElement.style;
-            document.body.className = 's-' + st[0] + (document.body.classList.contains('idle') ? ' idle' : '') + (synced ? '' : ' unsynced');
+            document.body.className = 's-' + st[0] + (document.body.classList.contains('idle') ? ' idle' : '') + (!synced && failed ? ' unsynced' : '');
             r.setProperty('--a', ac.a); r.setProperty('--ar', ac.ar); r.setProperty('--br', ac.br);
             document.querySelector('meta[name="theme-color"]').content = st[2];
             $('d').style.display = S.date ? '' : 'none'; $('cs').style.display = S.sec ? '' : 'none';
