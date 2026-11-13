@@ -54,10 +54,32 @@ function getDeviceType() {
     return 'Desktop / PC';
 }
 
+// Tagesgrenze für die zwei offenen Schreibstellen (Protokoll und Kontaktformular). Die Datenbank-Regeln erlauben je Name nur eine feste Zahl Einträge in 24 Stunden
+// (Protokoll 2000, Kontakt 30) und zählen dazu in limits/<name> mit. Eintrag und Zähler werden in einem Schritt geschrieben.
+// Rückgabe: true = gespeichert, false = Tagesgrenze erreicht (oder gerade gesperrt). Andere Fehler (z. B. offline) werden weitergegeben.
+async function limitedAdd(name, collection, data) {
+    const blockKey = 'limit_blocked_' + name;
+    try { if (Date.now() - (+sessionStorage.getItem(blockKey) || 0) < 600000) return false; } catch (e) {}     // nach einer Ablehnung 10 Minuten nicht erneut versuchen
+    const F = firebase.firestore.FieldValue, cref = db.collection('limits').doc(name), dref = db.collection(collection).doc();
+    let reset = null;
+    for (let i = 0; i < 3; i++) {
+        const b = db.batch(); b.set(dref, data);
+        if (i === 0) b.set(cref, { n: F.increment(1), last: dref.id }, { merge: true });                           // Normalfall: im laufenden Fenster einfach hochzählen
+        else {
+            if (reset === null) { const s = await cref.get().catch(() => null), d = s && s.exists ? s.data() : null; reset = !(d && d.windowStart && Date.now() - d.windowStart.toMillis() < 864e5); }
+            else reset = !reset;                                                                                   // dritter Versuch: die andere Möglichkeit, falls Geräteuhr und Server abweichen
+            if (reset) b.set(cref, { n: 1, windowStart: F.serverTimestamp(), last: dref.id }); else b.set(cref, { n: F.increment(1), last: dref.id }, { merge: true });
+        }
+        try { await b.commit(); return true; } catch (e) { if (e.code !== 'permission-denied') throw e; }
+    }
+    try { sessionStorage.setItem(blockKey, String(Date.now())); } catch (e) {}
+    return false;
+}
+
 // category: 'auth' | 'data' | 'admin' | 'visit'
 async function logSystemEvent(category, action, details = {}) {
     try {
-        await db.collection('system_logs').add({
+        await limitedAdd('logs', 'system_logs', {
             category, action,
             userEmail: currentUser ? currentUser.email : (details.attemptedEmail || 'Gast / Anonym'),
             userName: currentUser ? currentUser.name : (details.name || 'Nicht eingeloggt'),
