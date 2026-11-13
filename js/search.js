@@ -37,13 +37,13 @@
     function build() {
         if (box) return;
         document.body.insertAdjacentHTML('beforeend', `
-        <div id="search-box" class="fixed inset-0 z-[80] hidden bg-slate-950/70 flex items-start justify-center p-4 pt-[12vh]">
-            <div class="w-full max-w-xl bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl overflow-hidden">
-                <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-800"><i class="fa-solid fa-magnifying-glass text-slate-500"></i>
-                    <input id="search-input" autocomplete="off" placeholder="Suchen: Seiten, Termine, Aufgaben, Buchungen, Notizen..." class="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-500 focus:outline-none">
-                    <kbd class="text-[10px] text-slate-500 border border-slate-700 rounded px-1.5 py-0.5">Esc</kbd></div>
-                <div id="search-list" class="max-h-[55vh] overflow-y-auto p-2"></div>
-                <div class="flex items-center justify-between px-4 py-2 border-t border-slate-800 text-[10px] text-slate-500"><span>↑ ↓ wählen · Enter öffnen</span><span id="search-status"></span></div>
+        <div id="search-box" class="gs-ov top hidden" role="dialog" aria-modal="true" aria-label="Suche">
+            <div class="gs-box">
+                <div class="gs-head"><i class="fa-solid fa-magnifying-glass"></i>
+                    <input id="search-input" autocomplete="off" placeholder="Suchen: Seiten, Termine, Aufgaben, Buchungen, Notizen..." aria-label="Suchbegriff" role="combobox" aria-expanded="true" aria-controls="search-list">
+                    <kbd class="gs-kbd">Esc</kbd></div>
+                <div id="search-list" class="gs-list" role="listbox"></div>
+                <div class="gs-foot"><span>↑ ↓ wählen · Enter öffnen</span><span id="search-status"></span></div>
             </div>
         </div>`);
         box = document.getElementById('search-box'); input = document.getElementById('search-input'); list = document.getElementById('search-list');
@@ -106,15 +106,18 @@
         results = [...results, ...Object.values(groups).flat()]; paint();
     }
 
+    const TC = { emerald: '#34d399', yellow: '#facc15', amber: '#fbbf24', indigo: '#818cf8', rose: '#fb7185', slate: '#cbd5e1', sky: '#38bdf8' };
+    const iconOf = ic => { const m = /text-(\w+)-\d+/.exec(ic || ''); return { cls: (ic || '').replace(/\btext-\S+/g, '').trim(), col: m ? TC[m[1]] || '' : '' }; };
     function paint(keepScroll) {
         let lastKind = '', h = '';
         results.forEach((r, i) => {
             const k = r.kind === 'page' || r.kind === 'action' ? 'Seiten & Aktionen' : r.kind;
-            if (k !== lastKind) { h += `<div class="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider text-slate-500">${esc(k)}</div>`; lastKind = k; }
-            h += `<div data-i="${i}" class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer ${i === sel ? 'bg-indigo-600/25' : ''}"><i class="fa-solid ${r.icon} w-5 text-center"></i>
-                <div class="min-w-0 flex-1"><div class="text-sm text-slate-100 truncate">${esc(r.title)}</div><div class="text-[11px] text-slate-500 truncate">${esc(r.sub)}</div></div>${i === sel ? '<i class="fa-solid fa-turn-down text-slate-500 text-[10px] rotate-90"></i>' : ''}</div>`;
+            if (k !== lastKind) { h += `<div class="gs-kind" role="presentation">${esc(k)}</div>`; lastKind = k; }
+            const ic = iconOf(r.icon);
+            h += `<div data-i="${i}" role="option" aria-selected="${i === sel}" class="gs-item${i === sel ? ' on' : ''}"><i class="fa-solid ${esc(ic.cls)} ic"${ic.col ? ` style="color:${ic.col}"` : ''}></i>
+                <div class="tx"><div class="t">${esc(r.title)}</div><div class="s">${esc(r.sub)}</div></div>${i === sel ? '<i class="fa-solid fa-turn-down go" style="transform:rotate(90deg)"></i>' : ''}</div>`;
         });
-        list.innerHTML = h || '<div class="text-center text-sm text-slate-500 py-8">Nichts gefunden.</div>';
+        list.innerHTML = h || '<div class="gs-empty">Nichts gefunden.</div>';
         if (keepScroll !== true) { const el = list.querySelector(`[data-i="${sel}"]`); if (el) el.scrollIntoView({ block: 'nearest' }); }
     }
 
