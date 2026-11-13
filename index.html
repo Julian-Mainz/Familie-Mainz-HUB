@@ -390,7 +390,8 @@
             if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return err('Bitte eine gültige E-Mail-Adresse eingeben oder das Feld leer lassen.');
             const btn = $('c-btn'); btn.disabled = true; btn.innerText = 'Wird gesendet...';
             try {
-                await db.collection('contact_messages').add({ name, email, message, read: false, createdAt: TS() });
+                const sent = await limitedAdd('contact', 'contact_messages', { name, email, message, read: false, createdAt: TS() });
+                if (!sent) return err('Heute können leider keine weiteren Nachrichten angenommen werden. Bitte versuche es morgen noch einmal.');
                 try { localStorage.setItem('contact_last', String(Date.now())); } catch (x) {}
                 done();
             } catch (ex) { console.error('Kontakt senden:', ex); err('Senden fehlgeschlagen (' + (ex.code || ex.message) + '). Bitte später erneut versuchen.'); }
