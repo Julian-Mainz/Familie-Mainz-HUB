@@ -141,6 +141,7 @@ const ACH = [
 const fresh = () => ({ v: 1, cookies: 0, total: 0, allTime: 0, clicks: 0, bld: {}, upg: [], ach: [], chips: 0, prestiges: 0, golden: 0, startedAt: Date.now(), runStart: Date.now(), playMs: 0, lastSave: Date.now(), frenzyUntil: 0, clickFrenzyUntil: 0, sound: false, calm: false });
 let S = fresh(), buyN = 1, nextGolden = Date.now() + 90000, goldenEl = null, dirty = true, last = Date.now(), lastRender = 0, lastUnlockSig = '';
 const $ = id => document.getElementById(id);
+const setT = (el, t) => { if (el._t !== t) { el._t = t; el.textContent = t; } };      // nur schreiben, wenn sich der Text geändert hat
 // ================= Zahlen =================
 const NAMES = [[1e24, 'Quad.'], [1e21, 'Trd.'], [1e18, 'Trio.'], [1e15, 'Brd.'], [1e12, 'Bio.'], [1e9, 'Mrd.'], [1e6, 'Mio.']];
 function fmt(n, dec) {
@@ -222,7 +223,7 @@ function buildShop() {
   $('ach').innerHTML = ACH.map(a => `<div class="a" data-id="${a.id}"><div class="ai">${a.e}</div><div><div class="at">${a.n}</div><div class="ad">${a.d}</div></div></div>`).join('');
 }
 function renderHead() {
-  const c = calc(), now = Date.now(); $('cnt').textContent = fmt(S.cookies); $('cps').textContent = fmt(c.cps, true); $('cv').textContent = fmt(c.click, true); document.title = `${fmt(S.cookies)} Kekse – Keks-Fabrik`;
+  const c = calc(), now = Date.now(); setT($('cnt'), fmt(S.cookies)); setT($('cps'), fmt(c.cps, true)); setT($('cv'), fmt(c.click, true)); { const t = `${fmt(S.cookies)} Kekse – Keks-Fabrik`; if (document.title !== t) document.title = t; }
   const buffs = []; if (S.frenzyUntil > now) buffs.push(`🔥 Backrausch ${Math.ceil((S.frenzyUntil - now) / 1000)} s`); if (S.clickFrenzyUntil > now) buffs.push(`👆 Klick-Rausch ${Math.ceil((S.clickFrenzyUntil - now) / 1000)} s`); const h = buffs.map(t => `<span class="buff">${t}</span>`).join(''); if ($('buffs').innerHTML !== h) $('buffs').innerHTML = h;
 }
 function renderAll(force) {
