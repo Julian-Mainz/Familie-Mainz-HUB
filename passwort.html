@@ -13,87 +13,80 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="J.Mainz">
-    <link rel="stylesheet" href="/assets/css/passwort.css" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s)">
     <link rel="stylesheet" href="/assets/icons.css">
     <link rel="stylesheet" href="/assets/ui.css">
+    <link rel="stylesheet" href="/assets/ux.css">
     <script src="/js/vendor/firebase-app-compat.js"></script>
     <script src="/js/vendor/firebase-auth-compat.js"></script>
     <script src="/js/vendor/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-init.js"></script>
+    <script src="/js/ux.js"></script>
     <script src="/js/drawer.js"></script>
     <style>
-        body { background-color: #080c14; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    </style>
-    <style type="text/tailwindcss">
-        .card { @apply bg-slate-900/60 border border-slate-800 rounded-3xl shadow-lg; }
-        .inp  { @apply w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500; }
-        .lbl  { @apply block text-xs text-slate-400 mb-1; }
-        .ibtn { @apply p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl; }
+        .lockwrap { display: grid; place-items: center; min-height: min(560px, 70vh); padding: 18px 0; }
+        .lock { width: min(100%, 440px); padding: 40px 30px 30px; text-align: center; overflow: visible; }
+        .lock h2 { margin: 22px 0 6px; font-size: 24px; letter-spacing: -.02em; }
+        .lock .ux-f { text-align: left; margin-top: 14px; } .lock .ux-f + .ux-f { margin-top: 0; }
+        .lockico { position: relative; width: 84px; height: 84px; margin: 0 auto; border-radius: 28px; display: grid; place-items: center; font-size: 34px; color: #1c0f00; background: linear-gradient(135deg, #fdba74, #f97316); box-shadow: 0 20px 50px -10px rgba(249, 115, 22, .7); }
+        .lockico .r1, .lockico .r2 { position: absolute; inset: -14px; border-radius: 38px; border: 1px solid rgba(251, 146, 60, .35); pointer-events: none; } .lockico .r2 { inset: -28px; border-color: rgba(251, 146, 60, .16); border-radius: 48px; }
+        .wide { width: 100%; justify-content: center; margin-top: 8px; padding: 14px; }
+        .ux-btn.pri, .ux-modal .pri { color: #1c0f00; }
+        .lockst { display: inline-flex; align-items: center; gap: 9px; padding: 9px 14px; border-radius: 14px; background: rgba(52, 211, 153, .1); border: 1px solid rgba(52, 211, 153, .35); font-size: 13px; }
+        .lockst .dot { width: 9px; height: 9px; border-radius: 50%; background: #34d399; box-shadow: 0 0 0 4px rgba(52, 211, 153, .2); animation: lkPulse 2s ease-in-out infinite; } .lockst small { color: #94a3b8; font-variant-numeric: tabular-nums; }
+        @keyframes lkPulse { 50% { box-shadow: 0 0 0 7px rgba(52, 211, 153, 0); } } @media (prefers-reduced-motion: reduce) { .lockst .dot { animation: none; } }
+        .vgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+        .vi { padding: 16px; display: flex; flex-direction: column; gap: 14px; } .vi .top { display: flex; gap: 12px; align-items: center; }
+        .vi .tile { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; flex: none; color: var(--c); background: rgba(var(--cr), .14); }
+        .vi .nm { flex: 1; min-width: 0; font-weight: 700; } .vi .nm small { display: block; font-weight: 400; color: #94a3b8; font-size: 12.5px; margin-top: 2px; }
+        .sec { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 8px 8px 14px; border-radius: 14px; background: rgba(2, 6, 16, .55); border: 1px solid rgba(148, 163, 184, .12); }
+        .dots { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing: .12em; color: #cbd5e1; font-size: 14px; } .sec .acts { display: flex; gap: 6px; flex: none; }
+        @media (max-width: 560px) { .lockst small { display: none; } }
     </style>
 </head>
-<body class="min-h-screen md:h-screen flex flex-col overflow-x-hidden md:overflow-hidden p-3 md:p-6">
+<body class="ux">
+<main class="ux-page" style="--m:#fb923c;--m2:#f97316;--mr:251,146,60">
 
-    <header class="flex items-center justify-between w-full px-2 py-2 min-h-[48px] mb-3 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-        <button onclick="toggleSideMenu(true)" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold">
-            <i class="fa-solid fa-bars text-indigo-400"></i><span class="hidden sm:inline">Menü</span>
-        </button>
-        <h1 class="text-sm sm:text-base md:text-xl font-bold tracking-wide truncate px-2"><i class="fa-solid fa-shield-halved text-amber-400 mr-1.5"></i>Passwort-Safe</h1>
-        <button onclick="handleLogout()" class="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-rose-500/50 hover:text-rose-400 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-semibold">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i><span class="hidden sm:inline">Ausloggen</span>
-        </button>
-    </header>
-
-    <main class="flex-1 w-full flex flex-col overflow-y-auto pr-0 md:pr-1">
-        <div class="card p-4 md:p-6 flex-1 flex flex-col overflow-hidden">
-
-            <!-- gesperrt -->
-            <div id="vault-locked-view" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
-                <div class="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl mb-4"><i class="fa-solid fa-shield-halved"></i></div>
-                <h2 class="text-lg md:text-xl font-bold">Passwort-Safe</h2>
-                <p id="vault-hint" class="text-xs text-slate-400 max-w-sm mt-1 mb-6">Lade Safe...</p>
-                <form onsubmit="unlockVault(event)" class="w-full max-w-xs space-y-3">
-                    <input type="password" id="vault-master-pass" required autocomplete="off" placeholder="Master-Passwort" class="inp text-center tracking-widest py-3 rounded-2xl">
-                    <input type="password" id="vault-master-pass2" autocomplete="off" placeholder="Master-Passwort wiederholen" class="inp text-center tracking-widest py-3 rounded-2xl hidden">
-                    <button type="submit" id="btn-unlock" disabled class="w-full py-3 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-slate-950 font-bold rounded-2xl text-xs">Safe entsperren 🔓</button>
-                </form>
-            </div>
-
-            <!-- entsperrt -->
-            <div id="vault-unlocked-view" class="hidden flex-1 flex flex-col overflow-hidden">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-                    <div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <h3 class="text-sm font-bold">Tresor entsperrt</h3><span class="text-[10px] text-slate-500 hidden sm:inline">sperrt sich nach 5 Min. Inaktivität</span></div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="openAddVaultItemModal()" class="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 px-3 py-1.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-plus mr-1.5"></i>Eintrag</button>
-                        <button onclick="lockVault()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-lock mr-1.5"></i>Sperren</button>
-                    </div>
-                </div>
-                <div id="vault-items-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1"></div>
-            </div>
-        </div>
-    </main>
-
-    <div id="modal-vault-add" class="fixed inset-0 z-50 bg-slate-950/80 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md">
-            <div class="flex justify-between items-center mb-4"><h3 class="text-base font-bold">Passwort sichern</h3>
-                <button onclick="closeModal('modal-vault-add')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>
-            <form onsubmit="saveVaultItem(event)" class="space-y-3.5">
-                <div><label class="lbl">Titel / Dienst</label><input type="text" id="vault-title" required placeholder="z. B. WLAN, Netflix" class="inp"></div>
-                <div><label class="lbl">Benutzername (optional)</label><input type="text" id="vault-username" autocomplete="off" class="inp"></div>
-                <div><div class="flex justify-between"><label class="lbl">Passwort / PIN</label>
-                    <button type="button" onclick="generatePassword()" class="text-[11px] text-amber-400 hover:text-amber-300"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Generieren</button></div>
-                    <textarea id="vault-secret" required rows="3" class="inp font-mono"></textarea></div>
-                <div class="flex justify-end gap-3 pt-3">
-                    <button type="button" onclick="closeModal('modal-vault-add')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs bg-amber-600 text-slate-950 hover:bg-amber-500 font-bold">Verschlüsselt sichern</button>
-                </div>
-            </form>
-        </div>
+    <div class="ux-top">
+        <div class="ux-ico"><i class="fa-solid fa-shield-halved"></i></div>
+        <div><h1 class="ux-h1">Passwort-Safe</h1><div class="ux-sub" id="vault-sub">Verschlüsselt, nur mit deinem Master-Passwort lesbar</div></div>
+        <div class="ux-sp"></div>
+        <span id="vault-actions" class="hidden" style="display:contents">
+            <span class="lockst"><span class="dot"></span><b>Entsperrt</b><small id="lock-eta">sperrt in 5:00</small></span>
+            <button class="ux-btn" onclick="lockVault()"><i class="fa-solid fa-lock"></i>Sperren</button>
+            <button class="ux-btn pri" onclick="openAddVaultItemModal()"><i class="fa-solid fa-plus"></i>Eintrag</button>
+        </span>
     </div>
 
-    <script>
+    <!-- gesperrt -->
+    <div id="vault-locked-view" class="lockwrap"><div class="ux-card glow lock">
+        <div class="lockico"><i class="fa-solid fa-lock"></i><span class="r1"></span><span class="r2"></span></div>
+        <h2>Passwort-Safe</h2>
+        <p id="vault-hint" class="ux-note">Lade Safe...</p>
+        <form onsubmit="unlockVault(event)">
+            <label class="ux-f"><span>Master-Passwort</span><input type="password" id="vault-master-pass" required autocomplete="off" placeholder="Master-Passwort" class="ux-in"></label>
+            <label class="ux-f hidden" id="pass2-wrap"><span>Wiederholen</span><input type="password" id="vault-master-pass2" autocomplete="off" placeholder="Master-Passwort wiederholen" class="ux-in"></label>
+            <button type="submit" id="btn-unlock" disabled class="ux-btn pri wide"><i class="fa-solid fa-lock-open"></i>Safe entsperren</button>
+        </form>
+    </div></div>
+
+    <!-- entsperrt -->
+    <div id="vault-unlocked-view" class="hidden">
+        <div id="vault-items-list" class="vgrid"></div>
+        <div class="ux-note" style="margin-top:18px;text-align:center"><i class="fa-solid fa-shield-halved"></i> Alle Einträge sind mit deinem Master-Passwort verschlüsselt. Der Safe sperrt sich nach 5 Minuten ohne Aktivität.</div>
+    </div>
+</main>
+
+<div id="modal-vault-add" class="ux-modal hidden"><div class="ux-box" style="--m:#fb923c;--m2:#f97316;--mr:251,146,60">
+    <h3><i class="fa-solid fa-key"></i>Passwort sichern<button class="ux-ib" onclick="closeModal('modal-vault-add')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3>
+    <p class="sub">Titel, Benutzername und Passwort werden verschlüsselt gespeichert.</p>
+    <form onsubmit="saveVaultItem(event)">
+        <label class="ux-f"><span>Titel / Dienst</span><input type="text" id="vault-title" required placeholder="z. B. WLAN, Netflix" class="ux-in"></label>
+        <label class="ux-f"><span>Benutzername (optional)</span><input type="text" id="vault-username" autocomplete="off" class="ux-in"></label>
+        <label class="ux-f"><span style="display:flex;justify-content:space-between;align-items:center">Passwort / PIN <button type="button" onclick="generatePassword()" class="ux-btn" style="padding:5px 10px;font-size:12px"><i class="fa-solid fa-wand-magic-sparkles"></i>Generieren</button></span><textarea id="vault-secret" required rows="3" class="ux-in" style="font-family:ui-monospace,Menlo,monospace"></textarea></label>
+        <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('modal-vault-add')">Abbrechen</button><button type="submit" class="ux-btn pri">Verschlüsselt sichern</button></div>
+    </form></div></div>
+
+<script>
         const $ = id => document.getElementById(id);
         const openModal = id => $(id).classList.remove('hidden');
         const closeModal = id => $(id).classList.add('hidden');
@@ -140,15 +133,20 @@
             }, err => { $('vault-hint').innerText = 'Safe konnte nicht geladen werden: ' + err.message; });
             $('vault-items-list').addEventListener('click', onListClick);
             ['click', 'keydown', 'touchstart'].forEach(ev => document.addEventListener(ev, () => { lastActivity = Date.now(); }, { passive: true }));
-            setInterval(() => { if (vaultKey && Date.now() - lastActivity > 5 * 60 * 1000) lockVault(); }, 10000);
+            setInterval(() => {
+                if (!vaultKey) return;
+                const left = 5 * 60 * 1000 - (Date.now() - lastActivity);
+                if (left <= 0) return lockVault();
+                $('lock-eta').textContent = `sperrt in ${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')}`;
+            }, 1000);
         }, { perm: 'tresor' });
 
         function updateUnlockMode() {
             const setup = !checkDoc && items.length === 0;
-            $('vault-master-pass2').classList.toggle('hidden', !setup);
+            $('pass2-wrap').classList.toggle('hidden', !setup);
             $('vault-master-pass2').required = setup;
             $('btn-unlock').disabled = false;
-            $('btn-unlock').innerText = setup ? 'Safe einrichten' : 'Safe entsperren 🔓';
+            $('btn-unlock').innerHTML = setup ? '<i class="fa-solid fa-shield-halved"></i>Safe einrichten' : '<i class="fa-solid fa-lock-open"></i>Safe entsperren';
             $('vault-hint').innerText = setup
                 ? 'Lege ein Master-Passwort fest (mind. 8 Zeichen). Es wird nirgends gespeichert. Wer es vergisst, verliert den Zugriff auf alle Einträge.'
                 : 'Deine Einträge sind per AES-256 direkt im Browser verschlüsselt. Ohne Master-Passwort sind sie unlesbar.';
@@ -181,7 +179,7 @@
             if (Date.now() < lockoutUntil) return alert(`Bitte ${Math.ceil((lockoutUntil - Date.now()) / 1000)} Sekunden warten.`);
             const pass = $('vault-master-pass').value;
             if (!pass) return;
-            const btn = $('btn-unlock'), label = btn.innerText;
+            const btn = $('btn-unlock'), label = btn.innerHTML;
             btn.disabled = true; btn.innerText = 'Prüfe...';
             const fail = () => { failures++; lockoutUntil = Date.now() + Math.min(30000, 2000 * failures); alert('Falsches Master-Passwort.'); logSystemEvent('auth', 'Tresor: falsches Master-Passwort'); };
             try {
@@ -205,20 +203,20 @@
                 await migrateLegacy(pass);
                 lastActivity = Date.now();
                 $('vault-locked-view').classList.add('hidden');
-                $('vault-unlocked-view').classList.remove('hidden');
+                $('vault-unlocked-view').classList.remove('hidden'); $('vault-actions').classList.remove('hidden'); $('lock-eta').textContent = 'sperrt in 5:00';
                 await renderVaultItems();
             } catch (err) {
                 alert('Fehler: ' + err.message);
             } finally {
                 $('vault-master-pass').value = ''; $('vault-master-pass2').value = '';
-                btn.disabled = false; btn.innerText = label;
+                btn.disabled = false; btn.innerHTML = label;
             }
         }
 
         function lockVault() {
             vaultKey = null; secrets.clear();
             $('vault-items-list').innerHTML = '';
-            $('vault-unlocked-view').classList.add('hidden');
+            $('vault-unlocked-view').classList.add('hidden'); $('vault-actions').classList.add('hidden'); $('vault-sub').textContent = 'Verschlüsselt, nur mit deinem Master-Passwort lesbar';
             $('vault-locked-view').classList.remove('hidden');
             updateUnlockMode();
         }
@@ -237,19 +235,17 @@
             }
             rows.sort((a, b) => a.title.localeCompare(b.title, 'de'));
             rows.forEach(r => { if (r.secret !== null) secrets.set(r.id, r.secret); });
-            list.innerHTML = rows.length ? rows.map(r => `
-                <div class="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center"><i class="fa-solid fa-key"></i></div>
-                        <div><span class="font-semibold text-slate-200 text-sm block">${esc(r.title)}</span>${r.username ? `<span class="text-[11px] text-slate-400 block">${esc(r.username)}</span>` : ''}</div>
-                    </div>
-                    <div class="flex items-center gap-2" data-id="${esc(r.id)}">
-                        <div data-val class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-[11px] text-amber-300 truncate max-w-[200px]">${r.secret === null ? '—' : MASK}</div>
-                        <button data-act="show" class="ibtn" ${r.secret === null ? 'disabled' : ''} title="Anzeigen / Maskieren"><i class="fa-regular fa-eye"></i></button>
-                        <button data-act="copy" class="ibtn" ${r.secret === null ? 'disabled' : ''} title="Kopieren"><i class="fa-regular fa-copy"></i></button>
-                        <button data-act="del" class="ibtn hover:bg-rose-500/20 hover:text-rose-400" title="Löschen"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                </div>`).join('') : '<div class="text-xs text-slate-500 text-center py-6">Noch keine Einträge im Tresor.</div>';
+            const PAL = [['#f472b6', '244,114,182'], ['#22d3ee', '34,211,238'], ['#fb923c', '251,146,60'], ['#f87171', '248,113,113'], ['#818cf8', '129,140,248'], ['#34d399', '52,211,153'], ['#fbbf24', '251,191,36'], ['#a78bfa', '167,139,250']];
+            $('vault-sub').textContent = `${rows.length} ${rows.length === 1 ? 'Eintrag' : 'Einträge'}`;
+            list.innerHTML = rows.length ? rows.map(r => {
+                const c = PAL[[...r.title].reduce((s, ch) => s + ch.charCodeAt(0), 0) % PAL.length];
+                return `<div class="ux-card vi" data-id="${esc(r.id)}" style="--c:${c[0]};--cr:${c[1]}">
+                    <div class="top"><div class="tile"><i class="fa-solid fa-key"></i></div><div class="nm"><div class="ell">${esc(r.title)}</div>${r.username ? `<small class="ell">${esc(r.username)}</small>` : ''}</div>
+                        <button data-act="del" class="ux-ib bad" title="Löschen" aria-label="Eintrag löschen"><i class="fa-solid fa-trash-can"></i></button></div>
+                    <div class="sec"><span data-val class="dots">${r.secret === null ? '—' : MASK}</span><span class="acts">
+                        <button data-act="show" class="ux-ib" ${r.secret === null ? 'disabled' : ''} title="Anzeigen / Maskieren" aria-label="Passwort anzeigen"><i class="fa-regular fa-eye"></i></button>
+                        <button data-act="copy" class="ux-ib" ${r.secret === null ? 'disabled' : ''} title="Kopieren" aria-label="Passwort kopieren"><i class="fa-regular fa-copy"></i></button></span></div></div>`;
+            }).join('') : '<div class="ux-card ux-empty" style="grid-column:1/-1"><i class="fa-solid fa-key"></i>Noch keine Einträge im Tresor.</div>';
         }
 
         function onListClick(e) {
@@ -289,6 +285,6 @@
                 logSystemEvent('data', 'Tresor-Eintrag angelegt');
             });
         }
-    </script>
+</script>
 </body>
 </html>
