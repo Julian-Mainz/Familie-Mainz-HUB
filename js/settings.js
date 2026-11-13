@@ -2,7 +2,7 @@
 (function () {
     const VAPID_KEY = 'BPEpGDjLNQG4JpIwPgr2_WtdKDE5G8GE5S33LKLJmxfNPrAfxBXW6wpeHj0dQOhENsmYbUWOh669HoSJ18w18Lk';
     const SW_PATH = '/firebase-messaging-sw.js';
-    let messaging = null;
+    let messaging = null, msgTried = false;
 
     function loadMessagingSdk() {
         return new Promise(resolve => {
@@ -16,6 +16,7 @@
     }
 
     async function initMessaging() {
+        if (msgTried) return; msgTried = true;
         await loadMessagingSdk();
         try {
             if (firebase.messaging && firebase.messaging.isSupported()) {
@@ -29,45 +30,27 @@
     function buildModal() {
         if (document.getElementById('modal-settings')) return;
         document.body.insertAdjacentHTML('beforeend', `
-        <div id="modal-settings" class="fixed inset-0 z-[60] bg-slate-950/80 hidden flex items-center justify-center p-4">
-            <div class="bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
-                    <h3 class="text-base font-bold text-slate-100">Einstellungen</h3>
-                    <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="space-y-4">
-                    <div class="p-3.5 bg-slate-950/60 border border-slate-800 rounded-2xl flex items-center justify-between gap-3">
-                        <div>
-                            <div class="text-xs font-semibold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-bell text-yellow-400"></i> Push-Mitteilungen</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5" id="master-push-subtext">Status: Inaktiv</div>
-                        </div>
-                        <button id="btn-master-push" onclick="toggleMasterPush()" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-indigo-600 hover:bg-indigo-500 text-white">Aktivieren</button>
+        <div id="modal-settings" class="gs-ov mid hidden" role="dialog" aria-modal="true" aria-labelledby="set-title" style="z-index:60">
+            <div class="gs-box dlg">
+                <div class="gs-top"><h3 class="gs-t" id="set-title">Einstellungen</h3><button class="gs-x" onclick="closeSettingsModal()" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></div>
+                <div class="gs-stack">
+                    <div class="gs-row"><div><b><i class="fa-solid fa-bell" style="color:#facc15;margin-right:8px"></i>Push-Mitteilungen</b><small id="master-push-subtext">Status: Inaktiv</small></div>
+                        <button id="btn-master-push" onclick="toggleMasterPush()" class="gs-btn pri">Aktivieren</button></div>
+                    <label class="gs-row"><span>Stempeluhr-Alarm</span><input type="checkbox" id="pref-notify-work" onchange="saveNotificationPref('notifyWork', this.checked)"></label>
+                    <label class="gs-row"><span>Termin-Bestätigung</span><input type="checkbox" id="pref-notify-events" onchange="saveNotificationPref('notifyEvents', this.checked)"></label>
+                    <div class="gs-stats">
+                        <div><span>Internet</span><span id="set-stat-net"></span></div>
+                        <div><span>Service Worker</span><span id="set-stat-sw" class="gs-mu">Prüfe...</span></div>
+                        <div><span>Push-Alarm</span><span id="set-stat-push" class="gs-mu">Inaktiv</span></div>
                     </div>
-                    <div class="space-y-2.5">
-                        <label class="flex items-center justify-between p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl cursor-pointer">
-                            <span class="text-xs font-medium text-slate-200">Stempeluhr-Alarm</span>
-                            <input type="checkbox" id="pref-notify-work" onchange="saveNotificationPref('notifyWork', this.checked)" class="rounded bg-slate-800 border-slate-700 w-4 h-4 cursor-pointer">
-                        </label>
-                        <label class="flex items-center justify-between p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl cursor-pointer">
-                            <span class="text-xs font-medium text-slate-200">Termin-Bestätigung</span>
-                            <input type="checkbox" id="pref-notify-events" onchange="saveNotificationPref('notifyEvents', this.checked)" class="rounded bg-slate-800 border-slate-700 w-4 h-4 cursor-pointer">
-                        </label>
-                    </div>
-                    <div class="p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl text-[11px] space-y-1.5">
-                        <div class="flex justify-between"><span class="text-slate-400">Internet</span><span id="set-stat-net" class="font-medium"></span></div>
-                        <div class="flex justify-between"><span class="text-slate-400">Service Worker</span><span id="set-stat-sw" class="font-medium text-slate-400">Prüfe...</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400">Push-Alarm</span><span id="set-stat-push" class="font-medium text-slate-400">Inaktiv</span></div>
-                    </div>
-                    <button onclick="toggleTheme()" class="w-full flex items-center justify-between p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl text-xs font-medium text-slate-200"><span><i data-theme-icon class="fa-solid fa-moon text-slate-400 mr-2"></i>Design</span><span data-theme-text class="text-slate-400">Dunkel</span></button>
-                    <div class="p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl space-y-2">
-                        <div class="text-xs font-semibold text-slate-200"><i class="fa-solid fa-user-shield text-indigo-400 mr-2"></i>Meine Daten &amp; Konto</div>
-                        <button id="btn-export" onclick="exportMyData()" class="w-full py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700"><i class="fa-solid fa-download mr-2 text-emerald-400"></i>Alle meine Daten herunterladen (JSON)</button>
-                        <button onclick="openDeleteAccount()" class="w-full py-2 rounded-xl text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20"><i class="fa-solid fa-trash-can mr-2"></i>Konto und Daten löschen</button>
-                    </div>
-                    <div class="pt-3 border-t border-slate-800 text-right">
-                        <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Schließen</button>
+                    <button onclick="toggleTheme()" class="gs-row"><span><i data-theme-icon class="fa-solid fa-moon" style="color:#94a3b8;margin-right:8px"></i>Design</span><span data-theme-text class="gs-mu">Dunkel</span></button>
+                    <div class="gs-row" style="flex-direction:column;align-items:stretch;gap:10px">
+                        <b><i class="fa-solid fa-user-shield" style="color:#818cf8;margin-right:8px"></i>Meine Daten &amp; Konto</b>
+                        <button id="btn-export" onclick="exportMyData()" class="gs-btn full"><i class="fa-solid fa-download" style="color:#34d399;margin-right:8px"></i>Alle meine Daten herunterladen (JSON)</button>
+                        <button onclick="openDeleteAccount()" class="gs-btn bad full"><i class="fa-solid fa-trash-can" style="margin-right:8px"></i>Konto und Daten löschen</button>
                     </div>
                 </div>
+                <div class="gs-acts" style="border-top:1px solid rgba(148,163,184,.16);margin-top:14px"><button onclick="closeSettingsModal()" class="gs-btn">Schließen</button></div>
             </div>
         </div>`);
     }
@@ -76,7 +59,7 @@
         const el = document.getElementById(id);
         if (!el) return;
         el.innerText = text;
-        el.className = 'font-medium ' + (ok === true ? 'text-emerald-400' : ok === false ? 'text-rose-400' : 'text-slate-400');
+        el.className = ok === true ? 'gs-ok' : ok === false ? 'gs-no' : 'gs-mu';
     }
 
     async function refreshPushUI() {
@@ -85,10 +68,10 @@
         const btn = document.getElementById('btn-master-push');
         if (btn) {
             btn.innerText = on ? 'Deaktivieren' : 'Aktivieren';
-            btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all text-white ' + (on ? 'bg-rose-600 hover:bg-rose-500' : 'bg-indigo-600 hover:bg-indigo-500');
+            btn.className = 'gs-btn pri' + (on ? ' on' : '');
         }
         const sub = document.getElementById('master-push-subtext');
-        if (sub) sub.innerText = 'Status: ' + (on ? 'Aktiv' : (messaging ? 'Inaktiv' : 'Nicht unterstützt'));
+        if (sub) sub.innerText = 'Status: ' + (on ? 'Aktiv' : (messaging || !msgTried ? 'Inaktiv' : 'Nicht unterstützt'));
         const p = currentUser.userPrefs || {};
         const w = document.getElementById('pref-notify-work');
         const e = document.getElementById('pref-notify-events');
@@ -124,6 +107,7 @@
                 currentUser.notificationsEnabled = false;
                 await userRef.update({ notificationsEnabled: false, fcmToken: firebase.firestore.FieldValue.delete() });
             } else {
+                if (!messaging) await initMessaging();      // das Google-Skript für Push wird erst jetzt geladen
                 if (!messaging || !('Notification' in window)) return alert('Push wird von diesem Browser nicht unterstützt.');
                 const permission = await Notification.requestPermission();
                 if (permission !== 'granted') return alert('Benachrichtigungen wurden nicht erlaubt.');
@@ -155,8 +139,8 @@
         }
     };
 
-    // Service Worker auf jeder Seite registrieren (nötig für Push im Hintergrund)
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register(SW_PATH).catch(() => {});
+    // Der Service Worker (Push im Hintergrund) wird nur registriert, wenn Push an ist. Er lädt zwei Skripte von Google nach, das soll nicht bei jedem Seitenaufruf passieren.
+    if ('serviceWorker' in navigator && typeof currentUser !== 'undefined' && currentUser && currentUser.notificationsEnabled) navigator.serviceWorker.register(SW_PATH).catch(() => {});
     window.addEventListener('online', refreshPushUI);
     window.addEventListener('offline', refreshPushUI);
 
@@ -202,18 +186,18 @@
     function buildDelete() {
         if (document.getElementById('modal-delete-account')) return;
         document.body.insertAdjacentHTML('beforeend', `
-        <div id="modal-delete-account" class="fixed inset-0 z-[70] bg-slate-950/85 hidden flex items-center justify-center p-4">
-            <div class="bg-slate-900 border border-rose-500/30 p-5 rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto">
-                <h3 class="text-base font-bold text-rose-300"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Konto endgültig löschen</h3>
-                <p class="text-xs text-slate-400 mt-2 leading-relaxed">Gelöscht werden dein Profil und alle deine Daten: Arbeitszeiten, Buchungen, Fixkosten, Lohnabrechnungen, Tresor-Einträge sowie deine Termine, Notizen und Aufgaben. Deine Chat-Nachrichten bleiben bei deinen Gesprächspartnern erhalten, dein Name wird dort zu „Gelöschtes Konto“. Das kann nicht rückgängig gemacht werden. Lade vorher am besten deine Daten herunter.</p>
-                <div id="del-admin-note" class="hidden mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">Admin-Konten können nicht selbst gelöscht werden. Lass dich zuerst von einem anderen Admin zum normalen Mitglied herabstufen.</div>
-                <div class="space-y-3 mt-4">
-                    <input type="password" id="del-pass" autocomplete="current-password" placeholder="Dein Passwort" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-rose-500">
-                    <input id="del-confirm" autocomplete="off" placeholder="Zur Bestätigung LÖSCHEN eintippen" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-rose-500">
+        <div id="modal-delete-account" class="gs-ov mid z70 hidden" role="dialog" aria-modal="true" aria-labelledby="del-title">
+            <div class="gs-box dlg red">
+                <h3 class="gs-t red" id="del-title"><i class="fa-solid fa-triangle-exclamation"></i>Konto endgültig löschen</h3>
+                <p class="gs-p">Gelöscht werden dein Profil und alle deine Daten: Arbeitszeiten, Buchungen, Fixkosten, Lohnabrechnungen, Tresor-Einträge, Dokumente sowie deine Termine, Notizen und Aufgaben. Deine Chat-Nachrichten bleiben bei deinen Gesprächspartnern erhalten, dein Name wird dort zu „Gelöschtes Konto“. Das kann nicht rückgängig gemacht werden. Lade vorher am besten deine Daten herunter.</p>
+                <div id="del-admin-note" class="gs-note hidden" style="margin-top:12px">Admin-Konten können nicht selbst gelöscht werden. Lass dich zuerst von einem anderen Admin zum normalen Mitglied herabstufen.</div>
+                <div class="gs-stack" style="margin-top:16px">
+                    <input type="password" id="del-pass" autocomplete="current-password" placeholder="Dein Passwort" class="gs-in" aria-label="Dein Passwort">
+                    <input id="del-confirm" autocomplete="off" placeholder="Zur Bestätigung LÖSCHEN eintippen" class="gs-in" aria-label="Bestätigung">
                 </div>
-                <div class="flex justify-end gap-3 pt-4">
-                    <button onclick="document.getElementById('modal-delete-account').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300">Abbrechen</button>
-                    <button id="del-btn" onclick="deleteAccount()" class="px-4 py-2 rounded-xl text-xs bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white font-semibold">Endgültig löschen</button>
+                <div class="gs-acts">
+                    <button onclick="document.getElementById('modal-delete-account').classList.add('hidden')" class="gs-btn">Abbrechen</button>
+                    <button id="del-btn" onclick="deleteAccount()" class="gs-btn dng">Endgültig löschen</button>
                 </div>
             </div>
         </div>`);
@@ -259,5 +243,6 @@
     };
 
     buildModal();
-    initMessaging();
+    // Das Push-Skript von Google wird nur geladen, wenn Push schon an ist oder gerade eingeschaltet wird. Sonst entfällt auf jeder Seite eine Anfrage an einen fremden Server.
+    if (typeof currentUser !== 'undefined' && currentUser && currentUser.notificationsEnabled) initMessaging(); else refreshPushUI();
 })();
