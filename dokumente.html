@@ -66,7 +66,7 @@
         <input id="q" class="ux-in" placeholder="Dateien suchen …" style="width:240px" aria-label="Dateien suchen" autocomplete="off">
         <div class="ux-seg" id="modes"><button class="on" data-mode="grid" aria-label="Raster"><i class="fa-solid fa-table-cells-large" style="margin:0"></i></button><button data-mode="list" aria-label="Liste"><i class="fa-solid fa-list" style="margin:0"></i></button></div>
         <button class="ux-btn pri" id="btn-up"><i class="fa-solid fa-cloud-arrow-up"></i>Hochladen</button>
-        <input type="file" id="file" multiple hidden accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.zip,image/*,application/pdf">
+        <input type="file" id="file" multiple hidden accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.zip,image/png,image/jpeg,image/webp,image/gif,application/pdf">
     </div>
 
     <div class="ex">
@@ -103,9 +103,10 @@
         const fmtD = t => t ? new Date(t).toLocaleDateString('de-DE') : '–';
         const tms = t => (t && t.toDate ? t.toDate().getTime() : t && t.seconds ? t.seconds * 1000 : typeof t === 'number' ? t : 0);
         const TYPES = { pdf: ['fa-file-pdf', '248,113,113', 'PDF'], img: ['fa-image', '56,189,248', 'Bild'], doc: ['fa-file-word', '96,165,250', 'Dokument'], sheet: ['fa-file-excel', '52,211,153', 'Tabelle'], txt: ['fa-file-lines', '148,163,184', 'Text'], zip: ['fa-file-zipper', '251,191,36', 'Archiv'], other: ['fa-file', '148,163,184', 'Datei'] };
+        const SAFE_IMG = /^image\/(png|jpeg|webp|gif)$/;    // bewusst ohne SVG: SVG ist eine Textdatei und darf Programmcode enthalten
         function kind(name, mime) {
             const n = (name || '').toLowerCase(), m = mime || '';
-            if (m === 'application/pdf' || /\.pdf$/.test(n)) return 'pdf'; if (/^image\//.test(m) || /\.(png|jpe?g|webp|gif)$/.test(n)) return 'img';
+            if (m === 'application/pdf' || /\.pdf$/.test(n)) return 'pdf'; if (SAFE_IMG.test(m) || /\.(png|jpe?g|webp|gif)$/.test(n)) return 'img';
             if (/\.(docx?|odt|pptx?)$/.test(n)) return 'doc'; if (/\.(xlsx?|ods|csv)$/.test(n)) return 'sheet'; if (/\.txt$/.test(n)) return 'txt'; if (/\.zip$/.test(n)) return 'zip'; return 'other';
         }
         const grp = k => (k === 'pdf' ? 'pdf' : k === 'img' ? 'img' : ['doc', 'sheet', 'txt'].includes(k) ? 'doc' : 'other');
@@ -256,7 +257,7 @@
 
         // ---------- Hochladen ----------
         async function makeThumb(file) {
-            if (!/^image\/(png|jpeg|webp|gif)$/.test(file.type)) return '';
+            if (!SAFE_IMG.test(file.type)) return '';
             try {
                 const url = URL.createObjectURL(file), img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
                 const s = 160, c = document.createElement('canvas'); c.width = c.height = s; const x = c.getContext('2d'), r = Math.max(s / img.width, s / img.height);
@@ -267,7 +268,7 @@
         async function uploadFiles(list) {
             const folder = BUILTIN.includes(view) ? '' : view; let done = 0;
             for (const f of [...list]) {
-                if (!ALLOWED.test(f.name) && !/^(image\/|application\/pdf)/.test(f.type)) { upNote(`„${f.name}“: Dateityp nicht erlaubt.`, true); continue; }
+                if (!ALLOWED.test(f.name) && !SAFE_IMG.test(f.type) && f.type !== 'application/pdf') { upNote(`„${f.name}“: Dateityp nicht erlaubt.`, true); continue; }
                 if (f.size > MAX) { upNote(`„${f.name}“ ist größer als 3 MB.`, true); continue; }
                 if (!f.size) { upNote(`„${f.name}“ ist leer.`, true); continue; }
                 if (usedBytes() + f.size > QUOTA) { upNote('Dein Speicher (100 MB) ist voll. Lösche zuerst Dateien.', true); break; }
