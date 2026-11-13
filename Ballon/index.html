@@ -21,6 +21,7 @@ button { font: inherit; color: inherit; cursor: pointer; } .hidden { display: no
 .chip.warn { border-color: rgba(244,63,94,.6); color: #fecdd3; animation: pulse 1s ease-in-out infinite; }
 .sp { flex: 1; }
 .btn { border: 1px solid var(--ln); background: rgba(255,255,255,.07); padding: 9px 14px; border-radius: 13px; font-weight: 700; font-size: 13.5px; transition: filter .2s, transform .15s; } .btn:hover { filter: brightness(1.25); } .btn:active { transform: scale(.96); } .btn:disabled { opacity: .4; cursor: not-allowed; }
+a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 .btn.go { color: #03170f; border: 0; background: linear-gradient(135deg, #6ee7b7, var(--a)); box-shadow: 0 10px 24px -10px rgba(var(--ar), .9); } .btn.bad { color: #fecdd3; border-color: rgba(244,63,94,.4); background: rgba(244,63,94,.12); } .btn.on { color: #03170f; background: var(--a); border-color: var(--a); }
 .cvw { flex: 1; min-height: 0; display: grid; place-items: center; position: relative; }
 #cv { border-radius: 18px; touch-action: none; display: block; box-shadow: 0 0 0 1px var(--ln), 0 20px 50px -20px rgba(0,0,0,.8); background: #14301f; }
@@ -57,6 +58,7 @@ button { font: inherit; color: inherit; cursor: pointer; } .hidden { display: no
 <div class="app">
   <section class="card stage" id="stage">
     <div class="hud">
+      <a class="btn" id="b-back" href="/Spiele/" title="Zurück zum Game Center" aria-label="Zurück zum Game Center">←</a>
       <span class="chip" title="Leben">❤️ <b id="h-lives">100</b></span><span class="chip" title="Geld">💰 <b id="h-money">0</b></span><span class="chip" title="Runde"><small>Runde</small> <b id="h-round">1</b></span>
       <span class="sp"></span>
       <button class="btn" id="b-speed" title="Geschwindigkeit (F)">×1</button><button class="btn" id="b-auto" title="Nächste Runde automatisch starten" aria-pressed="false">Auto</button><button class="btn" id="b-pause" title="Pause (P)">❚❚</button>
@@ -114,7 +116,7 @@ const MODES = [['first', 'Erster'], ['last', 'Letzter'], ['strong', 'Stärkster'
 const META = [['startMoney', 'Startkapital', '+50 € zum Start je Stufe', 8, 1.6], ['lives', 'Sicherheitsnetz', '+5 Leben je Stufe', 10, 1.6], ['discount', 'Mengenrabatt', 'Türme und Upgrades 2 % günstiger je Stufe', 15, 1.7], ['bonus', 'Scharfe Augen', '+5 % Geld für jeden geplatzten Ballon je Stufe', 12, 1.6], ['roundBonus', 'Rundenprämie', '+10 € Rundenbonus je Stufe', 12, 1.6]];
 const META_MAX = 10;
 // ================= Zustand =================
-const freshMeta = () => ({ diamonds: 0, up: { startMoney: 0, lives: 0, discount: 0, bonus: 0, roundBonus: 0 }, best: { wiese: 0, zickzack: 0, spirale: 0 }, runs: 0, popped: 0, snd: false });
+const freshMeta = () => ({ playMs: 0, last: 0, diamonds: 0, up: { startMoney: 0, lives: 0, discount: 0, bonus: 0, roundBonus: 0 }, best: { wiese: 0, zickzack: 0, spirale: 0 }, runs: 0, popped: 0, snd: false });
 let M = freshMeta(), S = null, savedRun = null, placing = null, ghost = null, selTower = null, acc = 0, lastT = performance.now(), menuTab = 'play', pickMap = 'wiese';
 const $ = id => document.getElementById(id), cv = $('cv'), ctx = cv.getContext('2d');
 const fmt = n => Math.floor(n).toLocaleString('de-DE');
@@ -189,7 +191,7 @@ function idleSave() { if (S && !S.active && !S.over) saveRun(); }
 const num = (v, d) => (typeof v === 'number' && isFinite(v) ? v : d);
 function sanitize(o) {
   const m = freshMeta(), r = o && typeof o === 'object' ? o : {}, mm = r.meta && typeof r.meta === 'object' ? r.meta : {};
-  m.diamonds = Math.max(0, Math.floor(num(mm.diamonds, 0))); m.runs = Math.max(0, num(mm.runs, 0)); m.popped = Math.max(0, num(mm.popped, 0)); m.snd = mm.snd === true;
+  m.playMs = Math.max(0, num(mm.playMs, 0)); m.last = Math.max(0, num(mm.last, 0)); m.diamonds = Math.max(0, Math.floor(num(mm.diamonds, 0))); m.runs = Math.max(0, num(mm.runs, 0)); m.popped = Math.max(0, num(mm.popped, 0)); m.snd = mm.snd === true;
   META.forEach(([k]) => { m.up[k] = clamp(Math.floor(num(mm.up && mm.up[k], 0)), 0, META_MAX); }); Object.keys(MAPS).forEach(k => { m.best[k] = Math.max(0, Math.floor(num(mm.best && mm.best[k], 0))); });
   let run = null; const q = r.run, keep = PATH;
   if (q && typeof q === 'object' && MAPS[q.map] && Array.isArray(q.towers)) { run = { map: q.map, round: Math.max(1, Math.floor(num(q.round, 1))), money: Math.max(0, num(q.money, 0)), lives: Math.max(1, num(q.lives, 1)), towers: [] }; const P = buildPath(q.map); const ok = (x, y) => { PATH = P; return x >= 22 && x <= W - 22 && y >= 22 && y <= H - 22 && distToPath(x, y) >= 30; };
@@ -306,6 +308,8 @@ function wire() {
 function loop(now) { const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now; if (S && !S.over && !S.paused) { acc += dt * S.speed; let n = 0; while (acc >= DT && n < 24) { step(); acc -= DT; n++; } if (acc > DT * 24) acc = 0; } draw(); const h = $('h-money'); if (S && h.textContent !== fmt(S.money)) { renderHud(); renderShop(); if (selTower) renderInfo(); } else if (S) { renderHud(); } requestAnimationFrame(loop); }
 // ================= Start =================
 load(); newRun('wiese'); wire(); fit(); showOverlay('menu'); requestAnimationFrame(loop);
+// Spielzeit und "zuletzt gespielt" für das Game Center (nur lokal, nur solange die Seite sichtbar ist)
+setInterval(() => { if (document.hidden) return; M.playMs += 5000; M.last = Date.now(); saveMeta(); }, 5000);
 window.TD = { get S() { return S; }, get M() { return M; }, step(n = 1) { for (let i = 0; i < n; i++) step(); }, place, upgrade, sell, startRound, newRun, waveFor, validSpot, distToPath, posAt, get pathLen() { return PATH.len; }, stats, price, hit, spawn, endRound, gameOver, buyMeta, saveRun, load, resume, sanitize, get savedRun() { return savedRun; }, set savedRun(v) { savedRun = v; }, TOWERS, MAPS, tower(i) { return S.towers[i]; }, select(t) { selTower = t; renderAll(); }, setM(o) { Object.assign(M, o); saveMeta(); }, mapOpen };
 </script>
 </body>
