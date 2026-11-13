@@ -11,6 +11,7 @@ on:
       - 'Keks/**'
       - 'Buero/**'
       - 'Ballon/**'
+      - 'Spiele/**'
       - 'icons/**'
       - 'manifest.json'
       - 'firebase-messaging-sw.js'
