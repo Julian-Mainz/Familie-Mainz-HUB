@@ -113,6 +113,7 @@ function renderDrawer() {
         const tg = e.target.closest('.sb-toggle'); if (!tg) return;
         const g = document.getElementById('sb-webapps'), open = !g.classList.contains('open');
         g.classList.toggle('open', open); tg.setAttribute('aria-expanded', String(open));
+        if (open && !document.documentElement.classList.contains('sb-collapsed')) setTimeout(() => g.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 360);      // aufgeklappt: Untermenü in Sicht scrollen
         if (!document.documentElement.classList.contains('sb-collapsed')) { try { localStorage.setItem('sb_web_open', open ? '1' : '0'); } catch (x) {} }
     });
     document.addEventListener('click', e => { const g = document.getElementById('sb-webapps'); if (g && !g.contains(e.target) && document.documentElement.classList.contains('sb-collapsed')) g.classList.remove('open'); });
