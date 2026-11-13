@@ -9,6 +9,7 @@
         ['Start', '/menu.html', 'fa-border-all', 'startseite uebersicht dashboard home'],
         can(currentUser, 'wand') && ['Wandkalender', '/wand.html', 'fa-display', 'tablet kueche anzeige kiosk'],
         can(currentUser, 'messenger') && ['Messenger', '/messenger.html', 'fa-comments', 'chat nachricht schreiben kollegen gruppe unterhaltung'],
+        can(currentUser, 'webapps') && ['Game Center (Spiele)', '/Spiele/', 'fa-gamepad', 'game center spiele spielen games langeweile bibliothek erfolge wunschliste webapp web-app'],
         can(currentUser, 'webapps') && ['Uhr (Web-App)', '/Uhr/', 'fa-clock', 'uhr uhrzeit timer feierabend webapp web-app'],
         can(currentUser, 'webapps') && ['Ballon-Alarm (Spiel)', '/Ballon/', 'fa-bullseye', 'ballon alarm tower defense spiel game türme langeweile webapp web-app'],
         can(currentUser, 'webapps') && ['Büro-Imperium (Spiel)', '/Buero/', 'fa-building', 'büro imperium spiel game idle clicker langeweile karriere webapp web-app'],
