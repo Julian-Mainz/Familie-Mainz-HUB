@@ -74,8 +74,8 @@ h2.h { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color:
 </head>
 <body>
 <header class="top">
-  <a class="logo" href="#entdecken" aria-label="Game Center, Startseite"><i class="fa-solid fa-gamepad"></i>Game Center</a>
-  <nav class="nav" aria-label="Bereiche"><a href="#entdecken" data-v="entdecken">Entdecken</a><a href="#bibliothek" data-v="bibliothek">Bibliothek</a><a href="#erfolge" data-v="erfolge">Erfolge</a><a href="#wunschliste" data-v="wunschliste">Wunschliste</a></nav>
+  <a class="logo" href="#bibliothek" aria-label="Game Center, Startseite"><i class="fa-solid fa-gamepad"></i>Game Center</a>
+  <nav class="nav" aria-label="Bereiche"><a href="#bibliothek" data-v="bibliothek">Bibliothek</a><a href="#entdecken" data-v="entdecken">Entdecken</a><a href="#erfolge" data-v="erfolge">Erfolge</a><a href="#wunschliste" data-v="wunschliste">Wunschliste</a></nav>
   <div class="sp"></div>
   <label class="srch"><i class="fa-solid fa-magnifying-glass"></i><input id="q" placeholder="Spiel suchen …" autocomplete="off" aria-label="Spiel suchen"></label>
   <a class="back" href="/menu.html" aria-label="Zurück zum Dashboard"><i class="fa-solid fa-arrow-left"></i><span>Dashboard</span></a>
@@ -83,7 +83,7 @@ h2.h { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color:
 </header>
 <main class="wrap" id="view"></main>
 <nav class="tabbar" aria-label="Bereiche">
-  <a href="#entdecken" data-v="entdecken"><i class="fa-solid fa-compass"></i>Entdecken</a><a href="#bibliothek" data-v="bibliothek"><i class="fa-solid fa-layer-group"></i>Bibliothek</a><a href="#erfolge" data-v="erfolge"><i class="fa-solid fa-trophy"></i>Erfolge</a><a href="#wunschliste" data-v="wunschliste"><i class="fa-solid fa-heart"></i>Wunschliste</a>
+  <a href="#bibliothek" data-v="bibliothek"><i class="fa-solid fa-layer-group"></i>Bibliothek</a><a href="#entdecken" data-v="entdecken"><i class="fa-solid fa-compass"></i>Entdecken</a><a href="#erfolge" data-v="erfolge"><i class="fa-solid fa-trophy"></i>Erfolge</a><a href="#wunschliste" data-v="wunschliste"><i class="fa-solid fa-heart"></i>Wunschliste</a>
 </nav>
 <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="m-t"><div class="box"><h3 id="m-t"></h3><p id="m-p"></p><textarea id="m-ta" spellcheck="false" aria-label="Spielstand-Code"></textarea><div class="acts" id="m-a"></div></div></div>
 <noscript><p style="padding:30px">Bitte JavaScript aktivieren, damit das Game Center funktioniert.</p></noscript>
@@ -184,8 +184,8 @@ function viewEntdecken(L, P) {
 }
 const msItem = (m, g) => `<div class="ms ${m.done ? 'd' : ''}" style="--cc:${g.color};--cd:${g.color}2e"><div class="ic">${m.e ? m.e : `<i class="fa-solid fa-${m.done ? 'trophy' : 'lock'}"></i>`}</div><div><b>${esc(m.n)}</b>${m.d ? `<small>${esc(m.d)}</small>` : ''}</div></div>`;
 function viewBibliothek(L, id) {
-  const S = sortLast(L), cur = S.find(x => x.g.id === id) || S[0], { g, i } = cur, w = wish(), has = !!(id && GBY[id]);
-  const side = `<aside class="side"><div class="row" style="justify-content:space-between;padding:0 8px 12px"><h2 class="h">Meine Spiele · ${GAMES.length}</h2></div>${S.map(x => `<a class="it ${x.g.id === g.id ? 'on' : ''}" href="#bibliothek/${x.g.id}"><span class="mini">${artDiv(x.g.id)}</span><span><b>${esc(x.g.name)}</b><small>${ago(x.i.last)}</small></span></a>`).join('')}
+  const S = sortLast(L), cur = S.find(x => x.g.id === id) || S[0], { g, i } = cur, w = wish(), has = !!(id && GBY[id]), q = UI.q.trim().toLowerCase(), shown = S.filter(x => !q || (x.g.name + ' ' + x.g.tags.join(' ')).toLowerCase().includes(q));
+  const side = `<aside class="side"><div class="row" style="justify-content:space-between;padding:0 8px 12px"><h2 class="h">Meine Spiele · ${GAMES.length}</h2></div>${shown.map(x => `<a class="it ${x.g.id === g.id ? 'on' : ''}" href="#bibliothek/${x.g.id}"><span class="mini">${artDiv(x.g.id)}</span><span><b>${esc(x.g.name)}</b><small>${ago(x.i.last)}</small></span></a>`).join('') || '<div class="empty" style="padding:6px 10px">Kein Spiel gefunden.</div>'}
    <div style="margin:18px 8px 8px;padding-top:16px;border-top:1px solid var(--ln)"><h2 class="h">Wunschliste · ${w.length}</h2><div style="display:grid;gap:8px;margin-top:12px;color:#b9c4d4;font-size:13.5px">${w.length ? w.map(x => `<div><i class="fa-solid fa-heart" style="color:var(--ac);margin-right:8px"></i>${esc(SBY[x].name)}</div>`).join('') : '<span style="color:var(--mu)">Noch nichts. Herzen setzt du unter „Entdecken“.</span>'}</div></div></aside>`;
   const T = [['ueber', 'Übersicht'], ['miles', g.mileLabel], ['stand', 'Spielstand']], tab = T.some(t => t[0] === UI.tab) ? UI.tab : 'ueber';
   const prog = `<div class="panel"><h2 class="h">Fortschritt</h2>${i.bars.length ? i.bars.map(([a, b, p]) => `<div class="prow"><div class="l"><b>${esc(a)}</b><span>${esc(b)}</span></div>${barHtml(p, p ? g.color : '#475569')}</div>`).join('') : '<div class="note">Noch kein Spielstand. Starte das Spiel, dann erscheint hier dein Fortschritt.</div>'}${i.stats.length ? `<div class="stats">${i.stats.map(([a, b]) => `<div><b>${esc(a)}</b><small>${esc(b)}</small></div>`).join('')}</div>` : ''}</div>`;
@@ -228,7 +228,7 @@ function doImport(g) {
   }]]);
 }
 function doReset(g) { if (!confirm(`Spielstand von „${g.name}“ wirklich löschen? Das kann nicht rückgängig gemacht werden.`)) return; store.del(g.key); toast('Spielstand gelöscht'); render(); }
-function route() { const h = decodeURIComponent(location.hash.slice(1)).split('/'); let v = h[0] || 'entdecken', id = null, tab = 'ueber'; if (GBY[v]) { id = v; v = 'bibliothek'; } else if (v === 'bibliothek') { id = GBY[h[1]] ? h[1] : null; if (['miles', 'stand'].includes(h[2])) tab = h[2]; } if (!['entdecken', 'bibliothek', 'erfolge', 'wunschliste'].includes(v)) v = 'entdecken'; return { v, id, tab }; }
+function route() { const h = decodeURIComponent(location.hash.slice(1)).split('/'); let v = h[0] || 'bibliothek', id = null, tab = 'ueber'; if (GBY[v]) { id = v; v = 'bibliothek'; } else if (v === 'bibliothek') { id = GBY[h[1]] ? h[1] : null; if (['miles', 'stand'].includes(h[2])) tab = h[2]; } if (!['entdecken', 'bibliothek', 'erfolge', 'wunschliste'].includes(v)) v = 'bibliothek'; return { v, id, tab }; }
 function render() {
   const r = route(), L = load(), P = profile(L); UI.tab = r.tab;
   document.querySelectorAll('[data-v]').forEach(a => { if (a.tagName === 'A') a.classList.toggle('on', a.dataset.v === r.v); });
@@ -244,7 +244,7 @@ document.addEventListener('click', e => {
   else if (a === 'export') doExport(GBY[id]); else if (a === 'import') doImport(GBY[id]); else if (a === 'reset') doReset(GBY[id]);
 });
 document.addEventListener('change', e => { if (e.target.id === 'sort') { UI.sort = e.target.value; render(); } else if (e.target.id === 'erfG') { UI.erfG = e.target.value; render(); } });
-const onQ = v => { UI.q = v; if (route().v !== 'entdecken') { location.hash = '#entdecken'; return; } const g = $('grid'); if (g) g.innerHTML = cardsHtml(load()); };
+const onQ = v => { UI.q = v; const r = route().v; if (r === 'bibliothek') return render(); if (r !== 'entdecken') { location.hash = '#entdecken'; return; } const g = $('grid'); if (g) g.innerHTML = cardsHtml(load()); };
 $('q').addEventListener('input', e => { onQ(e.target.value); const q2 = $('q2'); if (q2) q2.value = e.target.value; });
 document.addEventListener('input', e => { if (e.target.id === 'q2') { UI.q = e.target.value; $('q').value = e.target.value; const g = $('grid'); if (g) g.innerHTML = cardsHtml(load()); } });
 $('me').addEventListener('click', () => { const n = prompt('Wie sollen wir dich nennen? (höchstens 24 Zeichen)', store.get('gc-name') || 'Spieler'); if (n && n.trim()) { store.set('gc-name', n.trim().slice(0, 24)); render(); } });
