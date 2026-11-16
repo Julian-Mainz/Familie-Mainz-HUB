@@ -58,7 +58,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 #shop { grid-template-columns: 1fr 1fr; } .tw { padding: 8px 10px; }
 .prow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 0 2px 8px; min-height: 38px; } .prev { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex: 1; min-width: 0; } .pl { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--mu); font-weight: 700; margin-right: 2px; }
 .pc { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 99px; background: rgba(255,255,255,.06); border: 1px solid var(--ln); font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; } .pc i { width: 10px; height: 12px; border-radius: 50%; display: inline-block; } .pc.boss { border-color: rgba(244,63,94,.6); color: #fecdd3; }
-.abil { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; } .ab img { width: 26px !important; height: 26px !important; } .ab { padding: 2px 10px 2px 3px !important; } .ab { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 4px; border-radius: 14px; border: 1px solid rgba(250,204,21,.6); background: rgba(250,204,21,.12); color: #fde68a; font-weight: 700; font-size: 12.5px; overflow: hidden; }
+.abil { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; } .ab img { width: 26px !important; height: 26px !important; } .ab .cnt { font-size: 11px; font-weight: 800; padding: 1px 6px; border-radius: 99px; background: rgba(250,204,21,.25); color: #fef3c7; margin-left: 2px; } .ab.cd .cnt { background: rgba(255,255,255,.08); color: var(--mu); } .ab { padding: 2px 10px 2px 3px !important; } .ab { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 4px; border-radius: 14px; border: 1px solid rgba(250,204,21,.6); background: rgba(250,204,21,.12); color: #fde68a; font-weight: 700; font-size: 12.5px; overflow: hidden; }
 .ab img { width: 30px; height: 30px; } .ab:hover:not(:disabled) { filter: brightness(1.2); } .ab.cd { border-color: var(--ln); background: rgba(255,255,255,.04); color: var(--mu); cursor: default; } .ab.cd::after { content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: var(--p); background: #facc15; opacity: .6; }
 .tgs { display: flex; gap: 6px; flex-wrap: wrap; margin: 2px 0 6px; } .tg { font-size: 11.5px; font-weight: 600; padding: 3px 8px; border-radius: 99px; background: rgba(var(--ar), .14); color: #a7f3d0; } .tg.off { background: rgba(255,255,255,.05); color: #64748b; }
 .vet { margin: 0 0 12px; padding: 9px 11px; border-radius: 13px; background: rgba(255,255,255,.04); font-size: 12px; color: var(--mu); } .vet span { font-weight: 700; color: #e2e8f0; } .vet b { float: right; color: #fde68a; } .vet .bar { height: 5px; border-radius: 5px; background: rgba(255,255,255,.08); margin: 7px 0 4px; overflow: hidden; } .vet .bar i { display: block; height: 100%; background: linear-gradient(90deg, #f59e0b, #fde68a); } .vet small { display: block; font-size: 11px; }
@@ -258,7 +258,7 @@ function pulse(t) {
   if (any) { t.cd = rateOf(t); S.fx.push({ k: 'ring', x: t.x, y: t.y, r: s.range, c: '#bae6fd', t: 0, max: 0.45 }); }
 }
 // Spezialfähigkeit auslösen
-function useAbility(t) {
+function useAbility(t, quiet) {
   if (!t || !hasAbil(t) || t.abCd > 0 || S.over) return false; const [n, , cd] = ABIL[t.t], s = t.s; t.abCd = cd; M.abil++;
   if (t.t === 'dart') { t.boostT = 8; t.boostMul = .2; t.boostPierce = 0; }
   else if (t.t === 'boom') { t.boostT = 8; t.boostMul = .33; t.boostPierce = 10; }
@@ -268,7 +268,12 @@ function useAbility(t) {
   else if (t.t === 'bank') { const inc = Math.round(t.s.income * 1.5); S.money += inc; floatTxt(t.x, t.y - 26, '+' + fmt(inc) + ' €', '#fde68a'); }
   else if (t.t === 'tesla') { const list = S.balloons.filter(b => !b.dead).sort((a, b) => b.d - a.d).slice(0, 30), pts = [[t.x, t.y]]; list.forEach(b => { pts.push([b.x, b.y]); hit(b, 3, t); }); S.fx.push({ k: 'bolt', pts, t: 0, max: .5, big: true }); S.shake = .3; }
   else if (t.t === 'glue') { S.balloons.forEach(b => gl(b, { glueT: 6, acid: s.acid }, Math.min(s.glueF, .4))); S.fx.push({ k: 'flash', c: 'rgba(163,230,53,.3)', t: 0, max: .5 }); }
-  toast(`⚡ ${n}!`); sfx('abil'); checkAch(); renderAll(); return true;
+  if (!quiet) { toast(`⚡ ${n}!`); sfx('abil'); checkAch(); renderAll(); } return true;
+}
+// Alle bereiten Türme einer Art auf einmal auslösen
+function useGroup(type) {
+  const list = S.towers.filter(t => t.t === type && hasAbil(t) && t.abCd <= 0); if (!list.length) return 0;
+  list.forEach(t => useAbility(t, true)); toast(`⚡ ${ABIL[type][0]}${list.length > 1 ? ' × ' + list.length : ''}!`); sfx('abil'); checkAch(); renderAll(); return list.length;
 }
 function step() {
   if (!S || S.over || S.paused) return; S.time += DT; popFx = Math.max(0, popFx - DT * 8);
@@ -437,11 +442,14 @@ function renderPrev() {
   if (h !== prevKey) { prevKey = h; el.innerHTML = h; }
 }
 let abilKey = '';
+// Ein Knopf je Fähigkeit: löst alle bereiten Türme dieser Art aus
 function renderAbil() {
-  const list = S.towers.filter(hasAbil), key = list.map(t => t.t + Math.ceil(t.abCd) + (t === selTower ? 's' : '')).join(','); if (key === abilKey) return; abilKey = key;
-  $('abil').innerHTML = list.length ? list.slice(0, 12).map((t, i) => { const [n, d, cd] = ABIL[t.t], r = t.abCd > 0, p = r ? t.abCd / cd : 0;
-    return `<button class="ab${r ? ' cd' : ''}" data-ab="${S.towers.indexOf(t)}" title="${n}: ${d}${r ? ` (noch ${Math.ceil(t.abCd)} s)` : ''}" ${r ? 'disabled' : ''} style="--p:${(p * 100).toFixed(1)}%"><img src="${towerIcon(t.t, 3)}" alt=""><span>${r ? Math.ceil(t.abCd) + ' s' : n}</span></button>`; }).join('') : '';
-  $('abil').classList.toggle('hidden', !list.length);
+  const groups = {}; S.towers.filter(hasAbil).forEach(t => { (groups[t.t] = groups[t.t] || []).push(t); });
+  const items = Object.keys(TOWERS).filter(k => groups[k]).map(k => { const l = groups[k], ready = l.filter(t => t.abCd <= 0).length, next = ready ? 0 : Math.min(...l.map(t => t.abCd)); return { k, n: l.length, ready, next }; });
+  const key = items.map(i => i.k + i.n + ':' + i.ready + ':' + Math.ceil(i.next)).join(','); if (key === abilKey) return; abilKey = key;
+  $('abil').innerHTML = items.map(({ k, n, ready, next }) => { const [nm, d, cd] = ABIL[k], wait = !ready;
+    return `<button class="ab${wait ? ' cd' : ''}" data-abt="${k}" title="${nm}: ${d}. Löst ${ready > 1 ? 'alle ' + ready + ' bereiten Türme' : 'den Turm'} gleichzeitig aus.${wait ? ` Wieder bereit in ${Math.ceil(next)} s.` : ''}" ${wait ? 'disabled' : ''} style="--p:${(wait ? next / cd * 100 : 0).toFixed(1)}%"><img src="${towerIcon(k, 3)}" alt=""><span>${wait ? Math.ceil(next) + ' s' : nm}</span>${n > 1 ? `<b class="cnt">${ready && ready < n ? ready + '/' + n : '×' + n}</b>` : ''}</button>`; }).join('');
+  $('abil').classList.toggle('hidden', !items.length);
 }
 function renderShop() {
   $('shop').innerHTML = Object.entries(TOWERS).map(([id, d]) => { const c = price(d.cost); return `<button class="tw${placing === id ? ' sel' : ''}${S && S.money < c ? ' no' : ''}" data-t="${id}" title="${d.n}: ${d.d} (Taste ${d.key})"><span class="k">${d.key}</span><img class="ti" src="${towerIcon(id)}" alt=""><span class="n">${d.n}</span><span class="c">${fmt(c)} €</span></button>`; }).join('');
@@ -456,7 +464,7 @@ function renderInfo() {
   const upBtn = (p, label) => { const list = d[p]; if (!list.length) return ''; const n = p === 'A' ? t.a : t.b, up = list[n], pips = list.map((_, i) => `<i class="${i < n ? 'f' : ''}"></i>`).join(''); if (!up) return `<button class="up max" disabled><div><div class="ul">${label}</div><div class="un">Maximal ausgebaut</div><div class="pips">${pips}</div></div></button>`; const c = price(up[1]); return `<button class="up${S.money >= c ? ' can' : ''}" data-up="${p}"><div><div class="ul">${label}</div><div class="un">${up[0]}</div><div class="pips">${pips}</div></div><div class="uc">${fmt(c)} €</div></button>`; };
   const tags = [s.metal ? '<span class="tg">🔩 trifft Metall</span>' : '<span class="tg off">🔩 kein Metall</span>', s.radar ? '<span class="tg">📡 sieht Tarn</span>' : (t.t === 'bank' || t.t === 'ice') ? '' : '<span class="tg off">📡 kein Radar</span>'].join('');
   const vet = s.kind === 'bank' ? '' : `<div class="vet"><span>${['Neuling', 'Veteran Stufe 1', 'Veteran Stufe 2', 'Veteran Stufe 3'][v]}</span><b>${fmt(t.pops || 0)} geplatzt</b>${v < 3 ? `<div class="bar"><i style="width:${Math.min(100, (t.pops || 0) / VET[v] * 100)}%"></i></div><small>Nächste Stufe ab ${fmt(VET[v])} (+5 % Tempo)</small>` : '<small>+15 % Tempo</small>'}</div>`;
-  const ab = ABIL[t.t], abBtn = hasAbil(t) ? `<button class="up abl${t.abCd <= 0 ? ' can' : ''}" data-abil ${t.abCd > 0 ? 'disabled' : ''}><div><div class="ul">⚡ Spezialfähigkeit (Q)</div><div class="un">${ab[0]}</div><small>${ab[1]}</small></div><div class="uc">${t.abCd > 0 ? Math.ceil(t.abCd) + ' s' : 'Los!'}</div></button>` : `<div class="hint">⚡ Baue einen Pfad ganz aus für „${ab[0]}“: ${ab[1]}.</div>`;
+  const ab = ABIL[t.t], abBtn = hasAbil(t) ? `<button class="up abl${t.abCd <= 0 ? ' can' : ''}" data-abil ${t.abCd > 0 ? 'disabled' : ''}><div><div class="ul">⚡ Spezialfähigkeit (Q: alle dieser Art)</div><div class="un">${ab[0]}</div><small>${ab[1]}</small></div><div class="uc">${t.abCd > 0 ? Math.ceil(t.abCd) + ' s' : 'Los!'}</div></button>` : `<div class="hint">⚡ Baue einen Pfad ganz aus für „${ab[0]}“: ${ab[1]}.</div>`;
   const radar = !s.radar && t.t !== 'bank' && t.t !== 'ice' ? `<button class="up${S.money >= price(RADAR) ? ' can' : ''}" data-radar><div><div class="ul">Zusatz</div><div class="un">📡 Radar einbauen</div><small>Sieht und trifft Tarn-Ballons</small></div><div class="uc">${fmt(price(RADAR))} €</div></button>` : '';
   box.innerHTML = `<div class="ih"><img class="ti big" src="${towerIcon(t.t, tierOf(t))}" alt=""><div><b>${d.n}</b><small>${d.d}</small></div></div><div class="tgs">${tags}</div><div class="st">${stats3}</div>${vet}
     ${s.kind === 'bank' ? '' : `<div class="mode">${MODES.map(([k, l]) => `<button data-mode="${k}" class="${t.mode === k ? 'on' : ''}">${l}</button>`).join('')}</div>`}
@@ -507,7 +515,7 @@ function wire() {
     if (u) { if (!upgrade(t, u.dataset.up)) toast('Nicht genug Geld'); } else if (e.target.closest('[data-radar]')) { if (!buyRadar(t)) toast('Nicht genug Geld'); } else if (e.target.closest('[data-abil]')) useAbility(t);
     else if (m) { t.mode = m.dataset.mode; renderInfo(); } else if (s && confirm('Turm verkaufen?')) sell(t);
   };
-  $('abil').onclick = e => { const b = e.target.closest('[data-ab]'); if (b) useAbility(S.towers[+b.dataset.ab]); };
+  $('abil').onclick = e => { const b = e.target.closest('[data-abt]'); if (b) useGroup(b.dataset.abt); };
   $('b-start').onclick = () => startRound(); $('b-speed').onclick = () => { S.speed = S.speed % 3 + 1; renderHud(); }; $('b-pause').onclick = () => { S.paused = !S.paused; renderHud(); };
   $('b-auto').onclick = () => { S.auto = !S.auto; if (S.auto && !S.active) S.autoIn = 0.3; renderHud(); };
   $('b-grid').onclick = toggleGrid; $('b-snd').onclick = () => { M.snd = !M.snd; saveMeta(); renderHud(); if (M.snd) sfx('pop'); };
@@ -516,7 +524,7 @@ function wire() {
     if (!S || /INPUT|TEXTAREA/.test(e.target.tagName) || e.ctrlKey || e.metaKey || e.altKey) return; const k = e.key.toLowerCase();
     const t = Object.entries(TOWERS).find(([, d]) => d.key === e.key); if (t && !S.over) return setPlacing(t[0]);
     if (k === 'escape') { placing = null; selTower = null; renderAll(); } else if (k === ' ') { e.preventDefault(); startRound(); } else if (k === 'f') { S.speed = S.speed % 3 + 1; renderHud(); } else if (k === 'p') { S.paused = !S.paused; renderHud(); }
-    else if (k === 'g') toggleGrid(); else if (k === 'q') { const c = selTower && hasAbil(selTower) && selTower.abCd <= 0 ? selTower : S.towers.find(x => hasAbil(x) && x.abCd <= 0); if (c) useAbility(c); }
+    else if (k === 'g') toggleGrid(); else if (k === 'q') { const c = selTower && hasAbil(selTower) && selTower.abCd <= 0 ? selTower : S.towers.find(x => hasAbil(x) && x.abCd <= 0); if (c) useGroup(c.t); }
   });
   window.addEventListener('resize', fit); window.addEventListener('pagehide', () => { idleSave(); saveMeta(); }); document.addEventListener('visibilitychange', () => { if (document.hidden) { idleSave(); if (S && S.active) { S.paused = true; renderHud(); } } else lastT = performance.now(); });
 }
@@ -532,7 +540,7 @@ GameSave.ready([KEY], { reloadOnRemote: true, badge: true }).then(() => {      /
 load(); pickMap = 'wiese'; newRun('wiese', M.diff); wire(); fit(); showOverlay('menu'); requestAnimationFrame(loop);
 // Spielzeit und "zuletzt gespielt" für das Game Center (nur solange die Seite sichtbar ist)
 setInterval(() => { if (document.hidden) return; M.playMs += 5000; M.last = Date.now(); saveMeta(); }, 5000);
-window.TD = { get S() { return S; }, get M() { return M; }, step(n = 1) { for (let i = 0; i < n; i++) step(); }, place, upgrade, sell, buyRadar, useAbility, startRound, newRun, waveFor, preview, validSpot, distToPath, posAt, get pathLen() { return PATH.len; }, stats, price, hit, spawn, endRound, gameOver, buyMeta, saveRun, load, resume, sanitize, checkAch, snap, get savedRun() { return savedRun; }, set savedRun(v) { savedRun = v; }, TOWERS, MAPS, ACH, tower(i) { return S.towers[i]; }, select(t) { selTower = t; renderAll(); }, setM(o) { Object.assign(M, o); saveMeta(); }, mapOpen, setPlacing, set ghost(p) { ghost = p; } };
+window.TD = { get S() { return S; }, get M() { return M; }, step(n = 1) { for (let i = 0; i < n; i++) step(); }, place, upgrade, sell, buyRadar, useAbility, useGroup, startRound, newRun, waveFor, preview, validSpot, distToPath, posAt, get pathLen() { return PATH.len; }, stats, price, hit, spawn, endRound, gameOver, buyMeta, saveRun, load, resume, sanitize, checkAch, snap, get savedRun() { return savedRun; }, set savedRun(v) { savedRun = v; }, TOWERS, MAPS, ACH, tower(i) { return S.towers[i]; }, select(t) { selTower = t; renderAll(); }, setM(o) { Object.assign(M, o); saveMeta(); }, mapOpen, setPlacing, set ghost(p) { ghost = p; } };
 });
 </script>
 </body>
