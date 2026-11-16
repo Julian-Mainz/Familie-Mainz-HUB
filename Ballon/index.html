@@ -52,6 +52,23 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
   body { overflow-y: auto; } .stage { padding: 8px; } .chip { padding: 6px 10px; font-size: 14px; } .side { overflow: visible; } #info { overflow: visible; } .box { padding: 16px; }
   #shop { grid-template-columns: repeat(3, 1fr); } .tw .k { display: none; }
 }
+
+@media (max-width: 1320px) { .hud { gap: 6px; } .hud .btn { padding: 9px 11px; } .chip { padding: 8px 10px; } }
+.tw .ti { width: 40px; height: 40px; margin: -2px 0 0 -4px; } .ti.big { width: 52px; height: 52px; flex: none; }
+#shop { grid-template-columns: 1fr 1fr; } .tw { padding: 8px 10px; }
+.prow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 0 2px 8px; min-height: 38px; } .prev { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex: 1; min-width: 0; } .pl { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--mu); font-weight: 700; margin-right: 2px; }
+.pc { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 99px; background: rgba(255,255,255,.06); border: 1px solid var(--ln); font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; } .pc i { width: 10px; height: 12px; border-radius: 50%; display: inline-block; } .pc.boss { border-color: rgba(244,63,94,.6); color: #fecdd3; }
+.abil { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; } .ab img { width: 26px !important; height: 26px !important; } .ab { padding: 2px 10px 2px 3px !important; } .ab { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 4px; border-radius: 14px; border: 1px solid rgba(250,204,21,.6); background: rgba(250,204,21,.12); color: #fde68a; font-weight: 700; font-size: 12.5px; overflow: hidden; }
+.ab img { width: 30px; height: 30px; } .ab:hover:not(:disabled) { filter: brightness(1.2); } .ab.cd { border-color: var(--ln); background: rgba(255,255,255,.04); color: var(--mu); cursor: default; } .ab.cd::after { content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: var(--p); background: #facc15; opacity: .6; }
+.tgs { display: flex; gap: 6px; flex-wrap: wrap; margin: 2px 0 6px; } .tg { font-size: 11.5px; font-weight: 600; padding: 3px 8px; border-radius: 99px; background: rgba(var(--ar), .14); color: #a7f3d0; } .tg.off { background: rgba(255,255,255,.05); color: #64748b; }
+.vet { margin: 0 0 12px; padding: 9px 11px; border-radius: 13px; background: rgba(255,255,255,.04); font-size: 12px; color: var(--mu); } .vet span { font-weight: 700; color: #e2e8f0; } .vet b { float: right; color: #fde68a; } .vet .bar { height: 5px; border-radius: 5px; background: rgba(255,255,255,.08); margin: 7px 0 4px; overflow: hidden; } .vet .bar i { display: block; height: 100%; background: linear-gradient(90deg, #f59e0b, #fde68a); } .vet small { display: block; font-size: 11px; }
+.up small { display: block; font-size: 11px; color: var(--mu); margin-top: 2px; } .up.abl { border-color: rgba(250,204,21,.45); } .up.abl.can { background: rgba(250,204,21,.12); border-color: rgba(250,204,21,.8); } .up.abl.can .uc { color: #fde68a; }
+.hint { font-size: 12px; color: var(--mu); padding: 9px 11px; border-radius: 13px; border: 1px dashed rgba(250,204,21,.35); margin-bottom: 8px; line-height: 1.5; }
+.dif { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; margin-bottom: 4px; } .dif > b { width: 100%; font-size: 11.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--mu); }
+.dif button { flex: 1 1 140px; text-align: left; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--ln); background: rgba(255,255,255,.04); } .dif button span { font-weight: 700; display: block; } .dif button small { color: var(--mu); font-size: 11.5px; line-height: 1.4; display: block; margin-top: 2px; } .dif button.on { border-color: var(--a); background: rgba(var(--ar), .12); box-shadow: 0 0 0 2px rgba(var(--ar), .25); }
+.achs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; } .ac { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--ln); background: rgba(255,255,255,.03); opacity: .65; } .ac.ok { opacity: 1; border-color: rgba(var(--ar), .45); background: rgba(var(--ar), .08); }
+.ac .ae { font-size: 24px; } .ac div { flex: 1; min-width: 0; } .ac b { font-size: 13.5px; display: block; } .ac small { color: var(--mu); font-size: 11.5px; } .ac .dia { font-size: 12px; white-space: nowrap; }
+@media (max-width: 900px) { #shop { grid-template-columns: repeat(4, 1fr); } .tw .n { font-size: 11px; } .tw .ti { margin: 0 auto; } .tw { align-items: center; text-align: center; padding: 8px 4px; } }
 </style>
 </head>
 <body>
@@ -61,9 +78,10 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
       <a class="btn" id="b-back" href="/Spiele/" title="Zurück zum Game Center" aria-label="Zurück zum Game Center">←</a>
       <span class="chip" title="Leben">❤️ <b id="h-lives">100</b></span><span class="chip" title="Geld">💰 <b id="h-money">0</b></span><span class="chip" title="Runde"><small>Runde</small> <b id="h-round">1</b></span>
       <span class="sp"></span>
-      <button class="btn" id="b-speed" title="Geschwindigkeit (F)">×1</button><button class="btn" id="b-auto" title="Nächste Runde automatisch starten" aria-pressed="false">Auto</button><button class="btn" id="b-pause" title="Pause (P)">❚❚</button>
+      <button class="btn" id="b-grid" title="Raster zum Platzieren (G)" aria-label="Raster" aria-pressed="true">▦</button><button class="btn" id="b-snd" title="Töne an/aus" aria-label="Töne">🔇</button><button class="btn" id="b-speed" title="Geschwindigkeit (F)">×1</button><button class="btn" id="b-auto" title="Nächste Runde automatisch starten" aria-pressed="false">Auto</button><button class="btn" id="b-pause" title="Pause (P)">❚❚</button>
       <button class="btn go" id="b-start" title="Runde starten (Leertaste)">▶ Runde 1</button><button class="btn" id="b-menu" title="Menü">☰</button>
     </div>
+    <div class="prow"><div class="prev" id="prev" aria-live="polite"></div><div class="abil hidden" id="abil" aria-label="Spezialfähigkeiten"></div></div>
     <div class="cvw" id="cvw"><canvas id="cv" width="800" height="600" aria-label="Spielfeld"></canvas></div>
     <div id="ov" class="ov hidden"></div>
   </section>
@@ -73,105 +91,209 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
   </aside>
 </div>
 <script src="/js/gamesave.js"></script>
+<script src="art.js"></script>
 <script>
 'use strict';
 // ================= Karten =================
-const W = 800, H = 600, DT = 1 / 60, KEY = 'ballon-alarm-v1';
+const W = 800, H = 600, DT = 1 / 60, KEY = 'ballon-alarm-v1', GRID = 20, TAU = Math.PI * 2;
 const MAPS = {
-  wiese: { n: 'Sonnige Wiese', e: '🌿', d: 'Eine gemütliche Strecke zum Üben.', pts: [[-20, 120], [160, 120], [160, 300], [400, 300], [400, 100], [640, 100], [640, 420], [300, 420], [300, 520], [820, 520]], unlock: null },
-  zickzack: { n: 'Zickzack-Tal', e: '⚡', d: 'Lange Wege, viele Kurven.', pts: [[-20, 60], [740, 60], [740, 160], [60, 160], [60, 260], [740, 260], [740, 360], [60, 360], [60, 460], [740, 460], [740, 550], [820, 550]], unlock: ['wiese', 15] },
-  spirale: { n: 'Die Spirale', e: '🌀', d: 'Alles läuft ins Zentrum.', pts: [[-20, 300], [100, 300], [100, 70], [700, 70], [700, 530], [200, 530], [200, 190], [600, 190], [600, 420], [320, 420], [320, 310], [470, 310]], unlock: ['zickzack', 20] }
+  wiese: { n: 'Sonnige Wiese', e: '🌿', theme: 'wiese', d: 'Eine gemütliche Strecke zum Üben.', pts: [[-20, 120], [160, 120], [160, 300], [400, 300], [400, 100], [640, 100], [640, 420], [300, 420], [300, 520], [820, 520]], unlock: null },
+  zickzack: { n: 'Zickzack-Tal', e: '⚡', theme: 'wiese', d: 'Lange Wege, viele Kurven.', pts: [[-20, 60], [740, 60], [740, 160], [60, 160], [60, 260], [740, 260], [740, 360], [60, 360], [60, 460], [740, 460], [740, 550], [820, 550]], unlock: ['wiese', 15] },
+  spirale: { n: 'Die Spirale', e: '🌀', theme: 'wiese', d: 'Alles läuft ins Zentrum.', pts: [[-20, 300], [100, 300], [100, 70], [700, 70], [700, 530], [200, 530], [200, 190], [600, 190], [600, 420], [320, 420], [320, 310], [470, 310]], unlock: ['zickzack', 20] },
+  winter: { n: 'Winterwald', e: '❄️', theme: 'winter', d: 'Schnee, Tannen und ein zugefrorener See.', pts: [[-20, 80], [300, 80], [300, 240], [120, 240], [120, 460], [480, 460], [480, 160], [700, 160], [700, 380], [820, 380]], unlock: ['spirale', 20] },
+  wueste: { n: 'Wüstencanyon', e: '🌵', theme: 'wueste', d: 'Der Weg kreuzt sich selbst. Gut für Flächenschaden.', pts: [[-20, 300], [680, 300], [680, 90], [400, 90], [400, 540], [120, 540], [120, 440], [820, 440]], unlock: ['winter', 25] }
 };
-let PATH = null, BG = null, BGK = 0, curMap = 'wiese';
+let PATH = null, BG = null, BGK = '', curMap = 'wiese';
 function buildPath(key) { const pts = MAPS[key].pts, segs = []; let cum = 0; for (let i = 0; i < pts.length - 1; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[i + 1], len = Math.hypot(x2 - x1, y2 - y1); segs.push({ x1, y1, x2, y2, len, cum }); cum += len; } return { segs, len: cum }; }
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 function posAt(d) { const P = PATH; if (d <= 0) return { x: P.segs[0].x1, y: P.segs[0].y1 }; for (const s of P.segs) if (d <= s.cum + s.len) { const t = (d - s.cum) / s.len; return { x: s.x1 + (s.x2 - s.x1) * t, y: s.y1 + (s.y2 - s.y1) * t }; } const s = P.segs[P.segs.length - 1]; return { x: s.x2, y: s.y2 }; }
 function distToPath(x, y) { let m = 1e9; for (const s of PATH.segs) { const dx = s.x2 - s.x1, dy = s.y2 - s.y1, t = clamp(((x - s.x1) * dx + (y - s.y1) * dy) / (s.len * s.len), 0, 1); m = Math.min(m, Math.hypot(x - (s.x1 + dx * t), y - (s.y1 + dy * t))); } return m; }
 // ================= Ballons =================
-const LAYER = [null, { c: '#ef4444', v: 90, r: 12, n: 'Rot' }, { c: '#3b82f6', v: 110, r: 13.5, n: 'Blau' }, { c: '#22c55e', v: 130, r: 15, n: 'Grün' }, { c: '#facc15', v: 165, r: 16, n: 'Gelb' }, { c: '#ec4899', v: 190, r: 17, n: 'Rosa' }];
-function waveFor(r) {
+const LAYER = [null, { c: '#ef4444', v: 90, r: 12, n: 'Rot', k: 'rot' }, { c: '#3b82f6', v: 110, r: 13.5, n: 'Blau', k: 'blau' }, { c: '#22c55e', v: 130, r: 15, n: 'Grün', k: 'gruen' }, { c: '#facc15', v: 165, r: 16, n: 'Gelb', k: 'gelb' }, { c: '#ec4899', v: 190, r: 17, n: 'Rosa', k: 'rosa' }];
+// Besondere Ballons: Schale mit hp Treffern, danach wird daraus ein normaler Ballon (into)
+const KIND = { metal: { n: 'Metall', r: 14, v: 100, hp: 1, into: 4, c: '#cbd5e1' }, ceramic: { n: 'Keramik', r: 17, v: 150, hp: 10, into: 5, twin: true, c: '#c2410c' } };
+const NEWS = { metal: 'Metall-Ballon: Darts und einfache Bumerangs prallen ab. Kanone, Tesla und Scharfschütze helfen.', ceramic: 'Keramik-Ballon: harte Schale mit 10 Treffern, darin zwei rosa Ballons.', camo: 'Tarn-Ballon: Nur Türme mit 📡 Radar zielen auf ihn. Der Scharfschütze hat Radar schon eingebaut.', regrow: 'Nachwachsender Ballon: bekommt alle 3 Sekunden eine Schicht zurück. Schnell platzen!' };
+// Schwierigkeitsgrade
+const DIFF = { leicht: { n: 'Leicht', d: '150 Leben, günstigere Türme', lives: 150, price: .85, speed: .9, boss: .8, dia: .6 }, normal: { n: 'Normal', d: 'Das klassische Spiel', lives: 100, price: 1, speed: 1, boss: 1, dia: 1 },
+  schwer: { n: 'Schwer', d: '60 Leben, schnellere Ballons', lives: 60, price: 1.1, speed: 1.1, boss: 1.3, dia: 1.5 }, eins: { n: 'Ein Leben', d: 'Ein Ballon im Ziel und es ist vorbei', lives: 1, price: 1.1, speed: 1, boss: 1, dia: 2.5, noMeta: true } };
+const D = () => DIFF[(S && S.diff) || 'normal'];
+// Rundenplan. Zufall mit fester Startzahl je Runde, damit die Vorschau genau stimmt.
+function waveFor(r, diff) {
   const ev = [], main = Math.min(5, 1 + Math.floor((r - 1) / 6)), gap = Math.max(0.16, 0.62 - r * 0.012), n = Math.min(160, 14 + r * 2), groups = []; let t = 0;
   groups.push([main, n, gap]); if (main > 1) groups.push([main - 1, Math.floor(n * 0.7), gap * 0.9]);
   if (r % 5 === 0 && main < 5) groups.push([main + 1, Math.floor(n * 0.4), gap]); if (main >= 3) groups.push([1, Math.floor(n * 0.5), gap * 0.5]);
-  groups.forEach(([l, c, g]) => { for (let i = 0; i < c; i++) ev.push({ t: t + i * g, layer: l }); t += c * g + 1.2; });
-  if (r % 10 === 0) ev.push({ t: 0.5, boss: Math.round(120 * Math.pow(r / 10, 1.8)) });
+  let seed = r * 7919 + 13; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const pR = r >= 8 ? Math.min(.3, (r - 7) * .02) : 0, pC = r >= 12 ? Math.min(.28, (r - 11) * .015) : 0, pM = r >= 15 ? Math.min(.18, (r - 14) * .012) : 0, pK = r >= 22 ? Math.min(.22, (r - 21) * .01) : 0;
+  groups.forEach(([l, c, g]) => { for (let i = 0; i < c; i++) { const e = { t: t + i * g, layer: l }, x = rnd();
+    if (x < pK) e.kind = 'ceramic'; else if (x < pK + pM) e.kind = 'metal';
+    if (rnd() < pC) e.camo = true; if (!e.kind && rnd() < pR) e.regrow = true; ev.push(e); } t += c * g + 1.2; });
+  if (r % 10 === 0) ev.push({ t: 0.5, boss: Math.round(120 * Math.pow(r / 10, 1.8) * DIFF[diff || 'normal'].boss) });
   return ev.sort((a, b) => a.t - b.t);
 }
+function preview(r) {
+  const ev = waveFor(r, S && S.diff), c = { l: [0, 0, 0, 0, 0, 0], metal: 0, ceramic: 0, camo: 0, regrow: 0, boss: 0 };
+  ev.forEach(e => { if (e.boss) c.boss++; else if (e.kind) c[e.kind]++; else c.l[e.layer]++; if (e.camo) c.camo++; if (e.regrow) c.regrow++; }); return c;
+}
 // ================= Türme =================
-// base: Grundwerte. A/B: je 3 Stufen [Name, Preis, Wirkung]. add = addieren, mul = multiplizieren, set = setzen.
+// base: Grundwerte. A/B: je 3 Stufen [Name, Preis, Wirkung]. add = addieren, mul = multiplizieren, set = setzen. metal: trifft Metall, radar: sieht Tarn.
 const TOWERS = {
-  dart: { n: 'Dartschütze', e: '🎯', c: '#38bdf8', cost: 200, key: '1', d: 'Schnell und günstig. Trifft einzelne Ballons.', base: { kind: 'dart', range: 110, rate: 0.8, dmg: 1, pierce: 2, shots: 1, speed: 520 },
-    A: [['Schärfere Darts', 120, { add: { pierce: 2 } }], ['Dreifach-Wurf', 280, { set: { shots: 3 } }], ['Superspitzen', 900, { add: { dmg: 2, pierce: 3 } }]], B: [['Weitsicht', 100, { add: { range: 25 } }], ['Schnellfeuer', 250, { mul: { rate: 0.7 } }], ['Dauerfeuer', 800, { mul: { rate: 0.45 } }]] },
-  boom: { n: 'Bumerang', e: '🌙', c: '#f59e0b', cost: 330, key: '2', d: 'Fliegt durch viele Ballons hindurch.', base: { kind: 'dart', range: 120, rate: 1.1, dmg: 1, pierce: 7, shots: 1, speed: 330, disc: true },
-    A: [['Größere Scheiben', 180, { add: { pierce: 5 } }], ['Glühende Kanten', 400, { add: { dmg: 1 } }], ['Wirbelsturm', 1100, { add: { pierce: 12, dmg: 1 }, set: { shots: 2 } }]], B: [['Reichweite', 150, { add: { range: 30 } }], ['Schneller werfen', 300, { mul: { rate: 0.7 } }], ['Dauerwurf', 900, { mul: { rate: 0.5 } }]] },
-  bomb: { n: 'Kanone', e: '💣', c: '#ef4444', cost: 600, key: '3', d: 'Flächenschaden: trifft alle in der Nähe.', base: { kind: 'bomb', range: 135, rate: 1.8, dmg: 1, splash: 46, speed: 340 },
+  dart: { n: 'Dartschütze', c: '#38bdf8', cost: 200, key: '1', d: 'Schnell und günstig. Trifft einzelne Ballons.', base: { kind: 'dart', range: 110, rate: 0.8, dmg: 1, pierce: 2, shots: 1, speed: 520 },
+    A: [['Schärfere Darts', 120, { add: { pierce: 2 } }], ['Dreifach-Wurf', 280, { set: { shots: 3 } }], ['Superspitzen', 900, { add: { dmg: 2, pierce: 3 }, set: { metal: true } }]], B: [['Weitsicht', 100, { add: { range: 25 } }], ['Schnellfeuer', 250, { mul: { rate: 0.7 } }], ['Dauerfeuer', 800, { mul: { rate: 0.45 } }]] },
+  boom: { n: 'Bumerang', c: '#f59e0b', cost: 330, key: '2', d: 'Fliegt durch viele Ballons hindurch.', base: { kind: 'dart', range: 120, rate: 1.1, dmg: 1, pierce: 7, shots: 1, speed: 330, disc: true },
+    A: [['Größere Scheiben', 180, { add: { pierce: 5 } }], ['Glühende Kanten', 400, { add: { dmg: 1 }, set: { metal: true } }], ['Wirbelsturm', 1100, { add: { pierce: 12, dmg: 1 }, set: { shots: 2 } }]], B: [['Reichweite', 150, { add: { range: 30 } }], ['Schneller werfen', 300, { mul: { rate: 0.7 } }], ['Dauerwurf', 900, { mul: { rate: 0.5 } }]] },
+  bomb: { n: 'Kanone', c: '#ef4444', cost: 600, key: '3', d: 'Flächenschaden: trifft alle in der Nähe. Knackt Metall.', base: { kind: 'bomb', range: 135, rate: 1.8, dmg: 1, splash: 46, speed: 340, metal: true },
     A: [['Größere Bomben', 300, { add: { splash: 14 } }], ['Splitterbomben', 650, { add: { dmg: 1 } }], ['Mega-Bombe', 1800, { add: { splash: 32, dmg: 2 } }]], B: [['Weitschuss', 250, { add: { range: 30 } }], ['Schnell nachladen', 500, { mul: { rate: 0.65 } }], ['Kanonenfeuer', 1500, { mul: { rate: 0.45 } }]] },
-  ice: { n: 'Eisturm', e: '❄️', c: '#7dd3fc', cost: 350, key: '4', d: 'Bremst alle Ballons in der Nähe aus.', base: { kind: 'ice', range: 85, rate: 1.7, dmg: 0, freeze: 1.3, slow: 0.45 },
+  ice: { n: 'Eisturm', c: '#7dd3fc', cost: 350, key: '4', d: 'Bremst alle Ballons in der Nähe aus.', base: { kind: 'ice', range: 85, rate: 1.7, dmg: 0, freeze: 1.3, slow: 0.45, metal: true },
     A: [['Längere Kälte', 200, { add: { freeze: 0.8 } }], ['Tiefkühlung', 450, { set: { slow: 0.15 } }], ['Eiszeit', 1300, { add: { freeze: 2, dmg: 1 } }]], B: [['Reichweite', 180, { add: { range: 25 } }], ['Schneller Puls', 350, { mul: { rate: 0.7 } }], ['Blizzard', 1000, { mul: { rate: 0.55 }, add: { range: 30 } }]] },
-  sniper: { n: 'Scharfschütze', e: '🔭', c: '#a78bfa', cost: 450, key: '5', d: 'Trifft überall auf der Karte, aber langsam.', base: { kind: 'sniper', range: 99999, rate: 1.9, dmg: 3 },
+  sniper: { n: 'Scharfschütze', c: '#a78bfa', cost: 450, key: '5', d: 'Trifft überall auf der Karte, sieht Tarn-Ballons.', base: { kind: 'sniper', range: 99999, rate: 1.9, dmg: 3, metal: true, radar: true },
     A: [['Großkaliber', 350, { add: { dmg: 3 } }], ['Panzerbrecher', 800, { add: { dmg: 6 } }], ['Kanonenkugel', 2000, { add: { dmg: 14 } }]], B: [['Schnelle Repetition', 300, { mul: { rate: 0.7 } }], ['Automatik', 700, { mul: { rate: 0.6 } }], ['Dauerfeuer', 1700, { mul: { rate: 0.5 } }]] },
-  bank: { n: 'Bank', e: '🏦', c: '#fbbf24', cost: 500, key: '6', d: 'Zahlt am Ende jeder Runde Geld aus.', base: { kind: 'bank', range: 0, rate: 99, income: 110 },
-    A: [['Zinsen', 400, { add: { income: 90 } }], ['Fonds', 900, { add: { income: 250 } }], ['Investmentbank', 2200, { add: { income: 700 } }]], B: [] }
+  bank: { n: 'Bank', c: '#fbbf24', cost: 500, key: '6', d: 'Zahlt am Ende jeder Runde Geld aus.', base: { kind: 'bank', range: 0, rate: 99, income: 110 },
+    A: [['Zinsen', 400, { add: { income: 90 } }], ['Fonds', 900, { add: { income: 250 } }], ['Investmentbank', 2200, { add: { income: 700 } }]], B: [] },
+  tesla: { n: 'Tesla-Turm', c: '#22d3ee', cost: 700, key: '7', d: 'Kettenblitz springt von Ballon zu Ballon. Knackt Metall.', base: { kind: 'tesla', range: 120, rate: 1.3, dmg: 1, chain: 3, jump: 70, metal: true },
+    A: [['Mehr Sprünge', 350, { add: { chain: 2 } }], ['Hochspannung', 750, { add: { dmg: 1 } }], ['Gewittersturm', 2000, { add: { chain: 6, dmg: 1 } }]], B: [['Reichweite', 250, { add: { range: 30, jump: 15 } }], ['Schneller laden', 550, { mul: { rate: 0.7 } }], ['Dauerstrom', 1600, { mul: { rate: 0.5 } }]] },
+  glue: { n: 'Kleber-Turm', c: '#84cc16', cost: 300, key: '8', d: 'Klebt Ballons fest, sie werden stark gebremst.', base: { kind: 'glue', range: 115, rate: 1.0, glueT: 4, glueF: 0.5, pierce: 1, splash: 0, acid: 0, speed: 420, metal: true },
+    A: [['Zäher Kleber', 200, { set: { glueF: 0.3 } }], ['Ätzkleber', 500, { set: { acid: 0.7 } }], ['Auflöser', 1400, { set: { acid: 2.5 }, add: { glueT: 2 } }]], B: [['Doppelklecks', 220, { add: { pierce: 1 } }], ['Schneller kleben', 400, { mul: { rate: 0.6 } }], ['Kleberregen', 1200, { add: { splash: 40 } }]] }
 };
 const MODES = [['first', 'Erster'], ['last', 'Letzter'], ['strong', 'Stärkster'], ['close', 'Nächster']];
+// Spezialfähigkeit ab einem voll ausgebauten Pfad: [Name, Beschreibung, Abklingzeit in Sekunden]
+const ABIL = { dart: ['Pfeilhagel', '8 Sekunden lang fünfmal so schnell', 40], boom: ['Wirbelsturm', '8 Sekunden dreimal so schnell, +10 Durchschlag', 40], bomb: ['Großangriff', '4 Schaden an allen Ballons im doppelten Radius', 45], ice: ['Schockfrost', 'Alle Ballons 3 Sekunden eingefroren', 50],
+  sniper: ['Präzisionsschuss', '500 Schaden am stärksten Ballon', 45], bank: ['Auszahlung', 'Sofort das 1,5-fache Rundeneinkommen', 60], tesla: ['Gewitter', 'Blitz trifft bis zu 30 Ballons mit 3 Schaden', 45], glue: ['Kleberflut', 'Alle Ballons 6 Sekunden verklebt', 50] };
+const RADAR = 300, VET = [500, 2000, 10000];
 const META = [['startMoney', 'Startkapital', '+50 € zum Start je Stufe', 8, 1.6], ['lives', 'Sicherheitsnetz', '+5 Leben je Stufe', 10, 1.6], ['discount', 'Mengenrabatt', 'Türme und Upgrades 2 % günstiger je Stufe', 15, 1.7], ['bonus', 'Scharfe Augen', '+5 % Geld für jeden geplatzten Ballon je Stufe', 12, 1.6], ['roundBonus', 'Rundenprämie', '+10 € Rundenbonus je Stufe', 12, 1.6]];
 const META_MAX = 10;
+// ================= Erfolge =================
+const maxBest = () => Math.max(0, ...Object.values(M.best));
+const done = () => (S ? S.round - 1 : 0);
+const ACH = [
+  ['pop1', '🎈', 'Erster Ballon', 'Platze deinen ersten Ballon.', 1, () => M.popped >= 1], ['pop1k', '💥', 'Tausendsassa', 'Platze 1.000 Ballons.', 3, () => M.popped >= 1e3], ['pop10k', '🎯', 'Ballon-Jäger', 'Platze 10.000 Ballons.', 5, () => M.popped >= 1e4],
+  ['pop100k', '🔥', 'Ballon-Schreck', 'Platze 100.000 Ballons.', 10, () => M.popped >= 1e5], ['pop1m', '👑', '1 Million Ballons', 'Platze 1.000.000 Ballons.', 30, () => M.popped >= 1e6],
+  ['r10', '🥉', 'Runde 10', 'Erreiche Runde 10.', 3, () => maxBest() >= 10], ['r25', '🥈', 'Runde 25', 'Erreiche Runde 25.', 5, () => maxBest() >= 25], ['r50', '🥇', 'Runde 50', 'Erreiche Runde 50.', 15, () => maxBest() >= 50], ['r100', '🏅', 'Runde 100', 'Erreiche Runde 100.', 40, () => maxBest() >= 100],
+  ['boss1', '🛩️', 'Zeppelin-Knacker', 'Besiege einen Zeppelin.', 5, () => M.bosses >= 1], ['boss10', '⚓', 'Luftabwehr', 'Besiege 10 Zeppeline.', 15, () => M.bosses >= 10],
+  ['nolife', '🛡️', 'Unverwundbar', 'Runde 50 ohne ein Leben zu verlieren.', 30, () => S && done() >= 50 && S.lost === 0], ['hard30', '😤', 'Harter Brocken', 'Runde 30 auf Schwer.', 20, () => S && S.diff === 'schwer' && done() >= 30],
+  ['one20', '💀', 'Auf Messers Schneide', 'Runde 20 mit nur einem Leben.', 25, () => S && S.diff === 'eins' && done() >= 20], ['maxtower', '⭐', 'Voll ausgebaut', 'Baue einen Pfad eines Turms ganz aus.', 3, () => S && S.towers.some(t => t.a >= 3 || t.b >= 3)],
+  ['alltypes', '🏰', 'Sammler', 'Alle 8 Turmarten in einem Spiel.', 5, () => S && S.types.length >= 8], ['vet3', '🎖️', 'Kriegsveteran', 'Ein Turm platzt 10.000 Ballons.', 10, () => S && S.towers.some(t => t.pops >= 1e4)],
+  ['rich', '💰', 'Dagobert', 'Habe 50.000 € auf einmal.', 10, () => S && S.money >= 5e4], ['ability', '⚡', 'Volle Kraft', 'Setze eine Spezialfähigkeit ein.', 2, () => M.abil >= 1],
+  ['allmaps', '🗺️', 'Weltenbummler', 'Runde 10 auf allen fünf Karten.', 25, () => Object.keys(MAPS).every(k => (M.best[k] || 0) >= 10)]
+];
+function checkAch() { for (const [id, e, n, , dia, ok] of ACH) { if (M.ach.includes(id)) continue; let y = false; try { y = ok(); } catch (x) {} if (!y) continue; M.ach.push(id); M.diamonds += dia; toast(`🏆 Erfolg: ${n} (+${dia} 💎)`, 3400); saveMeta(); } }
 // ================= Zustand =================
-const freshMeta = () => ({ playMs: 0, last: 0, diamonds: 0, up: { startMoney: 0, lives: 0, discount: 0, bonus: 0, roundBonus: 0 }, best: { wiese: 0, zickzack: 0, spirale: 0 }, runs: 0, popped: 0, snd: false });
+const freshMeta = () => ({ playMs: 0, last: 0, diamonds: 0, up: { startMoney: 0, lives: 0, discount: 0, bonus: 0, roundBonus: 0 }, best: Object.fromEntries(Object.keys(MAPS).map(k => [k, 0])), runs: 0, popped: 0, snd: false, ach: [], bosses: 0, abil: 0, seen: {}, grid: true, diff: 'normal' });
 let M = freshMeta(), S = null, savedRun = null, placing = null, ghost = null, selTower = null, acc = 0, lastT = performance.now(), menuTab = 'play', pickMap = 'wiese';
 const $ = id => document.getElementById(id), cv = $('cv'), ctx = cv.getContext('2d');
 const fmt = n => Math.floor(n).toLocaleString('de-DE');
-const price = c => Math.round(c * (1 - 0.02 * M.up.discount));
-function newRun(map) {
-  curMap = map; PATH = buildPath(map); BG = null;
-  S = { map, round: 1, money: 650 + 50 * M.up.startMoney, lives: 100 + 5 * M.up.lives, towers: [], balloons: [], projs: [], fx: [], queue: [], waveT: 0, active: false, speed: 1, paused: false, over: false, auto: false, autoIn: 0, nid: 1, popped: 0 };
+const price = c => Math.round(c * (1 - 0.02 * M.up.discount) * D().price);
+function newRun(map, diff) {
+  curMap = map; PATH = buildPath(map); BG = null; const df = DIFF[diff] ? diff : 'normal';
+  S = { map, diff: df, round: 1, money: 650 + 50 * M.up.startMoney, lives: DIFF[df].noMeta ? DIFF[df].lives : DIFF[df].lives + 5 * M.up.lives, towers: [], balloons: [], projs: [], fx: [], queue: [], waveT: 0, active: false, speed: 1, paused: false, over: false, auto: false, autoIn: 0, nid: 1, popped: 0, lost: 0, types: [], shake: 0, time: 0 };
   selTower = null; placing = null; renderAll(); return S;
 }
 // ================= Türme: Werte =================
-function stats(t) { const d = TOWERS[t.t], s = { ...d.base }; [['A', t.a], ['B', t.b]].forEach(([p, n]) => { for (let i = 0; i < n; i++) { const fx = d[p][i][2]; for (const k in fx.add || {}) s[k] = (s[k] || 0) + fx.add[k]; for (const k in fx.mul || {}) s[k] *= fx.mul[k]; for (const k in fx.set || {}) s[k] = fx.set[k]; } }); return s; }
+function stats(t) { const d = TOWERS[t.t], s = { ...d.base }; [['A', t.a], ['B', t.b]].forEach(([p, n]) => { for (let i = 0; i < n; i++) { const fx = d[p][i][2]; for (const k in fx.add || {}) s[k] = (s[k] || 0) + fx.add[k]; for (const k in fx.mul || {}) s[k] *= fx.mul[k]; for (const k in fx.set || {}) s[k] = fx.set[k]; } }); if (t.radar) s.radar = true; return s; }
+const tierOf = t => Math.max(t.a, t.b), vetOf = t => VET.filter(v => (t.pops || 0) >= v).length, hasAbil = t => t.a >= 3 || t.b >= 3;
+const snap = p => (M.grid ? { x: Math.round(p.x / GRID) * GRID, y: Math.round(p.y / GRID) * GRID } : p);
 function validSpot(x, y, ignore) { if (x < 22 || x > W - 22 || y < 22 || y > H - 22) return false; if (distToPath(x, y) < 30) return false; return !S.towers.some(t => t !== ignore && Math.hypot(t.x - x, t.y - y) < 36); }
 function place(type, x, y) {
   const d = TOWERS[type]; if (!d || S.over) return null; const c = price(d.cost); if (S.money < c || !validSpot(x, y)) return null;
-  S.money -= c; const t = { t: type, x, y, a: 0, b: 0, cd: 0.2, mode: 'first', spent: c, ang: 0 }; t.s = stats(t); S.towers.push(t); idleSave(); renderAll(); return t;
+  S.money -= c; const t = { t: type, x, y, a: 0, b: 0, cd: 0.2, mode: 'first', spent: c, ang: 0, pops: 0, radar: false, abCd: 0, boostT: 0, flash: 0 }; t.s = stats(t); S.towers.push(t);
+  if (!S.types.includes(type)) S.types.push(type); sfx('place'); idleSave(); checkAch(); renderAll(); return t;
 }
-function upgrade(t, path) { const d = TOWERS[t.t], n = path === 'A' ? t.a : t.b, up = d[path][n]; if (!up) return false; const c = price(up[1]); if (S.money < c) return false; S.money -= c; t.spent += c; if (path === 'A') t.a++; else t.b++; t.s = stats(t); idleSave(); renderAll(); return true; }
+function upgrade(t, path) { const d = TOWERS[t.t], n = path === 'A' ? t.a : t.b, up = d[path][n]; if (!up) return false; const c = price(up[1]); if (S.money < c) return false; S.money -= c; t.spent += c; if (path === 'A') t.a++; else t.b++; t.s = stats(t); sfx('up'); idleSave(); checkAch(); renderAll(); return true; }
+function buyRadar(t) { if (t.radar || t.s.radar || t.t === 'bank' || t.t === 'ice') return false; const c = price(RADAR); if (S.money < c) return false; S.money -= c; t.spent += c; t.radar = true; t.s = stats(t); sfx('up'); idleSave(); renderAll(); return true; }
 function sell(t) { const i = S.towers.indexOf(t); if (i < 0) return false; S.money += Math.floor(t.spent * 0.7); S.towers.splice(i, 1); if (selTower === t) selTower = null; idleSave(); renderAll(); return true; }
 // ================= Runde =================
-function startRound() { if (!S || S.active || S.over) return false; S.queue = waveFor(S.round); S.waveT = 0; S.active = true; S.autoIn = 0; renderAll(); return true; }
-function spawn(e) { const b = e.boss ? { id: S.nid++, boss: true, hp: e.boss, max: e.boss, layer: 6, d: 0, slowT: 0, slowF: 1 } : { id: S.nid++, layer: e.layer, d: e.d || 0, slowT: 0, slowF: 1 }; const p = posAt(b.d); b.x = p.x; b.y = p.y; S.balloons.push(b); }
-const rad = b => (b.boss ? 36 : LAYER[b.layer].r);
-function hit(b, dmg) {
-  if (b.dead || dmg <= 0) return; const bonus = 1 + 0.05 * M.up.bonus;
-  if (b.boss) { b.hp -= dmg; S.money += Math.min(dmg, Math.max(0, b.hp + dmg)) * 0.5 * bonus; if (b.hp <= 0) { b.dead = true; S.money += 150 * bonus; S.popped++; M.popped++; for (let i = 0; i < 10; i++) S.queue.unshift({ t: S.waveT, layer: 3, d: Math.max(0, b.d - i * 10) }); fxPop(b.x, b.y, '#fbbf24', 3); } return; }
-  const pops = Math.min(dmg, b.layer); S.money += pops * bonus; S.popped += pops; M.popped += pops; b.layer -= dmg; fxPop(b.x, b.y, LAYER[Math.max(1, b.layer + dmg)].c, 1); if (b.layer <= 0) b.dead = true;
+function startRound() { if (!S || S.active || S.over) return false; S.queue = waveFor(S.round, S.diff); S.waveT = 0; S.active = true; S.autoIn = 0; renderAll(); return true; }
+function spawn(e) {
+  let b; if (e.boss) b = { id: S.nid++, boss: true, hp: e.boss, max: e.boss, layer: 6, d: 0 };
+  else { b = { id: S.nid++, layer: e.layer, d: e.d || 0, camo: !!e.camo, regrow: e.regrow ? e.layer : 0, rgT: 0 }; if (e.kind) { b.kind = e.kind; b.hp = KIND[e.kind].hp; b.regrow = 0; } }
+  Object.assign(b, { slowT: 0, slowF: 1, glueT: 0, glueF: 1, acid: 0, acAcc: 0 }); const p = posAt(b.d); b.x = p.x; b.y = p.y; S.balloons.push(b);
+  if (e.boss) { S.shake = 0.5; sfx('boss'); toast('🛩️ Ein Zeppelin kommt!'); }
+  [b.kind, b.camo && 'camo', b.regrow && 'regrow'].forEach(k => { if (k && !M.seen[k]) { M.seen[k] = 1; toast('Neu: ' + NEWS[k], 5200); saveMeta(); } });
 }
-function fxPop(x, y, c, k) { if (S.fx.length < 160) S.fx.push({ k: 'pop', x, y, c, t: 0, max: 0.28 * k }); }
+const rad = b => (b.boss ? 36 : b.kind ? KIND[b.kind].r : LAYER[b.layer].r);
+const speedOf = b => (b.boss ? 38 : b.kind ? KIND[b.kind].v : LAYER[b.layer].v) * D().speed * Math.min(b.slowT > 0 ? b.slowF : 1, b.glueT > 0 ? b.glueF : 1);
+let popFx = 0;
+// Schaden an einem Ballon. src: der Turm (oder { metal: true }). Gibt zurück, ob der Treffer gewirkt hat.
+function hit(b, dmg, src) {
+  if (b.dead || dmg <= 0) return false; const bonus = 1 + 0.05 * M.up.bonus, metalOk = src && (src.s ? src.s.metal : src.metal), tw = src && src.s ? src : null;
+  if (b.kind === 'metal' && !metalOk) { if (S.fx.length < 160 && Math.random() < .25) S.fx.push({ k: 'clank', x: b.x, y: b.y, t: 0, max: .25 }); return false; }
+  const credit = n => { S.popped += n; M.popped += n; if (tw) tw.pops = (tw.pops || 0) + n; };
+  if (b.boss) { const real = Math.min(dmg, Math.max(0, b.hp)); b.hp -= dmg; S.money += real * 0.5 * bonus; if (tw) tw.pops = (tw.pops || 0) + Math.ceil(real / 10);
+    if (b.hp <= 0) { b.dead = true; S.money += 150 * bonus; credit(1); M.bosses++; S.shake = 0.6; sfx('boss'); floatTxt(b.x, b.y - 30, '+' + fmt(150 * bonus) + ' €', '#fde68a'); for (let i = 0; i < 10; i++) S.queue.unshift({ t: S.waveT, layer: 3, d: Math.max(0, b.d - i * 10) }); fxPop(b.x, b.y, '#94a3b8', 3); } return true; }
+  if (b.kind) {
+    const K = KIND[b.kind], used = Math.min(dmg, b.hp); b.hp -= dmg; S.money += used * bonus; credit(used); fxPop(b.x, b.y, K.c, .7);
+    if (b.hp > 0) return true;
+    const over = -b.hp; b.kind = null; b.layer = K.into; b.hp = 0;
+    if (K.twin) spawn({ layer: K.into, d: Math.max(0, b.d - 14), camo: b.camo });
+    if (over > 0) hit(b, over, src); return true;
+  }
+  const pops = Math.min(dmg, b.layer); S.money += pops * bonus; credit(pops); fxPop(b.x, b.y, LAYER[Math.max(1, b.layer)].c, 1); b.layer -= dmg;
+  if (b.layer <= 0) { b.dead = true; if (popFx < 6) { floatTxt(b.x, b.y - 10, '+' + Math.max(1, Math.round(pops * bonus)) + ' €', '#86efac'); popFx++; } sfx('pop'); }
+  return true;
+}
+function fxPop(x, y, c, k) { if (S.fx.length < 180) S.fx.push({ k: 'pop', x, y, c, t: 0, max: 0.32 * k, a: Math.random() * TAU }); }
+function floatTxt(x, y, txt, c) { if (S.fx.length < 180) S.fx.push({ k: 'txt', x, y, txt, c, t: 0, max: .9 }); }
+function visible(t, b) { return !b.camo || t.s.radar; }
 function pick(t) {
   const s = t.s; let best = null, bv = 0; const R = s.range;
-  for (const b of S.balloons) { if (b.dead) continue; const dd = Math.hypot(b.x - t.x, b.y - t.y); if (R < 9000 && dd > R + rad(b) * 0.6) continue; let v; switch (t.mode) { case 'last': v = -b.d; break; case 'strong': v = b.boss ? 1e6 + b.hp : b.layer * 1000 + b.d * 0.01; break; case 'close': v = -dd; break; default: v = b.d; } if (best === null || v > bv) { best = b; bv = v; } }
+  for (const b of S.balloons) { if (b.dead || !visible(t, b)) continue; const dd = Math.hypot(b.x - t.x, b.y - t.y); if (R < 9000 && dd > R + rad(b) * 0.6) continue;
+    let v; switch (t.mode) { case 'last': v = -b.d; break; case 'strong': v = b.boss ? 1e7 + b.hp : (b.kind ? 1e5 * KIND[b.kind].hp : 0) + b.layer * 1000 + b.d * 0.01; break; case 'close': v = -dd; break; default: v = b.d; }
+    if (s.kind === 'glue' && b.glueT > 1) v -= 1e8;          // lieber noch nicht verklebte Ballons
+    if (best === null || v > bv) { best = b; bv = v; } }
   return best;
 }
-function lead(t, b, speed) { const dd = Math.hypot(b.x - t.x, b.y - t.y), tm = dd / speed, v = (b.boss ? 38 : LAYER[b.layer].v) * (b.slowT > 0 ? b.slowF : 1), p = posAt(Math.min(PATH.len, b.d + v * tm)); return p; }
+function lead(t, b, speed) { const dd = Math.hypot(b.x - t.x, b.y - t.y), tm = dd / speed; return posAt(Math.min(PATH.len, b.d + speedOf(b) * tm)); }
+const rateOf = t => t.s.rate * (1 - 0.05 * vetOf(t)) * (t.boostT > 0 ? t.boostMul : 1);
 function fire(t, b) {
-  const s = t.s; t.cd = s.rate;
-  if (s.kind === 'dart') { const base = Math.atan2(b.y - t.y, b.x - t.x); t.ang = base; for (let i = 0; i < s.shots; i++) { const a = base + (s.shots > 1 ? (i - (s.shots - 1) / 2) * 0.22 : 0); S.projs.push({ k: 'dart', disc: !!s.disc, x: t.x, y: t.y, vx: Math.cos(a) * s.speed, vy: Math.sin(a) * s.speed, pierce: s.pierce, dmg: s.dmg, life: Math.min(1.6, (Math.min(s.range, 400) + 40) / s.speed), hit: new Set(), a }); } }
-  else if (s.kind === 'bomb') { const p = lead(t, b, s.speed); t.ang = Math.atan2(p.y - t.y, p.x - t.x); S.projs.push({ k: 'bomb', x: t.x, y: t.y, tx: p.x, ty: p.y, speed: s.speed, splash: s.splash, dmg: s.dmg }); }
-  else if (s.kind === 'sniper') { t.ang = Math.atan2(b.y - t.y, b.x - t.x); S.fx.push({ k: 'line', x: t.x, y: t.y, x2: b.x, y2: b.y, t: 0, max: 0.12 }); hit(b, s.dmg); }
+  const s = t.s; t.cd = rateOf(t); t.flash = 0.08;
+  if (s.kind === 'dart') { const base = Math.atan2(b.y - t.y, b.x - t.x); t.ang = base; const pierce = s.pierce + (t.boostT > 0 ? t.boostPierce || 0 : 0); for (let i = 0; i < s.shots; i++) { const a = base + (s.shots > 1 ? (i - (s.shots - 1) / 2) * 0.22 : 0); S.projs.push({ k: 'dart', disc: !!s.disc, x: t.x, y: t.y, vx: Math.cos(a) * s.speed, vy: Math.sin(a) * s.speed, pierce, dmg: s.dmg, life: Math.min(1.6, (Math.min(s.range, 400) + 40) / s.speed), hit: new Set(), a: 0, src: t }); } sfx('shot'); }
+  else if (s.kind === 'bomb') { const p = lead(t, b, s.speed); t.ang = Math.atan2(p.y - t.y, p.x - t.x); S.projs.push({ k: 'bomb', x: t.x, y: t.y, sx: t.x, sy: t.y, tx: p.x, ty: p.y, speed: s.speed, splash: s.splash, dmg: s.dmg, src: t }); sfx('boom'); }
+  else if (s.kind === 'glue') { const p = lead(t, b, s.speed); t.ang = Math.atan2(p.y - t.y, p.x - t.x); S.projs.push({ k: 'glue', x: t.x, y: t.y, tx: p.x, ty: p.y, speed: s.speed, src: t }); }
+  else if (s.kind === 'sniper') { t.ang = Math.atan2(b.y - t.y, b.x - t.x); S.fx.push({ k: 'line', x: t.x + Math.cos(t.ang) * 30, y: t.y + Math.sin(t.ang) * 30, x2: b.x, y2: b.y, t: 0, max: 0.12 }); hit(b, s.dmg, t); sfx('snipe'); }
+  else if (s.kind === 'tesla') { const pts = [[t.x, t.y]], got = new Set(); let cur = b; for (let i = 0; i < s.chain && cur; i++) { got.add(cur.id); pts.push([cur.x, cur.y]); hit(cur, s.dmg, t); let nx = null, nd = s.jump; for (const o of S.balloons) { if (o.dead || got.has(o.id)) continue; const dd = Math.hypot(o.x - cur.x, o.y - cur.y); if (dd < nd) { nd = dd; nx = o; } } cur = nx; } S.fx.push({ k: 'bolt', pts, t: 0, max: 0.18 }); sfx('zap'); }
 }
+function gl(b, s, f) { const on = b.glueT > 0; b.glueF = Math.min(on ? b.glueF : 1, b.boss ? Math.max(.6, f) : f); b.glueT = Math.max(b.glueT, s.glueT || 6); if (s.acid) b.acid = Math.max(on ? b.acid : 0, s.acid); }
 function pulse(t) {
-  const s = t.s; let any = false; for (const b of S.balloons) { if (b.dead) continue; if (Math.hypot(b.x - t.x, b.y - t.y) <= s.range + rad(b)) { any = true; b.slowT = Math.max(b.slowT, s.freeze); b.slowF = Math.min(b.slowF, s.slow); if (s.dmg) hit(b, s.dmg); } }
-  if (any) { t.cd = s.rate; S.fx.push({ k: 'ring', x: t.x, y: t.y, r: s.range, c: '#7dd3fc', t: 0, max: 0.45 }); }
+  const s = t.s; let any = false; for (const b of S.balloons) { if (b.dead) continue; if (Math.hypot(b.x - t.x, b.y - t.y) <= s.range + rad(b)) { any = true; const on = b.slowT > 0; b.slowF = Math.min(on ? b.slowF : 1, b.boss ? Math.max(.6, s.slow) : s.slow); b.slowT = Math.max(b.slowT, s.freeze); if (s.dmg) hit(b, s.dmg, t); } }
+  if (any) { t.cd = rateOf(t); S.fx.push({ k: 'ring', x: t.x, y: t.y, r: s.range, c: '#bae6fd', t: 0, max: 0.45 }); }
+}
+// Spezialfähigkeit auslösen
+function useAbility(t) {
+  if (!t || !hasAbil(t) || t.abCd > 0 || S.over) return false; const [n, , cd] = ABIL[t.t], s = t.s; t.abCd = cd; M.abil++;
+  if (t.t === 'dart') { t.boostT = 8; t.boostMul = .2; t.boostPierce = 0; }
+  else if (t.t === 'boom') { t.boostT = 8; t.boostMul = .33; t.boostPierce = 10; }
+  else if (t.t === 'bomb') { const R = s.range * 2; S.balloons.forEach(b => { if (!b.dead && Math.hypot(b.x - t.x, b.y - t.y) <= R) hit(b, 4, t); }); S.fx.push({ k: 'ring', x: t.x, y: t.y, r: R, c: '#fb923c', t: 0, max: .6 }); S.shake = .4; }
+  else if (t.t === 'ice') { S.balloons.forEach(b => { b.slowT = Math.max(b.slowT, 3); b.slowF = b.boss ? .4 : 0; }); S.fx.push({ k: 'flash', c: 'rgba(186,230,253,.45)', t: 0, max: .5 }); }
+  else if (t.t === 'sniper') { let b = null; S.balloons.forEach(o => { if (o.dead) return; const v = o.boss ? 1e7 + o.hp : (o.kind ? 1e5 * KIND[o.kind].hp : 0) + o.layer * 1000 + o.d * .01; if (!b || v > b.v) b = { o, v }; }); if (b) { S.fx.push({ k: 'line', x: t.x, y: t.y, x2: b.o.x, y2: b.o.y, t: 0, max: .4, w: 6 }); hit(b.o, 500, t); } }
+  else if (t.t === 'bank') { const inc = Math.round(t.s.income * 1.5); S.money += inc; floatTxt(t.x, t.y - 26, '+' + fmt(inc) + ' €', '#fde68a'); }
+  else if (t.t === 'tesla') { const list = S.balloons.filter(b => !b.dead).sort((a, b) => b.d - a.d).slice(0, 30), pts = [[t.x, t.y]]; list.forEach(b => { pts.push([b.x, b.y]); hit(b, 3, t); }); S.fx.push({ k: 'bolt', pts, t: 0, max: .5, big: true }); S.shake = .3; }
+  else if (t.t === 'glue') { S.balloons.forEach(b => gl(b, { glueT: 6, acid: s.acid }, Math.min(s.glueF, .4))); S.fx.push({ k: 'flash', c: 'rgba(163,230,53,.3)', t: 0, max: .5 }); }
+  toast(`⚡ ${n}!`); sfx('abil'); checkAch(); renderAll(); return true;
 }
 function step() {
-  if (!S || S.over || S.paused) return;
+  if (!S || S.over || S.paused) return; S.time += DT; popFx = Math.max(0, popFx - DT * 8);
   if (S.active) { S.waveT += DT; while (S.queue.length && S.queue[0].t <= S.waveT) spawn(S.queue.shift()); }
-  for (const b of S.balloons) { if (b.dead) continue; const v = (b.boss ? 38 : LAYER[b.layer].v) * (b.slowT > 0 ? b.slowF : 1); b.d += v * DT; if (b.slowT > 0) b.slowT -= DT; if (b.d >= PATH.len) { b.dead = true; S.lives -= b.boss ? 20 : b.layer; fxPop(b.x, b.y, '#fff', 1); continue; } const p = posAt(b.d); b.x = p.x; b.y = p.y; }
-  for (const t of S.towers) { const k = t.s.kind; if (k === 'bank') continue; t.cd -= DT; if (t.cd > 0) continue; if (k === 'ice') { pulse(t); continue; } const b = pick(t); if (b) fire(t, b); else t.cd = 0; }
-  for (const p of S.projs) {
-    if (p.k === 'dart') { p.x += p.vx * DT; p.y += p.vy * DT; p.life -= DT; p.a += p.disc ? 0.5 : 0; for (const b of S.balloons) { if (b.dead || p.hit.has(b.id)) continue; if (Math.hypot(b.x - p.x, b.y - p.y) <= rad(b) + 5) { p.hit.add(b.id); hit(b, p.dmg); if (--p.pierce <= 0) { p.life = 0; break; } } } }
-    else { const dx = p.tx - p.x, dy = p.ty - p.y, dd = Math.hypot(dx, dy), m = p.speed * DT; if (dd <= m) { p.life = 0; S.fx.push({ k: 'ring', x: p.tx, y: p.ty, r: p.splash, c: '#fb923c', t: 0, max: 0.3 }); for (const b of S.balloons) if (!b.dead && Math.hypot(b.x - p.tx, b.y - p.ty) <= p.splash + rad(b) * 0.6) hit(b, p.dmg); } else { p.x += dx / dd * m; p.y += dy / dd * m; } }
+  for (const b of S.balloons) {
+    if (b.dead) continue; b.d += speedOf(b) * DT; if (b.slowT > 0) b.slowT -= DT; if (b.glueT > 0) b.glueT -= DT; else b.acid = 0;
+    if (b.acid > 0) { b.acAcc += b.acid * DT; while (b.acAcc >= 1 && !b.dead) { b.acAcc -= 1; hit(b, 1, { metal: true }); } }
+    if (b.regrow && !b.kind && b.layer < b.regrow && !b.dead) { b.rgT += DT; if (b.rgT >= 3) { b.rgT = 0; b.layer++; } }
+    if (b.dead) continue;
+    if (b.d >= PATH.len) { b.dead = true; const l = b.boss ? 20 : b.kind ? KIND[b.kind].into + 2 : b.layer; S.lives -= l; S.lost += l; fxPop(b.x, b.y, '#fff', 1); continue; }
+    const p = posAt(b.d); b.x = p.x; b.y = p.y;
   }
-  S.projs = S.projs.filter(p => p.life === undefined || p.life > 0); for (const f of S.fx) f.t += DT; S.fx = S.fx.filter(f => f.t < f.max);
+  for (const t of S.towers) {
+    if (t.abCd > 0) t.abCd = Math.max(0, t.abCd - DT); if (t.boostT > 0) t.boostT -= DT; if (t.flash > 0) t.flash -= DT;
+    const k = t.s.kind; if (k === 'bank') continue; t.cd -= DT; if (t.cd > 0) continue; if (k === 'ice') { pulse(t); continue; } const b = pick(t); if (b) fire(t, b); else t.cd = 0;
+  }
+  for (const p of S.projs) {
+    if (p.k === 'dart') { p.x += p.vx * DT; p.y += p.vy * DT; p.life -= DT; p.a += p.disc ? 0.5 : 0; for (const b of S.balloons) { if (b.dead || p.hit.has(b.id)) continue; if (Math.hypot(b.x - p.x, b.y - p.y) <= rad(b) + 5) { p.hit.add(b.id); hit(b, p.dmg, p.src); if (--p.pierce <= 0) { p.life = 0; break; } } } }
+    else { const dx = p.tx - p.x, dy = p.ty - p.y, dd = Math.hypot(dx, dy), m = p.speed * DT;
+      if (dd > m) { p.x += dx / dd * m; p.y += dy / dd * m; continue; }
+      p.life = 0;
+      if (p.k === 'bomb') { S.fx.push({ k: 'boom', x: p.tx, y: p.ty, r: p.splash, t: 0, max: 0.35 }); for (const b of S.balloons) if (!b.dead && Math.hypot(b.x - p.tx, b.y - p.ty) <= p.splash + rad(b) * 0.6) hit(b, p.dmg, p.src); }
+      else { const s = p.src.s, R = Math.max(18, s.splash || 0), near = S.balloons.filter(b => !b.dead && Math.hypot(b.x - p.tx, b.y - p.ty) <= R + rad(b)).sort((a, b) => Math.hypot(a.x - p.tx, a.y - p.ty) - Math.hypot(b.x - p.tx, b.y - p.ty));
+        (s.splash ? near : near.slice(0, s.pierce)).forEach(b => gl(b, s, s.glueF)); S.fx.push({ k: 'splat', x: p.tx, y: p.ty, r: R, t: 0, max: .4 }); } }
+  }
+  S.projs = S.projs.filter(p => p.life === undefined || p.life > 0); for (const f of S.fx) f.t += DT; S.fx = S.fx.filter(f => f.t < f.max); if (S.shake > 0) S.shake -= DT;
   S.balloons = S.balloons.filter(b => !b.dead);
   if (S.lives <= 0) return gameOver();
   if (S.active && !S.queue.length && !S.balloons.length) endRound();
@@ -179,101 +301,186 @@ function step() {
 }
 function endRound() {
   S.active = false; const income = S.towers.reduce((a, t) => a + (t.s.kind === 'bank' ? t.s.income : 0), 0), bonus = 100 + S.round * 3 + 10 * M.up.roundBonus;
-  S.money += bonus + income; M.best[S.map] = Math.max(M.best[S.map] || 0, S.round); S.lastBonus = bonus + income; toast(`Runde ${S.round} geschafft: +${fmt(bonus + income)} €`); S.round++; S.projs = []; saveRun(); saveMeta(); if (S.auto) S.autoIn = 1.5; renderAll();
+  S.money += bonus + income; M.best[S.map] = Math.max(M.best[S.map] || 0, S.round); S.lastBonus = bonus + income; toast(`Runde ${S.round} geschafft: +${fmt(bonus + income)} €`); S.round++; S.projs = []; checkAch(); saveRun(); saveMeta(); if (S.auto) S.autoIn = 1.5; renderAll();
 }
-function gameOver(giveUp) {
-  if (S.over) return; S.over = true; S.active = false; const done = S.round - 1, d = Math.floor(Math.pow(Math.max(0, done), 1.3) / 2); S.earned = d; M.diamonds += d; M.runs++; M.best[S.map] = Math.max(M.best[S.map] || 0, done); savedRun = null; saveMeta(); saveRun(); showOverlay('over'); renderAll();
+function gameOver() {
+  if (S.over) return; S.over = true; S.active = false; const dn = S.round - 1, d = Math.floor(Math.pow(Math.max(0, dn), 1.3) / 2 * D().dia); S.earned = d; M.diamonds += d; M.runs++; M.best[S.map] = Math.max(M.best[S.map] || 0, dn); savedRun = null; checkAch(); saveMeta(); saveRun(); showOverlay('over'); renderAll();
+}
+// ================= Töne (nur wenn eingeschaltet) =================
+let AC = null, sndN = 0; setInterval(() => { sndN = 0; }, 100);
+function sfx(k) {
+  if (!M.snd || sndN > 3) return; sndN++;
+  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(), n = AC.currentTime;
+    const P = { pop: [520, 180, .06, 'triangle', .08], shot: [880, 600, .03, 'square', .02], boom: [140, 40, .25, 'sawtooth', .1], snipe: [1200, 200, .08, 'square', .04], zap: [1600, 300, .12, 'sawtooth', .04], place: [330, 660, .12, 'sine', .08], up: [440, 880, .15, 'sine', .08], boss: [90, 60, .6, 'sawtooth', .12], abil: [300, 1200, .35, 'triangle', .1] }[k] || [440, 440, .05, 'sine', .05];
+    o.type = P[3]; o.frequency.setValueAtTime(P[0], n); o.frequency.exponentialRampToValueAtTime(Math.max(30, P[1]), n + P[2]); g.gain.setValueAtTime(P[4], n); g.gain.exponentialRampToValueAtTime(.0001, n + P[2]); o.connect(g).connect(AC.destination); o.start(n); o.stop(n + P[2] + .02); } catch (e) {}
 }
 // ================= Speichern =================
 function saveMeta() { try { const o = { v: 1, meta: M, run: savedRun }; localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
-function runData() { return S && !S.over ? { map: S.map, round: S.round, money: S.money, lives: S.lives, towers: S.towers.map(t => ({ t: t.t, x: t.x, y: t.y, a: t.a, b: t.b, mode: t.mode, spent: t.spent })) } : null; }
+function runData() { return S && !S.over ? { map: S.map, diff: S.diff, round: S.round, money: S.money, lives: S.lives, lost: S.lost, types: S.types, towers: S.towers.map(t => ({ t: t.t, x: t.x, y: t.y, a: t.a, b: t.b, mode: t.mode, spent: t.spent, pops: t.pops || 0, radar: !!t.radar, abCd: Math.round(t.abCd || 0) })) } : null; }
 function saveRun() { savedRun = runData(); saveMeta(); }
 function idleSave() { if (S && !S.active && !S.over) saveRun(); }
 const num = (v, d) => (typeof v === 'number' && isFinite(v) ? v : d);
 function sanitize(o) {
   const m = freshMeta(), r = o && typeof o === 'object' ? o : {}, mm = r.meta && typeof r.meta === 'object' ? r.meta : {};
   m.playMs = Math.max(0, num(mm.playMs, 0)); m.last = Math.max(0, num(mm.last, 0)); m.diamonds = Math.max(0, Math.floor(num(mm.diamonds, 0))); m.runs = Math.max(0, num(mm.runs, 0)); m.popped = Math.max(0, num(mm.popped, 0)); m.snd = mm.snd === true;
+  m.bosses = Math.max(0, Math.floor(num(mm.bosses, 0))); m.abil = Math.max(0, Math.floor(num(mm.abil, 0))); m.grid = mm.grid !== false; m.diff = DIFF[mm.diff] ? mm.diff : 'normal';
+  m.ach = Array.isArray(mm.ach) ? [...new Set(mm.ach.filter(id => ACH.some(a => a[0] === id)))] : []; m.seen = {}; if (mm.seen && typeof mm.seen === 'object') ['metal', 'ceramic', 'camo', 'regrow'].forEach(k => { if (mm.seen[k]) m.seen[k] = 1; });
   META.forEach(([k]) => { m.up[k] = clamp(Math.floor(num(mm.up && mm.up[k], 0)), 0, META_MAX); }); Object.keys(MAPS).forEach(k => { m.best[k] = Math.max(0, Math.floor(num(mm.best && mm.best[k], 0))); });
   let run = null; const q = r.run, keep = PATH;
-  if (q && typeof q === 'object' && MAPS[q.map] && Array.isArray(q.towers)) { run = { map: q.map, round: Math.max(1, Math.floor(num(q.round, 1))), money: Math.max(0, num(q.money, 0)), lives: Math.max(1, num(q.lives, 1)), towers: [] }; const P = buildPath(q.map); const ok = (x, y) => { PATH = P; return x >= 22 && x <= W - 22 && y >= 22 && y <= H - 22 && distToPath(x, y) >= 30; };
-    q.towers.slice(0, 60).forEach(t => { if (t && TOWERS[t.t] && ok(num(t.x, -1), num(t.y, -1)) && !run.towers.some(u => Math.hypot(u.x - t.x, u.y - t.y) < 36)) run.towers.push({ t: t.t, x: t.x, y: t.y, a: clamp(Math.floor(num(t.a, 0)), 0, TOWERS[t.t].A.length), b: clamp(Math.floor(num(t.b, 0)), 0, TOWERS[t.t].B.length), mode: MODES.some(x => x[0] === t.mode) ? t.mode : 'first', spent: Math.max(0, num(t.spent, 0)) }); }); }
+  if (q && typeof q === 'object' && MAPS[q.map] && Array.isArray(q.towers)) {
+    run = { map: q.map, diff: DIFF[q.diff] ? q.diff : 'normal', round: Math.max(1, Math.floor(num(q.round, 1))), money: Math.max(0, num(q.money, 0)), lives: Math.max(1, num(q.lives, 1)), lost: Math.max(0, num(q.lost, 0)), types: Array.isArray(q.types) ? q.types.filter(k => TOWERS[k]) : [], towers: [] };
+    const P = buildPath(q.map); const ok = (x, y) => { PATH = P; return x >= 22 && x <= W - 22 && y >= 22 && y <= H - 22 && distToPath(x, y) >= 30; };
+    q.towers.slice(0, 80).forEach(t => { if (t && TOWERS[t.t] && ok(num(t.x, -1), num(t.y, -1)) && !run.towers.some(u => Math.hypot(u.x - t.x, u.y - t.y) < 36)) run.towers.push({ t: t.t, x: t.x, y: t.y, a: clamp(Math.floor(num(t.a, 0)), 0, TOWERS[t.t].A.length), b: clamp(Math.floor(num(t.b, 0)), 0, TOWERS[t.t].B.length), mode: MODES.some(x => x[0] === t.mode) ? t.mode : 'first', spent: Math.max(0, num(t.spent, 0)), pops: Math.max(0, Math.floor(num(t.pops, 0))), radar: t.radar === true, abCd: clamp(num(t.abCd, 0), 0, 60) }); });
+    run.towers.forEach(t => { if (!run.types.includes(t.t)) run.types.push(t.t); });
+  }
   PATH = keep; return { meta: m, run };
 }
 function load() { try { const r = localStorage.getItem(KEY); if (r) { const o = sanitize(JSON.parse(r)); M = o.meta; savedRun = o.run; } } catch (e) { M = freshMeta(); savedRun = null; } }
-function resume() { if (!savedRun) return false; const q = savedRun; newRun(q.map); S.round = q.round; S.money = q.money; S.lives = q.lives; S.towers = q.towers.map(t => { const o = { ...t, cd: 0.2, ang: 0 }; o.s = stats(o); return o; }); hideOverlay(); renderAll(); return true; }
+function resume() { if (!savedRun) return false; const q = savedRun; newRun(q.map, q.diff); S.round = q.round; S.money = q.money; S.lives = q.lives; S.lost = q.lost; S.types = [...q.types]; S.towers = q.towers.map(t => { const o = { ...t, cd: 0.2, ang: 0, boostT: 0, flash: 0 }; o.s = stats(o); return o; }); hideOverlay(); renderAll(); return true; }
 // ================= Zeichnen =================
-function bg() {
-  const k = cv.width / W, c = document.createElement('canvas'); c.width = Math.round(W * k); c.height = Math.round(H * k); const g = c.getContext('2d'); g.scale(k, k); const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, '#1d4a2e'); gr.addColorStop(1, '#12301f'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
-  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647; for (let i = 0; i < 140; i++) { const x = rnd() * W, y = rnd() * H; if (distToPath(x, y) < 34) continue; g.fillStyle = `rgba(${rnd() > .5 ? '110,200,120' : '20,60,35'},${.08 + rnd() * .12})`; g.beginPath(); g.arc(x, y, 6 + rnd() * 22, 0, 7); g.fill(); }
-  g.lineCap = g.lineJoin = 'round'; const p = MAPS[curMap].pts; const line = w => { g.beginPath(); g.moveTo(p[0][0], p[0][1]); p.slice(1).forEach(q => g.lineTo(q[0], q[1])); g.lineWidth = w; g.stroke(); };
-  g.strokeStyle = '#4a3b22'; line(50); g.strokeStyle = '#a89468'; line(42); g.strokeStyle = '#c8b58a'; line(34); g.setLineDash([10, 16]); g.strokeStyle = 'rgba(255,255,255,.18)'; line(2); g.setLineDash([]);
-  g.fillStyle = '#34d399'; const e = p[p.length - 1]; g.beginPath(); g.arc(clamp(e[0], 14, W - 14), clamp(e[1], 14, H - 14), 14, 0, 7); g.fill(); g.fillStyle = '#052e1c'; g.font = '700 14px system-ui'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('⛳', clamp(e[0], 14, W - 14), clamp(e[1], 14, H - 14) + 1);
-  return c;
-}
 function fit() { const w = $('cvw'), r = w.getBoundingClientRect(), k = Math.min(r.width / W, (r.height || r.width * 0.75) / H, 2.2), dpr = Math.min(window.devicePixelRatio || 1, 2); const cw = Math.max(200, Math.floor(W * k)), ch = Math.floor(H * (cw / W)); cv.style.width = cw + 'px'; cv.style.height = ch + 'px'; const bw = Math.min(1600, Math.round(cw * dpr)); if (cv.width !== bw) { cv.width = bw; cv.height = Math.round(bw * H / W); } }      // mehr als 1600 Pixel Breite bringen kein schärferes Bild, kosten aber Zeit
-// Fertige Bilder für Ballons und Türme: Farbverläufe, Schatten und Emojis werden nur einmal pro Fenstergröße gezeichnet, nicht für jeden Ballon in jedem Bild.
+function bg() { const k = cv.width / W, c = document.createElement('canvas'); c.width = Math.round(W * k); c.height = Math.round(H * k); const g = c.getContext('2d'); g.scale(k, k); ART.ground(g, W, H, MAPS[curMap].pts, distToPath, MAPS[curMap].theme); return c; }
+// Fertige Bilder (Sprites) für Türme und Ballons: einmal pro Fenstergröße gezeichnet, nicht in jedem Bild neu
 let SPR = null, SPRK = 0;
 function sprites() {
-  const k = cv.width / W; if (SPR && SPRK === k) return SPR; SPRK = k; SPR = { b: [], t: {} };
+  const k = cv.width / W; if (SPR && SPRK === k) return SPR; SPRK = k; SPR = { base: {}, head: {}, b: {}, ov: {} };
   const mk = (w, h) => { const c = document.createElement('canvas'); c.width = Math.ceil(w * k); c.height = Math.ceil(h * k); const g = c.getContext('2d'); g.scale(k, k); return [c, g]; };
-  for (let l = 1; l <= 5; l++) { const L = LAYER[l], r = L.r, ox = r + 6, oy = r + 6, [c, g] = mk(r * 2 + 12, r * 2 + 20); g.translate(ox, oy);
-    g.fillStyle = L.c; g.beginPath(); g.moveTo(0, r - 1); g.lineTo(-4, r + 6); g.lineTo(4, r + 6); g.fill();
-    const gr = g.createRadialGradient(-r * .35, -r * .4, 1, 0, 0, r * 1.15); gr.addColorStop(0, '#fff'); gr.addColorStop(.25, L.c); gr.addColorStop(1, 'rgba(0,0,0,.55)');
-    g.fillStyle = L.c; g.beginPath(); g.ellipse(0, 0, r * .86, r, 0, 0, 7); g.fill(); g.fillStyle = gr; g.globalAlpha = .75; g.fill(); SPR.b[l] = { c, ox, oy, w: c.width / k, h: c.height / k }; }
-  Object.entries(TOWERS).forEach(([id, d]) => { const [c, g] = mk(52, 52); g.translate(26, 26); g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 8; g.fillStyle = d.c; g.beginPath(); g.arc(0, 0, 18, 0, 7); g.fill(); g.shadowBlur = 0;
-    g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.arc(0, 0, 14.5, 0, 7); g.fill(); g.font = '19px system-ui'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(d.e, 0, 1.5); SPR.t[id] = { c, w: 52, h: 52 }; });
+  Object.keys(TOWERS).forEach(id => { for (let tier = 0; tier <= 3; tier++) { let [c, g] = mk(64, 64); g.translate(32, 30); ART.base(g, id, tier); SPR.base[id + tier] = c; [c, g] = mk(80, 80); g.translate(40, 40); ART.head(g, id, tier, 0); SPR.head[id + tier] = c; } });
+  const bl = (key, kind, r) => { const [c, g] = mk(r * 2 + 12, r * 2 + 26); g.translate(r + 6, r + 6); ART.balloon(g, kind, r, 0); SPR.b[key] = { c, ox: r + 6, oy: r + 6, w: r * 2 + 12, h: r * 2 + 26 }; };
+  for (let l = 1; l <= 5; l++) bl('l' + l, LAYER[l].k, LAYER[l].r); bl('metal', 'metall', KIND.metal.r); bl('ceramic', 'keramik', KIND.ceramic.r);
+  { const r = 17, [c, g] = mk(r * 2 + 12, r * 2 + 12); g.translate(r + 6, r + 6); g.save(); g.beginPath(); g.ellipse(0, 0, r * .86, r, 0, 0, TAU); g.clip(); [['rgba(54,83,20,.75)', -4, -6, 6], ['rgba(161,98,7,.7)', 5, -2, 5], ['rgba(26,46,5,.75)', -2, 6, 6], ['rgba(101,163,13,.7)', 6, 7, 4], ['rgba(120,53,15,.7)', -7, 2, 4]].forEach(([cl, x, y, s]) => { g.fillStyle = cl; g.beginPath(); g.ellipse(x * r / 15, y * r / 15, s * r / 15, s * .7 * r / 15, x, 0, TAU); g.fill(); }); g.restore();
+    g.setLineDash([3, 3]); g.strokeStyle = 'rgba(255,255,255,.65)'; g.lineWidth = 1.2; g.beginPath(); g.ellipse(0, 0, r * .86 + 2, r + 2, 0, 0, TAU); g.stroke(); SPR.ov.camo = { c, o: r + 6, w: r * 2 + 12 }; }
+  { const r = 17, [c, g] = mk(r * 2 + 12, r * 2 + 12); g.translate(r + 6, r + 6); const cols = ['#f472b6', '#fb923c', '#facc15', '#4ade80', '#38bdf8', '#a78bfa']; cols.forEach((cl, i) => { g.strokeStyle = cl; g.lineWidth = 2; g.beginPath(); g.ellipse(0, 0, r * .86 + 2, r + 2, 0, i / 6 * TAU, (i + 1) / 6 * TAU); g.stroke(); });
+    g.fillStyle = '#fff'; g.strokeStyle = 'rgba(0,0,0,.5)'; g.lineWidth = 2.5; g.font = '900 15px system-ui'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.strokeText('+', 0, 1); g.fillText('+', 0, 1); SPR.ov.regrow = { c, o: r + 6, w: r * 2 + 12 }; }
   return SPR;
 }
+// Kleine Bilder der Türme für Laden und Infobereich
+const ICON = {}; function towerIcon(id, tier = 0) { const k = id + tier; if (ICON[k]) return ICON[k]; const c = document.createElement('canvas'); c.width = c.height = 96; const g = c.getContext('2d'); g.scale(2, 2); g.translate(24, 23); g.scale(.95, .95); ART.tower(g, id, tier, -0.6, 0); return (ICON[k] = c.toDataURL()); }
 function draw() {
-  if (!S) return; if (!BG || BGK !== cv.width) { BG = bg(); BGK = cv.width; } const k = cv.width / W, sp = sprites(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(BG, 0, 0); ctx.setTransform(k, 0, 0, k, 0, 0);
-  const sel = selTower; if (sel && sel.s.range < 9000) { ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(sel.x, sel.y, sel.s.range, 0, 7); ctx.fill(); ctx.stroke(); }
-  for (const t of S.towers) { const sp1 = sp.t[t.t]; ctx.drawImage(sp1.c, t.x - 26, t.y - 26, 52, 52);
-    if (t === selTower) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(t.x, t.y, 20, 0, 7); ctx.stroke(); }
-    const tiers = t.a + t.b; if (tiers) { ctx.fillStyle = '#fde68a'; for (let i = 0; i < tiers; i++) { ctx.beginPath(); ctx.arc(t.x - 12 + i * 5, t.y + 23, 2, 0, 7); ctx.fill(); } } }
-  for (const b of S.balloons) {
-    if (b.boss) { ctx.save(); ctx.translate(b.x, b.y); const g = ctx.createLinearGradient(0, -22, 0, 22); g.addColorStop(0, '#94a3b8'); g.addColorStop(1, '#334155'); ctx.fillStyle = g; ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(0, 0, 40, 22, 0, 0, 7); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#ef4444'; ctx.fillRect(-40, -3, 80, 6); ctx.fillStyle = '#0b1220'; ctx.fillRect(-30, -34, 60, 6); ctx.fillStyle = '#ef4444'; ctx.fillRect(-30, -34, 60 * Math.max(0, b.hp / b.max), 6); if (b.slowT > 0) { ctx.strokeStyle = '#7dd3fc'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(0, 0, 44, 26, 0, 0, 7); ctx.stroke(); } ctx.restore(); continue; }
-    const q = sp.b[b.layer]; ctx.drawImage(q.c, b.x - q.ox, b.y - q.oy, q.w, q.h);
-    if (b.slowT > 0) { ctx.strokeStyle = '#7dd3fc'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(b.x, b.y, LAYER[b.layer].r * .86, LAYER[b.layer].r, 0, 0, 7); ctx.stroke(); }
+  if (!S) return; const key = curMap + cv.width; if (!BG || BGK !== key) { BG = bg(); BGK = key; } const k = cv.width / W, sp = sprites(), T = performance.now() / 1000;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); if (S.shake > 0) ctx.translate((Math.random() - .5) * 10 * S.shake * k, (Math.random() - .5) * 10 * S.shake * k); ctx.drawImage(BG, 0, 0); ctx.setTransform(k, 0, 0, k, 0, 0); if (S.shake > 0) ctx.translate((Math.random() - .5) * 8 * S.shake, (Math.random() - .5) * 8 * S.shake);
+  // Raster beim Platzieren
+  if (placing) {
+    ctx.save(); ctx.lineCap = ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(239,68,68,.16)'; ctx.beginPath(); const p0 = MAPS[curMap].pts; ctx.moveTo(p0[0][0], p0[0][1]); p0.slice(1).forEach(q => ctx.lineTo(q[0], q[1])); ctx.lineWidth = 60; ctx.stroke();
+    if (M.grid) { ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 1; ctx.beginPath(); for (let x = GRID; x < W; x += GRID) { ctx.moveTo(x, 0); ctx.lineTo(x, H); } for (let y = GRID; y < H; y += GRID) { ctx.moveTo(0, y); ctx.lineTo(W, y); } ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,.18)'; for (let x = 2 * GRID; x < W; x += 2 * GRID) for (let y = 2 * GRID; y < H; y += 2 * GRID) { ctx.fillRect(x - 1, y - 1, 2, 2); } }
+    S.towers.forEach(t => { ctx.strokeStyle = 'rgba(239,68,68,.35)'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(t.x, t.y, 36, 0, TAU); ctx.stroke(); ctx.setLineDash([]); }); ctx.restore();
   }
-  for (const p of S.projs) { if (p.k === 'bomb') { ctx.fillStyle = '#111827'; ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, 7); ctx.fill(); ctx.stroke(); } else if (p.disc) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = '#fbbf24'; ctx.fillRect(-9, -3, 18, 6); ctx.fillRect(-3, -9, 6, 18); ctx.restore(); } else { ctx.strokeStyle = '#e0f2fe'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.vx * 0.022, p.y - p.vy * 0.022); ctx.stroke(); } }
-  for (const f of S.fx) { const q = f.t / f.max; if (f.k === 'pop') { ctx.strokeStyle = f.c; ctx.globalAlpha = 1 - q; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(f.x, f.y, 6 + q * 16, 0, 7); ctx.stroke(); ctx.globalAlpha = 1; } else if (f.k === 'ring') { ctx.strokeStyle = f.c; ctx.globalAlpha = (1 - q) * .8; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (0.3 + q * 0.7), 0, 7); ctx.stroke(); ctx.globalAlpha = 1; } else if (f.k === 'line') { ctx.strokeStyle = '#ddd6fe'; ctx.globalAlpha = 1 - q; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.lineTo(f.x2, f.y2); ctx.stroke(); ctx.globalAlpha = 1; } }
-  if (placing && ghost) { const d = TOWERS[placing], ok = validSpot(ghost.x, ghost.y) && S.money >= price(d.cost); if (d.base.range < 9000) { ctx.fillStyle = ok ? 'rgba(255,255,255,.12)' : 'rgba(239,68,68,.18)'; ctx.strokeStyle = ok ? 'rgba(255,255,255,.6)' : 'rgba(239,68,68,.8)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(ghost.x, ghost.y, d.base.range, 0, 7); ctx.fill(); ctx.stroke(); } ctx.globalAlpha = .85; ctx.fillStyle = ok ? d.c : '#ef4444'; ctx.beginPath(); ctx.arc(ghost.x, ghost.y, 18, 0, 7); ctx.fill(); ctx.font = '19px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(d.e, ghost.x, ghost.y + 1.5); ctx.globalAlpha = 1; }
+  const sel = selTower; if (sel && sel.s.range < 9000 && sel.s.range > 0) { ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(sel.x, sel.y, sel.s.range, 0, TAU); ctx.fill(); ctx.stroke(); }
+  // Kleber unter den Ballons
+  for (const b of S.balloons) if (b.glueT > 0) { ctx.fillStyle = b.acid ? 'rgba(190,242,100,.45)' : 'rgba(132,204,22,.38)'; ctx.beginPath(); ctx.ellipse(b.x, b.y + 5, rad(b) + 4, rad(b) * .6, 0, 0, TAU); ctx.fill(); }
+  // Türme
+  for (const t of S.towers) {
+    const tier = tierOf(t), id = t.t; ctx.drawImage(sp.base[id + tier], t.x - 32, t.y - 30, 64, 64);
+    const glow = id === 'ice' ? 'rgba(125,211,252,' : id === 'tesla' ? 'rgba(103,232,249,' : null; if (glow) { const p = .5 + .5 * Math.sin(T * (id === 'tesla' ? 9 : 3) + t.x); ctx.fillStyle = glow + (.12 + p * .18) + ')'; ctx.beginPath(); ctx.arc(t.x, t.y, 15 + p * 3, 0, TAU); ctx.fill(); }
+    const rot = id === 'boom' ? T * 5 : ART.ROTATES[id] ? t.ang : 0; ctx.save(); ctx.translate(t.x, t.y); if (rot) ctx.rotate(rot); ctx.drawImage(sp.head[id + tier], -40, -40, 80, 80);
+    if (t.flash > 0 && (id === 'bomb' || id === 'sniper' || id === 'dart')) { const L = id === 'sniper' ? 36 : id === 'bomb' ? 30 : 22; ctx.fillStyle = 'rgba(253,230,138,.9)'; ctx.beginPath(); ctx.arc(L, 0, id === 'bomb' ? 7 : 4, 0, TAU); ctx.fill(); }
+    ctx.restore();
+    if (id === 'tesla') { ctx.strokeStyle = 'rgba(165,243,252,.8)'; ctx.lineWidth = 1; ctx.beginPath(); for (let i = 0; i < 3; i++) { const a = T * 6 + i * 2.1; ctx.moveTo(t.x + Math.cos(a) * 4, t.y + Math.sin(a) * 4); ctx.lineTo(t.x + Math.cos(a + .4) * 10, t.y + Math.sin(a + .4) * 10); } ctx.stroke(); }
+    if (t.boostT > 0) { ctx.strokeStyle = `rgba(250,204,21,${.5 + .4 * Math.sin(T * 12)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(t.x, t.y, 24, 0, TAU); ctx.stroke(); }
+    if (hasAbil(t) && t.abCd <= 0) { ctx.fillStyle = '#facc15'; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 2; ctx.font = '900 13px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const y = t.y - 26 + Math.sin(T * 4) * 1.5; ctx.strokeText('⚡', t.x + 18, y); ctx.fillText('⚡', t.x + 18, y); }
+    if (t.radar) { ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(t.x - 18, t.y - 18, 6.5, 0, TAU); ctx.fill(); ctx.font = '9px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('📡', t.x - 18, t.y - 17.5); }
+    const v = vetOf(t); if (v) { ctx.fillStyle = ['', '#cd7f32', '#cbd5e1', '#facc15'][v]; ctx.beginPath(); ctx.moveTo(t.x - 24, t.y + 12); ctx.lineTo(t.x - 18, t.y + 9); ctx.lineTo(t.x - 12, t.y + 12); ctx.lineTo(t.x - 12, t.y + 20); ctx.lineTo(t.x - 18, t.y + 17); ctx.lineTo(t.x - 24, t.y + 20); ctx.fill(); }
+    if (t === selTower) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.arc(t.x, t.y, 25, 0, TAU); ctx.stroke(); ctx.setLineDash([]); }
+  }
+  // Ballons
+  for (const b of S.balloons) {
+    if (b.boss) { ctx.save(); ctx.translate(b.x, b.y); ART.balloon(ctx, 'zeppelin', 36, 0); if (b.slowT > 0 || b.glueT > 0) { ctx.strokeStyle = b.glueT > 0 ? '#84cc16' : '#7dd3fc'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(0, 0, 44, 25, 0, 0, TAU); ctx.stroke(); } ctx.restore();
+      ctx.fillStyle = '#0b1220'; ctx.fillRect(b.x - 30, b.y - 38, 60, 6); ctx.fillStyle = '#ef4444'; ctx.fillRect(b.x - 30, b.y - 38, 60 * Math.max(0, b.hp / b.max), 6); continue; }
+    const bob = Math.sin(T * 4 + b.id) * 1.2, q = sp.b[b.kind || 'l' + b.layer], r = rad(b);
+    if (b.camo) ctx.globalAlpha = .82; ctx.drawImage(q.c, b.x - q.ox, b.y - q.oy + bob, q.w, q.h); ctx.globalAlpha = 1;
+    if (b.camo) { const o = sp.ov.camo, s = r / 17; ctx.drawImage(o.c, b.x - o.o * s, b.y - o.o * s + bob, o.w * s, o.w * s); }
+    if (b.regrow) { const o = sp.ov.regrow, s = r / 17; ctx.drawImage(o.c, b.x - o.o * s, b.y - o.o * s + bob, o.w * s, o.w * s); }
+    if (b.kind === 'ceramic' && b.hp < 10) { ctx.strokeStyle = 'rgba(20,6,0,.85)'; ctx.lineWidth = 1.2; ctx.beginPath(); const n = Math.ceil((10 - b.hp) / 3); for (let i = 0; i < n; i++) { const a = i * 2.2 + b.id; ctx.moveTo(b.x, b.y + bob); ctx.lineTo(b.x + Math.cos(a) * r * .8, b.y + bob + Math.sin(a) * r * .8); } ctx.stroke(); }
+    if (b.slowT > 0) { ctx.strokeStyle = 'rgba(186,230,253,.95)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(b.x, b.y + bob, r * .86 + 1, r + 1, 0, 0, TAU); ctx.stroke(); }
+    if (b.glueT > 0) { ctx.fillStyle = 'rgba(132,204,22,.55)'; ctx.beginPath(); ctx.ellipse(b.x + 2, b.y + r * .4 + bob, r * .6, r * .35, 0, 0, TAU); ctx.fill(); }
+  }
+  // Geschosse
+  for (const p of S.projs) {
+    if (p.k === 'bomb') { const tot = Math.hypot(p.tx - p.sx, p.ty - p.sy) || 1, q = 1 - Math.hypot(p.tx - p.x, p.ty - p.y) / tot, h = Math.sin(q * Math.PI) * 18; ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(p.x, p.y + 4, 5, 2.5, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#111827'; ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x, p.y - h, 6, 0, TAU); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(p.x + 3, p.y - h - 5, 1.8, 0, TAU); ctx.fill(); }
+    else if (p.k === 'glue') { ctx.fillStyle = '#a3e635'; ctx.strokeStyle = '#3f6212'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, TAU); ctx.fill(); ctx.stroke(); }
+    else if (p.disc) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = '#f59e0b'; ctx.strokeStyle = '#78350f'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(6, -10, 11, -7); ctx.quadraticCurveTo(6, -4, 3, 1); ctx.quadraticCurveTo(6, 6, 11, 8); ctx.quadraticCurveTo(6, 11, 0, 0); ctx.fill(); ctx.stroke(); ctx.restore(); }
+    else { const a = Math.atan2(p.vy, p.vx); ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(a); ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(4, 0); ctx.stroke(); ctx.fillStyle = '#f8fafc'; ctx.beginPath(); ctx.moveTo(7, 0); ctx.lineTo(3, -2.5); ctx.lineTo(3, 2.5); ctx.fill(); ctx.fillStyle = '#ef4444'; ctx.fillRect(-11, -2, 3, 4); ctx.restore(); }
+  }
+  // Effekte
+  for (const f of S.fx) { const q = f.t / f.max;
+    if (f.k === 'pop') { ctx.fillStyle = f.c; ctx.globalAlpha = 1 - q; for (let i = 0; i < 6; i++) { const a = f.a + i / 6 * TAU, d = 5 + q * 18; ctx.beginPath(); ctx.ellipse(f.x + Math.cos(a) * d, f.y + Math.sin(a) * d, 3.2 * (1 - q * .5), 1.6, a, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1; }
+    else if (f.k === 'ring') { ctx.strokeStyle = f.c; ctx.globalAlpha = (1 - q) * .8; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (0.3 + q * 0.7), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+    else if (f.k === 'boom') { ctx.fillStyle = `rgba(251,146,60,${.55 * (1 - q)})`; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (.4 + q * .6), 0, TAU); ctx.fill(); ctx.fillStyle = `rgba(254,240,138,${.8 * (1 - q)})`; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * .35 * (1 - q), 0, TAU); ctx.fill(); }
+    else if (f.k === 'splat') { ctx.fillStyle = `rgba(163,230,53,${.5 * (1 - q)})`; for (let i = 0; i < 5; i++) { const a = i * 1.26; ctx.beginPath(); ctx.arc(f.x + Math.cos(a) * f.r * .5 * q, f.y + Math.sin(a) * f.r * .5 * q, 4, 0, TAU); ctx.fill(); } }
+    else if (f.k === 'line') { ctx.strokeStyle = '#ddd6fe'; ctx.globalAlpha = 1 - q; ctx.lineWidth = f.w || 3; ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.lineTo(f.x2, f.y2); ctx.stroke(); ctx.globalAlpha = 1; }
+    else if (f.k === 'bolt') { ctx.save(); ctx.strokeStyle = '#a5f3fc'; ctx.shadowColor = '#22d3ee'; ctx.shadowBlur = 10; ctx.globalAlpha = 1 - q; ctx.lineWidth = f.big ? 3 : 2; ctx.beginPath(); ctx.moveTo(f.pts[0][0], f.pts[0][1]); for (let i = 1; i < f.pts.length; i++) { const [x0, y0] = f.pts[i - 1], [x1, y1] = f.pts[i]; for (let s = 1; s < 4; s++) { const u = s / 4; ctx.lineTo(x0 + (x1 - x0) * u + (Math.random() - .5) * 9, y0 + (y1 - y0) * u + (Math.random() - .5) * 9); } ctx.lineTo(x1, y1); } ctx.stroke(); ctx.restore(); }
+    else if (f.k === 'txt') { ctx.globalAlpha = 1 - q; ctx.fillStyle = f.c; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 3; ctx.font = '800 13px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.strokeText(f.txt, f.x, f.y - q * 22); ctx.fillText(f.txt, f.x, f.y - q * 22); ctx.globalAlpha = 1; }
+    else if (f.k === 'clank') { ctx.strokeStyle = `rgba(226,232,240,${1 - q})`; ctx.lineWidth = 1.5; ctx.beginPath(); for (let i = 0; i < 4; i++) { const a = i * 1.57 + .4; ctx.moveTo(f.x + Math.cos(a) * 8, f.y + Math.sin(a) * 8); ctx.lineTo(f.x + Math.cos(a) * (12 + q * 6), f.y + Math.sin(a) * (12 + q * 6)); } ctx.stroke(); }
+    else if (f.k === 'flash') { ctx.fillStyle = f.c; ctx.globalAlpha = 1 - q; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; } }
+  // Vorschau beim Platzieren
+  if (placing && ghost) { const g = snap(ghost), d = TOWERS[placing], ok = validSpot(g.x, g.y) && S.money >= price(d.cost);
+    if (M.grid) { ctx.fillStyle = ok ? 'rgba(52,211,153,.18)' : 'rgba(239,68,68,.22)'; ctx.strokeStyle = ok ? 'rgba(52,211,153,.9)' : 'rgba(239,68,68,.9)'; ctx.lineWidth = 2; ctx.fillRect(g.x - GRID, g.y - GRID, GRID * 2, GRID * 2); ctx.strokeRect(g.x - GRID, g.y - GRID, GRID * 2, GRID * 2); }
+    if (d.base.range < 9000 && d.base.range > 0) { ctx.fillStyle = ok ? 'rgba(255,255,255,.1)' : 'rgba(239,68,68,.14)'; ctx.strokeStyle = ok ? 'rgba(255,255,255,.6)' : 'rgba(239,68,68,.8)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(g.x, g.y, d.base.range, 0, TAU); ctx.fill(); ctx.stroke(); }
+    ctx.globalAlpha = ok ? .9 : .5; ctx.drawImage(sp.base[placing + 0], g.x - 32, g.y - 30, 64, 64); ctx.drawImage(sp.head[placing + 0], g.x - 40, g.y - 40, 80, 80); ctx.globalAlpha = 1; }
 }
 // ================= Oberfläche =================
-let toastT = 0; function toast(m) { const o = $('stage'); o.querySelectorAll('.toast').forEach(x => x.remove()); const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; t.setAttribute('role', 'status'); o.appendChild(t); setTimeout(() => t.remove(), 2600); }
+function toast(m, ms) { const o = $('stage'); o.querySelectorAll('.toast').forEach(x => x.remove()); const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; t.setAttribute('role', 'status'); o.appendChild(t); setTimeout(() => t.remove(), ms || 2600); }
 const setT = (el, t) => { if (el._t !== t) { el._t = t; el.textContent = t; } };      // nur schreiben, wenn sich der Text geändert hat
 function renderHud() {
-  if (!S) return; setT($('h-lives'), fmt(Math.max(0, S.lives))); setT($('h-money'), fmt(S.money)); setT($('h-round'), String(S.round)); $('h-lives').parentElement.classList.toggle('warn', S.lives <= 15);
+  if (!S) return; setT($('h-lives'), fmt(Math.max(0, S.lives))); setT($('h-money'), fmt(S.money)); setT($('h-round'), String(S.round)); $('h-lives').parentElement.classList.toggle('warn', S.lives <= Math.min(15, D().lives * .15));
   const b = $('b-start'); b.disabled = S.active || S.over; setT(b, S.active ? `Runde ${S.round} läuft` : `▶ Runde ${S.round}`); setT($('b-speed'), '×' + S.speed); setT($('b-pause'), S.paused ? '▶' : '❚❚'); $('b-pause').classList.toggle('on', S.paused); $('b-auto').classList.toggle('on', S.auto); $('b-auto').setAttribute('aria-pressed', S.auto);
+  $('b-grid').classList.toggle('on', M.grid); $('b-grid').setAttribute('aria-pressed', M.grid); setT($('b-snd'), M.snd ? '🔊' : '🔇'); renderPrev(); renderAbil();
+}
+let prevKey = '';
+function renderPrev() {
+  const el = $('prev'); let h;
+  if (S.active) h = `<span class="pl">Runde ${S.round}</span><span class="pc">noch ${fmt(S.queue.length + S.balloons.length)} Ballons</span>`;
+  else { const c = preview(S.round), dot = (col, n, t) => n ? `<span class="pc" title="${t}"><i style="background:${col}"></i>${n}</span>` : '';
+    h = `<span class="pl">Nächste Runde</span>${[1, 2, 3, 4, 5].map(l => dot(LAYER[l].c, c.l[l], LAYER[l].n)).join('')}${dot('linear-gradient(135deg,#f8fafc,#64748b)', c.metal, 'Metall')}${dot('linear-gradient(135deg,#fdba74,#7c2d12)', c.ceramic, 'Keramik')}${c.camo ? `<span class="pc" title="Tarn">👻 ${c.camo}</span>` : ''}${c.regrow ? `<span class="pc" title="Nachwachsend">🌱 ${c.regrow}</span>` : ''}${c.boss ? '<span class="pc boss">🛩️ Zeppelin</span>' : ''}`; }
+  if (h !== prevKey) { prevKey = h; el.innerHTML = h; }
+}
+let abilKey = '';
+function renderAbil() {
+  const list = S.towers.filter(hasAbil), key = list.map(t => t.t + Math.ceil(t.abCd) + (t === selTower ? 's' : '')).join(','); if (key === abilKey) return; abilKey = key;
+  $('abil').innerHTML = list.length ? list.slice(0, 12).map((t, i) => { const [n, d, cd] = ABIL[t.t], r = t.abCd > 0, p = r ? t.abCd / cd : 0;
+    return `<button class="ab${r ? ' cd' : ''}" data-ab="${S.towers.indexOf(t)}" title="${n}: ${d}${r ? ` (noch ${Math.ceil(t.abCd)} s)` : ''}" ${r ? 'disabled' : ''} style="--p:${(p * 100).toFixed(1)}%"><img src="${towerIcon(t.t, 3)}" alt=""><span>${r ? Math.ceil(t.abCd) + ' s' : n}</span></button>`; }).join('') : '';
+  $('abil').classList.toggle('hidden', !list.length);
 }
 function renderShop() {
-  $('shop').innerHTML = Object.entries(TOWERS).map(([id, d]) => { const c = price(d.cost); return `<button class="tw${placing === id ? ' sel' : ''}${S && S.money < c ? ' no' : ''}" data-t="${id}" title="${d.d}"><span class="k">${d.key}</span><span class="e">${d.e}</span><span class="n">${d.n}</span><span class="c">${fmt(c)} €</span></button>`; }).join('');
+  $('shop').innerHTML = Object.entries(TOWERS).map(([id, d]) => { const c = price(d.cost); return `<button class="tw${placing === id ? ' sel' : ''}${S && S.money < c ? ' no' : ''}" data-t="${id}" title="${d.n}: ${d.d} (Taste ${d.key})"><span class="k">${d.key}</span><img class="ti" src="${towerIcon(id)}" alt=""><span class="n">${d.n}</span><span class="c">${fmt(c)} €</span></button>`; }).join('');
 }
 function renderInfo() {
   const box = $('info'), t = selTower;
-  if (!t) { box.innerHTML = placing ? `<div class="help"><b>${TOWERS[placing].n}</b><br>${TOWERS[placing].d}<br><br>Tippe oder klicke auf die Wiese, um den Turm zu platzieren. Er darf nicht auf dem Weg oder zu nah an einem anderen Turm stehen. Abbrechen mit <b>Esc</b> oder Rechtsklick.</div>` : `<div class="help"><b>So geht's:</b><br>1. Wähle oben einen Turm und setze ihn neben den Weg.<br>2. Starte die Runde. Jeder geplatzte Ballon bringt Geld.<br>3. Klicke einen Turm an, um ihn zu verbessern.<br><br>Platzt kein Ballon mehr, geht er verloren. Erreichen Ballons das Ziel, verlierst du so viele Leben, wie sie Schichten haben. Das Spiel hat kein Ende, jede Runde wird härter. Tasten: <b>1–6</b> Turm, <b>Leertaste</b> Runde, <b>F</b> Tempo, <b>P</b> Pause.</div>`; return; }
-  const d = TOWERS[t.t], s = t.s, st = (a, b) => `<div><b>${a}</b>${b}</div>`;
-  const stats3 = s.kind === 'bank' ? st(fmt(s.income) + ' €', 'pro Runde') + st('–', '') + st('–', '') : st(s.range > 9000 ? '∞' : Math.round(s.range), 'Reichweite') + st((1 / s.rate).toFixed(1).replace('.', ',') + '/s', 'Tempo') + st(s.kind === 'ice' ? Math.round((1 - s.slow) * 100) + ' %' : s.dmg * (s.shots || 1), s.kind === 'ice' ? 'Bremsung' : 'Schaden');
+  if (!t) { box.innerHTML = placing ? `<div class="help"><b>${TOWERS[placing].n}</b><br>${TOWERS[placing].d}<br><br>Tippe oder klicke auf das Spielfeld, um den Turm zu platzieren.${M.grid ? ' Er rastet im Raster ein (Taste <b>G</b> schaltet das Raster aus).' : ''} Er darf nicht auf dem Weg (rot) oder zu nah an einem anderen Turm stehen. Mit <b>Umschalt</b> setzt du mehrere. Abbrechen mit <b>Esc</b> oder Rechtsklick.</div>`
+    : `<div class="help"><b>So geht's:</b><br>1. Wähle oben einen Turm und setze ihn neben den Weg.<br>2. Starte die Runde. Jeder geplatzte Ballon bringt Geld.<br>3. Klicke einen Turm an, um ihn zu verbessern.<br>4. Ist ein Pfad ganz ausgebaut, hat der Turm eine ⚡ Spezialfähigkeit.<br><br>Erreichen Ballons das Ziel, verlierst du Leben. Tarn-Ballons sehen nur Türme mit 📡 Radar, an Metall-Ballons prallen Darts ab. Tasten: <b>1–8</b> Turm, <b>Leertaste</b> Runde, <b>Q</b> Fähigkeit, <b>F</b> Tempo, <b>P</b> Pause, <b>G</b> Raster.</div>`; return; }
+  const d = TOWERS[t.t], s = t.s, st = (a, b) => `<div><b>${a}</b>${b}</div>`, v = vetOf(t);
+  const stats3 = s.kind === 'bank' ? st(fmt(s.income) + ' €', 'pro Runde') + st('–', '') + st('–', '')
+    : st(s.range > 9000 ? '∞' : Math.round(s.range), 'Reichweite') + st((1 / rateOf(t)).toFixed(1).replace('.', ',') + '/s', 'Tempo') + st(s.kind === 'ice' ? Math.round((1 - s.slow) * 100) + ' %' : s.kind === 'glue' ? Math.round((1 - s.glueF) * 100) + ' %' : s.kind === 'tesla' ? s.dmg + ' × ' + s.chain : s.dmg * (s.shots || 1), s.kind === 'ice' || s.kind === 'glue' ? 'Bremsung' : s.kind === 'tesla' ? 'Schaden × Ziele' : 'Schaden');
   const upBtn = (p, label) => { const list = d[p]; if (!list.length) return ''; const n = p === 'A' ? t.a : t.b, up = list[n], pips = list.map((_, i) => `<i class="${i < n ? 'f' : ''}"></i>`).join(''); if (!up) return `<button class="up max" disabled><div><div class="ul">${label}</div><div class="un">Maximal ausgebaut</div><div class="pips">${pips}</div></div></button>`; const c = price(up[1]); return `<button class="up${S.money >= c ? ' can' : ''}" data-up="${p}"><div><div class="ul">${label}</div><div class="un">${up[0]}</div><div class="pips">${pips}</div></div><div class="uc">${fmt(c)} €</div></button>`; };
-  box.innerHTML = `<div class="ih"><span class="e">${d.e}</span><div><b>${d.n}</b><small>${d.d}</small></div></div><div class="st">${stats3}</div>
+  const tags = [s.metal ? '<span class="tg">🔩 trifft Metall</span>' : '<span class="tg off">🔩 kein Metall</span>', s.radar ? '<span class="tg">📡 sieht Tarn</span>' : (t.t === 'bank' || t.t === 'ice') ? '' : '<span class="tg off">📡 kein Radar</span>'].join('');
+  const vet = s.kind === 'bank' ? '' : `<div class="vet"><span>${['Neuling', 'Veteran Stufe 1', 'Veteran Stufe 2', 'Veteran Stufe 3'][v]}</span><b>${fmt(t.pops || 0)} geplatzt</b>${v < 3 ? `<div class="bar"><i style="width:${Math.min(100, (t.pops || 0) / VET[v] * 100)}%"></i></div><small>Nächste Stufe ab ${fmt(VET[v])} (+5 % Tempo)</small>` : '<small>+15 % Tempo</small>'}</div>`;
+  const ab = ABIL[t.t], abBtn = hasAbil(t) ? `<button class="up abl${t.abCd <= 0 ? ' can' : ''}" data-abil ${t.abCd > 0 ? 'disabled' : ''}><div><div class="ul">⚡ Spezialfähigkeit (Q)</div><div class="un">${ab[0]}</div><small>${ab[1]}</small></div><div class="uc">${t.abCd > 0 ? Math.ceil(t.abCd) + ' s' : 'Los!'}</div></button>` : `<div class="hint">⚡ Baue einen Pfad ganz aus für „${ab[0]}“: ${ab[1]}.</div>`;
+  const radar = !s.radar && t.t !== 'bank' && t.t !== 'ice' ? `<button class="up${S.money >= price(RADAR) ? ' can' : ''}" data-radar><div><div class="ul">Zusatz</div><div class="un">📡 Radar einbauen</div><small>Sieht und trifft Tarn-Ballons</small></div><div class="uc">${fmt(price(RADAR))} €</div></button>` : '';
+  box.innerHTML = `<div class="ih"><img class="ti big" src="${towerIcon(t.t, tierOf(t))}" alt=""><div><b>${d.n}</b><small>${d.d}</small></div></div><div class="tgs">${tags}</div><div class="st">${stats3}</div>${vet}
     ${s.kind === 'bank' ? '' : `<div class="mode">${MODES.map(([k, l]) => `<button data-mode="${k}" class="${t.mode === k ? 'on' : ''}">${l}</button>`).join('')}</div>`}
-    ${upBtn('A', s.kind === 'bank' ? 'Ausbau' : 'Pfad A: Kraft')}${upBtn('B', 'Pfad B: Tempo und Reichweite')}<button class="btn bad" style="width:100%;margin-top:4px" data-sell>Verkaufen für ${fmt(Math.floor(t.spent * 0.7))} €</button>`;
+    ${abBtn}${upBtn('A', s.kind === 'bank' ? 'Ausbau' : 'Pfad A: Kraft')}${upBtn('B', 'Pfad B: Tempo und Reichweite')}${radar}<button class="btn bad" style="width:100%;margin-top:4px" data-sell>Verkaufen für ${fmt(Math.floor(t.spent * 0.7))} €</button>`;
 }
 function renderAll() { renderHud(); renderShop(); renderInfo(); }
 function mapOpen(k) { const u = MAPS[k].unlock; return !u || (M.best[u[0]] || 0) >= u[1]; }
 function showOverlay(kind) {
   const o = $('ov'); o.classList.remove('hidden');
-  if (kind === 'over') { o.innerHTML = `<div class="card box"><h2>Spiel vorbei</h2><p class="lead">Du hast ${S.round - 1} Runden geschafft auf „${MAPS[S.map].n}“. Bestwert: ${M.best[S.map]}.</p><p style="font-size:18px">Du erhältst <span class="dia">${S.earned} 💎</span> (insgesamt ${M.diamonds} 💎). Damit verbesserst du dauerhaft deine Starts.</p><div class="row"><button class="btn" id="o-up">Verbesserungen</button><button class="btn go" id="o-new">Neues Spiel</button></div></div>`; $('o-new').onclick = () => { menuTab = 'play'; showOverlay('menu'); }; $('o-up').onclick = () => { menuTab = 'up'; showOverlay('menu'); }; return; }
-  const tabs = `<div class="mt"><button data-m="play" class="${menuTab === 'play' ? 'on' : ''}">Spielen</button><button data-m="up" class="${menuTab === 'up' ? 'on' : ''}">Verbesserungen <span class="dia">${M.diamonds} 💎</span></button></div>`;
+  if (kind === 'over') { o.innerHTML = `<div class="card box"><h2>Spiel vorbei</h2><p class="lead">Du hast ${S.round - 1} Runden geschafft auf „${MAPS[S.map].n}“ (${DIFF[S.diff].n}). Bestwert: ${M.best[S.map]}.</p><p style="font-size:18px">Du erhältst <span class="dia">${S.earned} 💎</span>${D().dia !== 1 ? ` (×${String(D().dia).replace('.', ',')} für ${DIFF[S.diff].n})` : ''} · insgesamt ${M.diamonds} 💎. Damit verbesserst du dauerhaft deine Starts.</p><div class="row"><button class="btn" id="o-up">Verbesserungen</button><button class="btn go" id="o-new">Neues Spiel</button></div></div>`; $('o-new').onclick = () => { menuTab = 'play'; showOverlay('menu'); }; $('o-up').onclick = () => { menuTab = 'up'; showOverlay('menu'); }; return; }
+  const tabs = `<div class="mt"><button data-m="play" class="${menuTab === 'play' ? 'on' : ''}">Spielen</button><button data-m="up" class="${menuTab === 'up' ? 'on' : ''}">Verbesserungen <span class="dia">${M.diamonds} 💎</span></button><button data-m="ach" class="${menuTab === 'ach' ? 'on' : ''}">Erfolge ${M.ach.length}/${ACH.length}</button></div>`;
   if (menuTab === 'play') {
     o.innerHTML = `<div class="card box"><h2>🎈 Ballon-Alarm</h2><p class="lead">Halte die Ballons auf, bevor sie ins Ziel kommen. Ein Spiel ohne Ende: Wie viele Runden schaffst du?</p>${tabs}
       <div class="maps">${Object.entries(MAPS).map(([k, m]) => { const open = mapOpen(k); return `<button class="mp${k === pickMap ? ' sel' : ''}${open ? '' : ' lock'}" data-map="${k}" ${open ? '' : 'disabled'}><span class="me">${open ? m.e : '🔒'}</span><b>${m.n}</b><small>${m.d}<br>Bestwert: Runde ${M.best[k] || 0}${open ? '' : `<br>Freischalten: Runde ${m.unlock[1]} auf „${MAPS[m.unlock[0]].n}“`}</small></button>`; }).join('')}</div>
-      <div class="row">${savedRun ? `<button class="btn" id="o-resume">Fortsetzen (Runde ${savedRun.round}, ${MAPS[savedRun.map].n})</button>` : ''}<button class="btn go" id="o-start">Neues Spiel starten</button>${S && !S.over ? '<button class="btn" id="o-close">Zurück zum Spiel</button>' : ''}</div></div>`;
+      <div class="dif"><b>Schwierigkeit</b>${Object.entries(DIFF).map(([k, d]) => `<button data-diff="${k}" class="${M.diff === k ? 'on' : ''}"><span>${d.n}</span><small>${d.d} · 💎 ×${String(d.dia).replace('.', ',')}</small></button>`).join('')}</div>
+      <div class="row">${savedRun ? `<button class="btn" id="o-resume">Fortsetzen (Runde ${savedRun.round}, ${MAPS[savedRun.map].n}, ${DIFF[savedRun.diff].n})</button>` : ''}<button class="btn go" id="o-start">Neues Spiel starten</button>${S && !S.over ? '<button class="btn" id="o-close">Zurück zum Spiel</button>' : ''}</div></div>`;
     o.querySelectorAll('[data-map]').forEach(b => b.onclick = () => { pickMap = b.dataset.map; showOverlay('menu'); });
-    $('o-start').onclick = () => { if (savedRun && !confirm('Das gespeicherte Spiel geht dabei verloren. Neu starten?')) return; savedRun = null; newRun(pickMap); saveMeta(); hideOverlay(); };
+    o.querySelectorAll('[data-diff]').forEach(b => b.onclick = () => { M.diff = b.dataset.diff; saveMeta(); showOverlay('menu'); });
+    $('o-start').onclick = () => { if (savedRun && !confirm('Das gespeicherte Spiel geht dabei verloren. Neu starten?')) return; savedRun = null; newRun(pickMap, M.diff); saveMeta(); hideOverlay(); };
     if ($('o-resume')) $('o-resume').onclick = () => resume(); if ($('o-close')) $('o-close').onclick = hideOverlay;
+  } else if (menuTab === 'ach') {
+    o.innerHTML = `<div class="card box"><h2>Erfolge</h2><p class="lead">${M.ach.length} von ${ACH.length} geschafft. Jeder Erfolg bringt 💎 und erscheint auch im Game Center.</p>${tabs}<div class="achs">${ACH.map(([id, e, n, d, dia]) => { const ok = M.ach.includes(id); return `<div class="ac${ok ? ' ok' : ''}"><span class="ae">${ok ? e : '🔒'}</span><div><b>${n}</b><small>${d}</small></div><span class="dia">${ok ? '✓' : '+' + dia + ' 💎'}</span></div>`; }).join('')}</div><div class="row"><button class="btn" id="o-back">Zurück</button></div></div>`;
+    $('o-back').onclick = () => { menuTab = 'play'; showOverlay('menu'); };
   } else {
-    o.innerHTML = `<div class="card box"><h2>Verbesserungen</h2><p class="lead">Bezahle mit 💎 aus beendeten Spielen. Die Boni gelten dauerhaft für jedes neue Spiel.</p>${tabs}<div class="ml">${META.map(([k, n, d, c0, g]) => { const lv = M.up[k], cost = Math.ceil(c0 * Math.pow(g, lv)), max = lv >= META_MAX; return `<div class="mu"><div class="t"><b>${n}</b> <span class="lv">Stufe ${lv}/${META_MAX}</span><small>${d}</small></div><button class="btn${!max && M.diamonds >= cost ? ' go' : ''}" data-buy="${k}" ${max || M.diamonds < cost ? 'disabled' : ''}>${max ? 'Max' : cost + ' 💎'}</button></div>`; }).join('')}</div><div class="row"><button class="btn" id="o-back">Zurück</button></div></div>`;
+    o.innerHTML = `<div class="card box"><h2>Verbesserungen</h2><p class="lead">Bezahle mit 💎 aus beendeten Spielen und Erfolgen. Die Boni gelten dauerhaft für jedes neue Spiel (nicht bei „Ein Leben“ für Leben).</p>${tabs}<div class="ml">${META.map(([k, n, d, c0, g]) => { const lv = M.up[k], cost = Math.ceil(c0 * Math.pow(g, lv)), max = lv >= META_MAX; return `<div class="mu"><div class="t"><b>${n}</b> <span class="lv">Stufe ${lv}/${META_MAX}</span><small>${d}</small></div><button class="btn${!max && M.diamonds >= cost ? ' go' : ''}" data-buy="${k}" ${max || M.diamonds < cost ? 'disabled' : ''}>${max ? 'Max' : cost + ' 💎'}</button></div>`; }).join('')}</div><div class="row"><button class="btn" id="o-back">Zurück</button></div></div>`;
     o.querySelectorAll('[data-buy]').forEach(b => b.onclick = () => buyMeta(b.dataset.buy)); $('o-back').onclick = () => { menuTab = 'play'; showOverlay('menu'); };
   }
   o.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { menuTab = b.dataset.m; showOverlay('menu'); });
@@ -283,37 +490,48 @@ const hideOverlay = () => $('ov').classList.add('hidden');
 // ================= Bedienung =================
 function toWorld(e) { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
 function setPlacing(id) { placing = placing === id ? null : id; selTower = null; ghost = null; renderAll(); }
+function toggleGrid() { M.grid = !M.grid; saveMeta(); renderHud(); if (placing) renderInfo(); toast(M.grid ? 'Raster an: Türme rasten ein' : 'Raster aus: freies Platzieren'); }
 function wire() {
   $('shop').onclick = e => { const b = e.target.closest('[data-t]'); if (b) setPlacing(b.dataset.t); };
   cv.addEventListener('pointermove', e => { if (placing) ghost = toWorld(e); });
+  cv.addEventListener('pointerleave', () => { if (placing && matchMedia('(hover: hover)').matches) ghost = null; });
   cv.addEventListener('pointerdown', e => {
     if (!S || S.over || e.button === 2) return; const p = toWorld(e);
-    if (placing) { ghost = p; const t = place(placing, p.x, p.y); if (t) { if (!e.shiftKey) { placing = null; } selTower = t; renderAll(); } else if (S.money < price(TOWERS[placing].cost)) toast('Nicht genug Geld'); else toast('Hier kann kein Turm stehen'); return; }
-    let near = null, nd = 24; for (const t of S.towers) { const d = Math.hypot(t.x - p.x, t.y - p.y); if (d < nd) { near = t; nd = d; } } selTower = near; renderAll();
+    if (placing) { ghost = p; const q = snap(p), t = place(placing, q.x, q.y); if (t) { if (!e.shiftKey) { placing = null; } selTower = t; renderAll(); } else if (S.money < price(TOWERS[placing].cost)) toast('Nicht genug Geld'); else toast('Hier kann kein Turm stehen'); return; }
+    let near = null, nd = 26; for (const t of S.towers) { const d = Math.hypot(t.x - p.x, t.y - p.y); if (d < nd) { near = t; nd = d; } } selTower = near; abilKey = ''; renderAll();
   });
   cv.addEventListener('contextmenu', e => { e.preventDefault(); placing = null; renderAll(); });
   $('info').onclick = e => {
     const t = selTower; if (!t) return; const u = e.target.closest('[data-up]'), m = e.target.closest('[data-mode]'), s = e.target.closest('[data-sell]');
-    if (u) { if (!upgrade(t, u.dataset.up)) toast('Nicht genug Geld'); } else if (m) { t.mode = m.dataset.mode; renderInfo(); } else if (s && confirm('Turm verkaufen?')) sell(t);
+    if (u) { if (!upgrade(t, u.dataset.up)) toast('Nicht genug Geld'); } else if (e.target.closest('[data-radar]')) { if (!buyRadar(t)) toast('Nicht genug Geld'); } else if (e.target.closest('[data-abil]')) useAbility(t);
+    else if (m) { t.mode = m.dataset.mode; renderInfo(); } else if (s && confirm('Turm verkaufen?')) sell(t);
   };
+  $('abil').onclick = e => { const b = e.target.closest('[data-ab]'); if (b) useAbility(S.towers[+b.dataset.ab]); };
   $('b-start').onclick = () => startRound(); $('b-speed').onclick = () => { S.speed = S.speed % 3 + 1; renderHud(); }; $('b-pause').onclick = () => { S.paused = !S.paused; renderHud(); };
   $('b-auto').onclick = () => { S.auto = !S.auto; if (S.auto && !S.active) S.autoIn = 0.3; renderHud(); };
+  $('b-grid').onclick = toggleGrid; $('b-snd').onclick = () => { M.snd = !M.snd; saveMeta(); renderHud(); if (M.snd) sfx('pop'); };
   $('b-menu').onclick = () => { menuTab = 'play'; showOverlay('menu'); };
   document.addEventListener('keydown', e => {
-    if (!S || /INPUT|TEXTAREA/.test(e.target.tagName)) return; const k = e.key.toLowerCase();
+    if (!S || /INPUT|TEXTAREA/.test(e.target.tagName) || e.ctrlKey || e.metaKey || e.altKey) return; const k = e.key.toLowerCase();
     const t = Object.entries(TOWERS).find(([, d]) => d.key === e.key); if (t && !S.over) return setPlacing(t[0]);
     if (k === 'escape') { placing = null; selTower = null; renderAll(); } else if (k === ' ') { e.preventDefault(); startRound(); } else if (k === 'f') { S.speed = S.speed % 3 + 1; renderHud(); } else if (k === 'p') { S.paused = !S.paused; renderHud(); }
+    else if (k === 'g') toggleGrid(); else if (k === 'q') { const c = selTower && hasAbil(selTower) && selTower.abCd <= 0 ? selTower : S.towers.find(x => hasAbil(x) && x.abCd <= 0); if (c) useAbility(c); }
   });
   window.addEventListener('resize', fit); window.addEventListener('pagehide', () => { idleSave(); saveMeta(); }); document.addEventListener('visibilitychange', () => { if (document.hidden) { idleSave(); if (S && S.active) { S.paused = true; renderHud(); } } else lastT = performance.now(); });
 }
-function loop(now) { const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now; if (S && !S.over && !S.paused) { acc += dt * S.speed; let n = 0; while (acc >= DT && n < 24) { step(); acc -= DT; n++; } if (acc > DT * 24) acc = 0; } draw(); const h = $('h-money'); if (S && h.textContent !== fmt(S.money)) { renderHud(); renderShop(); if (selTower) renderInfo(); } else if (S) { renderHud(); } requestAnimationFrame(loop); }
+let achT = 0, infoT = 0;
+function loop(now) {
+  const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now; if (S && !S.over && !S.paused) { acc += dt * S.speed; let n = 0; while (acc >= DT && n < 24) { step(); acc -= DT; n++; } if (acc > DT * 24) acc = 0; }
+  draw(); const h = $('h-money'); if (S && h.textContent !== fmt(S.money)) { renderHud(); renderShop(); if (selTower) renderInfo(); } else if (S) { renderHud(); }
+  if (S && (achT += dt) > 1) { achT = 0; checkAch(); } if (S && selTower && (infoT += dt) > .5) { infoT = 0; renderInfo(); }
+  requestAnimationFrame(loop);
+}
 // ================= Start =================
 GameSave.ready([KEY], { reloadOnRemote: true, badge: true }).then(() => {      // Spielstand erst mit dem Konto abgleichen, dann starten
-load(); newRun('wiese'); wire(); fit(); showOverlay('menu'); requestAnimationFrame(loop);
-
-// Spielzeit und "zuletzt gespielt" für das Game Center (nur lokal, nur solange die Seite sichtbar ist)
+load(); pickMap = 'wiese'; newRun('wiese', M.diff); wire(); fit(); showOverlay('menu'); requestAnimationFrame(loop);
+// Spielzeit und "zuletzt gespielt" für das Game Center (nur solange die Seite sichtbar ist)
 setInterval(() => { if (document.hidden) return; M.playMs += 5000; M.last = Date.now(); saveMeta(); }, 5000);
-window.TD = { get S() { return S; }, get M() { return M; }, step(n = 1) { for (let i = 0; i < n; i++) step(); }, place, upgrade, sell, startRound, newRun, waveFor, validSpot, distToPath, posAt, get pathLen() { return PATH.len; }, stats, price, hit, spawn, endRound, gameOver, buyMeta, saveRun, load, resume, sanitize, get savedRun() { return savedRun; }, set savedRun(v) { savedRun = v; }, TOWERS, MAPS, tower(i) { return S.towers[i]; }, select(t) { selTower = t; renderAll(); }, setM(o) { Object.assign(M, o); saveMeta(); }, mapOpen };
+window.TD = { get S() { return S; }, get M() { return M; }, step(n = 1) { for (let i = 0; i < n; i++) step(); }, place, upgrade, sell, buyRadar, useAbility, startRound, newRun, waveFor, preview, validSpot, distToPath, posAt, get pathLen() { return PATH.len; }, stats, price, hit, spawn, endRound, gameOver, buyMeta, saveRun, load, resume, sanitize, checkAch, snap, get savedRun() { return savedRun; }, set savedRun(v) { savedRun = v; }, TOWERS, MAPS, ACH, tower(i) { return S.towers[i]; }, select(t) { selTower = t; renderAll(); }, setM(o) { Object.assign(M, o); saveMeta(); }, mapOpen, setPlacing, set ghost(p) { ghost = p; } };
 });
 </script>
 </body>
