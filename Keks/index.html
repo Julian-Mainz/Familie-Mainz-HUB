@@ -106,6 +106,7 @@ body.calm #cookie, body.calm .buff { animation: none; } body.calm .rain, body.ca
 </div>
 <div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="card box"><h3 id="m-t"></h3><p id="m-p" style="color:var(--mu);font-size:13.5px;margin:0 0 10px"></p><textarea id="m-ta" spellcheck="false"></textarea><div class="row" id="m-r"></div></div></div>
 
+<script src="/js/gamesave.js"></script>
 <script>
 'use strict';
 // ================= Spieldaten =================
@@ -274,9 +275,12 @@ function loop() {
   if (now - lastRender >= 250 || dirty) { renderAll(); lastRender = now; dirty = false; } else renderHead();
 }
 // ================= Start =================
+GameSave.ready([KEY], { reloadOnRemote: true, badge: true }).then(() => {      // Spielstand erst mit dem Konto abgleichen, dann starten
 buildShop(); load(); wire(); showTab('bld'); renderAll(true);
+
 setInterval(loop, 100); setInterval(save, 10000); setInterval(rain, 900);
 window.KEKS = { get S() { return S; }, tick, calc, click, buy, buyUpg, prestige, spawnGolden, catchGolden, fmt, chipsPending, save, load, encode, decode, costN, maxN, set(o) { Object.assign(S, o); dirty = true; renderAll(true); }, setNext(t) { nextGolden = t; } };
+});
 </script>
 </body>
 </html>

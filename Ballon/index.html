@@ -72,6 +72,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     <h3 id="ih-t">Auswahl</h3><div id="info"></div>
   </aside>
 </div>
+<script src="/js/gamesave.js"></script>
 <script>
 'use strict';
 // ================= Karten =================
@@ -307,10 +308,13 @@ function wire() {
 }
 function loop(now) { const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now; if (S && !S.over && !S.paused) { acc += dt * S.speed; let n = 0; while (acc >= DT && n < 24) { step(); acc -= DT; n++; } if (acc > DT * 24) acc = 0; } draw(); const h = $('h-money'); if (S && h.textContent !== fmt(S.money)) { renderHud(); renderShop(); if (selTower) renderInfo(); } else if (S) { renderHud(); } requestAnimationFrame(loop); }
 // ================= Start =================
+GameSave.ready([KEY], { reloadOnRemote: true, badge: true }).then(() => {      // Spielstand erst mit dem Konto abgleichen, dann starten
 load(); newRun('wiese'); wire(); fit(); showOverlay('menu'); requestAnimationFrame(loop);
+
 // Spielzeit und "zuletzt gespielt" für das Game Center (nur lokal, nur solange die Seite sichtbar ist)
 setInterval(() => { if (document.hidden) return; M.playMs += 5000; M.last = Date.now(); saveMeta(); }, 5000);
 window.TD = { get S() { return S; }, get M() { return M; }, step(n = 1) { for (let i = 0; i < n; i++) step(); }, place, upgrade, sell, startRound, newRun, waveFor, validSpot, distToPath, posAt, get pathLen() { return PATH.len; }, stats, price, hit, spawn, endRound, gameOver, buyMeta, saveRun, load, resume, sanitize, get savedRun() { return savedRun; }, set savedRun(v) { savedRun = v; }, TOWERS, MAPS, tower(i) { return S.towers[i]; }, select(t) { selTower = t; renderAll(); }, setM(o) { Object.assign(M, o); saveMeta(); }, mapOpen };
+});
 </script>
 </body>
 </html>

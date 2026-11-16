@@ -31,42 +31,104 @@
         @media (max-width: 1100px) { .ux-btn kbd { display: none; } }
         .pend { display: flex; align-items: center; gap: 10px; padding: 12px 16px; margin-bottom: 16px; color: #fde68a; font-size: 13px; text-decoration: none; border-color: rgba(245, 158, 11, .4); background: rgba(245, 158, 11, .1); }
         .pend span { flex: 1; }
-        .clock { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 50px; font-weight: 800; letter-spacing: .03em; line-height: 1.1; font-variant-numeric: tabular-nums; background: linear-gradient(180deg, #fff, #c7d2fe); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .clock.sm { font-size: 34px; }
-        .hero-c { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 34px 20px; gap: 8px; }
-        .hero-c .dd { font-size: 12.5px; font-weight: 600; color: #a5b4fc; text-transform: uppercase; letter-spacing: .14em; }
-        .wx { display: flex; align-items: center; gap: 16px; margin: 4px 0; }
-        .wx .big { font-size: 46px; } .wx .t { font-size: 34px; font-weight: 800; letter-spacing: -.03em; }
-        .wxs { font-size: 12px; color: #94a3b8; text-align: right; line-height: 1.9; } .wxs i { width: 18px; color: #64748b; }
-        .fcs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
-        .fcs > div { text-align: center; padding: 10px 4px; border-radius: 16px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(148, 163, 184, .1); }
-        .scr { max-height: 220px; overflow-y: auto; padding-right: 4px; }
-        .scr .row:first-child { margin-top: 0; }
-        .qf { display: flex; gap: 8px; margin-top: 12px; align-items: stretch; } .qf .ux-in { padding: 10px 13px; font-size: 13.5px; }
-        .tdl { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; cursor: pointer; font-size: 13.5px; }
-        .tdl .done { text-decoration: line-through; color: #64748b; }
+        .cq { container-type: inline-size; }
         input[type=checkbox], input[type=radio] { accent-color: var(--m); width: 16px; height: 16px; flex: none; cursor: pointer; }
         .ux-ck { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #cbd5e1; margin: 2px 0 12px; cursor: pointer; }
-        .ux-pill > span { padding: 0 12px; min-width: 150px; text-align: center; font-weight: 600; font-size: 14px; color: #f1f5f9; white-space: nowrap; }
-        .cal-wrap { overflow-x: auto; padding-bottom: 6px; } .cal-in { min-width: 620px; }
-        .cal-h { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; font-size: 12px; font-weight: 700; color: #94a3b8; padding: 4px 0 10px; } .cal-h div:nth-child(n+6) { color: #64748b; }
+        /* Kopfzeile eines Moduls */
+        .mh { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; } .mh .ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; color: var(--m); background: rgba(var(--mr), .14); font-size: 17px; flex: none; }
+        .mh h2 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -.01em; color: #f1f5f9; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .mh .sp { flex: 1; }
+        .gear { width: 34px; height: 34px; border-radius: 11px; border: 1px solid rgba(148, 163, 184, .16); background: rgba(255, 255, 255, .04); color: #94a3b8; display: grid; place-items: center; font-size: 14px; cursor: pointer; flex: none; transition: background-color .2s, color .2s, transform .15s; }
+        .gear:hover, .gear[aria-expanded="true"] { color: #fff; background: rgba(var(--mr), .22); border-color: rgba(var(--mr), .45); } .gear:active { transform: scale(.92); }
+        .cnt { min-width: 30px; height: 30px; padding: 0 9px; border-radius: 99px; background: rgba(255, 255, 255, .07); color: #cbd5e1; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+        .pop { margin-top: 14px; padding: 14px; border-radius: 16px; background: #0f172a; border: 1px solid rgba(var(--mr), .45); box-shadow: 0 18px 40px rgba(0, 0, 0, .45); text-align: left; animation: uiPop .25s cubic-bezier(.2, .9, .3, 1.12); }
+        .pop .lt { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; font-weight: 700; }
+        .opts { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; } .opts button { font: inherit; font-size: 12.5px; font-weight: 600; padding: 7px 12px; border-radius: 99px; border: 1px solid rgba(148, 163, 184, .2); background: rgba(255, 255, 255, .05); color: #cbd5e1; cursor: pointer; } .opts button.on { color: #04121a; background: var(--m); border-color: transparent; }
+        /* Uhr */
+        .clk-c { padding-top: 16px; } .clk-c > .gear { position: absolute; right: 16px; top: 16px; z-index: 2; }
+        .clk { display: flex; flex-direction: column; align-items: center; padding: 4px 0 2px; text-align: center; }
+        .clk svg { width: min(210px, 70cqw); height: auto; aspect-ratio: 1; filter: drop-shadow(0 0 26px rgba(var(--mr), .25)); }
+        .clk .dt { font-size: 40px; font-weight: 800; letter-spacing: -.02em; margin-top: 10px; color: #fff; font-variant-numeric: tabular-nums; line-height: 1.1; } .clk .dd { color: #94a3b8; font-size: 14px; margin-top: 4px; }
+        .clk.m-digital svg, .clk.m-analog .dt { display: none; } .clk.m-digital .dt { font-size: clamp(40px, 15cqw, 64px); margin-top: 18px; background: linear-gradient(180deg, #fff, #a5f3fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .clk.m-analog .dd { margin-top: 12px; } .clk.nosec #h-s { display: none; }
+        /* Wetter */
+        .wxr { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; } .wxr .sun { font-size: 46px; } .wxr .t { font-size: 34px; font-weight: 800; letter-spacing: -.02em; color: #fff; line-height: 1; } .wxr .c { color: #94a3b8; font-size: 13.5px; margin-top: 4px; }
+        .wxs2 { margin-left: auto; display: grid; gap: 7px; font-size: 12.5px; color: #cbd5e1; } .wxs2 i { width: 18px; color: #64748b; }
+        .fc3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; } .fc3 > div { text-align: center; padding: 8px 4px; border-radius: 12px; background: rgba(255, 255, 255, .035); font-size: 12px; color: #94a3b8; } .fc3 b { display: block; color: #e2e8f0; font-size: 13px; margin-top: 3px; font-weight: 700; } .fc3 b span { color: #64748b; font-weight: 500; } .fc3 i { font-size: 17px; display: block; margin: 6px auto; }
+        .li { display: flex; gap: 8px; align-items: center; padding: 0 12px; border-radius: 12px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(148, 163, 184, .2); } .li:focus-within { border-color: rgba(var(--mr), .7); } .li i { color: #64748b; } .li input { flex: 1; min-width: 0; font: inherit; font-size: 14px; color: #f1f5f9; background: none; border: 0; outline: 0; padding: 10px 0; }
+        .lr { display: block; width: 100%; text-align: left; font: inherit; padding: 8px 10px; border-radius: 10px; margin-top: 4px; font-size: 13.5px; color: #e2e8f0; background: none; border: 0; cursor: pointer; } .lr:hover, .lr:focus-visible, .lr.on { background: rgba(var(--mr), .14); outline: 0; } .lr small { display: block; color: #64748b; font-size: 11.5px; }
+        .lb { width: 100%; margin-top: 8px; padding: 10px 2px 2px; border: 0; border-top: 1px solid rgba(148, 163, 184, .12); background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--m); display: flex; gap: 8px; align-items: center; cursor: pointer; }
+        .lnote { font-size: 12px; color: #64748b; padding: 8px 4px 0; }
+        /* Aufgaben */
+        .seg2 { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; } .seg2 button { font: inherit; font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 99px; border: 0; background: rgba(255, 255, 255, .05); color: #94a3b8; cursor: pointer; } .seg2 button.on { color: #04221a; background: var(--m); }
+        .tkl { max-height: 330px; overflow-y: auto; padding-right: 2px; }
+        .tk { display: flex; align-items: center; gap: 10px; padding: 9px 2px; border-bottom: 1px solid rgba(148, 163, 184, .1); font-size: 14.5px; color: #e2e8f0; } .tk:last-child { border-bottom: 0; }
+        .tk label { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; cursor: pointer; } .tk .tx { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .tk input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+        .cb { width: 22px; height: 22px; border-radius: 7px; border: 2px solid rgba(148, 163, 184, .45); flex: none; display: grid; place-items: center; color: transparent; font-size: 12px; transition: background-color .2s, border-color .2s; }
+        .tk input:checked + .cb { background: var(--m); border-color: var(--m); color: #04221a; } .tk input:focus-visible + .cb { box-shadow: 0 0 0 3px rgba(var(--mr), .45); } .tk.done .tx { text-decoration: line-through; color: #64748b; }
+        .tk .tg { color: var(--tc, #a78bfa); font-size: 13px; flex: none; }
+        .xd { width: 28px; height: 28px; border: 0; border-radius: 9px; background: none; color: #64748b; cursor: pointer; flex: none; opacity: .5; transition: opacity .2s, color .2s, background-color .2s; } .tk:hover .xd, .xd:focus-visible { opacity: 1; } .xd:hover { color: #fda4af; background: rgba(244, 63, 94, .12); }
+        @media (hover: none) { .xd { opacity: .8; } }
+        .addb { margin-top: 12px; width: 100%; justify-content: center; border: 1.5px solid rgba(var(--mr), .55); background: rgba(var(--mr), .06); color: var(--m); border-radius: 16px; padding: 12px; font: inherit; font-weight: 600; display: flex; gap: 8px; align-items: center; font-size: 14.5px; cursor: pointer; transition: background-color .2s; flex: none; } .addb:hover { background: rgba(var(--mr), .14); }
+        .qf { display: flex; gap: 8px; margin-top: 12px; align-items: stretch; flex: none; } .qf .ux-in { padding: 10px 13px; font-size: 13.5px; } .qf .ux-ib { width: 44px; height: auto; }
+        .empty { color: #64748b; font-size: 13.5px; padding: 12px 2px; }
+        /* Zeiterfassung */
+        .zt { display: grid; grid-template-columns: 200px 1px 1fr; gap: 26px; align-items: center; } .zt .vr2 { background: rgba(148, 163, 184, .16); align-self: stretch; } .zc { text-align: center; } .zc .ux-btn { margin-top: 14px; }
+        .stb { width: 176px; height: 176px; border-radius: 50%; margin: 4px auto; display: grid; place-items: center; text-align: center; background: radial-gradient(circle, rgba(var(--mr), .1), rgba(var(--mr), .02) 65%); border: 5px solid var(--m); box-shadow: 0 0 30px rgba(var(--mr), .45), inset 0 0 24px rgba(var(--mr), .18); color: #fff; transition: border-color .3s, box-shadow .3s; }
+        .stb .tm { display: block; font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; margin: 6px 0 2px; } .stb small { display: block; color: #94a3b8; font-size: 11.5px; margin-top: 3px; }
+        .live { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; color: #5eead4; text-transform: uppercase; letter-spacing: .12em; } .live i { width: 8px; height: 8px; border-radius: 50%; background: #2dd4bf; box-shadow: 0 0 10px #2dd4bf; display: inline-block; animation: uxPulse 1.6s ease-in-out infinite; }
+        .stb.off { border-color: rgba(148, 163, 184, .3); box-shadow: none; background: rgba(255, 255, 255, .025); } .stb.off .live { color: #94a3b8; } .stb.off .live i { background: #64748b; box-shadow: none; animation: none; } .stb.off .tm { font-size: 26px; color: #cbd5e1; }
+        @keyframes uxPulse { 50% { opacity: .35; } }
+        .kp4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; } .kp4 > div { padding: 14px 16px; border-radius: 16px; background: rgba(255, 255, 255, .035); border: 1px solid rgba(148, 163, 184, .1); min-width: 0; }
+        .kp4 .l { color: #94a3b8; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .kp4 .v { font-size: clamp(17px, 2.7cqw, 25px); font-weight: 800; color: #fff; margin-top: 4px; letter-spacing: -.01em; white-space: nowrap; } .kp4 .s { color: #94a3b8; font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .kp4 .bar { margin-top: 10px; } .kp4 .v.g { color: #34d399; } .kp4 .v.r { color: #fb7185; } .kp4 .v.b { color: #38bdf8; }
+        .wk { display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 14px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(148, 163, 184, .14); font-size: 13.5px; font-weight: 600; color: #e2e8f0; } .wk span { padding: 0 14px; white-space: nowrap; min-width: 110px; text-align: center; }
+        .wk button { width: 30px; height: 30px; display: grid; place-items: center; color: #94a3b8; font-size: 12px; border: 0; background: none; border-radius: 10px; cursor: pointer; } .wk button:hover:not(:disabled) { background: rgba(var(--mr), .2); color: #fff; } .wk button:disabled { opacity: .3; cursor: default; }
+        @container (max-width: 720px) { .zt { grid-template-columns: 1fr; gap: 18px; } .zt .vr2 { display: none; } .kp4 { grid-template-columns: 1fr 1fr; } .kp4 .v { font-size: 21px; } }
+        @container (max-width: 280px) { .kp4 { grid-template-columns: 1fr; } .stb { width: 150px; height: 150px; } }
+        /* Kalender */
+        .tabs3 { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(148, 163, 184, .14); } .tabs3 button { font: inherit; padding: 7px 14px; border-radius: 10px; font-size: 13.5px; font-weight: 600; color: #94a3b8; display: flex; gap: 7px; align-items: center; border: 0; background: none; cursor: pointer; } .tabs3 button:hover { color: #e2e8f0; } .tabs3 button.on { color: #fff; background: rgba(var(--mr), .22); }
+        .kal { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 16px; align-items: start; }
+        .nx { padding: 14px; border-radius: 18px; background: rgba(255, 255, 255, .03); border: 1px solid rgba(148, 163, 184, .12); display: flex; flex-direction: column; min-width: 0; } .nx h3 { margin: 2px 2px 6px; font-size: 14.5px; display: flex; gap: 8px; align-items: center; color: #f1f5f9; } .nx h3 i { color: var(--m); }
+        .ne { display: flex; gap: 12px; align-items: center; padding: 10px 2px; border: 0; border-bottom: 1px solid rgba(148, 163, 184, .1); background: none; width: 100%; text-align: left; font: inherit; cursor: pointer; border-radius: 0; color: inherit; } .ne:last-child { border-bottom: 0; } .ne:hover b { color: #fff; text-decoration: underline; text-decoration-color: rgba(var(--mr), .5); }
+        .ne .ei { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--ec) 18%, transparent); color: var(--ec); flex: none; font-size: 15px; } .ne > div { min-width: 0; }
+        .ne small { display: block; color: var(--ec); font-size: 12px; font-weight: 600; } .ne b { display: block; font-size: 14px; font-weight: 600; color: #f1f5f9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .allb { margin-top: 10px; padding: 10px; border-radius: 14px; background: rgba(255, 255, 255, .05); color: #cbd5e1; font: inherit; font-size: 13.5px; border: 0; cursor: pointer; display: flex; gap: 8px; justify-content: center; align-items: center; } .allb:hover { background: rgba(var(--mr), .18); color: #fff; }
+        .wg { border-radius: 18px; background: rgba(255, 255, 255, .025); border: 1px solid rgba(148, 163, 184, .12); padding: 10px 12px 12px; min-width: 0; }
+        .wg .hd { display: flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 600; color: #f1f5f9; padding: 0 0 10px; } .wg .hd b { flex: 1; text-align: center; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .wg .hd [hidden] { display: none !important; } .wg .hd .nb { width: 32px; height: 32px; display: grid; place-items: center; color: #94a3b8; border: 0; background: none; border-radius: 10px; cursor: pointer; font-size: 12px; flex: none; } .wg .hd .nb:hover { background: rgba(var(--mr), .2); color: #fff; } .wg .hd .td-b { font: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 11px; border-radius: 10px; border: 1px solid rgba(148, 163, 184, .2); background: rgba(255, 255, 255, .05); color: #cbd5e1; cursor: pointer; flex: none; }
+        .wgrid { display: grid; position: relative; }
+        .wgrid .dh { text-align: center; font-size: 13px; font-weight: 700; color: #e2e8f0; padding: 4px 0 8px; } .wgrid .dh small { display: block; font-weight: 500; font-size: 11px; color: #64748b; } .wgrid .dh.td, .wgrid .dh.td small { color: var(--m); } .wgrid .dh.we { color: #94a3b8; }
+        .wad { border-left: 1px solid rgba(148, 163, 184, .08); padding: 0 3px 6px; display: flex; flex-direction: column; gap: 3px; min-width: 0; } .adl { font-size: 10.5px; color: #64748b; padding-top: 3px; }
+        .wad button { font: inherit; font-size: 11px; text-align: left; padding: 3px 6px; border-radius: 7px; border: 0; color: #fff; background: color-mix(in srgb, var(--ec) 34%, #0b1220); border-left: 3px solid var(--ec); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .wcol { position: relative; border-left: 1px solid rgba(148, 163, 184, .08); cursor: copy; background-image: repeating-linear-gradient(180deg, rgba(148, 163, 184, .08) 0 1px, transparent 1px var(--ph)); } .wcol.td { background-color: rgba(var(--mr), .07); border-radius: 0 0 10px 10px; }
+        .tl { position: relative; font-size: 11px; color: #64748b; } .tl span { position: absolute; left: 0; transform: translateY(-50%); } .tl span:first-child { transform: none; }
+        .ev { position: absolute; border-radius: 8px; padding: 4px 6px; font: inherit; font-size: 11px; line-height: 1.25; color: #fff; overflow: hidden; text-align: left; background: color-mix(in srgb, var(--ec) 34%, #0b1220); border: 0; border-left: 3px solid var(--ec); cursor: pointer; transition: filter .2s; } .ev:hover { filter: brightness(1.25); z-index: 2; } .ev b { display: block; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ev span { color: rgba(255, 255, 255, .75); white-space: nowrap; }
+        .now { position: absolute; left: 0; right: 0; border-top: 2px solid #f43f5e; pointer-events: none; z-index: 3; } .now::before { content: ""; position: absolute; left: -4px; top: -5px; width: 8px; height: 8px; border-radius: 50%; background: #f43f5e; }
+        .cal-wrap { overflow-x: auto; padding-bottom: 4px; } .cal-in { min-width: 560px; }
+        .cal-h { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; font-size: 12px; font-weight: 700; color: #94a3b8; padding: 2px 0 8px; } .cal-h div:nth-child(n+6) { color: #64748b; }
         .cal-g { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-        .cal-d { min-height: 96px; display: flex; flex-direction: column; padding: 8px; border-radius: 16px; background: rgba(255, 255, 255, .035); border: 1px solid rgba(148, 163, 184, .12); overflow: hidden; transition: border-color .2s, background-color .2s; }
+        .cal-d { min-height: 86px; display: flex; flex-direction: column; padding: 7px; border-radius: 14px; background: rgba(255, 255, 255, .035); border: 1px solid rgba(148, 163, 184, .12); overflow: hidden; transition: border-color .2s; }
         .cal-d:hover { border-color: rgba(var(--mr), .45); } .cal-d.we { background: rgba(255, 255, 255, .02); } .cal-d.today { border-color: rgba(var(--mr), .85); background: rgba(var(--mr), .13); } .cal-d.pad { opacity: .15; background: none; border-style: dashed; }
-        .cal-n { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 12px; } .cal-n b { color: #94a3b8; font-weight: 600; } .cal-d.we .cal-n b { color: #64748b; }
-        .cal-d.today .cal-n b { color: #fff; background: var(--m2); border-radius: 8px; padding: 1px 8px; }
-        .cal-n button { border: 0; background: none; color: #64748b; cursor: pointer; font-size: 10px; padding: 3px 5px; border-radius: 8px; opacity: .55; transition: opacity .2s, color .2s; } .cal-d:hover .cal-n button, .cal-n button:focus-visible { opacity: 1; color: #a5b4fc; }
-        .cal-es { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; min-height: 0; }
-        .cal-e { cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 7px; border-radius: 9px; white-space: nowrap; overflow: hidden; color: #cbd5e1; background: rgba(148, 163, 184, .14); border: 1px solid rgba(148, 163, 184, .2); }
-        .cal-e.pub { color: #c7d2fe; background: rgba(99, 102, 241, .22); border-color: rgba(129, 140, 248, .4); } .cal-e:hover { filter: brightness(1.2); }
-        .cal-e b { font-weight: 700; flex: none; } .cal-e span { overflow: hidden; text-overflow: ellipsis; } .cal-e i { font-size: 8px; opacity: .7; margin-left: auto; flex: none; }
-        @media (max-width: 700px) { .cal-d { min-height: 84px; padding: 6px; } .clock { font-size: 42px; } }
+        .cal-n { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 12px; } .cal-n b { color: #94a3b8; font-weight: 600; } .cal-d.today .cal-n b { color: #fff; background: var(--m2); border-radius: 8px; padding: 1px 8px; }
+        .cal-n button { border: 0; background: none; color: #64748b; cursor: pointer; font-size: 10px; padding: 3px 5px; border-radius: 8px; opacity: .55; } .cal-d:hover .cal-n button, .cal-n button:focus-visible { opacity: 1; color: #a5b4fc; }
+        .cal-es { display: flex; flex-direction: column; gap: 3px; overflow: hidden; min-height: 0; }
+        .cal-e { cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 11px; padding: 2px 6px; border-radius: 7px; white-space: nowrap; overflow: hidden; color: #fff; background: color-mix(in srgb, var(--ec) 30%, #0b1220); border-left: 3px solid var(--ec); } .cal-e:hover { filter: brightness(1.2); } .cal-e b { flex: none; } .cal-e span { overflow: hidden; text-overflow: ellipsis; }
+        .lday { margin-top: 12px; } .lday:first-child { margin-top: 0; } .lday h4 { margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; } .lday h4.td { color: var(--m); }
+        .fill.kal { overflow-y: auto; }
+        @container (max-width: 640px) { .kal { grid-template-columns: 1fr; } .nx .allb { display: none; } }
+        @container (max-width: 560px) { .tabs3 { order: 5; width: 100%; } .tabs3 button { flex: 1; justify-content: center; padding: 7px 8px; } .tabs3 button i { display: none; } .mh h2 { font-size: 17px; } }
+        /* Pinnwand */
+        .pn { display: flex; gap: 10px; flex-wrap: wrap; align-content: flex-start; max-height: 320px; overflow-y: auto; } .pn > div { flex: 1 1 150px; position: relative; padding: 10px 30px 10px 12px; border-radius: 12px 12px 12px 4px; background: rgba(251, 191, 36, .1); border: 1px solid rgba(251, 191, 36, .25); color: #fde68a; font-size: 13px; line-height: 1.45; word-break: break-word; } .pn small { display: block; color: #a8894a; font-size: 11px; margin-top: 4px; }
+        .pn .xd { position: absolute; right: 2px; top: 2px; width: 26px; height: 26px; color: #a8894a; }
+        /* Schnell-Erfassung */
         #fab { position: fixed; right: 22px; bottom: 22px; z-index: 40; width: 58px; height: 58px; border: 0; border-radius: 50%; cursor: pointer; color: #fff; font-size: 22px; display: grid; place-items: center; background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 16px 36px -8px rgba(99, 102, 241, .8); transition: transform .2s, filter .2s; }
         #fab:hover { transform: translateY(-2px) scale(1.05); filter: brightness(1.1); } #fab:active { transform: scale(.94); }
         @media (max-width: 1023.98px) { #fab { bottom: calc(88px + env(safe-area-inset-bottom)); right: 16px; } }
         body.lay-on #fab { display: none; }
         #modal-evdel { z-index: 130; }
         .evb { width: 100%; justify-content: flex-start; margin-bottom: 8px; text-align: left; } .evb.bad { color: #fecdd3; border-color: rgba(244, 63, 94, .4); background: rgba(244, 63, 94, .12); }
+        @media (max-width: 600px) { .clk .dt { font-size: 34px; } .wk span { padding: 0 6px; min-width: 0; } }
     </style>
 </head>
 <body class="ux">
@@ -77,63 +139,101 @@
         <div><h1 class="ux-h1"><span id="greet">Hallo</span>, <span id="user-display-name"></span> <span id="greet-emoji">👋</span></h1><div class="ux-sub">Dein Tag im Überblick</div></div>
         <div class="ux-sp"></div>
         <button class="ux-btn" onclick="window.openSearch && openSearch()" title="Suche (Strg+K)"><i class="fa-solid fa-magnifying-glass"></i>Suche <kbd>Strg K</kbd></button>
-        <button class="ux-btn" id="lay-btn" onclick="Layout.toggle()" title="Startseite anpassen"><i class="fa-solid fa-table-columns"></i>Anpassen</button>
+        <button class="ux-btn" id="lay-btn" onclick="Layout.toggle()" title="Startseite anpassen: Karten verschieben, ausblenden und im Raster größer oder kleiner ziehen"><i class="fa-solid fa-table-columns"></i>Anpassen</button>
     </div>
 
     <a id="pending-banner" href="/admin.html#users" class="hidden ux-card pend"><i class="fa-solid fa-user-clock"></i><span id="pending-text"></span><i class="fa-solid fa-chevron-right"></i></a>
 
-    <!-- Widgets (Reihenfolge, Breite und Sichtbarkeit sind anpassbar) -->
+    <!-- Module (Reihenfolge, Größe im Raster und Sichtbarkeit sind anpassbar) -->
     <div id="widgets" class="ux-grid lay-grid">
-        <section data-w="hero" class="ux-card glow hero-c">
-            <div id="dash-time" class="clock">00:00:00</div>
-            <div id="dash-date" class="dd"></div>
-            <div id="dash-week" class="ux-note"></div>
+
+        <section data-w="hero" class="ux-card glow cq clk-c" style="--m:#22d3ee;--m2:#06b6d4;--mr:34,211,238">
+            <button class="gear" id="clk-gear" onclick="togglePop('clk-pop', this)" title="Uhr einstellen" aria-label="Uhr einstellen" aria-expanded="false" aria-controls="clk-pop"><i class="fa-solid fa-gear"></i></button>
+            <div id="clk" class="clk m-both">
+                <svg viewBox="0 0 200 200" aria-hidden="true">
+                    <defs><radialGradient id="cf" cx="50%" cy="40%" r="65%"><stop offset="0" stop-color="#1d2b46"/><stop offset="1" stop-color="#0b1222"/></radialGradient></defs>
+                    <circle cx="100" cy="100" r="94" fill="url(#cf)" stroke="rgba(34,211,238,.55)" stroke-width="2.5"/>
+                    <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+                    <g id="ticks" stroke="#cbd5e1" stroke-linecap="round"></g>
+                    <line id="h-h" x1="100" y1="100" x2="100" y2="50" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+                    <line id="h-m" x1="100" y1="100" x2="100" y2="26" stroke="#e2e8f0" stroke-width="3.2" stroke-linecap="round"/>
+                    <line id="h-s" x1="100" y1="114" x2="100" y2="22" stroke="#22d3ee" stroke-width="1.6" stroke-linecap="round"/>
+                    <circle cx="100" cy="100" r="6" fill="#22d3ee"/><circle cx="100" cy="100" r="2.4" fill="#0b1222"/>
+                </svg>
+                <div id="dash-time" class="dt" role="timer" aria-live="off">00:00</div>
+                <div class="dd"><span id="dash-date"></span> · <span id="dash-week"></span></div>
+            </div>
+            <div id="clk-pop" class="pop hidden">
+                <div class="lt">Anzeige</div>
+                <div class="opts" id="clk-modes"><button type="button" data-m="both">Analog + Digital</button><button type="button" data-m="digital">Digital</button><button type="button" data-m="analog">Analog</button></div>
+                <label class="ux-ck" style="margin:0"><input type="checkbox" id="clk-sec"> Sekunden anzeigen</label>
+            </div>
         </section>
 
-        <section data-w="weather" class="ux-card" style="--m:#38bdf8;--m2:#0ea5e9;--mr:56,189,248">
-            <div class="ux-t"><i class="fa-solid fa-location-dot" style="color:#fb7185"></i>Düren<small><button class="ux-ib" onclick="loadWeather()" title="Aktualisieren" aria-label="Wetter aktualisieren"><i class="fa-solid fa-rotate"></i></button></small></div>
-            <div class="wx"><i id="weather-icon" class="fa-solid fa-cloud-sun big" style="color:#fbbf24"></i>
-                <div style="flex:1"><div id="weather-temp" class="t">--°C</div><div id="weather-condition" class="ux-note">Lade Wetter...</div></div>
-                <div class="wxs"><div><i class="fa-solid fa-wind"></i><span id="weather-wind">--</span></div><div><i class="fa-solid fa-droplet"></i><span id="weather-hum">--</span></div><div><i class="fa-solid fa-umbrella"></i><span id="weather-rain">--</span></div></div></div>
-            <div id="forecast" class="fcs"></div>
+        <section id="st-card" data-w="stamp" class="ux-card cq" style="--m:#2dd4bf;--m2:#14b8a6;--mr:45,212,191">
+            <div class="mh"><span class="ic"><i class="fa-solid fa-stopwatch"></i></span><h2>Zeiterfassung</h2><span class="sp"></span>
+                <span class="wk"><button type="button" onclick="stWeek(-1)" aria-label="Vorherige Woche"><i class="fa-solid fa-chevron-left"></i></button><span id="st-wl">Diese Woche</span><button type="button" id="st-wn" onclick="stWeek(1)" aria-label="Nächste Woche" disabled><i class="fa-solid fa-chevron-right"></i></button></span></div>
+            <div class="zt">
+                <div class="zc">
+                    <div id="st-ring" class="stb off"><div><span class="live"><i></i><span id="st-state">Nicht eingestempelt</span></span><b id="st-timer" class="tm">–</b><small id="st-sub">Stempeln in der Zeiterfassung</small></div></div>
+                    <a href="/zeiterfassung.html" class="ux-btn pri"><i class="fa-solid fa-arrow-right"></i>Zur Zeiterfassung</a>
+                </div>
+                <div class="vr2"></div>
+                <div class="kp4">
+                    <div><div class="l">Heute</div><div id="k-day" class="v">–</div><div id="k-day-s" class="s"></div><div class="bar"><i id="k-day-b" style="width:0"></i></div></div>
+                    <div><div id="k-wk-l" class="l">Diese Woche</div><div id="k-wk" class="v">–</div><div id="k-wk-s" class="s"></div><div class="bar"><i id="k-wk-b" style="width:0"></i></div></div>
+                    <div><div class="l">Überstunden</div><div id="k-ot" class="v">–</div><div id="k-ot-s" class="s">Stand heute</div></div>
+                    <div><div class="l">Resturlaub</div><div id="k-vac" class="v b">–</div><div id="k-vac-s" class="s"></div></div>
+                </div>
+            </div>
         </section>
 
-        <section id="st-card" data-w="stamp" class="ux-card" style="--m:#2dd4bf;--m2:#14b8a6;--mr:45,212,191">
-            <div class="ux-t"><i class="fa-solid fa-stopwatch"></i>Arbeitszeit<small><span id="st-badge" class="chip">Inaktiv</span></small></div>
-            <div style="text-align:center;padding:8px 0 4px"><div id="st-timer" class="clock sm">00:00:00</div><div id="st-sub" class="ux-note" style="margin-top:4px">Nicht eingestempelt</div></div>
-            <div class="fc" style="margin-top:12px"><span>Heute (inkl. laufender Zeit)</span><b id="st-today"></b></div>
-            <div class="bar"><i id="st-bar" style="width:0"></i></div>
-            <a href="/zeiterfassung.html" class="ux-btn pri" style="margin-top:16px;width:100%"><i class="fa-solid fa-arrow-right"></i>Zur Zeiterfassung</a>
+        <section data-w="weather" class="ux-card cq" style="--m:#38bdf8;--m2:#0ea5e9;--mr:56,189,248">
+            <div class="mh"><i class="fa-solid fa-location-dot" style="color:#fb7185;font-size:17px"></i><h2 id="wx-name" style="font-size:17px">Düren</h2><span class="sp"></span>
+                <button class="gear" onclick="loadWeather()" title="Aktualisieren" aria-label="Wetter aktualisieren"><i class="fa-solid fa-rotate"></i></button>
+                <button class="gear" id="wx-gear" onclick="togglePop('wx-loc', this)" title="Standort wählen" aria-label="Standort wählen" aria-expanded="false" aria-controls="wx-loc"><i class="fa-solid fa-gear"></i></button></div>
+            <div class="wxr"><i id="weather-icon" class="fa-solid fa-cloud-sun sun" style="color:#fbbf24"></i><div><div id="weather-temp" class="t">-- °C</div><div id="weather-condition" class="c">Lade Wetter …</div></div>
+                <div class="wxs2"><div title="Wind"><i class="fa-solid fa-wind"></i><span id="weather-wind">--</span></div><div title="Luftfeuchte"><i class="fa-solid fa-droplet"></i><span id="weather-hum">--</span></div><div title="Regenwahrscheinlichkeit"><i class="fa-solid fa-umbrella"></i><span id="weather-rain">--</span></div></div></div>
+            <div id="forecast" class="fc3"></div>
+            <div id="wx-loc" class="pop hidden">
+                <div class="lt">Standort wählen</div>
+                <label class="li"><i class="fa-solid fa-magnifying-glass"></i><input id="wx-q" type="search" placeholder="Ort suchen, z. B. Köln" autocomplete="off" aria-label="Ort suchen" aria-controls="wx-res"></label>
+                <div id="wx-res" role="listbox" aria-label="Gefundene Orte"></div>
+                <button type="button" class="lb" onclick="useMyLocation()"><i class="fa-solid fa-location-crosshairs"></i>Meinen Standort verwenden</button>
+            </div>
         </section>
 
-        <section data-w="notes" class="ux-card" style="--m:#fbbf24;--m2:#f59e0b;--mr:251,191,36">
-            <div class="ux-t"><i class="fa-solid fa-note-sticky"></i>Pinnwand<small><span id="note-count" class="chip">0</span></small></div>
-            <div id="notes-list" class="scr"></div>
-            <form onsubmit="saveNewNote(event)" class="qf"><input type="text" id="new-note-input" required placeholder="Notiz anpinnen..." class="ux-in" aria-label="Neue Notiz"><button class="ux-btn pri" aria-label="Anpinnen"><i class="fa-solid fa-paper-plane"></i></button></form>
+        <section data-w="calendar" class="ux-card cq lay-flex" style="--m:#818cf8;--m2:#6366f1;--mr:129,140,248">
+            <div class="mh"><span class="ic"><i class="fa-regular fa-calendar-days"></i></span><h2>Kalender</h2><span class="sp"></span>
+                <span class="tabs3" id="cal-tabs" role="tablist"><button type="button" role="tab" data-v="week"><i class="fa-solid fa-calendar-week"></i>Woche</button><button type="button" role="tab" data-v="month"><i class="fa-regular fa-calendar"></i>Monat</button><button type="button" role="tab" data-v="list"><i class="fa-solid fa-list"></i>Liste</button></span>
+                <button class="ux-btn pri" onclick="openEventModal()" style="padding:9px 14px"><i class="fa-solid fa-plus"></i>Termin</button></div>
+            <div class="kal fill">
+                <div class="nx"><h3><i class="fa-regular fa-calendar-check"></i>Nächste Termine</h3><div id="nx-list"></div>
+                    <button type="button" class="allb" onclick="setCalView('list')">Alle Termine <i class="fa-solid fa-arrow-right"></i></button></div>
+                <div class="wg"><div class="hd"><button type="button" class="nb" id="cal-prev" aria-label="Zurück"><i class="fa-solid fa-chevron-left"></i></button><b id="cal-title"></b><button type="button" class="td-b" id="cal-today">Heute</button><button type="button" class="nb" id="cal-next" aria-label="Weiter"><i class="fa-solid fa-chevron-right"></i></button></div>
+                    <div id="cal-body"></div></div>
+            </div>
         </section>
 
-        <section data-w="todos" class="ux-card" style="--m:#34d399;--m2:#10b981;--mr:52,211,153">
-            <div class="ux-t"><i class="fa-solid fa-list-check"></i>Aufgaben &amp; Einkauf<small><span id="todo-count" class="chip">0</span><button class="ux-ib" onclick="clearDone()" title="Erledigte löschen" aria-label="Erledigte löschen"><i class="fa-solid fa-broom"></i></button></small></div>
-            <div id="todo-filters" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"><button class="chip on" data-f="all" onclick="setFilter('all')">Alle</button><button class="chip" data-f="task" onclick="setFilter('task')"><i class="fa-solid fa-circle-check"></i> Aufgaben</button><button class="chip" data-f="shop" onclick="setFilter('shop')"><i class="fa-solid fa-cart-shopping"></i> Einkauf</button></div>
-            <div id="todos-list" class="scr"></div>
-            <form onsubmit="saveNewTodo(event)" class="qf"><button type="button" id="kind-btn" onclick="toggleKind()" class="ux-ib" style="width:44px;height:auto" title="Art wechseln" aria-label="Art wechseln"><i class="fa-solid fa-circle-check" style="color:#34d399"></i></button>
-                <input type="text" id="new-todo-input" required placeholder="Neue Aufgabe..." class="ux-in" aria-label="Neuer Eintrag"><button class="ux-btn pri" aria-label="Hinzufügen"><i class="fa-solid fa-plus"></i></button></form>
+        <section data-w="todos" class="ux-card cq lay-flex" style="--m:#2dd4bf;--m2:#14b8a6;--mr:45,212,191">
+            <div class="mh"><span class="ic"><i class="fa-regular fa-square-check"></i></span><h2>Aufgaben</h2><span class="sp"></span>
+                <button class="gear" onclick="clearDone()" title="Erledigte löschen" aria-label="Erledigte löschen"><i class="fa-solid fa-broom"></i></button><span id="todo-count" class="cnt" title="Offen">0</span></div>
+            <div id="todo-filters" class="seg2"><button type="button" class="on" data-f="all">Alle</button><button type="button" data-f="task">Aufgaben</button><button type="button" data-f="shop">Einkauf</button></div>
+            <div id="todos-list" class="tkl fill"></div>
+            <button type="button" id="todo-add" class="addb" onclick="showTodoForm()"><i class="fa-solid fa-plus"></i><span>Aufgabe hinzufügen</span></button>
+            <form id="todo-form" onsubmit="saveNewTodo(event)" class="qf hidden"><button type="button" id="kind-btn" onclick="toggleKind()" class="ux-ib" title="Art wechseln: Aufgabe oder Einkauf" aria-label="Art wechseln"><i class="fa-solid fa-circle-check" style="color:#34d399"></i></button>
+                <input type="text" id="new-todo-input" required maxlength="200" placeholder="Neue Aufgabe …" class="ux-in" aria-label="Neuer Eintrag"><button class="ux-btn pri" aria-label="Hinzufügen"><i class="fa-solid fa-plus"></i></button></form>
         </section>
 
-        <section data-w="upcoming" class="ux-card">
-            <div class="ux-t"><i class="fa-solid fa-calendar-check"></i>Nächste Termine</div>
-            <div id="upcoming"></div>
+        <section data-w="notes" class="ux-card cq lay-flex" style="--m:#fbbf24;--m2:#f59e0b;--mr:251,191,36">
+            <div class="mh"><span class="ic"><i class="fa-solid fa-note-sticky"></i></span><h2>Pinnwand</h2><span class="sp"></span><span id="note-count" class="cnt">0</span></div>
+            <div id="notes-list" class="pn fill"></div>
+            <form onsubmit="saveNewNote(event)" class="qf"><input type="text" id="new-note-input" required maxlength="500" placeholder="Notiz anpinnen …" class="ux-in" aria-label="Neue Notiz"><button class="ux-btn pri" aria-label="Anpinnen"><i class="fa-solid fa-thumbtack"></i></button></form>
         </section>
 
-        <section data-w="calendar" class="ux-card" style="min-height:420px">
-            <div class="ux-t" style="flex-wrap:wrap;gap:10px"><i class="fa-regular fa-calendar-days"></i>Kalender<small style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                <button class="ux-btn" onclick="goToday()" style="padding:9px 14px">Heute</button>
-                <span class="ux-pill"><button type="button" onclick="changeCalendarMonth(-1)" aria-label="Vorheriger Monat"><i class="fa-solid fa-chevron-left"></i></button><span id="calendar-month-year"></span><button type="button" onclick="changeCalendarMonth(1)" aria-label="Nächster Monat"><i class="fa-solid fa-chevron-right"></i></button></span>
-                <button class="ux-btn pri" onclick="openEventModal()" style="padding:9px 14px"><i class="fa-solid fa-plus"></i>Termin</button></small></div>
-            <div class="cal-wrap"><div class="cal-in">
-                <div class="cal-h"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div>
-                <div id="calendar-days-grid" class="cal-g"></div>
-            </div></div>
+        <section data-w="upcoming" class="ux-card cq lay-flex" style="--m:#818cf8;--m2:#6366f1;--mr:129,140,248">
+            <div class="mh"><span class="ic"><i class="fa-regular fa-calendar-check"></i></span><h2>Nächste Termine</h2></div>
+            <div id="up-list" class="fill"></div>
         </section>
     </div>
 </main>
@@ -209,46 +309,331 @@
         const TS = () => firebase.firestore.FieldValue.serverTimestamp();
         const hm = min => `${Math.floor(Math.max(0, min) / 60)}:${String(Math.round(Math.max(0, min)) % 60).padStart(2, '0')} Std`;
 
+
         let pubEvents = [], myEvents = [], calendarEvents = [], familyNotes = [], familyTodos = [], started = false;
-        let todoFilter = 'all', todoKind = 'task', currentCalendarDate = new Date(), activeStart = null, bookedToday = 0;
+        let todoFilter = 'all', todoKind = 'task';
 
         initAuthGuard(user => {
             if (!user || started) return;
             started = true;
-            renderDrawer(); initLayout(); setupQuickKinds();
+            renderDrawer(); initLayout(); setupQuickKinds(); initClock();
             if (can(currentUser, 'termine')) initCalendar();
             if (can(currentUser, 'pinnwand')) initNotes();
             if (can(currentUser, 'aufgaben')) initTodos();
-            initStamp(); loadWeather(); updateClock();
+            initStamp(); initWeather();
             if (isAdmin(currentUser)) countPending();
             handleQuickHash();
         });
 
-        // ---------- Widgets anpassen (js/layout.js) ----------
-        // Kennung: [Name, Standardbreite in Zwölfteln]
-        const WIDGETS = { hero: ['Uhr & Datum', 4], weather: ['Wetter', 4], stamp: ['Arbeitszeit', 4], notes: ['Pinnwand', 4], todos: ['Aufgaben & Einkauf', 4], upcoming: ['Nächste Termine', 4], calendar: ['Kalender', 12] };
-        // Welches Recht ein Widget braucht (ohne Eintrag: für alle)
+        // ---------- Eigene Einstellungen der Startseite (userPrefs.home.*) ----------
+        const HP = () => (currentUser.userPrefs && currentUser.userPrefs.home) || {};
+        async function savePref(key, val) {
+            currentUser.userPrefs = { ...(currentUser.userPrefs || {}), home: { ...HP(), [key]: val } };
+            try { await db.collection('users').doc(currentUser.uid).update({ ['userPrefs.home.' + key]: val }); } catch (e) { toast('Speichern fehlgeschlagen: ' + (e.code || e.message)); }
+        }
+        const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+        // Kleine Einstellungs-Felder in einer Karte auf- und zuklappen
+        function togglePop(id, btn) {
+            const p = $(id), open = p.classList.contains('hidden'); p.classList.toggle('hidden', !open); btn.setAttribute('aria-expanded', open);
+            if (open && id === 'wx-loc') setTimeout(() => $('wx-q').focus(), 30);
+            Layout.refresh();
+        }
+
+        // ---------- Module anpassen (js/layout.js) ----------
+        // Kennung: [Name, Breite in Zwölfteln, ausgeblendet]
+        const WIDGETS = { hero: ['Uhr', 4], stamp: ['Zeiterfassung', 8], weather: ['Wetter', 4], calendar: ['Kalender', 8], todos: ['Aufgaben', 4], notes: ['Pinnwand', 8], upcoming: ['Nächste Termine', 4, true] };
+        // Welches Recht ein Modul braucht (ohne Eintrag: für alle)
         const WIDGET_PERM = { stamp: 'zeit', notes: 'pinnwand', todos: 'aufgaben', upcoming: 'termine', calendar: 'termine' };
         const allowed = id => !WIDGET_PERM[id] || can(currentUser, WIDGET_PERM[id]);
         const HOME_PRESETS = {
             'Standard': {},
-            'Kompakt': { order: ['hero', 'stamp', 'upcoming', 'todos', 'calendar'], hidden: ['weather', 'notes'], width: { hero: 6, stamp: 6, upcoming: 6, todos: 6, calendar: 12 } },
-            'Fokus Kalender': { order: ['calendar', 'upcoming', 'hero', 'todos'], hidden: ['weather', 'stamp', 'notes'], width: { calendar: 8, upcoming: 4, hero: 4, todos: 8 } }
+            'Kompakt': { order: ['hero', 'stamp', 'todos', 'calendar', 'weather', 'notes', 'upcoming'], hidden: ['weather', 'notes', 'upcoming'], width: { hero: 4, stamp: 8, todos: 4, calendar: 8 } },
+            'Fokus Kalender': { order: ['calendar', 'hero', 'todos', 'upcoming', 'stamp', 'weather', 'notes'], hidden: ['stamp', 'weather', 'notes'], width: { calendar: 12, hero: 4, todos: 4, upcoming: 4 } },
+            'Fokus Arbeit': { order: ['stamp', 'hero', 'todos', 'calendar', 'weather', 'notes', 'upcoming'], hidden: ['weather', 'notes', 'upcoming'], width: { stamp: 12, hero: 4, todos: 4, calendar: 4 } }
         };
         function initLayout() {
             Layout.init({
-                key: 'home', root: $('widgets'), toast, presets: HOME_PRESETS,
-                modules: Object.entries(WIDGETS).map(([id, [title, w]]) => ({ id, title, w, el: `[data-w="${id}"]` })),
+                key: 'start', root: $('widgets'), toast, presets: HOME_PRESETS,
+                modules: Object.entries(WIDGETS).map(([id, [title, w, off]]) => ({ id, title, w, off, el: `[data-w="${id}"]` })),
                 save: async l => {
-                    await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.layouts.home': l });
-                    currentUser.userPrefs = { ...(currentUser.userPrefs || {}), layouts: { ...((currentUser.userPrefs || {}).layouts || {}), home: l } };
-                }
+                    await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.layouts.start': l });
+                    currentUser.userPrefs = { ...(currentUser.userPrefs || {}), layouts: { ...((currentUser.userPrefs || {}).layouts || {}), start: l } };
+                },
+                onEdit: on => { if (on) ['clk-pop', 'wx-loc'].forEach(id => { $(id).classList.add('hidden'); }); }
             });
-            // Widgets ohne Berechtigung bleiben immer verborgen
+            // Module ohne Berechtigung bleiben immer verborgen
             Object.keys(WIDGETS).forEach(id => { const el = document.querySelector(`[data-w="${id}"]`); if (el) el.toggleAttribute('data-na', !allowed(id)); });
-            // Ein früher gespeichertes Layout (nur Reihenfolge und Ausblenden) wird übernommen
-            Layout.load(currentUser.userPrefs?.layouts?.home || currentUser.userPrefs?.layout);
+            Layout.load(currentUser.userPrefs?.layouts?.start);
         }
+
+        // ---------- Uhr & Begrüßung ----------
+        const setT = (el, t) => { const n = el.firstChild; if (n && n.nodeType === 3) { if (n.nodeValue !== t) n.nodeValue = t; } else el.textContent = t; };
+        let lastMinute = -1, clockCfg = { mode: 'both', sec: false };
+        function initClock() {
+            let h = ''; for (let i = 0; i < 60; i++) { const big = i % 5 === 0, a = i * 6 * Math.PI / 180, r1 = big ? 72 : 80, r2 = 86, f = n => n.toFixed(2); h += `<line x1="${f(100 + r1 * Math.sin(a))}" y1="${f(100 - r1 * Math.cos(a))}" x2="${f(100 + r2 * Math.sin(a))}" y2="${f(100 - r2 * Math.cos(a))}" stroke-width="${big ? 3 : 1}" opacity="${big ? .95 : .35}"/>`; }
+            $('ticks').innerHTML = h;
+            clockCfg = { ...clockCfg, ...(HP().clock || {}) }; applyClock();
+            $('clk-modes').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return; clockCfg.mode = b.dataset.m; applyClock(); savePref('clock', { ...clockCfg }); });
+            $('clk-sec').addEventListener('change', e => { clockCfg.sec = e.target.checked; applyClock(); savePref('clock', { ...clockCfg }); });
+            updateClock(); setInterval(updateClock, 1000);
+        }
+        function applyClock() {
+            if (!['both', 'digital', 'analog'].includes(clockCfg.mode)) clockCfg.mode = 'both';
+            $('clk').className = `clk m-${clockCfg.mode}${clockCfg.sec ? '' : ' nosec'}`; $('clk-sec').checked = !!clockCfg.sec;
+            document.querySelectorAll('#clk-modes [data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === clockCfg.mode));
+            lastMinute = -1; updateClock(); Layout.refresh();
+        }
+        function updateClock() {
+            const now = new Date(), s = now.getSeconds(), m = now.getMinutes(), hr = now.getHours();
+            setT($('dash-time'), now.toLocaleTimeString('de-DE', clockCfg.sec ? { hour: '2-digit', minute: '2-digit', second: '2-digit' } : { hour: '2-digit', minute: '2-digit' }));
+            const rot = (id, a) => $(id).setAttribute('transform', `rotate(${a.toFixed(2)} 100 100)`);
+            rot('h-h', (hr % 12 + m / 60) * 30); rot('h-m', (m + s / 60) * 6); if (clockCfg.sec) rot('h-s', s * 6);
+            if (m !== lastMinute) {
+                lastMinute = m;
+                $('dash-date').innerText = now.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                $('dash-week').innerText = 'KW ' + isoWeek(now);
+                $('greet').innerText = hr < 5 ? 'Gute Nacht' : hr < 11 ? 'Guten Morgen' : hr < 18 ? 'Guten Tag' : 'Guten Abend';
+                $('greet-emoji').innerText = hr < 5 ? '🌙' : hr < 11 ? '☀️' : hr < 18 ? '👋' : '🌆';
+                if (calView === 'week' && calReady) renderCal();          // rote Linie "jetzt" mitführen
+            }
+            if (active) tickStamp();
+        }
+        function isoWeek(d) { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7)); return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7); }
+
+        // ---------- Zeiterfassung (nur Anzeige, gestempelt wird auf der Seite Zeiterfassung) ----------
+        let workEntries = [], active = null, stOffset = 0;
+        const W = () => ({ pause: 60, after: 6, weekly: 40, vacation: 30, carry: 0, carryYear: 0, ...(currentUser.userPrefs?.work || {}) });
+        const dayMin = () => Math.round(W().weekly / 5 * 60);
+        const hh = min => { const s = min < 0 ? '-' : ''; min = Math.abs(Math.round(min)); return `${s}${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')} h`; };
+        const pDate = s => new Date(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10));
+        const HOL = {};
+        function easter(y) {
+            const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+            const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+            return new Date(y, Math.floor((h + l - 7 * m + 114) / 31) - 1, (h + l - 7 * m + 114) % 31 + 1);
+        }
+        function holidays(y) {      // gesetzliche Feiertage NRW (wie auf der Seite Zeiterfassung)
+            if (HOL[y]) return HOL[y];
+            const add = n => { const d = easter(y); d.setDate(d.getDate() + n); return localDate(d); };
+            return HOL[y] = new Set([`${y}-01-01`, add(-2), add(1), `${y}-05-01`, add(39), add(50), add(60), `${y}-10-03`, `${y}-11-01`, `${y}-12-25`, `${y}-12-26`]);
+        }
+        const isWork = d => d.getDay() % 6 !== 0 && !holidays(d.getFullYear()).has(localDate(d));
+        function sollMin(from, to) { if (to < from) return 0; let n = 0; for (const d = pDate(from), end = pDate(to); d <= end; d.setDate(d.getDate() + 1)) if (isWork(d)) n++; return n * dayMin(); }
+        const typeOf = e => e.type || 'work';
+        const sumNet = (from, to) => workEntries.reduce((a, e) => a + (e.date >= from && e.date <= to ? Number(e.netMinutes) || 0 : 0), 0);
+        function liveNet() {
+            if (!active) return 0; const g = Math.max(0, (Date.now() - active.start) / 60000), p = active.pause ?? W().pause;
+            return Math.max(0, g - (g >= W().after * 60 ? p : 0));
+        }
+        function initStamp() {
+            if (!can(currentUser, 'zeit')) return;
+            db.collection('active_work').doc(currentUser.uid).onSnapshot(d => {
+                const x = d.exists ? d.data() : null;
+                active = x && x.startTime ? { start: x.startTime.toDate(), pause: x.pauseMinutes } : null;
+                const on = !!active; $('st-ring').classList.toggle('off', !on);
+                $('st-state').innerText = on ? 'Läuft' : 'Nicht eingestempelt';
+                $('st-sub').innerText = on ? `seit ${active.start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr` : 'Stempeln in der Zeiterfassung';
+                if (!on) $('st-timer').innerText = '–';
+                tickStamp(); renderStampKpis();
+            }, () => {});
+            db.collection('worktime').where('owner', '==', currentUser.email).onSnapshot(s => { workEntries = s.docs.map(d => d.data()); renderStampKpis(); }, () => {});
+            setInterval(renderStampKpis, 60000);
+        }
+        function tickStamp() {
+            if (!active) return; const ms = Math.max(0, Date.now() - active.start), p = n => String(n).padStart(2, '0');
+            setT($('st-timer'), `${Math.floor(ms / 3600000)}:${p(Math.floor(ms % 3600000 / 60000))}:${p(Math.floor(ms % 60000 / 1000))}`);
+            if (new Date().getSeconds() === 0) renderStampKpis();
+        }
+        function stWeek(d) { stOffset = Math.min(0, stOffset + d); renderStampKpis(); }
+        function renderStampKpis() {
+            if (!currentUser || !can(currentUser, 'zeit')) return;
+            const now = new Date(), today = localDate(now), live = liveNet(), pct = (a, b) => Math.min(100, b ? a / b * 100 : 0) + '%';
+            // Heute
+            const dIst = sumNet(today, today) + live, dSoll = isWork(now) ? dayMin() : 0;
+            setT($('k-day'), hh(dIst)); $('k-day-s').innerText = dSoll ? `von ${hh(dSoll)}` : 'kein Arbeitstag'; $('k-day-b').style.width = pct(dIst, dSoll || dIst);
+            // Woche (mit den Pfeilen auch frühere Wochen)
+            const mon = new Date(now); mon.setDate(now.getDate() - (now.getDay() + 6) % 7 + stOffset * 7); const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+            const a = localDate(mon), b = localDate(sun), wIst = sumNet(a, b) + (stOffset === 0 ? live : 0), wSoll = sollMin(a, b);
+            const lbl = stOffset === 0 ? 'Diese Woche' : stOffset === -1 ? 'Letzte Woche' : 'KW ' + isoWeek(mon);
+            $('st-wl').innerText = lbl; $('k-wk-l').innerText = stOffset === 0 ? 'Diese Woche' : `${lbl} · ${mon.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}–${sun.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}`; $('st-wn').disabled = stOffset >= 0;
+            setT($('k-wk'), hh(wIst)); $('k-wk-s').innerText = `von ${hh(wSoll)}`; $('k-wk-b').style.width = pct(wIst, wSoll);
+            // Überstundenkonto seit dem ersten Eintrag (wie auf der Seite Zeiterfassung)
+            const first = workEntries.reduce((x, e) => (e.date && (!x || e.date < x) ? e.date : x), '');
+            if (first) { const acc = sumNet(first, today) - sollMin(first, today); setT($('k-ot'), (acc > 0 ? '+' : '') + hh(acc)); $('k-ot').className = 'v ' + (acc >= 0 ? 'g' : 'r'); $('k-ot-s').innerText = 'seit ' + first.split('-').reverse().join('.'); }
+            else { setT($('k-ot'), '–'); $('k-ot').className = 'v'; $('k-ot-s').innerText = 'Noch keine Einträge'; }
+            // Resturlaub im laufenden Jahr
+            const w = W(), y = now.getFullYear(), total = w.vacation + (w.carryYear === y ? w.carry : 0);
+            const used = new Set(workEntries.filter(e => typeOf(e) === 'vacation' && e.date && e.date.startsWith(String(y))).map(e => e.date)).size, left = total - used, nf = n => String(n).replace('.', ',');
+            setT($('k-vac'), `${nf(left)} ${Math.abs(left) === 1 ? 'Tag' : 'Tage'}`); $('k-vac').className = 'v ' + (left < 0 ? 'r' : 'b'); $('k-vac-s').innerText = `von ${nf(total)} Tagen`;
+        }
+
+        // ---------- Wetter (Ort frei wählbar) ----------
+        const WX = [[0, 'Klar', 'fa-sun', '#fbbf24'], [3, 'Leicht bewölkt', 'fa-cloud-sun', '#fcd34d'], [48, 'Nebelig', 'fa-smog', '#94a3b8'], [67, 'Regnerisch', 'fa-cloud-rain', '#22d3ee'],
+            [77, 'Schnee', 'fa-snowflake', '#a5b4fc'], [82, 'Regenschauer', 'fa-cloud-showers-heavy', '#22d3ee'], [86, 'Schneeschauer', 'fa-snowflake', '#a5b4fc'], [99, 'Gewitter', 'fa-cloud-bolt', '#f59e0b']];
+        const wx = c => WX.find(w => c <= w[0]) || WX[WX.length - 1];
+        const DEF_LOC = { name: 'Düren', sub: 'Nordrhein-Westfalen, Deutschland', lat: 50.8021, lon: 6.4836 };
+        const loc = () => { const l = HP().weather; return l && isFinite(l.lat) && isFinite(l.lon) ? l : DEF_LOC; };
+        let wxHits = [], wxTimer = 0, wxSeq = 0;
+        function initWeather() {
+            loadWeather(); setInterval(loadWeather, 30 * 60000);
+            $('wx-q').addEventListener('input', () => { clearTimeout(wxTimer); wxTimer = setTimeout(searchPlace, 280); });
+            $('wx-q').addEventListener('keydown', e => {
+                const items = [...$('wx-res').querySelectorAll('.lr')], i = items.indexOf(document.activeElement);
+                if (e.key === 'Enter') { e.preventDefault(); if (wxHits[0]) pickPlace(0); }
+                else if (e.key === 'ArrowDown' && items.length) { e.preventDefault(); items[0].focus(); }
+                else if (e.key === 'Escape') togglePop('wx-loc', $('wx-gear'));
+                void i;
+            });
+            $('wx-res').addEventListener('keydown', e => {
+                const items = [...$('wx-res').querySelectorAll('.lr')], i = items.indexOf(document.activeElement);
+                if (e.key === 'ArrowDown') { e.preventDefault(); (items[i + 1] || items[i]).focus(); } else if (e.key === 'ArrowUp') { e.preventDefault(); (items[i - 1] || $('wx-q')).focus(); }
+            });
+            $('wx-res').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) pickPlace(+b.dataset.i); });
+        }
+        async function searchPlace() {
+            const q = $('wx-q').value.trim(), seq = ++wxSeq, box = $('wx-res');
+            if (q.length < 2) { wxHits = []; box.innerHTML = ''; Layout.refresh(); return; }
+            try {
+                const j = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=de&format=json`)).json();
+                if (seq !== wxSeq) return;
+                wxHits = (j.results || []).map(r => ({ name: r.name, sub: [r.admin1, r.country].filter(Boolean).join(', '), lat: +r.latitude.toFixed(4), lon: +r.longitude.toFixed(4) }));
+                box.innerHTML = wxHits.length ? wxHits.map((h, i) => `<button type="button" role="option" class="lr${i ? '' : ' on'}" data-i="${i}"><b>${esc(h.name)}</b><small>${esc(h.sub)}</small></button>`).join('') : '<div class="lnote">Kein Ort gefunden.</div>';
+            } catch (e) { if (seq === wxSeq) box.innerHTML = '<div class="lnote">Suche gerade nicht erreichbar.</div>'; }
+            Layout.refresh();
+        }
+        async function setPlace(p) {
+            await savePref('weather', p); $('wx-q').value = ''; $('wx-res').innerHTML = ''; wxHits = [];
+            $('wx-loc').classList.add('hidden'); $('wx-gear').setAttribute('aria-expanded', 'false'); loadWeather(); toast('Standort: ' + p.name);
+        }
+        function pickPlace(i) { const h = wxHits[i]; if (h) setPlace(h); }
+        function useMyLocation() {
+            if (!navigator.geolocation) return toast('Dein Browser kann den Standort nicht bestimmen.');
+            navigator.geolocation.getCurrentPosition(p => setPlace({ name: 'Mein Standort', sub: 'Gerätestandort (auf ca. 1 km gerundet)', lat: +p.coords.latitude.toFixed(2), lon: +p.coords.longitude.toFixed(2) }),
+                e => toast(e.code === 1 ? 'Standort-Zugriff wurde nicht erlaubt.' : 'Standort konnte nicht bestimmt werden.'), { timeout: 12000, maximumAge: 600000 });
+        }
+        async function loadWeather() {
+            const l = loc(); $('wx-name').innerText = l.name; $('wx-name').title = l.sub || '';
+            try {
+                const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${l.lat}&longitude=${l.lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=4&timezone=auto`);
+                const j = await r.json(), c = j.current, d = j.daily, w = wx(c.weather_code);
+                $('weather-temp').innerText = `${Math.round(c.temperature_2m)} °C`; $('weather-condition').innerText = w[1]; $('weather-icon').className = `fa-solid ${w[2]} sun`; $('weather-icon').style.color = w[3];
+                $('weather-wind').innerText = `${Math.round(c.wind_speed_10m)} km/h`; $('weather-hum').innerText = `${c.relative_humidity_2m} %`; $('weather-rain').innerText = `${d.precipitation_probability_max[0] ?? '–'} %`;
+                $('forecast').innerHTML = [1, 2, 3].map(i => { const f = wx(d.weather_code[i]);
+                    return `<div>${new Date(d.time[i] + 'T12:00').toLocaleDateString('de-DE', { weekday: 'short' })}<i class="fa-solid ${f[2]}" style="color:${f[3]}" title="${f[1]}"></i><b>${Math.round(d.temperature_2m_max[i])}° <span>/ ${Math.round(d.temperature_2m_min[i])}°</span></b></div>`; }).join('');
+            } catch (e) { $('weather-condition').innerText = 'Wetter offline'; }
+        }
+
+        // ---------- Kalender: Woche, Monat, Liste ----------
+        const evOf = id => calendarEvents.find(e => e.id === id);
+        const pad2 = n => String(n).padStart(2, '0');
+        // Symbol und Farbe eines Termins aus dem Titel (Arzt, Sport, Geburtstag …)
+        const EVK = [[/geburtstag|b-?day|jubil/i, 'fa-cake-candles', '#a78bfa'], [/arzt|ärzt|physio|zahn|praxis|klinik|kranken|therap|impf/i, 'fa-heart-pulse', '#f472b6'],
+            [/gym|training|sport|fitness|lauf|joggen|fußball|schwimm|yoga|rad/i, 'fa-dumbbell', '#22d3ee'], [/essen|mittag|frühstück|brunch|restaurant|grill|kaffee|café/i, 'fa-utensils', '#fb923c'],
+            [/einkauf|shopping|markt|besorg/i, 'fa-cart-shopping', '#34d399'], [/urlaub|reise|flug|ferien|trip|hotel/i, 'fa-plane', '#38bdf8'],
+            [/schule|kita|uni|prüfung|klausur|kurs|seminar/i, 'fa-graduation-cap', '#facc15'], [/party|feier|hochzeit|fest|konzert|kino/i, 'fa-champagne-glasses', '#f472b6'],
+            [/arbeit|meeting|büro|besprechung|call|schicht|dienst/i, 'fa-briefcase', '#94a3b8'], [/auto|werkstatt|tüv|reifen/i, 'fa-car', '#94a3b8']];
+        const evStyle = o => { const k = EVK.find(x => x[0].test(o.title || '')); return k ? [k[1], k[2]] : ['fa-calendar-day', o.isPublic ? '#818cf8' : '#a78bfa']; };
+        const tm = t => { const [h, m] = String(t).split(':').map(Number); return (h || 0) + (m || 0) / 60; };
+        const endOf = o => { const s = tm(o.time); let e = o.endTime ? tm(o.endTime) : s + 1; if (e <= s) e = Math.min(24, s + 1); return e; };
+        const dShort = s => pDate(s).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
+        const dayLbl = s => { const t = localDate(); return s === t ? 'Heute' : s === CAL.addDays(t, 1) ? 'Morgen' : pDate(s).toLocaleDateString('de-DE', { weekday: 'short' }) + (s > CAL.addDays(t, 6) ? ' ' + pDate(s).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : ''); };
+        const dow = s => pDate(s).getDay();
+        let calView = 'week', calRef = localDate(), calNarrow = false, calReady = false;
+
+        function initCalendar() {
+            const merge = () => { const m = new Map(); [...pubEvents, ...myEvents].forEach(ev => m.set(ev.id, ev)); calendarEvents = [...m.values()]; renderCal(); renderUpcoming(); };
+            const list = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
+            db.collection('events').where('isPublic', '==', true).onSnapshot(s => { pubEvents = list(s); merge(); }, () => renderCal());
+            db.collection('events').where('owner', '==', currentUser.email).onSnapshot(s => { myEvents = list(s); merge(); }, () => renderCal());
+            const v = lsGet('home_calview'); calView = ['week', 'month', 'list'].includes(v) ? v : 'week';
+            $('cal-tabs').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) setCalView(b.dataset.v); });
+            $('cal-prev').onclick = () => calShift(-1); $('cal-next').onclick = () => calShift(1); $('cal-today').onclick = () => { calRef = localDate(); renderCal(); };
+            const open = e => { const v = e.target.closest('[data-ev]'); if (v) { openEditEvent(v.dataset.ev, v.dataset.occ); return true; } };
+            $('cal-body').addEventListener('click', e => {
+                if (open(e)) return; const a = e.target.closest('[data-add]'); if (a) return openEventModal(a.dataset.add);
+                const col = e.target.closest('.wcol'); if (!col) return;         // Klick in eine freie Stelle der Woche: neuer Termin zu dieser Uhrzeit
+                const r = col.getBoundingClientRect(), ph = +col.dataset.ph, h = +col.dataset.from + Math.floor((e.clientY - r.top) / ph * 2) / 2;
+                openEventModal(col.dataset.d, `${pad2(Math.floor(h))}:${h % 1 ? '30' : '00'}`);
+            });
+            ['nx-list', 'up-list'].forEach(id => $(id).addEventListener('click', open));
+            $('evdel-btns').addEventListener('click', e => { const b = e.target.closest('[data-scope]'); if (b) doDeleteEvent(b.dataset.scope); });
+            // Schmale Karte: Woche zeigt 3 Tage
+            new ResizeObserver(() => { const n = $('cal-body').clientWidth < 400; if (n !== calNarrow) { calNarrow = n; if (calView === 'week') renderCal(); } }).observe($('cal-body'));
+            calReady = true; renderCal();
+        }
+        function setCalView(v) { calView = v; lsSet('home_calview', v); calRef = localDate(); renderCal(); }
+        function calShift(d) {
+            if (calView === 'month') { const x = pDate(calRef); x.setDate(1); x.setMonth(x.getMonth() + d); calRef = localDate(x); }
+            else calRef = CAL.addDays(calRef, d * (calNarrow ? 3 : 7));
+            renderCal();
+        }
+        function renderCal() {
+            document.querySelectorAll('#cal-tabs [data-v]').forEach(b => { b.classList.toggle('on', b.dataset.v === calView); b.setAttribute('aria-selected', b.dataset.v === calView); });
+            ['cal-prev', 'cal-next', 'cal-today'].forEach(id => { $(id).hidden = calView === 'list'; });
+            if (calView === 'month') renderMonth(); else if (calView === 'list') renderList(); else renderWeek();
+            Layout.refresh();
+        }
+        function renderWeek() {
+            const n = calNarrow ? 3 : 7, start = n === 7 ? CAL.addDays(calRef, -((dow(calRef) + 6) % 7)) : calRef, days = Array.from({ length: n }, (_, i) => CAL.addDays(start, i));
+            const today = localDate(), occ = CAL.expand(calendarEvents, days[0], days[n - 1]), timed = occ.filter(o => o.time), allday = occ.filter(o => !o.time);
+            let from = 6, to = 22; timed.forEach(o => { from = Math.min(from, Math.floor(tm(o.time))); to = Math.max(to, Math.ceil(endOf(o))); }); to = Math.min(24, to);
+            const PH = 30, H = (to - from) * PH, px = h => (h - from) * PH, s0 = pDate(days[0]), s1 = pDate(days[n - 1]);
+            const f = (d, o) => d.toLocaleDateString('de-DE', o);
+            $('cal-title').innerText = n === 7 ? `KW ${isoWeek(s0)} · ${f(s0, { day: '2-digit' })}. – ${f(s1, { day: '2-digit', month: 'long', year: 'numeric' })}` : `${f(s0, { day: '2-digit', month: '2-digit' })} – ${f(s1, { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+            const cols = `44px repeat(${n}, minmax(0, 1fr))`;
+            let h = `<div class="wgrid" style="grid-template-columns:${cols}"><div></div>` + days.map(d => `<div class="dh${d === today ? ' td' : ''}${[0, 6].includes(dow(d)) ? ' we' : ''}">${f(pDate(d), { weekday: 'short' })}<small>${f(pDate(d), { day: '2-digit', month: '2-digit' })}</small></div>`).join('');
+            if (allday.length) h += '<div class="adl">ganzt.</div>' + days.map(d => `<div class="wad">${allday.filter(o => o.date === d).map(o => { const [, c] = evStyle(o); return `<button type="button" data-ev="${esc(o.id)}" data-occ="${o.date}" style="--ec:${c}" title="${esc(o.title)}">${esc(o.title)}</button>`; }).join('')}</div>`).join('');
+            h += `<div class="tl" style="height:${H}px">${Array.from({ length: to - from + 1 }, (_, i) => from + i).filter(x => x % 2 === 0 && x < 24).map(x => `<span style="top:${px(x)}px">${pad2(x)}:00</span>`).join('')}</div>`;
+            const nowH = new Date().getHours() + new Date().getMinutes() / 60;
+            h += days.map(d => {
+                const ev = lanes(timed.filter(o => o.date === d), PH);
+                return `<div class="wcol${d === today ? ' td' : ''}" style="height:${H}px;--ph:${PH}px" data-d="${d}" data-from="${from}" data-ph="${PH}" title="Klicken für einen neuen Termin">${ev.map(x => { const [, c] = evStyle(x.o), t = Math.max(38, (x.e0 - x.s) * PH);
+                    return `<button type="button" class="ev" data-ev="${esc(x.o.id)}" data-occ="${x.o.date}" style="--ec:${c};top:${px(x.s)}px;height:${t - 2}px;left:calc(${x.lane / x.n * 100}% + 3px);width:calc(${100 / x.n}% - 6px)" title="${esc(x.o.title)} · ${esc(CAL.timeLabel(x.o))}"><b>${esc(x.o.title)}</b><span>${esc(CAL.timeLabel(x.o))}</span></button>`; }).join('')}${d === today && nowH >= from && nowH <= to ? `<div class="now" style="top:${px(nowH)}px"></div>` : ''}</div>`;
+            }).join('');
+            $('cal-body').innerHTML = h + '</div>';
+        }
+        // Überschneidende Termine nebeneinander legen
+        function lanes(list, PH) {
+            const out = []; let cl = [], end = -1;
+            const flush = () => { const n = Math.max(1, ...cl.map(x => x.lane + 1)); cl.forEach(x => { x.n = n; }); cl = []; end = -1; };
+            list.sort((a, b) => tm(a.time) - tm(b.time)).forEach(o => {
+                const s = tm(o.time), e0 = endOf(o), e = Math.max(e0, s + 38 / PH);
+                if (cl.length && s >= end) flush();
+                const used = cl.filter(x => x.e > s).map(x => x.lane); let l = 0; while (used.includes(l)) l++;
+                const it = { o, s, e, e0, lane: l, n: 1 }; cl.push(it); out.push(it); end = Math.max(end, e);
+            });
+            if (cl.length) flush(); return out;
+        }
+        function renderMonth() {
+            const r = pDate(calRef), y = r.getFullYear(), mo = r.getMonth(), today = localDate();
+            $('cal-title').innerText = new Date(y, mo, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+            const first = (new Date(y, mo, 1).getDay() + 6) % 7, days = new Date(y, mo + 1, 0).getDate();
+            const byDay = {}; CAL.expand(calendarEvents, `${y}-${pad2(mo + 1)}-01`, `${y}-${pad2(mo + 1)}-${pad2(days)}`).forEach(o => (byDay[o.date] = byDay[o.date] || []).push(o));
+            let h = '<div class="cal-d pad"></div>'.repeat(first);
+            for (let d = 1; d <= days; d++) {
+                const ds = `${y}-${pad2(mo + 1)}-${pad2(d)}`, we = [0, 6].includes(new Date(y, mo, d).getDay());
+                const evs = (byDay[ds] || []).map(o => `<div data-ev="${esc(o.id)}" data-occ="${o.date}" title="${esc(o.title)}${o.time ? ' · ' + esc(CAL.timeLabel(o)) : ''}" class="cal-e" style="--ec:${evStyle(o)[1]}">${o.time ? `<b>${esc(o.time)}</b>` : ''}<span>${esc(o.title)}</span></div>`).join('');
+                h += `<div class="cal-d${we ? ' we' : ''}${ds === today ? ' today' : ''}"><div class="cal-n"><b>${d}</b><button data-add="${ds}" title="Termin hinzufügen" aria-label="Termin am ${d}. hinzufügen"><i class="fa-solid fa-plus"></i></button></div><div class="cal-es">${evs}</div></div>`;
+            }
+            $('cal-body').innerHTML = `<div class="cal-wrap"><div class="cal-in"><div class="cal-h"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div><div class="cal-g">${h}</div></div></div>`;
+        }
+        function renderList() {
+            const today = localDate(), list = upcoming(CAL.expand(calendarEvents, today, CAL.addDays(today, 90))).slice(0, 80);
+            $('cal-title').innerText = 'Die nächsten 90 Tage';
+            const by = []; list.forEach(o => { const g = by[by.length - 1]; if (g && g.d === o.date) g.l.push(o); else by.push({ d: o.date, l: [o] }); });
+            $('cal-body').innerHTML = by.length ? by.map(g => `<div class="lday"><h4${g.d === today ? ' class="td"' : ''}>${g.d === today ? 'Heute · ' : g.d === CAL.addDays(today, 1) ? 'Morgen · ' : ''}${pDate(g.d).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}</h4>${g.l.map(neRow).join('')}</div>`).join('') : '<div class="empty">Keine Termine in den nächsten 90 Tagen.</div>';
+        }
+        // Vorbei ist vorbei: heutige Termine verschwinden, wenn sie zu Ende sind
+        function upcoming(list) { const t = localDate(), n = new Date(), now = n.getHours() + n.getMinutes() / 60; return list.filter(o => o.date !== t || !o.time || endOf(o) > now); }
+        function neRow(o) {
+            const [ic, c] = evStyle(o);
+            return `<button type="button" class="ne" style="--ec:${c}" data-ev="${esc(o.id)}" data-occ="${o.date}"><span class="ei"><i class="fa-solid ${ic}"></i></span><div><small>${dayLbl(o.date)} · ${o.time ? esc(CAL.timeLabel(o)) : 'ganztägig'}${o.recurring ? ' · <i class="fa-solid fa-repeat"></i>' : ''}</small><b>${esc(o.title)}</b></div></button>`;
+        }
+        function renderUpcoming() {
+            const list = upcoming(CAL.nextOccurrences(calendarEvents, localDate(), 12, 120)), html = n => (list.length ? list.slice(0, n).map(neRow).join('') : '<div class="empty">Keine anstehenden Termine.</div>');
+            $('nx-list').innerHTML = html(4); $('up-list').innerHTML = html(8); Layout.refresh();
+        }
+        setInterval(() => { if (calendarEvents.length) renderUpcoming(); }, 5 * 60000);
 
         // ---------- Schnell-Erfassung ----------
         const QK = { task: ['Neue Aufgabe...', 'Aufgabe'], shop: ['Einkauf, z. B. Milch...', 'Einkauf'], note: ['Notiz an die Pinnwand...', 'Notiz'], event: ['Titel des Termins...', 'Termin'] };
@@ -290,25 +675,6 @@
             if (e.key.toLowerCase() === 'n' && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && !anyModal()) { e.preventDefault(); openQuick(); }
         });
 
-        // ---------- Uhr & Begrüßung ----------
-        const setT = (el, t) => { const n = el.firstChild; if (n && n.nodeType === 3) { if (n.nodeValue !== t) n.nodeValue = t; } else el.textContent = t; };
-        let lastMinute = -1;
-        function updateClock() {
-            const now = new Date();
-            setT($('dash-time'), now.toLocaleTimeString('de-DE'));
-            if (now.getMinutes() !== lastMinute) {
-                lastMinute = now.getMinutes();
-                const h = now.getHours();
-                $('dash-date').innerText = now.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
-                const t = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())); t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
-                $('dash-week').innerText = `Kalenderwoche ${Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7)}`;
-                $('greet').innerText = h < 5 ? 'Gute Nacht' : h < 11 ? 'Guten Morgen' : h < 18 ? 'Guten Tag' : 'Guten Abend';
-                $('greet-emoji').innerText = h < 5 ? '🌙' : h < 11 ? '☀️' : h < 18 ? '👋' : '🌆';
-            }
-            if (activeStart) tickStamp();
-        }
-        setInterval(updateClock, 1000);
-
         async function countOf(q) { try { return (await q.count().get()).data().count; } catch (e) { try { return (await q.get()).size; } catch (e2) { return 0; } } }
         async function countPending() {
             const [p, m] = await Promise.all([countOf(db.collection('users').where('status', '==', 'pending')), countOf(db.collection('contact_messages').where('read', '==', false))]);
@@ -320,82 +686,7 @@
             $('pending-banner').classList.remove('hidden');
         }
 
-        // ---------- Arbeitszeit-Widget ----------
-        function dayTarget() { return Math.round((currentUser.userPrefs?.work?.weekly || 40) / 5 * 60); }
-        function initStamp() {
-            if (!can(currentUser, 'zeit')) return;
-            db.collection('active_work').doc(currentUser.uid).onSnapshot(d => {
-                activeStart = d.exists && d.data().startTime ? d.data().startTime.toDate() : null;
-                const on = !!activeStart;
-                $('st-badge').innerText = on ? 'Aktiv' : 'Inaktiv';
-                $('st-badge').className = on ? 'chip g' : 'chip';
-                $('st-sub').innerText = on ? `Eingestempelt seit ${activeStart.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr` : 'Nicht eingestempelt';
-                if (!on) $('st-timer').innerText = '00:00:00';
-                tickStamp();
-            });
-            db.collection('worktime').where('owner', '==', currentUser.email).where('date', '==', localDate()).onSnapshot(s => {
-                bookedToday = s.docs.reduce((a, d) => a + (d.data().netMinutes || 0), 0); tickStamp();
-            }, () => {});
-        }
-        function tickStamp() {
-            const ms = activeStart ? Math.max(0, Date.now() - activeStart) : 0, p = n => String(n).padStart(2, '0');
-            if (activeStart) setT($('st-timer'), `${p(Math.floor(ms / 3600000))}:${p(Math.floor(ms % 3600000 / 60000))}:${p(Math.floor(ms % 60000 / 1000))}`);
-            const total = bookedToday + ms / 60000, t = dayTarget();
-            setT($('st-today'), `${hm(total)} / ${hm(t)}`); $('st-bar').style.width = Math.min(100, total / t * 100) + '%';
-        }
-
-        // ---------- Wetter ----------
-        // [bis Wettercode, Text, Symbol, Farbe]
-        const WX = [[0, 'Klar', 'fa-sun', '#fbbf24'], [3, 'Leicht bewölkt', 'fa-cloud-sun', '#fcd34d'], [48, 'Nebelig', 'fa-smog', '#94a3b8'], [67, 'Regnerisch', 'fa-cloud-rain', '#22d3ee'],
-            [77, 'Schnee', 'fa-snowflake', '#a5b4fc'], [82, 'Regenschauer', 'fa-cloud-showers-heavy', '#22d3ee'], [86, 'Schneeschauer', 'fa-snowflake', '#a5b4fc'], [99, 'Gewitter', 'fa-cloud-bolt', '#f59e0b']];
-        const wx = c => WX.find(w => c <= w[0]) || WX[WX.length - 1];
-        async function loadWeather() {
-            try {
-                const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.8021&longitude=6.4836&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=4&timezone=auto');
-                const j = await r.json(), c = j.current, d = j.daily, w = wx(c.weather_code);
-                $('weather-temp').innerText = `${Math.round(c.temperature_2m)}°C`; $('weather-condition').innerText = w[1]; $('weather-icon').className = `fa-solid ${w[2]} big`; $('weather-icon').style.color = w[3];
-                $('weather-wind').innerText = ` ${Math.round(c.wind_speed_10m)} km/h`; $('weather-hum').innerText = ` ${c.relative_humidity_2m} %`; $('weather-rain').innerText = ` ${d.precipitation_probability_max[0] ?? '–'} %`;
-                $('forecast').innerHTML = [1, 2, 3].map(i => { const f = wx(d.weather_code[i]);
-                    return `<div><div class="ux-note">${new Date(d.time[i]).toLocaleDateString('de-DE', { weekday: 'short' })}</div><i class="fa-solid ${f[2]}" style="color:${f[3]};font-size:20px;margin:7px 0;display:block" title="${f[1]}"></i>
-                        <div style="font-size:12.5px"><b>${Math.round(d.temperature_2m_max[i])}°</b> <span class="ux-note">${Math.round(d.temperature_2m_min[i])}°</span></div></div>`; }).join('');
-            } catch (e) { $('weather-condition').innerText = 'Wetter offline'; }
-        }
-
-        // ---------- Kalender ----------
-        const evOf = id => calendarEvents.find(e => e.id === id);
-        const pad2 = n => String(n).padStart(2, '0');
-        function initCalendar() {
-            const merge = () => { const m = new Map(); [...pubEvents, ...myEvents].forEach(ev => m.set(ev.id, ev)); calendarEvents = [...m.values()]; renderCalendar(); renderUpcoming(); };
-            const list = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
-            db.collection('events').where('isPublic', '==', true).onSnapshot(s => { pubEvents = list(s); merge(); }, () => renderCalendar());
-            db.collection('events').where('owner', '==', currentUser.email).onSnapshot(s => { myEvents = list(s); merge(); }, () => renderCalendar());
-            $('calendar-days-grid').addEventListener('click', e => { const a = e.target.closest('[data-add]'), v = e.target.closest('[data-ev]'); if (a) openEventModal(a.dataset.add); else if (v) openEditEvent(v.dataset.ev, v.dataset.occ); });
-            $('upcoming').addEventListener('click', e => { const v = e.target.closest('[data-ev]'); if (v) openEditEvent(v.dataset.ev, v.dataset.occ); });
-            $('evdel-btns').addEventListener('click', e => { const b = e.target.closest('[data-scope]'); if (b) doDeleteEvent(b.dataset.scope); });
-        }
-        function renderCalendar() {
-            const y = currentCalendarDate.getFullYear(), mo = currentCalendarDate.getMonth(), today = localDate();
-            $('calendar-month-year').innerText = new Date(y, mo, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
-            const first = (new Date(y, mo, 1).getDay() + 6) % 7, days = new Date(y, mo + 1, 0).getDate();
-            const byDay = {}; CAL.expand(calendarEvents, `${y}-${pad2(mo + 1)}-01`, `${y}-${pad2(mo + 1)}-${pad2(days)}`).forEach(o => (byDay[o.date] = byDay[o.date] || []).push(o));
-            let h = '<div class="cal-d pad"></div>'.repeat(first);
-            for (let d = 1; d <= days; d++) {
-                const ds = `${y}-${pad2(mo + 1)}-${pad2(d)}`, isToday = ds === today, we = [0, 6].includes(new Date(y, mo, d).getDay());
-                const evs = (byDay[ds] || []).map(o => `<div data-ev="${esc(o.id)}" data-occ="${o.date}" title="${esc(o.title)}${o.time ? ' · ' + esc(CAL.timeLabel(o)) : ''}" class="cal-e${o.isPublic ? ' pub' : ''}">${o.time ? `<b>${esc(o.time)}</b>` : ''}<span>${esc(o.title)}</span>${o.recurring ? '<i class="fa-solid fa-repeat"></i>' : ''}</div>`).join('');
-                h += `<div class="cal-d${we ? ' we' : ''}${isToday ? ' today' : ''}"><div class="cal-n"><b>${d}</b><button data-add="${ds}" title="Termin hinzufügen" aria-label="Termin am ${d}. hinzufügen"><i class="fa-solid fa-plus"></i></button></div><div class="cal-es">${evs}</div></div>`;
-            }
-            $('calendar-days-grid').innerHTML = h;
-        }
-        function renderUpcoming() {
-            const today = localDate(), tom = CAL.addDays(today, 1), list = CAL.nextOccurrences(calendarEvents, today, 6, 120);
-            $('upcoming').innerHTML = list.length ? list.map(o => {
-                const lbl = o.date === today ? 'Heute' : o.date === tom ? 'Morgen' : new Date(o.date).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
-                return `<div class="row" style="cursor:pointer" data-ev="${esc(o.id)}" data-occ="${o.date}"><div class="n"><div class="ell">${o.time ? `<b style="color:#a5b4fc;margin-right:6px">${esc(o.time)}</b>` : ''}${esc(o.title)}${o.recurring ? ' <i class="fa-solid fa-repeat" style="font-size:10px;color:#64748b"></i>' : ''}</div></div><span class="chip${o.date === today ? ' on' : ''}">${lbl}</span></div>`;
-            }).join('') : '<div class="ux-note" style="padding:8px 2px">Keine anstehenden Termine.</div>';
-        }
-        function changeCalendarMonth(d) { currentCalendarDate.setDate(1); currentCalendarDate.setMonth(currentCalendarDate.getMonth() + d); renderCalendar(); }
-        function goToday() { currentCalendarDate = new Date(); renderCalendar(); }
-
+        // ---------- Termin anlegen, ansehen, bearbeiten, löschen ----------
         // ---------- Termin anlegen, ansehen, bearbeiten, löschen ----------
         const UNITS = { daily: 'Tag(e)', weekly: 'Woche(n)', monthly: 'Monat(e)', yearly: 'Jahr(e)' };
         function toggleAllDay() { $('ev-times').classList.toggle('hidden', $('ev-allday').checked); }
@@ -406,9 +697,9 @@
             toggleAllDay(); toggleRepeat(); $('ev-repeat-box').classList.remove('hidden'); $('ev-date-label').textContent = 'Datum';
             $('ev-form').querySelectorAll('input:not([type=hidden]), select').forEach(el => { el.disabled = readOnly; });
         }
-        function openEventModal(d = '') {
+        function openEventModal(d = '', time = '') {
             $('ev-heading').textContent = 'Neuen Termin eintragen'; $('ev-id').value = ''; $('ev-occ').value = '';
-            setEventForm({ date: d || localDate(), isPublic: true }, false);
+            setEventForm({ date: d || localDate(), time, isPublic: true }, false);
             $('ev-scope').classList.add('hidden'); $('ev-del').classList.add('hidden'); $('ev-ro').classList.add('hidden'); $('ev-save').classList.remove('hidden');
             openModal('modal-event'); setTimeout(() => $('ev-title').focus(), 40);
         }
@@ -473,9 +764,11 @@
         function initNotes() {
             db.collection('notes').orderBy('createdAt', 'desc').onSnapshot(s => {
                 familyNotes = s.docs.map(d => ({ id: d.id, ...d.data() })); $('note-count').innerText = familyNotes.length;
-                $('notes-list').innerHTML = familyNotes.length ? familyNotes.map(n => `<div class="row"><div class="n"><div style="word-break:break-word">${esc(n.text)}</div><small>${esc(n.author || 'Mitglied')}</small></div>
-                    ${n.owner === currentUser.email || isAdmin(currentUser) ? `<button data-del="${esc(n.id)}" class="ux-ib bad" title="Löschen" aria-label="Notiz löschen"><i class="fa-solid fa-trash-can"></i></button>` : ''}</div>`).join('') : '<div class="ux-note" style="padding:6px 2px">Keine Notizen vorhanden.</div>';
-            });
+                const when = n => { const d = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate() : null; if (!d) return ''; const ds = localDate(d); return ' · ' + (ds === localDate() ? 'heute' : ds === CAL.addDays(localDate(), -1) ? 'gestern' : d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })); };
+                $('notes-list').innerHTML = familyNotes.length ? familyNotes.map(n => `<div>${esc(n.text)}<small>${esc(n.author || 'Mitglied')}${when(n)}</small>
+                    ${n.owner === currentUser.email || isAdmin(currentUser) ? `<button data-del="${esc(n.id)}" class="xd" title="Löschen" aria-label="Notiz löschen"><i class="fa-solid fa-xmark"></i></button>` : ''}</div>`).join('') : '<p class="empty">Keine Notizen vorhanden.</p>';
+                Layout.refresh();
+            }, () => {});
             $('notes-list').addEventListener('click', e => { const d = e.target.closest('[data-del]'); if (d) run(() => db.collection('notes').doc(d.dataset.del).delete()); });
         }
         function saveNewNote(e) {
@@ -486,31 +779,40 @@
         // ---------- Aufgaben & Einkauf ----------
         const kindOf = t => t.kind || 'task';
         function initTodos() {
-            db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(s => { familyTodos = s.docs.map(d => ({ id: d.id, ...d.data() })); renderTodos(); });
+            db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(s => { familyTodos = s.docs.map(d => ({ id: d.id, ...d.data() })); renderTodos(); }, () => {});
             $('todos-list').addEventListener('change', e => { if (e.target.dataset.id) run(() => db.collection('todos').doc(e.target.dataset.id).update({ done: e.target.checked })); });
             $('todos-list').addEventListener('click', e => { const d = e.target.closest('[data-del]'); if (d) run(() => db.collection('todos').doc(d.dataset.del).delete()); });
+            $('todo-filters').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (b) setFilter(b.dataset.f); });
+            $('new-todo-input').addEventListener('keydown', e => { if (e.key === 'Escape') hideTodoForm(); });
         }
         function renderTodos() {
             const list = familyTodos.filter(t => todoFilter === 'all' || kindOf(t) === todoFilter).sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));
-            $('todo-count').innerText = familyTodos.filter(t => !t.done).length;
-            $('todos-list').innerHTML = list.length ? list.map(t => `<div class="row"><label class="tdl"><input type="checkbox" data-id="${esc(t.id)}" ${t.done ? 'checked' : ''} aria-label="Erledigt">
-                <i class="fa-solid ${kindOf(t) === 'shop' ? 'fa-cart-shopping' : 'fa-circle-check'}" style="color:${kindOf(t) === 'shop' ? '#facc15' : '#34d399'};font-size:12px"></i>
-                <span class="ell${t.done ? ' done' : ''}">${esc(t.text)}</span></label>
-                <button data-del="${esc(t.id)}" class="ux-ib bad" title="Löschen" aria-label="Eintrag löschen"><i class="fa-solid fa-xmark"></i></button></div>`).join('') : '<div class="ux-note" style="padding:6px 2px">Alles erledigt! 🎉</div>';
+            $('todo-count').innerText = familyTodos.filter(t => !t.done && (todoFilter === 'all' || kindOf(t) === todoFilter)).length;
+            $('todos-list').innerHTML = list.length ? list.map(t => { const shop = kindOf(t) === 'shop';
+                return `<div class="tk${t.done ? ' done' : ''}"><label title="${esc(t.author ? 'von ' + t.author : '')}"><input type="checkbox" data-id="${esc(t.id)}" ${t.done ? 'checked' : ''} aria-label="${esc(t.text)} erledigt"><span class="cb"><i class="fa-solid fa-check"></i></span><span class="tx">${esc(t.text)}</span></label>
+                ${shop ? '<i class="fa-solid fa-cart-shopping tg" style="--tc:#facc15" title="Einkauf"></i>' : ''}<button data-del="${esc(t.id)}" class="xd" title="Löschen" aria-label="${esc(t.text)} löschen"><i class="fa-solid fa-xmark"></i></button></div>`; }).join('')
+                : `<p class="empty">${todoFilter === 'shop' ? 'Nichts auf der Einkaufsliste.' : 'Alles erledigt! 🎉'}</p>`;
+            Layout.refresh();
         }
-        function setFilter(f) { todoFilter = f; document.querySelectorAll('#todo-filters .chip').forEach(c => c.classList.toggle('on', c.dataset.f === f)); renderTodos(); }
-        function toggleKind() {
-            todoKind = todoKind === 'task' ? 'shop' : 'task';
-            $('kind-btn').innerHTML = `<i class="fa-solid ${todoKind === 'shop' ? 'fa-cart-shopping' : 'fa-circle-check'}" style="color:${todoKind === 'shop' ? '#facc15' : '#34d399'}"></i>`;
-            $('new-todo-input').placeholder = todoKind === 'shop' ? 'Einkauf: z. B. Milch...' : 'Neue Aufgabe...';
+        function setFilter(f) {
+            todoFilter = f; document.querySelectorAll('#todo-filters [data-f]').forEach(c => c.classList.toggle('on', c.dataset.f === f));
+            $('todo-add').querySelector('span').innerText = f === 'shop' ? 'Einkauf hinzufügen' : 'Aufgabe hinzufügen'; renderTodos();
         }
+        function setKind(k) {
+            todoKind = k;
+            $('kind-btn').innerHTML = `<i class="fa-solid ${k === 'shop' ? 'fa-cart-shopping' : 'fa-circle-check'}" style="color:${k === 'shop' ? '#facc15' : '#34d399'}"></i>`;
+            $('new-todo-input').placeholder = k === 'shop' ? 'Einkauf, z. B. Milch …' : 'Neue Aufgabe …';
+        }
+        const toggleKind = () => setKind(todoKind === 'task' ? 'shop' : 'task');
+        function showTodoForm() { setKind(todoFilter === 'shop' ? 'shop' : 'task'); $('todo-add').classList.add('hidden'); $('todo-form').classList.remove('hidden'); $('new-todo-input').focus(); Layout.refresh(); }
+        function hideTodoForm() { $('todo-form').classList.add('hidden'); $('todo-add').classList.remove('hidden'); $('new-todo-input').value = ''; Layout.refresh(); }
         function saveNewTodo(e) {
             e.preventDefault(); const i = $('new-todo-input'), text = i.value.trim(); if (!text) return;
-            run(async () => { await db.collection('todos').add({ text, kind: todoKind, done: false, author: currentUser.firstName, owner: currentUser.email, createdAt: TS() }); i.value = ''; });
+            run(async () => { await db.collection('todos').add({ text, kind: todoKind, done: false, author: currentUser.firstName, owner: currentUser.email, createdAt: TS() }); i.value = ''; i.focus(); });
         }
         function clearDone() {
             const done = familyTodos.filter(t => t.done && (todoFilter === 'all' || kindOf(t) === todoFilter));
-            if (!done.length) return alert('Keine erledigten Einträge.');
+            if (!done.length) return toast('Keine erledigten Einträge.');
             if (!confirm(`${done.length} erledigte Einträge löschen?`)) return;
             run(async () => { const b = db.batch(); done.forEach(t => b.delete(db.collection('todos').doc(t.id))); await b.commit(); });
         }
