@@ -123,11 +123,12 @@ function waveFor(r, diff) {
   groups.push([main, n, gap]); if (main > 1) groups.push([main - 1, Math.floor(n * 0.7), gap * 0.9]);
   if (r % 5 === 0 && main < 5) groups.push([main + 1, Math.floor(n * 0.4), gap]); if (main >= 3) groups.push([1, Math.floor(n * 0.5), gap * 0.5]);
   let seed = r * 7919 + 13; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const pR = r >= 8 ? Math.min(.3, (r - 7) * .02) : 0, pC = r >= 12 ? Math.min(.28, (r - 11) * .015) : 0, pM = r >= 15 ? Math.min(.18, (r - 14) * .012) : 0, pK = r >= 22 ? Math.min(.22, (r - 21) * .01) : 0;
+  // Besondere Ballons kommen nach und nach: Nachwachsend ab 14, Metall ab 18, Tarn ab 22, Keramik ab 28
+  const pR = r >= 14 ? Math.min(.25, (r - 13) * .015) : 0, pM = r >= 18 ? Math.min(.15, (r - 17) * .01) : 0, pC = r >= 22 ? Math.min(.2, (r - 21) * .01) : 0, pK = r >= 28 ? Math.min(.2, (r - 27) * .008) : 0;
   groups.forEach(([l, c, g]) => { for (let i = 0; i < c; i++) { const e = { t: t + i * g, layer: l }, x = rnd();
     if (x < pK) e.kind = 'ceramic'; else if (x < pK + pM) e.kind = 'metal';
     if (rnd() < pC) e.camo = true; if (!e.kind && rnd() < pR) e.regrow = true; ev.push(e); } t += c * g + 1.2; });
-  if (r % 10 === 0) ev.push({ t: 0.5, boss: Math.round(120 * Math.pow(r / 10, 1.8) * DIFF[diff || 'normal'].boss) });
+  if (r >= 20 && r % 10 === 0) ev.push({ t: 0.5, boss: Math.round(150 * Math.pow((r - 10) / 10, 1.8) * DIFF[diff || 'normal'].boss) });      // erster Zeppelin in Runde 20
   return ev.sort((a, b) => a.t - b.t);
 }
 function preview(r) {
@@ -158,7 +159,7 @@ const MODES = [['first', 'Erster'], ['last', 'Letzter'], ['strong', 'Stärkster'
 // Spezialfähigkeit ab einem voll ausgebauten Pfad: [Name, Beschreibung, Abklingzeit in Sekunden]
 const ABIL = { dart: ['Pfeilhagel', '8 Sekunden lang fünfmal so schnell', 40], boom: ['Wirbelsturm', '8 Sekunden dreimal so schnell, +10 Durchschlag', 40], bomb: ['Großangriff', '4 Schaden an allen Ballons im doppelten Radius', 45], ice: ['Schockfrost', 'Alle Ballons 3 Sekunden eingefroren', 50],
   sniper: ['Präzisionsschuss', '500 Schaden am stärksten Ballon', 45], bank: ['Auszahlung', 'Sofort das 1,5-fache Rundeneinkommen', 60], tesla: ['Gewitter', 'Blitz trifft bis zu 30 Ballons mit 3 Schaden', 45], glue: ['Kleberflut', 'Alle Ballons 6 Sekunden verklebt', 50] };
-const RADAR = 300, VET = [500, 2000, 10000];
+const RADAR = 200, VET = [500, 2000, 10000];
 const META = [['startMoney', 'Startkapital', '+50 € zum Start je Stufe', 8, 1.6], ['lives', 'Sicherheitsnetz', '+5 Leben je Stufe', 10, 1.6], ['discount', 'Mengenrabatt', 'Türme und Upgrades 2 % günstiger je Stufe', 15, 1.7], ['bonus', 'Scharfe Augen', '+5 % Geld für jeden geplatzten Ballon je Stufe', 12, 1.6], ['roundBonus', 'Rundenprämie', '+10 € Rundenbonus je Stufe', 12, 1.6]];
 const META_MAX = 10;
 // ================= Erfolge =================
@@ -184,7 +185,7 @@ const fmt = n => Math.floor(n).toLocaleString('de-DE');
 const price = c => Math.round(c * (1 - 0.02 * M.up.discount) * D().price);
 function newRun(map, diff) {
   curMap = map; PATH = buildPath(map); BG = null; const df = DIFF[diff] ? diff : 'normal';
-  S = { map, diff: df, round: 1, money: 650 + 50 * M.up.startMoney, lives: DIFF[df].noMeta ? DIFF[df].lives : DIFF[df].lives + 5 * M.up.lives, towers: [], balloons: [], projs: [], fx: [], queue: [], waveT: 0, active: false, speed: 1, paused: false, over: false, auto: false, autoIn: 0, nid: 1, popped: 0, lost: 0, types: [], shake: 0, time: 0 };
+  S = { map, diff: df, round: 1, money: 800 + 50 * M.up.startMoney, lives: DIFF[df].noMeta ? DIFF[df].lives : DIFF[df].lives + 5 * M.up.lives, towers: [], balloons: [], projs: [], fx: [], queue: [], waveT: 0, active: false, speed: 1, paused: false, over: false, auto: false, autoIn: 0, nid: 1, popped: 0, lost: 0, types: [], shake: 0, time: 0 };
   selTower = null; placing = null; renderAll(); return S;
 }
 // ================= Türme: Werte =================
@@ -300,7 +301,7 @@ function step() {
   else if (!S.active && S.auto && S.autoIn > 0) { S.autoIn -= DT; if (S.autoIn <= 0) startRound(); }
 }
 function endRound() {
-  S.active = false; const income = S.towers.reduce((a, t) => a + (t.s.kind === 'bank' ? t.s.income : 0), 0), bonus = 100 + S.round * 3 + 10 * M.up.roundBonus;
+  S.active = false; const income = S.towers.reduce((a, t) => a + (t.s.kind === 'bank' ? t.s.income : 0), 0), bonus = 120 + S.round * 6 + 10 * M.up.roundBonus;
   S.money += bonus + income; M.best[S.map] = Math.max(M.best[S.map] || 0, S.round); S.lastBonus = bonus + income; toast(`Runde ${S.round} geschafft: +${fmt(bonus + income)} €`); S.round++; S.projs = []; checkAch(); saveRun(); saveMeta(); if (S.auto) S.autoIn = 1.5; renderAll();
 }
 function gameOver() {
