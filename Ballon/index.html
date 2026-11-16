@@ -40,7 +40,8 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 .up .un { font-weight: 700; font-size: 13px; } .up .ul { font-size: 10.5px; color: var(--mu); text-transform: uppercase; letter-spacing: .1em; } .up .uc { font-weight: 800; font-size: 13px; color: #fca5a5; white-space: nowrap; } .up.can { border-color: rgba(var(--ar), .5); background: rgba(var(--ar), .08); } .up.can .uc { color: #86efac; } .up.max { opacity: .55; } .pips { display: flex; gap: 3px; margin-top: 4px; } .pips i { width: 14px; height: 4px; border-radius: 3px; background: #334155; } .pips i.f { background: var(--a); }
 .ov { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; padding: 14px; background: rgba(3,10,7,.84); border-radius: 24px; overflow-y: auto; }
 .box { width: min(100%, 760px); padding: 22px; max-height: 100%; overflow-y: auto; } .box h2 { margin: 0 0 4px; font-size: 26px; letter-spacing: -.02em; } .box p.lead { margin: 0 0 16px; color: var(--mu); font-size: 14px; }
-.mt { display: flex; gap: 6px; margin-bottom: 14px; } .mt button { flex: 1; padding: 10px; border-radius: 13px; border: 1px solid var(--ln); background: rgba(255,255,255,.05); font-weight: 700; color: var(--mu); } .mt button.on { color: #03170f; background: var(--a); border-color: var(--a); }
+.mt { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; } .mt button { white-space: nowrap; }
+.svs { display: flex; flex-direction: column; gap: 8px; } .sv { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; border: 1px solid var(--ln); background: rgba(255,255,255,.04); flex-wrap: wrap; } .sv.empty { opacity: .7; border-style: dashed; } .sv .se { font-size: 26px; } .sv .t { flex: 1 1 200px; min-width: 0; } .sv b { font-size: 14px; } .sv small { display: block; color: var(--mu); font-size: 12px; margin-top: 2px; line-height: 1.5; } .sv small b { font-size: 12px; color: #e2e8f0; } .sv .sb { display: flex; gap: 6px; } .mt button { flex: 1; padding: 10px; border-radius: 13px; border: 1px solid var(--ln); background: rgba(255,255,255,.05); font-weight: 700; color: var(--mu); } .mt button.on { color: #03170f; background: var(--a); border-color: var(--a); }
 .maps { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-bottom: 14px; } .mp { text-align: left; padding: 14px; border-radius: 18px; border: 1px solid var(--ln); background: rgba(255,255,255,.04); transition: transform .15s, border-color .2s; } .mp:hover:not(.lock) { transform: translateY(-2px); } .mp.sel { border-color: var(--a); background: rgba(var(--ar), .1); box-shadow: 0 0 0 2px rgba(var(--ar), .25); } .mp.lock { opacity: .5; cursor: not-allowed; }
 .mp .me { font-size: 28px; } .mp b { display: block; margin-top: 4px; } .mp small { color: var(--mu); font-size: 12px; line-height: 1.5; display: block; margin-top: 4px; }
 .ml { display: flex; flex-direction: column; gap: 8px; } .mu { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; border: 1px solid var(--ln); background: rgba(255,255,255,.04); } .mu .t { flex: 1; } .mu b { font-size: 14px; } .mu small { display: block; color: var(--mu); font-size: 12px; } .mu .lv { font-size: 12px; color: var(--a); font-weight: 700; }
@@ -202,7 +203,7 @@ function upgrade(t, path) { const d = TOWERS[t.t], n = path === 'A' ? t.a : t.b,
 function buyRadar(t) { if (t.radar || t.s.radar || t.t === 'bank' || t.t === 'ice') return false; const c = price(RADAR); if (S.money < c) return false; S.money -= c; t.spent += c; t.radar = true; t.s = stats(t); sfx('up'); idleSave(); renderAll(); return true; }
 function sell(t) { const i = S.towers.indexOf(t); if (i < 0) return false; S.money += Math.floor(t.spent * 0.7); S.towers.splice(i, 1); if (selTower === t) selTower = null; idleSave(); renderAll(); return true; }
 // ================= Runde =================
-function startRound() { if (!S || S.active || S.over) return false; S.queue = waveFor(S.round, S.diff); S.waveT = 0; S.active = true; S.autoIn = 0; renderAll(); return true; }
+function startRound() { if (!S || S.active || S.over) return false; S.cp = runData(); S.queue = waveFor(S.round, S.diff); S.waveT = 0; S.active = true; S.autoIn = 0; renderAll(); return true; }
 function spawn(e) {
   let b; if (e.boss) b = { id: S.nid++, boss: true, hp: e.boss, max: e.boss, layer: 6, d: 0 };
   else { b = { id: S.nid++, layer: e.layer, d: e.d || 0, camo: !!e.camo, regrow: e.regrow ? e.layer : 0, rgT: 0 }; if (e.kind) { b.kind = e.kind; b.hp = KIND[e.kind].hp; b.regrow = 0; } }
@@ -309,9 +310,12 @@ function endRound() {
   S.active = false; const income = S.towers.reduce((a, t) => a + (t.s.kind === 'bank' ? t.s.income : 0), 0), bonus = 120 + S.round * 6 + 10 * M.up.roundBonus;
   S.money += bonus + income; M.best[S.map] = Math.max(M.best[S.map] || 0, S.round); S.lastBonus = bonus + income; toast(`Runde ${S.round} geschafft: +${fmt(bonus + income)} €`); S.round++; S.projs = []; checkAch(); saveRun(); saveMeta(); if (S.auto) S.autoIn = 1.5; renderAll();
 }
+// Verloren: Man kann die Runde nochmal versuchen, einen Spielstand laden oder beenden (erst dann gibt es die Diamanten)
 function gameOver() {
-  if (S.over) return; S.over = true; S.active = false; const dn = S.round - 1, d = Math.floor(Math.pow(Math.max(0, dn), 1.3) / 2 * D().dia); S.earned = d; M.diamonds += d; M.runs++; M.best[S.map] = Math.max(M.best[S.map] || 0, dn); savedRun = null; checkAch(); saveMeta(); saveRun(); showOverlay('over'); renderAll();
+  if (S.over) return; S.over = true; S.active = false; const dn = S.round - 1; S.earned = Math.floor(Math.pow(Math.max(0, dn), 1.3) / 2 * D().dia); S.paid = false; M.best[S.map] = Math.max(M.best[S.map] || 0, dn); checkAch(); saveMeta(); showOverlay('over'); renderAll();
 }
+function finishRun() { if (!S || !S.over || S.paid) return; S.paid = true; M.diamonds += S.earned; M.runs++; savedRun = null; checkAch(); saveMeta(); }
+function retryRound() { if (!S || !S.cp) return false; const q = S.cp; loadRun(q); toast(`Runde ${q.round} nochmal – viel Glück!`); return true; }
 // ================= Töne (nur wenn eingeschaltet) =================
 let AC = null, sndN = 0; setInterval(() => { sndN = 0; }, 100);
 function sfx(k) {
@@ -321,7 +325,11 @@ function sfx(k) {
     o.type = P[3]; o.frequency.setValueAtTime(P[0], n); o.frequency.exponentialRampToValueAtTime(Math.max(30, P[1]), n + P[2]); g.gain.setValueAtTime(P[4], n); g.gain.exponentialRampToValueAtTime(.0001, n + P[2]); o.connect(g).connect(AC.destination); o.start(n); o.stop(n + P[2] + .02); } catch (e) {}
 }
 // ================= Speichern =================
-function saveMeta() { try { const o = { v: 1, meta: M, run: savedRun }; localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
+const SLOTS = 3; let slots = [null, null, null];
+function saveMeta() { try { const o = { v: 1, meta: M, run: savedRun, slots }; localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
+// Spielstand in einen Platz speichern. Während einer Runde wird der Stand vom Rundenbeginn gespeichert.
+function saveSlot(i) { if (!S || S.over || i < 0 || i >= SLOTS) return false; const d = S.active ? S.cp : runData(); if (!d) return false; slots[i] = { ...JSON.parse(JSON.stringify(d)), at: Date.now() }; saveMeta(); toast(`💾 In Platz ${i + 1} gespeichert (Runde ${d.round})`); return true; }
+function deleteSlot(i) { slots[i] = null; saveMeta(); }
 function runData() { return S && !S.over ? { map: S.map, diff: S.diff, round: S.round, money: S.money, lives: S.lives, lost: S.lost, types: S.types, towers: S.towers.map(t => ({ t: t.t, x: t.x, y: t.y, a: t.a, b: t.b, mode: t.mode, spent: t.spent, pops: t.pops || 0, radar: !!t.radar, abCd: Math.round(t.abCd || 0) })) } : null; }
 function saveRun() { savedRun = runData(); saveMeta(); }
 function idleSave() { if (S && !S.active && !S.over) saveRun(); }
@@ -332,17 +340,22 @@ function sanitize(o) {
   m.bosses = Math.max(0, Math.floor(num(mm.bosses, 0))); m.abil = Math.max(0, Math.floor(num(mm.abil, 0))); m.grid = mm.grid !== false; m.diff = DIFF[mm.diff] ? mm.diff : 'normal';
   m.ach = Array.isArray(mm.ach) ? [...new Set(mm.ach.filter(id => ACH.some(a => a[0] === id)))] : []; m.seen = {}; if (mm.seen && typeof mm.seen === 'object') ['metal', 'ceramic', 'camo', 'regrow'].forEach(k => { if (mm.seen[k]) m.seen[k] = 1; });
   META.forEach(([k]) => { m.up[k] = clamp(Math.floor(num(mm.up && mm.up[k], 0)), 0, META_MAX); }); Object.keys(MAPS).forEach(k => { m.best[k] = Math.max(0, Math.floor(num(mm.best && mm.best[k], 0))); });
-  let run = null; const q = r.run, keep = PATH;
+  const run = sanitizeRun(r.run), sl = Array.isArray(r.slots) ? r.slots : [];
+  return { meta: m, run, slots: Array.from({ length: SLOTS }, (_, i) => { const x = sanitizeRun(sl[i]); if (x) x.at = Math.max(0, num(sl[i].at, 0)); return x; }) };
+}
+function sanitizeRun(q) {
+  let run = null; const keep = PATH;
   if (q && typeof q === 'object' && MAPS[q.map] && Array.isArray(q.towers)) {
     run = { map: q.map, diff: DIFF[q.diff] ? q.diff : 'normal', round: Math.max(1, Math.floor(num(q.round, 1))), money: Math.max(0, num(q.money, 0)), lives: Math.max(1, num(q.lives, 1)), lost: Math.max(0, num(q.lost, 0)), types: Array.isArray(q.types) ? q.types.filter(k => TOWERS[k]) : [], towers: [] };
     const P = buildPath(q.map); const ok = (x, y) => { PATH = P; return x >= 22 && x <= W - 22 && y >= 22 && y <= H - 22 && distToPath(x, y) >= 30; };
     q.towers.slice(0, 80).forEach(t => { if (t && TOWERS[t.t] && ok(num(t.x, -1), num(t.y, -1)) && !run.towers.some(u => Math.hypot(u.x - t.x, u.y - t.y) < 36)) run.towers.push({ t: t.t, x: t.x, y: t.y, a: clamp(Math.floor(num(t.a, 0)), 0, TOWERS[t.t].A.length), b: clamp(Math.floor(num(t.b, 0)), 0, TOWERS[t.t].B.length), mode: MODES.some(x => x[0] === t.mode) ? t.mode : 'first', spent: Math.max(0, num(t.spent, 0)), pops: Math.max(0, Math.floor(num(t.pops, 0))), radar: t.radar === true, abCd: clamp(num(t.abCd, 0), 0, 60) }); });
     run.towers.forEach(t => { if (!run.types.includes(t.t)) run.types.push(t.t); });
   }
-  PATH = keep; return { meta: m, run };
+  PATH = keep; return run;
 }
-function load() { try { const r = localStorage.getItem(KEY); if (r) { const o = sanitize(JSON.parse(r)); M = o.meta; savedRun = o.run; } } catch (e) { M = freshMeta(); savedRun = null; } }
-function resume() { if (!savedRun) return false; const q = savedRun; newRun(q.map, q.diff); S.round = q.round; S.money = q.money; S.lives = q.lives; S.lost = q.lost; S.types = [...q.types]; S.towers = q.towers.map(t => { const o = { ...t, cd: 0.2, ang: 0, boostT: 0, flash: 0 }; o.s = stats(o); return o; }); hideOverlay(); renderAll(); return true; }
+function load() { try { const r = localStorage.getItem(KEY); if (r) { const o = sanitize(JSON.parse(r)); M = o.meta; savedRun = o.run; slots = o.slots; } } catch (e) { M = freshMeta(); savedRun = null; slots = [null, null, null]; } }
+function resume() { return savedRun ? loadRun(savedRun) : false; }
+function loadRun(q) { if (!q) return false; q = JSON.parse(JSON.stringify(q)); newRun(q.map, q.diff); pickMap = q.map; S.round = q.round; S.money = q.money; S.lives = q.lives; S.lost = q.lost; S.types = [...q.types]; S.towers = q.towers.map(t => { const o = { ...t, cd: 0.2, ang: 0, boostT: 0, flash: 0 }; o.s = stats(o); return o; }); saveRun(); hideOverlay(); renderAll(); return true; }
 // ================= Zeichnen =================
 function fit() { const w = $('cvw'), r = w.getBoundingClientRect(), k = Math.min(r.width / W, (r.height || r.width * 0.75) / H, 2.2), dpr = Math.min(window.devicePixelRatio || 1, 2); const cw = Math.max(200, Math.floor(W * k)), ch = Math.floor(H * (cw / W)); cv.style.width = cw + 'px'; cv.style.height = ch + 'px'; const bw = Math.min(1600, Math.round(cw * dpr)); if (cv.width !== bw) { cv.width = bw; cv.height = Math.round(bw * H / W); } }      // mehr als 1600 Pixel Breite bringen kein schärferes Bild, kosten aber Zeit
 function bg() { const k = cv.width / W, c = document.createElement('canvas'); c.width = Math.round(W * k); c.height = Math.round(H * k); const g = c.getContext('2d'); g.scale(k, k); ART.ground(g, W, H, MAPS[curMap].pts, distToPath, MAPS[curMap].theme); return c; }
@@ -474,17 +487,37 @@ function renderAll() { renderHud(); renderShop(); renderInfo(); }
 function mapOpen(k) { const u = MAPS[k].unlock; return !u || (M.best[u[0]] || 0) >= u[1]; }
 function showOverlay(kind) {
   const o = $('ov'); o.classList.remove('hidden');
-  if (kind === 'over') { o.innerHTML = `<div class="card box"><h2>Spiel vorbei</h2><p class="lead">Du hast ${S.round - 1} Runden geschafft auf „${MAPS[S.map].n}“ (${DIFF[S.diff].n}). Bestwert: ${M.best[S.map]}.</p><p style="font-size:18px">Du erhältst <span class="dia">${S.earned} 💎</span>${D().dia !== 1 ? ` (×${String(D().dia).replace('.', ',')} für ${DIFF[S.diff].n})` : ''} · insgesamt ${M.diamonds} 💎. Damit verbesserst du dauerhaft deine Starts.</p><div class="row"><button class="btn" id="o-up">Verbesserungen</button><button class="btn go" id="o-new">Neues Spiel</button></div></div>`; $('o-new').onclick = () => { menuTab = 'play'; showOverlay('menu'); }; $('o-up').onclick = () => { menuTab = 'up'; showOverlay('menu'); }; return; }
-  const tabs = `<div class="mt"><button data-m="play" class="${menuTab === 'play' ? 'on' : ''}">Spielen</button><button data-m="up" class="${menuTab === 'up' ? 'on' : ''}">Verbesserungen <span class="dia">${M.diamonds} 💎</span></button><button data-m="ach" class="${menuTab === 'ach' ? 'on' : ''}">Erfolge ${M.ach.length}/${ACH.length}</button></div>`;
+  if (kind === 'over') {
+    const has = slots.some(Boolean), cp = S.cp;
+    o.innerHTML = `<div class="card box"><h2>Spiel vorbei</h2><p class="lead">Du hast ${S.round - 1} Runden geschafft auf „${MAPS[S.map].n}“ (${DIFF[S.diff].n}). Bestwert: ${M.best[S.map]}.</p>
+      ${S.paid ? `<p style="font-size:18px">Du hast <span class="dia">${S.earned} 💎</span> erhalten (insgesamt ${M.diamonds} 💎).</p>` : `<p style="font-size:15px;line-height:1.6">Du kannst <b>Runde ${S.round} nochmal versuchen</b> (mit allen Türmen und dem Geld vom Rundenbeginn) oder einen gespeicherten Spielstand laden. Beendest du das Spiel, erhältst du <span class="dia">${S.earned} 💎</span>${D().dia !== 1 ? ` (×${String(D().dia).replace('.', ',')} für ${DIFF[S.diff].n})` : ''}.</p>`}
+      <div class="row">${S.paid ? `<button class="btn" id="o-up">Verbesserungen</button><button class="btn go" id="o-new">Neues Spiel</button>` : `${has ? '<button class="btn" id="o-slots">💾 Spielstand laden</button>' : ''}<button class="btn" id="o-end">Beenden und ${S.earned} 💎 nehmen</button>${cp ? `<button class="btn go" id="o-retry">↺ Runde ${S.round} nochmal</button>` : ''}`}</div></div>`;
+    const on = (id, f) => { if ($(id)) $(id).onclick = f; };
+    on('o-new', () => { menuTab = 'play'; showOverlay('menu'); }); on('o-up', () => { menuTab = 'up'; showOverlay('menu'); });
+    on('o-retry', retryRound); on('o-slots', () => { menuTab = 'saves'; showOverlay('menu'); }); on('o-end', () => { finishRun(); showOverlay('over'); renderAll(); }); return;
+  }
+  const tabs = `<div class="mt"><button data-m="play" class="${menuTab === 'play' ? 'on' : ''}">Spielen</button><button data-m="saves" class="${menuTab === 'saves' ? 'on' : ''}">💾 Spielstände</button><button data-m="up" class="${menuTab === 'up' ? 'on' : ''}">Verbesserungen <span class="dia">${M.diamonds} 💎</span></button><button data-m="ach" class="${menuTab === 'ach' ? 'on' : ''}">Erfolge ${M.ach.length}/${ACH.length}</button></div>`;
   if (menuTab === 'play') {
     o.innerHTML = `<div class="card box"><h2>🎈 Ballon-Alarm</h2><p class="lead">Halte die Ballons auf, bevor sie ins Ziel kommen. Ein Spiel ohne Ende: Wie viele Runden schaffst du?</p>${tabs}
       <div class="maps">${Object.entries(MAPS).map(([k, m]) => { const open = mapOpen(k); return `<button class="mp${k === pickMap ? ' sel' : ''}${open ? '' : ' lock'}" data-map="${k}" ${open ? '' : 'disabled'}><span class="me">${open ? m.e : '🔒'}</span><b>${m.n}</b><small>${m.d}<br>Bestwert: Runde ${M.best[k] || 0}${open ? '' : `<br>Freischalten: Runde ${m.unlock[1]} auf „${MAPS[m.unlock[0]].n}“`}</small></button>`; }).join('')}</div>
       <div class="dif"><b>Schwierigkeit</b>${Object.entries(DIFF).map(([k, d]) => `<button data-diff="${k}" class="${M.diff === k ? 'on' : ''}"><span>${d.n}</span><small>${d.d} · 💎 ×${String(d.dia).replace('.', ',')}</small></button>`).join('')}</div>
-      <div class="row">${savedRun ? `<button class="btn" id="o-resume">Fortsetzen (Runde ${savedRun.round}, ${MAPS[savedRun.map].n}, ${DIFF[savedRun.diff].n})</button>` : ''}<button class="btn go" id="o-start">Neues Spiel starten</button>${S && !S.over ? '<button class="btn" id="o-close">Zurück zum Spiel</button>' : ''}</div></div>`;
+      <div class="row">${savedRun ? `<button class="btn" id="o-resume">Fortsetzen (Runde ${savedRun.round}, ${MAPS[savedRun.map].n}, ${DIFF[savedRun.diff].n})</button>` : ''}<button class="btn go" id="o-start">Neues Spiel starten</button>${S && !S.over ? '<button class="btn" id="o-save">💾 Speichern</button><button class="btn" id="o-close">Zurück zum Spiel</button>' : ''}</div></div>`;
     o.querySelectorAll('[data-map]').forEach(b => b.onclick = () => { pickMap = b.dataset.map; showOverlay('menu'); });
     o.querySelectorAll('[data-diff]').forEach(b => b.onclick = () => { M.diff = b.dataset.diff; saveMeta(); showOverlay('menu'); });
-    $('o-start').onclick = () => { if (savedRun && !confirm('Das gespeicherte Spiel geht dabei verloren. Neu starten?')) return; savedRun = null; newRun(pickMap, M.diff); saveMeta(); hideOverlay(); };
-    if ($('o-resume')) $('o-resume').onclick = () => resume(); if ($('o-close')) $('o-close').onclick = hideOverlay;
+    $('o-start').onclick = () => { if (savedRun && !confirm('Neues Spiel starten? Der automatische Spielstand wird dabei ersetzt. Deine 💾 Speicherplätze bleiben erhalten.')) return; if (S && S.over && !S.paid) finishRun(); savedRun = null; newRun(pickMap, M.diff); saveMeta(); hideOverlay(); };
+    if ($('o-resume')) $('o-resume').onclick = () => resume(); if ($('o-close')) $('o-close').onclick = hideOverlay; if ($('o-save')) $('o-save').onclick = () => { menuTab = 'saves'; showOverlay('menu'); };
+  } else if (menuTab === 'saves') {
+    const live = S && !S.over, d = live ? (S.active ? S.cp : runData()) : null, when = t => t ? new Date(t).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' Uhr' : '';
+    const card = (q, title, btns) => q ? `<div class="sv"><span class="se">${MAPS[q.map].e}</span><div class="t"><b>${title}</b><small>${MAPS[q.map].n} · ${DIFF[q.diff].n} · <b>Runde ${q.round}</b> · ❤️ ${fmt(q.lives)} · 💰 ${fmt(q.money)} · ${q.towers.length} Türme${q.at ? ' · ' + when(q.at) : ''}</small></div><div class="sb">${btns}</div></div>`
+      : `<div class="sv empty"><span class="se">💾</span><div class="t"><b>${title}</b><small>Leer</small></div><div class="sb">${btns}</div></div>`;
+    o.innerHTML = `<div class="card box"><h2>Spielstände</h2><p class="lead">Speichere dein Spiel in einen von ${SLOTS} Plätzen und mach später genau dort weiter. ${live && S.active ? 'Während einer Runde wird der Stand vom Rundenbeginn gespeichert.' : ''} Spielstände liegen in deinem Konto und gelten auf allen Geräten.</p>${tabs}
+      <div class="svs">${card(savedRun, 'Automatisch (nach jeder Runde)', savedRun ? '<button class="btn go" data-load="auto">Laden</button>' : '')}
+      ${slots.map((q, i) => card(q, `Platz ${i + 1}`, `${q ? `<button class="btn go" data-load="${i}">Laden</button>` : ''}${live && d ? `<button class="btn" data-save="${i}">${q ? 'Überschreiben' : 'Hier speichern'}</button>` : ''}${q ? `<button class="btn bad" data-del="${i}" aria-label="Platz ${i + 1} löschen">🗑</button>` : ''}`)).join('')}</div>
+      <div class="row">${live ? '<button class="btn" id="o-close">Zurück zum Spiel</button>' : '<button class="btn" id="o-back">Zurück</button>'}</div></div>`;
+    o.querySelectorAll('[data-load]').forEach(b => b.onclick = () => { const k = b.dataset.load, q = k === 'auto' ? savedRun : slots[+k]; if (!q) return; if (live && !confirm('Das laufende Spiel wird dabei verlassen. Laden?')) return; if (S && S.over && !S.paid) finishRun(); loadRun(q); toast(`Spielstand geladen: Runde ${q.round}`); });
+    o.querySelectorAll('[data-save]').forEach(b => b.onclick = () => { const i = +b.dataset.save; if (slots[i] && !confirm(`Platz ${i + 1} überschreiben?`)) return; saveSlot(i); showOverlay('menu'); });
+    o.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { const i = +b.dataset.del; if (!confirm(`Spielstand in Platz ${i + 1} löschen?`)) return; deleteSlot(i); showOverlay('menu'); });
+    if ($('o-close')) $('o-close').onclick = hideOverlay; if ($('o-back')) $('o-back').onclick = () => { menuTab = 'play'; showOverlay('menu'); };
   } else if (menuTab === 'ach') {
     o.innerHTML = `<div class="card box"><h2>Erfolge</h2><p class="lead">${M.ach.length} von ${ACH.length} geschafft. Jeder Erfolg bringt 💎 und erscheint auch im Game Center.</p>${tabs}<div class="achs">${ACH.map(([id, e, n, d, dia]) => { const ok = M.ach.includes(id); return `<div class="ac${ok ? ' ok' : ''}"><span class="ae">${ok ? e : '🔒'}</span><div><b>${n}</b><small>${d}</small></div><span class="dia">${ok ? '✓' : '+' + dia + ' 💎'}</span></div>`; }).join('')}</div><div class="row"><button class="btn" id="o-back">Zurück</button></div></div>`;
     $('o-back').onclick = () => { menuTab = 'play'; showOverlay('menu'); };
@@ -540,7 +573,7 @@ GameSave.ready([KEY], { reloadOnRemote: true, badge: true }).then(() => {      /
 load(); pickMap = 'wiese'; newRun('wiese', M.diff); wire(); fit(); showOverlay('menu'); requestAnimationFrame(loop);
 // Spielzeit und "zuletzt gespielt" für das Game Center (nur solange die Seite sichtbar ist)
 setInterval(() => { if (document.hidden) return; M.playMs += 5000; M.last = Date.now(); saveMeta(); }, 5000);
-window.TD = { get S() { return S; }, get M() { return M; }, step(n = 1) { for (let i = 0; i < n; i++) step(); }, place, upgrade, sell, buyRadar, useAbility, useGroup, startRound, newRun, waveFor, preview, validSpot, distToPath, posAt, get pathLen() { return PATH.len; }, stats, price, hit, spawn, endRound, gameOver, buyMeta, saveRun, load, resume, sanitize, checkAch, snap, get savedRun() { return savedRun; }, set savedRun(v) { savedRun = v; }, TOWERS, MAPS, ACH, tower(i) { return S.towers[i]; }, select(t) { selTower = t; renderAll(); }, setM(o) { Object.assign(M, o); saveMeta(); }, mapOpen, setPlacing, set ghost(p) { ghost = p; } };
+window.TD = { get S() { return S; }, get M() { return M; }, step(n = 1) { for (let i = 0; i < n; i++) step(); }, place, upgrade, sell, buyRadar, useAbility, useGroup, startRound, newRun, waveFor, preview, validSpot, distToPath, posAt, get pathLen() { return PATH.len; }, stats, price, hit, spawn, endRound, gameOver, buyMeta, saveRun, load, resume, loadRun, saveSlot, deleteSlot, retryRound, finishRun, get slots() { return slots; }, sanitize, checkAch, snap, get savedRun() { return savedRun; }, set savedRun(v) { savedRun = v; }, TOWERS, MAPS, ACH, tower(i) { return S.towers[i]; }, select(t) { selTower = t; renderAll(); }, setM(o) { Object.assign(M, o); saveMeta(); }, mapOpen, setPlacing, set ghost(p) { ghost = p; } };
 });
 </script>
 </body>
