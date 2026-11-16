@@ -167,6 +167,9 @@
             for (const [c, k] of [['active_work', 'laufende_stempelung'], ['finance_settings', 'budgets'], ['gamesaves', 'spielstaende']]) {
                 try { const d = await db.collection(c).doc(currentUser.uid).get(); out.daten[k] = d.exists ? plain(d.data()) : null; } catch (e) { out.daten[k] = 'kein Zugriff'; }
             }
+            for (const [c, k] of [['ballon_scores', 'ballon_bestenliste'], ['ballon_maps', 'ballon_karten']]) {
+                try { out.daten[k] = (await db.collection(c).where('uid', '==', currentUser.uid).get()).docs.map(d => ({ id: d.id, ...plain(d.data()) })); } catch (e) { out.daten[k] = 'kein Zugriff'; }
+            }
             try { const p = plain((await db.collection('users').doc(currentUser.uid).get()).data() || {}); delete p.fcmToken; out.daten.profil = p; } catch (e) { out.daten.profil = 'kein Zugriff'; }
             if (can(currentUser, 'messenger')) {
                 try {
@@ -233,6 +236,8 @@
                 await purge(db.collection('documents').where('owner', '==', email));
             } catch (e) { /* kein Zugriff = nichts zu löschen */ }
             for (const c of OWNED) { try { await purge(db.collection(c).where('owner', '==', email)); } catch (e) { /* kein Zugriff = nichts zu löschen */ } }
+            for (const c of ['ballon_scores', 'ballon_maps']) { try { await purge(db.collection(c).where('uid', '==', uid)); } catch (e) { /* kein Zugriff = nichts zu löschen */ } }
+            try { await purge(db.collection('ballon_rooms').where('host', '==', uid)); } catch (e) {}
             await Promise.all([db.collection('active_work').doc(uid).delete().catch(() => {}), db.collection('finance_settings').doc(uid).delete().catch(() => {}), db.collection('gamesaves').doc(uid).delete().catch(() => {}), db.collection('directory').doc(uid).delete().catch(() => {}), db.collection('users').doc(uid).collection('meta').doc('messenger').delete().catch(() => {})]);
             await db.collection('users').doc(uid).delete();      // zuletzt, danach fehlen die Zugriffsrechte
             await user.delete();

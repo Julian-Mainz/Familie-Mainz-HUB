@@ -70,6 +70,33 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 .achs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; } .ac { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--ln); background: rgba(255,255,255,.03); opacity: .65; } .ac.ok { opacity: 1; border-color: rgba(var(--ar), .45); background: rgba(var(--ar), .08); }
 .ac .ae { font-size: 24px; } .ac div { flex: 1; min-width: 0; } .ac b { font-size: 13.5px; display: block; } .ac small { color: var(--mu); font-size: 11.5px; } .ac .dia { font-size: 12px; white-space: nowrap; }
 @media (max-width: 900px) { #shop { grid-template-columns: repeat(4, 1fr); } .tw .n { font-size: 11px; } .tw .ti { margin: 0 auto; } .tw { align-items: center; text-align: center; padding: 8px 4px; } }
+
+#shop { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; } .tw .n { overflow-wrap: anywhere; hyphens: auto; } .tw { padding: 6px 7px; gap: 0; } .tw .ti { width: 34px; height: 34px; margin: 0 0 1px -3px; } .tw .n { font-size: 11.5px; line-height: 1.2; } .tw .c { font-size: 11.5px; } .tw.off { opacity: .3; filter: grayscale(1); }
+#shop2 { padding: 0 12px 6px; display: flex; flex-direction: column; gap: 6px; } .hrow { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .hrow .tw { flex-direction: row; align-items: center; gap: 6px; flex-wrap: wrap; background: linear-gradient(135deg, rgba(168,85,247,.14), rgba(56,189,248,.08)); border-color: rgba(168,85,247,.35); } .hrow .tw .ti { width: 30px; height: 30px; margin: 0; } .hrow .tw .n { flex: 1; min-width: 0; } .hrow .tw .c { width: 100%; }
+.irow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; } .it { display: flex; align-items: center; gap: 4px; padding: 5px 6px; border-radius: 12px; border: 1px solid var(--ln); background: rgba(255,255,255,.04); font-size: 10.5px; font-weight: 600; text-align: left; line-height: 1.15; flex-wrap: wrap; } .it img { width: 22px; height: 22px; } .it span { flex: 1; min-width: 0; } .it b { width: 100%; font-size: 10.5px; color: #86efac; } .it.sel { border-color: var(--a); background: rgba(var(--ar), .12); } .it:hover { border-color: rgba(var(--ar), .5); }
+.trow { display: flex; gap: 6px; } .trow .btn { flex: 1; } .btn.sm { padding: 6px 9px; font-size: 11.5px; border-radius: 10px; }
+.row2 { display: flex; gap: 6px; margin-top: 4px; } .row2 .btn { flex: 1; font-size: 12.5px; padding: 9px 8px; }
+.pc.coop { border-color: rgba(244,114,182,.5); color: #fbcfe8; } .pc.ch { border-color: rgba(250,204,21,.5); color: #fde68a; } .pc.wx { border-color: rgba(125,211,252,.5); color: #bae6fd; }
+.sh { margin: 18px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--mu); }
+.stx .kp { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; } .stx .kp div { padding: 10px 6px; border-radius: 14px; background: rgba(255,255,255,.04); text-align: center; font-size: 11.5px; color: var(--mu); } .stx .kp b { display: block; font-size: 16px; color: #fff; }
+.chart { width: 100%; height: 90px; display: block; margin-bottom: 8px; } .twr { display: flex; align-items: center; gap: 10px; padding: 4px 0; font-size: 13px; } .twr span { width: 150px; display: flex; align-items: center; gap: 6px; } .twr img { width: 24px; height: 24px; } .twr .bar { flex: 1; height: 8px; border-radius: 8px; background: rgba(255,255,255,.07); overflow: hidden; margin: 0; } .twr .bar i { display: block; height: 100%; background: linear-gradient(90deg, #34d399, #38bdf8); }
+.stars { font-size: 34px; letter-spacing: 4px; margin: 4px 0 6px; } .stars i, .mst i { font-style: normal; opacity: .22; filter: grayscale(1); }
+.dc { display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: 18px; background: linear-gradient(135deg, rgba(250,204,21,.16), rgba(249,115,22,.1)); border: 1px solid rgba(250,204,21,.4); margin-bottom: 12px; flex-wrap: wrap; } .dc.ok { background: linear-gradient(135deg, rgba(52,211,153,.12), rgba(56,189,248,.08)); border-color: rgba(52,211,153,.45); }
+.dc .big { font-size: 34px; } .dc .t { flex: 1 1 260px; min-width: 0; } .dc b { font-size: 14.5px; } .dc small { display: block; color: #fde68a; font-size: 12.5px; margin-top: 2px; } .dc.ok small { color: #86efac; } .rules { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; } .rules span { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: rgba(255,255,255,.06); border: 1px solid var(--ln); }
+.opt { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; } .seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--ln); } .seg button { border: 0; background: none; padding: 7px 12px; border-radius: 10px; font-size: 13px; font-weight: 700; color: var(--mu); } .seg button.on { background: var(--a); color: #03170f; } .seg.full { display: flex; margin: 8px 0; } .seg.full button { flex: 1; padding: 7px 4px; font-size: 12px; }
+.ck { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: #cbd5e1; cursor: pointer; } .ck input { accent-color: var(--a); width: 16px; height: 16px; }
+.mp { position: relative; } .mst { position: absolute; top: 12px; right: 12px; font-size: 13px; letter-spacing: 1px; }
+.cm { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; padding: 10px 12px; border-radius: 16px; border: 1px dashed var(--ln); } .cm > b { font-size: 13px; margin-right: 4px; } .chip2 { padding: 6px 11px; border-radius: 99px; border: 1px solid var(--ln); background: rgba(255,255,255,.05); font-size: 12.5px; font-weight: 600; } .chip2.on { border-color: var(--a); background: rgba(var(--ar), .14); }
+.note { font-size: 12.5px; color: var(--mu); }
+.lbt { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; } .lbt button { padding: 7px 12px; border-radius: 99px; border: 1px solid var(--ln); background: rgba(255,255,255,.05); font-size: 12.5px; font-weight: 700; color: var(--mu); } .lbt button.on { background: var(--a); color: #03170f; border-color: var(--a); } .lbt.sm button { padding: 5px 10px; font-size: 11.5px; }
+table.lb { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 6px; } .lb td, .lb th { padding: 8px; text-align: left; border-bottom: 1px solid var(--ln); } .lb th { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--mu); } .lb .r { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; } .lb tr.me td { background: rgba(var(--ar), .1); }
+.av { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-size: 10.5px; font-weight: 800; margin-right: 8px; color: #03170f; vertical-align: middle; }
+.coop2 { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; } .code-in { width: 110px; font: 800 16px ui-monospace, monospace; letter-spacing: .15em; text-transform: uppercase; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--ln); background: rgba(2,6,16,.6); color: #fff; }
+.codebox { font: 800 30px ui-monospace, monospace; letter-spacing: .2em; text-align: center; padding: 12px; border-radius: 16px; background: rgba(255,255,255,.06); margin: 4px 0 14px; }
+.lobby { display: flex; gap: 10px; align-items: center; } .lobby .pl { flex: 1; padding: 14px; border-radius: 16px; border: 1px solid var(--ln); background: rgba(255,255,255,.04); text-align: center; } .lobby .pl .av { width: 44px; height: 44px; font-size: 15px; margin: 0 0 6px; } .lobby .pl b { display: block; } .lobby .pl small { color: var(--mu); font-size: 12px; } .lobby .pl.wait { border-style: dashed; opacity: .7; } .plus { font-size: 22px; }
+.fld { display: block; margin: 10px 0 4px; } .fld span { display: block; font-size: 11.5px; color: var(--mu); margin-bottom: 4px; } .fld input { width: 100%; font: inherit; font-size: 14px; padding: 9px 11px; border-radius: 12px; border: 1px solid var(--ln); background: rgba(2,6,16,.6); color: #fff; }
+.stage.editing .hud .btn:not(#b-menu):not(#b-back), .stage.editing .chip, .stage.editing .prow { visibility: hidden; }
+@media (max-width: 900px) { #shop { grid-template-columns: repeat(4, minmax(0, 1fr)); } .hrow, .irow { grid-template-columns: repeat(2, minmax(0, 1fr)); } .irow { grid-template-columns: repeat(3, minmax(0, 1fr)); } .stx .kp { grid-template-columns: 1fr 1fr; } .twr span { width: 110px; } }
 </style>
 </head>
 <body>
@@ -87,7 +114,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     <div id="ov" class="ov hidden"></div>
   </section>
   <aside class="card side">
-    <h3>Türme</h3><div id="shop"></div>
+    <h3>Türme</h3><div id="shop"></div><div id="shop2"></div>
     <h3 id="ih-t">Auswahl</h3><div id="info"></div>
   </aside>
 </div>
@@ -104,20 +131,37 @@ const MAPS = {
   winter: { n: 'Winterwald', e: '❄️', theme: 'winter', d: 'Schnee, Tannen und ein zugefrorener See.', pts: [[-20, 80], [300, 80], [300, 240], [120, 240], [120, 460], [480, 460], [480, 160], [700, 160], [700, 380], [820, 380]], unlock: ['spirale', 20] },
   wueste: { n: 'Wüstencanyon', e: '🌵', theme: 'wueste', d: 'Der Weg kreuzt sich selbst. Gut für Flächenschaden.', pts: [[-20, 300], [680, 300], [680, 90], [400, 90], [400, 540], [120, 540], [120, 440], [820, 440]], unlock: ['winter', 25] }
 };
+const BUILTIN = Object.keys(MAPS);
+// Eigene Karten (Kartenbau) werden als 'c_<id>' eingetragen
+function registerCustom(id, m) { if (!m || !Array.isArray(m.pts) || m.pts.length < 3) return null; const k = 'c_' + id; MAPS[k] = { n: String(m.n || 'Eigene Karte').slice(0, 40), e: '✏️', theme: ['wiese', 'winter', 'wueste'].includes(m.theme) ? m.theme : 'wiese', d: m.by ? 'Von ' + String(m.by).slice(0, 40) : 'Eigene Karte', pts: m.pts.map(p => [clamp(Math.round(+p[0] || 0), -40, W + 40), clamp(Math.round(+p[1] || 0), -40, H + 40)]), unlock: null, custom: true, id }; return k; }
 let PATH = null, BG = null, BGK = '', curMap = 'wiese';
-function buildPath(key) { const pts = MAPS[key].pts, segs = []; let cum = 0; for (let i = 0; i < pts.length - 1; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[i + 1], len = Math.hypot(x2 - x1, y2 - y1); segs.push({ x1, y1, x2, y2, len, cum }); cum += len; } return { segs, len: cum }; }
+function buildPath(key) { const pts = MAPS[key].pts, segs = []; let cum = 0; for (let i = 0; i < pts.length - 1; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[i + 1], len = Math.hypot(x2 - x1, y2 - y1) || 0.01; segs.push({ x1, y1, x2, y2, len, cum }); cum += len; } return { segs, len: cum }; }
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 function posAt(d) { const P = PATH; if (d <= 0) return { x: P.segs[0].x1, y: P.segs[0].y1 }; for (const s of P.segs) if (d <= s.cum + s.len) { const t = (d - s.cum) / s.len; return { x: s.x1 + (s.x2 - s.x1) * t, y: s.y1 + (s.y2 - s.y1) * t }; } const s = P.segs[P.segs.length - 1]; return { x: s.x2, y: s.y2 }; }
 function distToPath(x, y) { let m = 1e9; for (const s of PATH.segs) { const dx = s.x2 - s.x1, dy = s.y2 - s.y1, t = clamp(((x - s.x1) * dx + (y - s.y1) * dy) / (s.len * s.len), 0, 1); m = Math.min(m, Math.hypot(x - (s.x1 + dx * t), y - (s.y1 + dy * t))); } return m; }
+// Nächste Stelle auf dem Weg (als Strecke d), z. B. für Stachelstreifen und Feuerwand
+function nearestD(x, y) { let best = 0, bd = 1e9; for (const s of PATH.segs) { const dx = s.x2 - s.x1, dy = s.y2 - s.y1, t = clamp(((x - s.x1) * dx + (y - s.y1) * dy) / (s.len * s.len), 0, 1), dd = Math.hypot(x - (s.x1 + dx * t), y - (s.y1 + dy * t)); if (dd < bd) { bd = dd; best = s.cum + s.len * t; } } return { d: best, dist: bd }; }
 // ================= Ballons =================
 const LAYER = [null, { c: '#ef4444', v: 90, r: 12, n: 'Rot', k: 'rot' }, { c: '#3b82f6', v: 110, r: 13.5, n: 'Blau', k: 'blau' }, { c: '#22c55e', v: 130, r: 15, n: 'Grün', k: 'gruen' }, { c: '#facc15', v: 165, r: 16, n: 'Gelb', k: 'gelb' }, { c: '#ec4899', v: 190, r: 17, n: 'Rosa', k: 'rosa' }];
 // Besondere Ballons: Schale mit hp Treffern, danach wird daraus ein normaler Ballon (into)
 const KIND = { metal: { n: 'Metall', r: 14, v: 100, hp: 1, into: 4, c: '#cbd5e1' }, ceramic: { n: 'Keramik', r: 17, v: 150, hp: 10, into: 5, twin: true, c: '#c2410c' } };
-const NEWS = { metal: 'Metall-Ballon: Darts und einfache Bumerangs prallen ab. Kanone, Tesla und Scharfschütze helfen.', ceramic: 'Keramik-Ballon: harte Schale mit 10 Treffern, darin zwei rosa Ballons.', camo: 'Tarn-Ballon: Nur Türme mit 📡 Radar zielen auf ihn. Der Scharfschütze hat Radar schon eingebaut.', regrow: 'Nachwachsender Ballon: bekommt alle 3 Sekunden eine Schicht zurück. Schnell platzen!' };
+// Bosse: ab Runde 20 alle 10 Runden, abwechselnd
+const BOSS = { zeppelin: { n: 'Zeppelin', hp: 1, v: 38 }, panzer: { n: 'Panzer-Ballon', hp: 1.3, v: 34 }, schwarm: { n: 'Schwarm', hp: .6, v: 50 }, tarn: { n: 'Tarn-Zeppelin', hp: 1, v: 38 } };
+const BOSS_ORDER = ['zeppelin', 'panzer', 'schwarm', 'tarn'];
+const NEWS = { metal: 'Metall-Ballon: Darts und einfache Bumerangs prallen ab. Kanone, Tesla, Flammen, Magnet und Scharfschütze helfen.', ceramic: 'Keramik-Ballon: harte Schale mit 10 Treffern, darin zwei rosa Ballons. Flammen sind besonders stark.', camo: 'Tarn-Ballon: Nur Türme mit 📡 Radar zielen auf ihn. Scharfschütze, Hubschrauber und Pilotin sehen ihn immer.', regrow: 'Nachwachsender Ballon: bekommt alle 3 Sekunden eine Schicht zurück. Schnell platzen!',
+  panzer: 'Panzer-Ballon: Nur Treffer, die Metall knacken, wirken. Beim Platzen legt er Türme in der Nähe 3 Sekunden lahm.', schwarm: 'Schwarm: Platzt das Netz, schwärmen 30 Ballons aus.', tarn: 'Tarn-Zeppelin: Nur Türme mit Radar sehen ihn.' };
 // Schwierigkeitsgrade
 const DIFF = { leicht: { n: 'Leicht', d: '150 Leben, günstigere Türme', lives: 150, price: .85, speed: .9, boss: .8, dia: .6 }, normal: { n: 'Normal', d: 'Das klassische Spiel', lives: 100, price: 1, speed: 1, boss: 1, dia: 1 },
   schwer: { n: 'Schwer', d: '60 Leben, schnellere Ballons', lives: 60, price: 1.1, speed: 1.1, boss: 1.3, dia: 1.5 }, eins: { n: 'Ein Leben', d: 'Ein Ballon im Ziel und es ist vorbei', lives: 1, price: 1.1, speed: 1, boss: 1, dia: 2.5, noMeta: true } };
 const D = () => DIFF[(S && S.diff) || 'normal'];
+// Wetter: ab Runde 6 manchmal, je nach Karte
+const WEATHER = { regen: { n: 'Regen', e: '🌧️', d: 'Ballons 15 % langsamer' }, wind: { n: 'Wind', e: '💨', d: 'Darts und Bumerangs driften ab' }, sturm: { n: 'Schneesturm', e: '🌨️', d: 'Reichweite der Türme −20 %' } };
+const WX_BY = { wiese: ['regen', 'wind'], winter: ['sturm', 'wind'], wueste: ['wind'] };
+function weatherFor(r) {
+  if (!S || !M.wx || r < 6) return ''; if (S.ch && S.ch.wx !== undefined) return S.ch.wx || '';
+  let seed = r * 7349 + S.map.length * 131 + 17; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647; rnd(); const list = WX_BY[MAPS[S.map].theme] || WX_BY.wiese;
+  return rnd() < .28 ? list[Math.floor(rnd() * list.length)] : '';
+}
 // Rundenplan. Zufall mit fester Startzahl je Runde, damit die Vorschau genau stimmt.
 function waveFor(r, diff) {
   const ev = [], main = Math.min(5, 1 + Math.floor((r - 1) / 6)), gap = Math.max(0.16, 0.62 - r * 0.012), n = Math.min(160, 14 + r * 2), groups = []; let t = 0;
@@ -129,12 +173,12 @@ function waveFor(r, diff) {
   groups.forEach(([l, c, g]) => { for (let i = 0; i < c; i++) { const e = { t: t + i * g, layer: l }, x = rnd();
     if (x < pK) e.kind = 'ceramic'; else if (x < pK + pM) e.kind = 'metal';
     if (rnd() < pC) e.camo = true; if (!e.kind && rnd() < pR) e.regrow = true; ev.push(e); } t += c * g + 1.2; });
-  if (r >= 20 && r % 10 === 0) ev.push({ t: 0.5, boss: Math.round(150 * Math.pow((r - 10) / 10, 1.8) * DIFF[diff || 'normal'].boss) });      // erster Zeppelin in Runde 20
+  if (r >= 20 && r % 10 === 0) { const bk = BOSS_ORDER[(r / 10 - 2) % 4]; ev.push({ t: 0.5, bk, boss: Math.round(150 * Math.pow((r - 10) / 10, 1.8) * DIFF[diff || 'normal'].boss * BOSS[bk].hp) }); }      // erster Boss in Runde 20
   return ev.sort((a, b) => a.t - b.t);
 }
 function preview(r) {
-  const ev = waveFor(r, S && S.diff), c = { l: [0, 0, 0, 0, 0, 0], metal: 0, ceramic: 0, camo: 0, regrow: 0, boss: 0 };
-  ev.forEach(e => { if (e.boss) c.boss++; else if (e.kind) c[e.kind]++; else c.l[e.layer]++; if (e.camo) c.camo++; if (e.regrow) c.regrow++; }); return c;
+  const ev = waveFor(r, S && S.diff), c = { l: [0, 0, 0, 0, 0, 0], metal: 0, ceramic: 0, camo: 0, regrow: 0, boss: 0, bk: '' };
+  ev.forEach(e => { if (e.boss) { c.boss++; c.bk = e.bk; } else if (e.kind) c[e.kind]++; else c.l[e.layer]++; if (e.camo) c.camo++; if (e.regrow) c.regrow++; }); return c;
 }
 // ================= Türme =================
 // base: Grundwerte. A/B: je 3 Stufen [Name, Preis, Wirkung]. add = addieren, mul = multiplizieren, set = setzen. metal: trifft Metall, radar: sieht Tarn.
@@ -154,168 +198,318 @@ const TOWERS = {
   tesla: { n: 'Tesla-Turm', c: '#22d3ee', cost: 700, key: '7', d: 'Kettenblitz springt von Ballon zu Ballon. Knackt Metall.', base: { kind: 'tesla', range: 120, rate: 1.3, dmg: 1, chain: 3, jump: 70, metal: true },
     A: [['Mehr Sprünge', 350, { add: { chain: 2 } }], ['Hochspannung', 750, { add: { dmg: 1 } }], ['Gewittersturm', 2000, { add: { chain: 6, dmg: 1 } }]], B: [['Reichweite', 250, { add: { range: 30, jump: 15 } }], ['Schneller laden', 550, { mul: { rate: 0.7 } }], ['Dauerstrom', 1600, { mul: { rate: 0.5 } }]] },
   glue: { n: 'Kleber-Turm', c: '#84cc16', cost: 300, key: '8', d: 'Klebt Ballons fest, sie werden stark gebremst.', base: { kind: 'glue', range: 115, rate: 1.0, glueT: 4, glueF: 0.5, pierce: 1, splash: 0, acid: 0, speed: 420, metal: true },
-    A: [['Zäher Kleber', 200, { set: { glueF: 0.3 } }], ['Ätzkleber', 500, { set: { acid: 0.7 } }], ['Auflöser', 1400, { set: { acid: 2.5 }, add: { glueT: 2 } }]], B: [['Doppelklecks', 220, { add: { pierce: 1 } }], ['Schneller kleben', 400, { mul: { rate: 0.6 } }], ['Kleberregen', 1200, { add: { splash: 40 } }]] }
+    A: [['Zäher Kleber', 200, { set: { glueF: 0.3 } }], ['Ätzkleber', 500, { set: { acid: 0.7 } }], ['Auflöser', 1400, { set: { acid: 2.5 }, add: { glueT: 2 } }]], B: [['Doppelklecks', 220, { add: { pierce: 1 } }], ['Schneller kleben', 400, { mul: { rate: 0.6 } }], ['Kleberregen', 1200, { add: { splash: 40 } }]] },
+  flame: { n: 'Flammenwerfer', c: '#f97316', cost: 450, key: '9', d: 'Kurze Reichweite, Flammen treffen viele Ballons. Stark gegen Keramik.', base: { kind: 'flame', range: 80, rate: 0.4, dmg: 1, pierce: 6, burn: 0, arc: 0.5, metal: true },
+    A: [['Heißere Flammen', 300, { add: { dmg: 1 } }], ['Napalm', 700, { set: { burn: 1.5 } }], ['Inferno', 1900, { add: { pierce: 10, dmg: 1 } }]], B: [['Längere Flammen', 250, { add: { range: 25 } }], ['Druckluft', 550, { mul: { rate: 0.7 } }], ['Flammenring', 1500, { set: { arc: 7 }, mul: { rate: 0.8 } }]] },
+  magnet: { n: 'Magnet', c: '#3b82f6', cost: 500, key: '0', d: 'Zieht Metall- und Keramik-Ballons zurück und reißt ihnen die Schale ab.', base: { kind: 'magnet', range: 120, rate: 2.0, pull: 70, shots: 1, all: false, metal: true },
+    A: [['Stärkerer Zug', 300, { add: { pull: 50 } }], ['Doppelzug', 650, { set: { shots: 2 } }], ['Elektromagnet', 1700, { set: { all: true, shots: 3 } }]], B: [['Reichweite', 250, { add: { range: 35 } }], ['Schneller ziehen', 500, { mul: { rate: 0.65 } }], ['Dauermagnet', 1400, { mul: { rate: 0.5 } }]] },
+  farm: { n: 'Bauernhof', c: '#facc15', cost: 550, key: 'b', d: 'Wirft während der Runde Bananen ab. Antippen oder darüberfahren zum Einsammeln.', base: { kind: 'farm', range: 0, rate: 5, value: 25, keep: false, auto: false },
+    A: [['Mehr Bananen', 400, { mul: { rate: 0.7 } }], ['Goldbananen', 900, { add: { value: 25 } }], ['Plantage', 2200, { mul: { rate: 0.6 }, add: { value: 30 } }]], B: [['Bessere Ernte', 350, { add: { value: 10 } }], ['Lagerhaus', 700, { set: { keep: true } }], ['Erntehelfer', 1500, { set: { auto: true } }]] },
+  heli: { n: 'Hubschrauber', c: '#84cc16', cost: 900, key: 'h', d: 'Fliegt über die Karte zu den Ballons und schießt. Sieht Tarn.', base: { kind: 'heli', range: 130, rate: 0.5, dmg: 1, pierce: 2, shots: 2, speed: 520, fly: 130, radar: true },
+    A: [['Doppel-MG', 350, { set: { shots: 4 } }], ['Raketen', 900, { add: { dmg: 1 }, set: { metal: true } }], ['Kampfhubschrauber', 2400, { mul: { rate: 0.5 }, add: { pierce: 3 } }]], B: [['Schneller fliegen', 300, { add: { fly: 90 } }], ['Mehr Reichweite', 500, { add: { range: 40 } }], ['Dauerfeuer', 1500, { mul: { rate: 0.5 } }]] },
+  // Helden: einer pro Spiel, werden mit Erfahrung stärker (Level 1–10)
+  pilot: { n: 'Pilotin Pia', hero: true, c: '#38bdf8', cost: 650, key: '', d: 'Heldin: Ihr Flugzeug kreist über der Karte und schießt auf alles in der Nähe. Sieht Tarn.', base: { kind: 'pilot', range: 190, rate: 0.4, dmg: 1, speed: 560, radar: true, planes: 1, shots: 1 }, A: [], B: [] },
+  magier: { n: 'Magier Merlin', hero: true, c: '#a855f7', cost: 700, key: '', d: 'Held: Feuerbälle mit Flächenschaden, die Metall schmelzen.', base: { kind: 'magier', range: 150, rate: 1.0, dmg: 1, splash: 28, speed: 380, metal: true }, A: [], B: [] }
 };
+const isHero = id => !!(TOWERS[id] && TOWERS[id].hero);
+const SHOP = Object.keys(TOWERS).filter(k => !isHero(k)), HEROES = Object.keys(TOWERS).filter(isHero);
+// Was ein Held auf welchem Level kann
+const HERO_LV = { pilot: { 3: 'Doppel-MG', 4: 'trifft Metall', 6: 'Fähigkeit „Bombenteppich“', 10: 'zweites Flugzeug' }, magier: { 3: 'Feuerwand auf dem Weg', 6: 'Fähigkeit „Meteor“', 10: 'verwandelt Ballons zurück in rote' } };
+const XPL = [0, 40, 100, 180, 280, 400, 550, 730, 940, 1200];
+const heroLvl = t => XPL.filter(x => (t.xp || 0) >= x).length;
 const MODES = [['first', 'Erster'], ['last', 'Letzter'], ['strong', 'Stärkster'], ['close', 'Nächster']];
-// Spezialfähigkeit ab einem voll ausgebauten Pfad: [Name, Beschreibung, Abklingzeit in Sekunden]
+// Spezialfähigkeit ab einem voll ausgebauten Pfad (Helden ab Level 6): [Name, Beschreibung, Abklingzeit in Sekunden]
 const ABIL = { dart: ['Pfeilhagel', '8 Sekunden lang fünfmal so schnell', 40], boom: ['Wirbelsturm', '8 Sekunden dreimal so schnell, +10 Durchschlag', 40], bomb: ['Großangriff', '4 Schaden an allen Ballons im doppelten Radius', 45], ice: ['Schockfrost', 'Alle Ballons 3 Sekunden eingefroren', 50],
-  sniper: ['Präzisionsschuss', '500 Schaden am stärksten Ballon', 45], bank: ['Auszahlung', 'Sofort das 1,5-fache Rundeneinkommen', 60], tesla: ['Gewitter', 'Blitz trifft bis zu 30 Ballons mit 3 Schaden', 45], glue: ['Kleberflut', 'Alle Ballons 6 Sekunden verklebt', 50] };
+  sniper: ['Präzisionsschuss', '500 Schaden am stärksten Ballon', 45], bank: ['Auszahlung', 'Sofort das 1,5-fache Rundeneinkommen', 60], tesla: ['Gewitter', 'Blitz trifft bis zu 30 Ballons mit 3 Schaden', 45], glue: ['Kleberflut', 'Alle Ballons 6 Sekunden verklebt', 50],
+  flame: ['Feuersturm', 'Alles im doppelten Umkreis brennt 5 Sekunden', 45], magnet: ['Superfeld', 'Zieht alle Ballons (außer Bossen) 150 Pixel zurück', 50], farm: ['Erntedank', 'Sofort 600 €', 60], heli: ['Raketenhagel', '6 Schaden an den 20 stärksten Ballons', 45],
+  pilot: ['Bombenteppich', '4 Schaden an allen Ballons', 50], magier: ['Meteor', '80 Schaden am stärksten Ballon, 6 im Umkreis', 45] };
 const RADAR = 200, VET = [500, 2000, 10000];
+// Gegenstände
+const ITEMS = { spikes: { n: 'Stachelstreifen', e: '📌', cost: 150, d: 'Auf den Weg legen: platzt die nächsten 20 Ballons. Höchstens 3 gleichzeitig.' }, icebomb: { n: 'Eisbombe', e: '🧊', cost: 300, d: 'Irgendwo hinwerfen: friert alles im Umkreis 4 Sekunden ein.' }, heart: { n: '+20 Leben', e: '❤️', dia: 10, d: 'Einmal pro Spiel, kostet 10 💎.' } };
 const META = [['startMoney', 'Startkapital', '+50 € zum Start je Stufe', 8, 1.6], ['lives', 'Sicherheitsnetz', '+5 Leben je Stufe', 10, 1.6], ['discount', 'Mengenrabatt', 'Türme und Upgrades 2 % günstiger je Stufe', 15, 1.7], ['bonus', 'Scharfe Augen', '+5 % Geld für jeden geplatzten Ballon je Stufe', 12, 1.6], ['roundBonus', 'Rundenprämie', '+10 € Rundenbonus je Stufe', 12, 1.6]];
-const META_MAX = 10;
+const META_MAX = 10, GOAL = 40;
+// ================= Tages-Challenge =================
+// Jeden Tag gleich für alle: Karte, erlaubte Türme und Regeln werden aus dem Datum berechnet
+function dayId(d = new Date()) { return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`; }
+function daily(id = dayId()) {
+  let seed = +id % 2147483646 + 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647; for (let i = 0; i < 5; i++) rnd();
+  const pick = a => a[Math.floor(rnd() * a.length)], map = pick(BUILTIN);
+  const sets = [['bomb', 'ice', 'sniper'], ['dart', 'boom', 'glue', 'tesla'], ['flame', 'magnet', 'farm', 'dart'], ['heli', 'bank', 'bomb', 'glue'], ['tesla', 'sniper', 'ice', 'farm'], ['boom', 'flame', 'ice', 'bank'], ['dart', 'sniper', 'magnet', 'glue', 'bank']];
+  const allowed = pick(sets), noSell = rnd() < .5, money = pick([650, 1200, 3000]), lives = pick([10, 50, 100]), goal = 20 + Math.floor(rnd() * 4) * 5, wx = rnd() < .5 ? pick(WX_BY[MAPS[map].theme]) : '', hero = rnd() < .6;
+  const reward = 15 + (goal - 20) + (lives === 10 ? 5 : 0) + (money === 650 ? 5 : 0);
+  return { id, map, allowed, noSell, money, lives, goal, wx, hero, reward };
+}
+function chRules(c) { return [`🏗️ nur ${c.allowed.map(k => TOWERS[k].n).join(', ')}`, c.hero ? '🦸 Helden erlaubt' : '🚫 keine Helden', c.noSell ? '🚫 kein Verkaufen' : '', `💰 Start ${fmt(c.money)} €`, `❤️ ${c.lives} Leben`, c.wx ? `${WEATHER[c.wx].e} ${WEATHER[c.wx].n}` : ''].filter(Boolean); }
+const allowedType = id => !S || !S.ch || (isHero(id) ? S.ch.hero : S.ch.allowed.includes(id));
 // ================= Erfolge =================
-const maxBest = () => Math.max(0, ...Object.values(M.best));
+const maxBest = () => Math.max(0, ...BUILTIN.map(k => M.best[k] || 0));
 const done = () => (S ? S.round - 1 : 0);
 const ACH = [
   ['pop1', '🎈', 'Erster Ballon', 'Platze deinen ersten Ballon.', 1, () => M.popped >= 1], ['pop1k', '💥', 'Tausendsassa', 'Platze 1.000 Ballons.', 3, () => M.popped >= 1e3], ['pop10k', '🎯', 'Ballon-Jäger', 'Platze 10.000 Ballons.', 5, () => M.popped >= 1e4],
   ['pop100k', '🔥', 'Ballon-Schreck', 'Platze 100.000 Ballons.', 10, () => M.popped >= 1e5], ['pop1m', '👑', '1 Million Ballons', 'Platze 1.000.000 Ballons.', 30, () => M.popped >= 1e6],
   ['r10', '🥉', 'Runde 10', 'Erreiche Runde 10.', 3, () => maxBest() >= 10], ['r25', '🥈', 'Runde 25', 'Erreiche Runde 25.', 5, () => maxBest() >= 25], ['r50', '🥇', 'Runde 50', 'Erreiche Runde 50.', 15, () => maxBest() >= 50], ['r100', '🏅', 'Runde 100', 'Erreiche Runde 100.', 40, () => maxBest() >= 100],
-  ['boss1', '🛩️', 'Zeppelin-Knacker', 'Besiege einen Zeppelin.', 5, () => M.bosses >= 1], ['boss10', '⚓', 'Luftabwehr', 'Besiege 10 Zeppeline.', 15, () => M.bosses >= 10],
+  ['boss1', '🛩️', 'Zeppelin-Knacker', 'Besiege einen Boss.', 5, () => M.bosses >= 1], ['boss10', '⚓', 'Luftabwehr', 'Besiege 10 Bosse.', 15, () => M.bosses >= 10],
   ['nolife', '🛡️', 'Unverwundbar', 'Runde 50 ohne ein Leben zu verlieren.', 30, () => S && done() >= 50 && S.lost === 0], ['hard30', '😤', 'Harter Brocken', 'Runde 30 auf Schwer.', 20, () => S && S.diff === 'schwer' && done() >= 30],
   ['one20', '💀', 'Auf Messers Schneide', 'Runde 20 mit nur einem Leben.', 25, () => S && S.diff === 'eins' && done() >= 20], ['maxtower', '⭐', 'Voll ausgebaut', 'Baue einen Pfad eines Turms ganz aus.', 3, () => S && S.towers.some(t => t.a >= 3 || t.b >= 3)],
-  ['alltypes', '🏰', 'Sammler', 'Alle 8 Turmarten in einem Spiel.', 5, () => S && S.types.length >= 8], ['vet3', '🎖️', 'Kriegsveteran', 'Ein Turm platzt 10.000 Ballons.', 10, () => S && S.towers.some(t => t.pops >= 1e4)],
+  ['alltypes', '🏰', 'Sammler', 'Alle 8 klassischen Turmarten in einem Spiel.', 5, () => S && ['dart', 'boom', 'bomb', 'ice', 'sniper', 'bank', 'tesla', 'glue'].every(k => S.types.includes(k))], ['vet3', '🎖️', 'Kriegsveteran', 'Ein Turm platzt 10.000 Ballons.', 10, () => S && S.towers.some(t => t.pops >= 1e4)],
   ['rich', '💰', 'Dagobert', 'Habe 50.000 € auf einmal.', 10, () => S && S.money >= 5e4], ['ability', '⚡', 'Volle Kraft', 'Setze eine Spezialfähigkeit ein.', 2, () => M.abil >= 1],
-  ['allmaps', '🗺️', 'Weltenbummler', 'Runde 10 auf allen fünf Karten.', 25, () => Object.keys(MAPS).every(k => (M.best[k] || 0) >= 10)]
+  ['allmaps', '🗺️', 'Weltenbummler', 'Runde 10 auf allen fünf Karten.', 25, () => BUILTIN.every(k => (M.best[k] || 0) >= 10)],
+  ['hero10', '🦸', 'Held der Stunde', 'Bringe einen Helden auf Level 10.', 10, () => S && S.towers.some(t => isHero(t.t) && heroLvl(t) >= 10)], ['stars3', '🌟', 'Perfekt', 'Hole 3 Sterne auf einer Karte.', 10, () => Object.values(M.stars).some(v => v >= 3)],
+  ['daily1', '📅', 'Tagesheld', 'Schaffe eine Tages-Challenge.', 5, () => Object.keys(M.daily).length >= 1], ['daily7', '🗓️', 'Dranbleiber', 'Schaffe 7 Tages-Challenges.', 20, () => M.dailyN >= 7],
+  ['banana', '🍌', 'Bananenrepublik', 'Sammle 100 Bananen ein.', 5, () => M.bananas >= 100], ['builder', '✏️', 'Baumeister', 'Baue eine eigene Karte.', 5, () => Object.values(M.custom).some(c => c.mine)],
+  ['coop', '🤝', 'Teamwork', 'Schaffe 10 Runden zusammen mit jemandem.', 10, () => S && S.coop && done() >= 10], ['allnew', '🧰', 'Werkzeugkasten', 'Flammenwerfer, Magnet, Bauernhof und Hubschrauber in einem Spiel.', 5, () => S && ['flame', 'magnet', 'farm', 'heli'].every(k => S.types.includes(k))]
 ];
-function checkAch() { for (const [id, e, n, , dia, ok] of ACH) { if (M.ach.includes(id)) continue; let y = false; try { y = ok(); } catch (x) {} if (!y) continue; M.ach.push(id); M.diamonds += dia; toast(`🏆 Erfolg: ${n} (+${dia} 💎)`, 3400); saveMeta(); } }
+function checkAch() { for (const [id, , n, , dia, ok] of ACH) { if (M.ach.includes(id)) continue; let y = false; try { y = ok(); } catch (x) {} if (!y) continue; M.ach.push(id); M.diamonds += dia; toast(`🏆 Erfolg: ${n} (+${dia} 💎)`, 3400); saveMeta(); } }
 // ================= Zustand =================
-const freshMeta = () => ({ playMs: 0, last: 0, diamonds: 0, up: { startMoney: 0, lives: 0, discount: 0, bonus: 0, roundBonus: 0 }, best: Object.fromEntries(Object.keys(MAPS).map(k => [k, 0])), runs: 0, popped: 0, snd: false, ach: [], bosses: 0, abil: 0, seen: {}, grid: true, diff: 'normal' });
-let M = freshMeta(), S = null, savedRun = null, placing = null, ghost = null, selTower = null, acc = 0, lastT = performance.now(), menuTab = 'play', pickMap = 'wiese';
+const freshMeta = () => ({ playMs: 0, last: 0, diamonds: 0, up: { startMoney: 0, lives: 0, discount: 0, bonus: 0, roundBonus: 0 }, best: Object.fromEntries(BUILTIN.map(k => [k, 0])), runs: 0, popped: 0, snd: false, ach: [], bosses: 0, abil: 0, seen: {}, grid: true, diff: 'normal',
+  wx: true, mode: 'endless', stars: {}, daily: {}, dailyN: 0, tpl: {}, bananas: 0, custom: {} });
+let M = freshMeta(), S = null, savedRun = null, placing = null, ghost = null, selTower = null, moving = null, acc = 0, lastT = performance.now(), menuTab = 'play', pickMap = 'wiese', EDIT = null;
 const $ = id => document.getElementById(id), cv = $('cv'), ctx = cv.getContext('2d');
 const fmt = n => Math.floor(n).toLocaleString('de-DE');
 const price = c => Math.round(c * (1 - 0.02 * M.up.discount) * D().price);
-function newRun(map, diff) {
-  curMap = map; PATH = buildPath(map); BG = null; const df = DIFF[diff] ? diff : 'normal';
-  S = { map, diff: df, round: 1, money: 800 + 50 * M.up.startMoney, lives: DIFF[df].noMeta ? DIFF[df].lives : DIFF[df].lives + 5 * M.up.lives, towers: [], balloons: [], projs: [], fx: [], queue: [], waveT: 0, active: false, speed: 1, paused: false, over: false, auto: false, autoIn: 0, nid: 1, popped: 0, lost: 0, types: [], shake: 0, time: 0 };
-  selTower = null; placing = null; renderAll(); return S;
+function newRun(map, diff, opt = {}) {
+  curMap = map; PATH = buildPath(map); BG = null; const df = DIFF[diff] ? diff : 'normal', ch = opt.ch || null;
+  S = { map, diff: df, round: 1, money: 800 + 50 * M.up.startMoney, lives: DIFF[df].noMeta ? DIFF[df].lives : DIFF[df].lives + 5 * M.up.lives, towers: [], balloons: [], projs: [], fx: [], queue: [], waveT: 0, active: false, speed: 1, paused: false, over: false, auto: false, autoIn: 0, nid: 1, tid: 1, popped: 0, lost: 0, types: [], shake: 0, time: 0,
+    cash: 0, rc: 0, rl: 0, hist: [], popBy: {}, loot: [], spikes: [], walls: [], heart: false, wx: '', goal: ch ? ch.goal : opt.goal ? GOAL : 0, won: false, ch, coop: opt.coop || null };
+  if (ch) { S.money = ch.money; S.lives = ch.lives; }
+  selTower = null; placing = null; moving = null; renderAll(); return S;
 }
+// Geld verdienen (zählt für die Statistik)
+function earn(v) { S.money += v; S.cash += v; S.rc += v; }
 // ================= Türme: Werte =================
-function stats(t) { const d = TOWERS[t.t], s = { ...d.base }; [['A', t.a], ['B', t.b]].forEach(([p, n]) => { for (let i = 0; i < n; i++) { const fx = d[p][i][2]; for (const k in fx.add || {}) s[k] = (s[k] || 0) + fx.add[k]; for (const k in fx.mul || {}) s[k] *= fx.mul[k]; for (const k in fx.set || {}) s[k] = fx.set[k]; } }); if (t.radar) s.radar = true; return s; }
-const tierOf = t => Math.max(t.a, t.b), vetOf = t => VET.filter(v => (t.pops || 0) >= v).length, hasAbil = t => t.a >= 3 || t.b >= 3;
-const snap = p => (M.grid ? { x: Math.round(p.x / GRID) * GRID, y: Math.round(p.y / GRID) * GRID } : p);
-function validSpot(x, y, ignore) { if (x < 22 || x > W - 22 || y < 22 || y > H - 22) return false; if (distToPath(x, y) < 30) return false; return !S.towers.some(t => t !== ignore && Math.hypot(t.x - x, t.y - y) < 36); }
-function place(type, x, y) {
-  const d = TOWERS[type]; if (!d || S.over) return null; const c = price(d.cost); if (S.money < c || !validSpot(x, y)) return null;
-  S.money -= c; const t = { t: type, x, y, a: 0, b: 0, cd: 0.2, mode: 'first', spent: c, ang: 0, pops: 0, radar: false, abCd: 0, boostT: 0, flash: 0 }; t.s = stats(t); S.towers.push(t);
-  if (!S.types.includes(type)) S.types.push(type); sfx('place'); idleSave(); checkAch(); renderAll(); return t;
+function stats(t) {
+  const d = TOWERS[t.t], s = { ...d.base }; [['A', t.a], ['B', t.b]].forEach(([p, n]) => { for (let i = 0; i < n; i++) { const fx = d[p][i][2]; for (const k in fx.add || {}) s[k] = (s[k] || 0) + fx.add[k]; for (const k in fx.mul || {}) s[k] *= fx.mul[k]; for (const k in fx.set || {}) s[k] = fx.set[k]; } });
+  if (d.hero) { const L = heroLvl(t); s.rate *= 1 - .04 * (L - 1); s.range += 5 * (L - 1);
+    if (t.t === 'pilot') { s.dmg = 1 + Math.floor(L / 4); s.shots = L >= 3 ? 2 : 1; s.metal = L >= 4; s.planes = L >= 10 ? 2 : 1; }
+    else { s.dmg = 1 + Math.floor(L / 3); s.splash = 28 + 3 * L; s.wall = L >= 3; s.morph = L >= 10; } }
+  if (t.radar) s.radar = true; return s;
 }
-function upgrade(t, path) { const d = TOWERS[t.t], n = path === 'A' ? t.a : t.b, up = d[path][n]; if (!up) return false; const c = price(up[1]); if (S.money < c) return false; S.money -= c; t.spent += c; if (path === 'A') t.a++; else t.b++; t.s = stats(t); sfx('up'); idleSave(); checkAch(); renderAll(); return true; }
-function buyRadar(t) { if (t.radar || t.s.radar || t.t === 'bank' || t.t === 'ice') return false; const c = price(RADAR); if (S.money < c) return false; S.money -= c; t.spent += c; t.radar = true; t.s = stats(t); sfx('up'); idleSave(); renderAll(); return true; }
-function sell(t) { const i = S.towers.indexOf(t); if (i < 0) return false; S.money += Math.floor(t.spent * 0.7); S.towers.splice(i, 1); if (selTower === t) selTower = null; idleSave(); renderAll(); return true; }
+const tierOf = t => Math.max(t.a, t.b), vetOf = t => (isHero(t.t) ? 0 : VET.filter(v => (t.pops || 0) >= v).length), hasAbil = t => (isHero(t.t) ? heroLvl(t) >= 6 : t.a >= 3 || t.b >= 3);
+const snap = p => (M.grid ? { x: Math.round(p.x / GRID) * GRID, y: Math.round(p.y / GRID) * GRID } : p);
+// Im Zusammenspiel baut jeder auf seiner Hälfte (links: Gastgeber, rechts: Gast)
+const mySide = x => !S || !S.coop || (S.coop.role === 'host' ? x < W / 2 : x >= W / 2);
+function validSpot(x, y, ignore) { if (x < 22 || x > W - 22 || y < 22 || y > H - 22) return false; if (distToPath(x, y) < 30) return false; if (!mySide(x)) return false; return !S.towers.some(t => t !== ignore && Math.hypot(t.x - x, t.y - y) < 36); }
+function place(type, x, y, remote) {
+  const d = TOWERS[type]; if (!d || S.over) return null; const c = price(d.cost); if (S.money < c || (!remote && !validSpot(x, y))) return null;
+  if (!allowedType(type)) return null; if (d.hero && S.towers.some(t => isHero(t.t))) return null;
+  S.money -= c; const t = { id: S.tid++, t: type, x, y, a: 0, b: 0, cd: 0.2, mode: 'first', spent: c, ang: 0, pops: 0, radar: false, abCd: 0, boostT: 0, flash: 0, xp: 0, stun: 0, hx: x, hy: y, pa: 0, own: S.coop ? S.coop.role : '' }; t.s = stats(t); S.towers.push(t);
+  if (!S.types.includes(type)) S.types.push(type); sfx('place'); if (!remote) netAct('place', { t: type, x, y }); idleSave(); checkAch(); renderAll(); return t;
+}
+function upgrade(t, path, remote) { const d = TOWERS[t.t], n = path === 'A' ? t.a : t.b, up = d[path][n]; if (!up) return false; const c = price(up[1]); if (S.money < c) return false; S.money -= c; t.spent += c; if (path === 'A') t.a++; else t.b++; t.s = stats(t); sfx('up'); if (!remote) netAct('up', { x: t.x, y: t.y, p: path }); idleSave(); checkAch(); renderAll(); return true; }
+function buyRadar(t, remote) { if (t.radar || t.s.radar || t.t === 'bank' || t.t === 'ice' || t.t === 'farm' || t.t === 'magnet') return false; const c = price(RADAR); if (S.money < c) return false; S.money -= c; t.spent += c; t.radar = true; t.s = stats(t); sfx('up'); if (!remote) netAct('radar', { x: t.x, y: t.y }); idleSave(); renderAll(); return true; }
+function sell(t, remote) { if (S.ch && S.ch.noSell) return false; const i = S.towers.indexOf(t); if (i < 0) return false; S.money += Math.floor(t.spent * 0.7); S.towers.splice(i, 1); if (selTower === t) selTower = null; if (!remote) netAct('sell', { x: t.x, y: t.y }); idleSave(); renderAll(); return true; }
+const moveCost = t => Math.max(50, Math.round(t.spent * 0.1));
+function moveTower(t, x, y, remote) { const c = moveCost(t); if (S.money < c || (!remote && !validSpot(x, y, t))) return false; netAct('move', { x: t.x, y: t.y, nx: x, ny: y }, remote); S.money -= c; t.x = x; t.y = y; t.hx = x; t.hy = y; idleSave(); renderAll(); return true; }
+const towerAt = (x, y) => S.towers.find(t => Math.abs(t.x - x) < 1 && Math.abs(t.y - y) < 1);
 // ================= Runde =================
-function startRound() { if (!S || S.active || S.over) return false; S.cp = runData(); S.queue = waveFor(S.round, S.diff); S.waveT = 0; S.active = true; S.autoIn = 0; renderAll(); return true; }
+function startRound(remote) {
+  if (!S || S.active || S.over) return false; if (S.coop && S.coop.role === 'guest' && !remote) { netAct('start', {}); return true; }
+  S.cp = runData(); S.queue = waveFor(S.round, S.diff); S.waveT = 0; S.active = true; S.autoIn = 0; S.rc = 0; S.rl = 0; S.wx = weatherFor(S.round);
+  if (S.wx && !M.seen['wx_' + S.wx]) { M.seen['wx_' + S.wx] = 1; toast(`${WEATHER[S.wx].e} ${WEATHER[S.wx].n}: ${WEATHER[S.wx].d}`, 4200); }
+  renderAll(); return true;
+}
 function spawn(e) {
-  let b; if (e.boss) b = { id: S.nid++, boss: true, hp: e.boss, max: e.boss, layer: 6, d: 0 };
+  let b; if (e.boss) { const bk = BOSS[e.bk] ? e.bk : 'zeppelin'; b = { id: S.nid++, boss: true, bk, hp: e.boss, max: e.boss, layer: 6, d: e.d || 0, camo: bk === 'tarn' }; }
   else { b = { id: S.nid++, layer: e.layer, d: e.d || 0, camo: !!e.camo, regrow: e.regrow ? e.layer : 0, rgT: 0 }; if (e.kind) { b.kind = e.kind; b.hp = KIND[e.kind].hp; b.regrow = 0; } }
-  Object.assign(b, { slowT: 0, slowF: 1, glueT: 0, glueF: 1, acid: 0, acAcc: 0 }); const p = posAt(b.d); b.x = p.x; b.y = p.y; S.balloons.push(b);
-  if (e.boss) { S.shake = 0.5; sfx('boss'); toast('🛩️ Ein Zeppelin kommt!'); }
-  [b.kind, b.camo && 'camo', b.regrow && 'regrow'].forEach(k => { if (k && !M.seen[k]) { M.seen[k] = 1; toast('Neu: ' + NEWS[k], 5200); saveMeta(); } });
+  Object.assign(b, { slowT: 0, slowF: 1, glueT: 0, glueF: 1, acid: 0, acAcc: 0, burn: 0, burnD: 0, brAcc: 0 }); const p = posAt(b.d); b.x = p.x; b.y = p.y; S.balloons.push(b);
+  if (e.boss) { S.shake = 0.5; sfx('boss'); toast(`🛩️ ${BOSS[b.bk].n} kommt!`); }
+  [b.kind, b.camo && !b.boss && 'camo', b.regrow && 'regrow', b.boss && b.bk !== 'zeppelin' && b.bk].forEach(k => { if (k && !M.seen[k]) { M.seen[k] = 1; toast('Neu: ' + NEWS[k], 5200); saveMeta(); } });
+  return b;
 }
 const rad = b => (b.boss ? 36 : b.kind ? KIND[b.kind].r : LAYER[b.layer].r);
-const speedOf = b => (b.boss ? 38 : b.kind ? KIND[b.kind].v : LAYER[b.layer].v) * D().speed * Math.min(b.slowT > 0 ? b.slowF : 1, b.glueT > 0 ? b.glueF : 1);
+const speedOf = b => (b.boss ? BOSS[b.bk].v : b.kind ? KIND[b.kind].v : LAYER[b.layer].v) * D().speed * (S.wx === 'regen' ? .85 : 1) * Math.min(b.slowT > 0 ? b.slowF : 1, b.glueT > 0 ? b.glueF : 1);
+const rangeOf = t => t.s.range * (S.wx === 'sturm' ? .8 : 1);
 let popFx = 0;
 // Schaden an einem Ballon. src: der Turm (oder { metal: true }). Gibt zurück, ob der Treffer gewirkt hat.
 function hit(b, dmg, src) {
   if (b.dead || dmg <= 0) return false; const bonus = 1 + 0.05 * M.up.bonus, metalOk = src && (src.s ? src.s.metal : src.metal), tw = src && src.s ? src : null;
-  if (b.kind === 'metal' && !metalOk) { if (S.fx.length < 160 && Math.random() < .25) S.fx.push({ k: 'clank', x: b.x, y: b.y, t: 0, max: .25 }); return false; }
-  const credit = n => { S.popped += n; M.popped += n; if (tw) tw.pops = (tw.pops || 0) + n; };
-  if (b.boss) { const real = Math.min(dmg, Math.max(0, b.hp)); b.hp -= dmg; S.money += real * 0.5 * bonus; if (tw) tw.pops = (tw.pops || 0) + Math.ceil(real / 10);
-    if (b.hp <= 0) { b.dead = true; S.money += 150 * bonus; credit(1); M.bosses++; S.shake = 0.6; sfx('boss'); floatTxt(b.x, b.y - 30, '+' + fmt(150 * bonus) + ' €', '#fde68a'); for (let i = 0; i < 10; i++) S.queue.unshift({ t: S.waveT, layer: 3, d: Math.max(0, b.d - i * 10) }); fxPop(b.x, b.y, '#94a3b8', 3); } return true; }
+  if ((b.kind === 'metal' || b.bk === 'panzer') && !metalOk) { if (S.fx.length < 160 && Math.random() < .25) S.fx.push({ k: 'clank', x: b.x, y: b.y, t: 0, max: .25 }); return false; }
+  const credit = n => { S.popped += n; M.popped += n; if (tw) { tw.pops = (tw.pops || 0) + n; S.popBy[tw.t] = (S.popBy[tw.t] || 0) + n; if (isHero(tw.t)) gainXp(tw, n * .3); } };
+  if (b.boss) { const real = Math.min(dmg, Math.max(0, b.hp)); b.hp -= dmg; earn(real * 0.5 * bonus); if (tw) { tw.pops = (tw.pops || 0) + Math.ceil(real / 10); S.popBy[tw.t] = (S.popBy[tw.t] || 0) + Math.ceil(real / 10); if (isHero(tw.t)) gainXp(tw, real * .05); }
+    if (b.hp <= 0) { b.dead = true; earn(150 * bonus); credit(1); M.bosses++; S.shake = 0.6; sfx('boss'); floatTxt(b.x, b.y - 30, '+' + fmt(150 * bonus) + ' €', '#fde68a'); fxPop(b.x, b.y, '#94a3b8', 3);
+      if (b.bk === 'panzer') { S.towers.forEach(t => { if (Math.hypot(t.x - b.x, t.y - b.y) < 150) t.stun = 3; }); for (let i = 0; i < 6; i++) S.queue.unshift({ t: S.waveT, kind: 'metal', layer: 1, d: Math.max(0, b.d - i * 12) }); S.fx.push({ k: 'ring', x: b.x, y: b.y, r: 150, c: '#fbbf24', t: 0, max: .6 }); }
+      else if (b.bk === 'schwarm') { for (let i = 0; i < 30; i++) S.queue.unshift({ t: S.waveT, layer: 2 + (i % 2), d: Math.max(0, b.d - i * 5) }); }
+      else for (let i = 0; i < 10; i++) S.queue.unshift({ t: S.waveT, layer: 3, camo: b.bk === 'tarn', d: Math.max(0, b.d - i * 10) }); } return true; }
   if (b.kind) {
-    const K = KIND[b.kind], used = Math.min(dmg, b.hp); b.hp -= dmg; S.money += used * bonus; credit(used); fxPop(b.x, b.y, K.c, .7);
+    const K = KIND[b.kind], used = Math.min(dmg, b.hp); b.hp -= dmg; earn(used * bonus); credit(used); fxPop(b.x, b.y, K.c, .7);
     if (b.hp > 0) return true;
     const over = -b.hp; b.kind = null; b.layer = K.into; b.hp = 0;
     if (K.twin) spawn({ layer: K.into, d: Math.max(0, b.d - 14), camo: b.camo });
     if (over > 0) hit(b, over, src); return true;
   }
-  const pops = Math.min(dmg, b.layer); S.money += pops * bonus; credit(pops); fxPop(b.x, b.y, LAYER[Math.max(1, b.layer)].c, 1); b.layer -= dmg;
+  const pops = Math.min(dmg, b.layer); earn(pops * bonus); credit(pops); fxPop(b.x, b.y, LAYER[Math.max(1, b.layer)].c, 1); b.layer -= dmg;
   if (b.layer <= 0) { b.dead = true; if (popFx < 6) { floatTxt(b.x, b.y - 10, '+' + Math.max(1, Math.round(pops * bonus)) + ' €', '#86efac'); popFx++; } sfx('pop'); }
   return true;
 }
+function gainXp(t, v) { const before = heroLvl(t); t.xp = (t.xp || 0) + v; const after = heroLvl(t); if (after > before) { t.s = stats(t); const what = HERO_LV[t.t][after]; toast(`🦸 ${TOWERS[t.t].n} ist jetzt Level ${after}${what ? ': ' + what : ''}`, 3600); S.fx.push({ k: 'ring', x: t.x, y: t.y, r: 40, c: '#facc15', t: 0, max: .6 }); checkAch(); } }
 function fxPop(x, y, c, k) { if (S.fx.length < 180) S.fx.push({ k: 'pop', x, y, c, t: 0, max: 0.32 * k, a: Math.random() * TAU }); }
 function floatTxt(x, y, txt, c) { if (S.fx.length < 180) S.fx.push({ k: 'txt', x, y, txt, c, t: 0, max: .9 }); }
 function visible(t, b) { return !b.camo || t.s.radar; }
-function pick(t) {
-  const s = t.s; let best = null, bv = 0; const R = s.range;
-  for (const b of S.balloons) { if (b.dead || !visible(t, b)) continue; const dd = Math.hypot(b.x - t.x, b.y - t.y); if (R < 9000 && dd > R + rad(b) * 0.6) continue;
-    let v; switch (t.mode) { case 'last': v = -b.d; break; case 'strong': v = b.boss ? 1e7 + b.hp : (b.kind ? 1e5 * KIND[b.kind].hp : 0) + b.layer * 1000 + b.d * 0.01; break; case 'close': v = -dd; break; default: v = b.d; }
+function score(b) { return b.boss ? 1e7 + b.hp : (b.kind ? 1e5 * KIND[b.kind].hp : 0) + b.layer * 1000 + b.d * 0.01; }
+// Ziel wählen. from: Position, von der aus gezielt wird (Hubschrauber und Flugzeug fliegen)
+function pick(t, fx, fy, R) {
+  const s = t.s; let best = null, bv = 0; fx = fx ?? t.x; fy = fy ?? t.y; R = R ?? rangeOf(t);
+  for (const b of S.balloons) { if (b.dead || !visible(t, b)) continue; const dd = Math.hypot(b.x - fx, b.y - fy); if (R < 9000 && dd > R + rad(b) * 0.6) continue;
+    let v; switch (t.mode) { case 'last': v = -b.d; break; case 'strong': v = score(b); break; case 'close': v = -dd; break; default: v = b.d; }
     if (s.kind === 'glue' && b.glueT > 1) v -= 1e8;          // lieber noch nicht verklebte Ballons
     if (best === null || v > bv) { best = b; bv = v; } }
   return best;
 }
-function lead(t, b, speed) { const dd = Math.hypot(b.x - t.x, b.y - t.y), tm = dd / speed; return posAt(Math.min(PATH.len, b.d + speedOf(b) * tm)); }
+function lead(x, y, b, speed) { const dd = Math.hypot(b.x - x, b.y - y), tm = dd / speed; return posAt(Math.min(PATH.len, b.d + speedOf(b) * tm)); }
 const rateOf = t => t.s.rate * (1 - 0.05 * vetOf(t)) * (t.boostT > 0 ? t.boostMul : 1);
+function dart(x, y, a, s, src, pierce) { S.projs.push({ k: 'dart', disc: !!s.disc, x, y, vx: Math.cos(a) * s.speed, vy: Math.sin(a) * s.speed, pierce, dmg: s.dmg, life: Math.min(1.6, (Math.min(s.range, 400) + 40) / s.speed), hit: new Set(), a: 0, src }); }
 function fire(t, b) {
   const s = t.s; t.cd = rateOf(t); t.flash = 0.08;
-  if (s.kind === 'dart') { const base = Math.atan2(b.y - t.y, b.x - t.x); t.ang = base; const pierce = s.pierce + (t.boostT > 0 ? t.boostPierce || 0 : 0); for (let i = 0; i < s.shots; i++) { const a = base + (s.shots > 1 ? (i - (s.shots - 1) / 2) * 0.22 : 0); S.projs.push({ k: 'dart', disc: !!s.disc, x: t.x, y: t.y, vx: Math.cos(a) * s.speed, vy: Math.sin(a) * s.speed, pierce, dmg: s.dmg, life: Math.min(1.6, (Math.min(s.range, 400) + 40) / s.speed), hit: new Set(), a: 0, src: t }); } sfx('shot'); }
-  else if (s.kind === 'bomb') { const p = lead(t, b, s.speed); t.ang = Math.atan2(p.y - t.y, p.x - t.x); S.projs.push({ k: 'bomb', x: t.x, y: t.y, sx: t.x, sy: t.y, tx: p.x, ty: p.y, speed: s.speed, splash: s.splash, dmg: s.dmg, src: t }); sfx('boom'); }
-  else if (s.kind === 'glue') { const p = lead(t, b, s.speed); t.ang = Math.atan2(p.y - t.y, p.x - t.x); S.projs.push({ k: 'glue', x: t.x, y: t.y, tx: p.x, ty: p.y, speed: s.speed, src: t }); }
+  if (s.kind === 'dart') { const base = Math.atan2(b.y - t.y, b.x - t.x); t.ang = base; const pierce = s.pierce + (t.boostT > 0 ? t.boostPierce || 0 : 0); for (let i = 0; i < s.shots; i++) dart(t.x, t.y, base + (s.shots > 1 ? (i - (s.shots - 1) / 2) * 0.22 : 0), s, t, pierce); sfx('shot'); }
+  else if (s.kind === 'bomb' || s.kind === 'magier') { const p = lead(t.x, t.y, b, s.speed); t.ang = Math.atan2(p.y - t.y, p.x - t.x); S.projs.push({ k: s.kind === 'bomb' ? 'bomb' : 'fire', x: t.x, y: t.y, sx: t.x, sy: t.y, tx: p.x, ty: p.y, speed: s.speed, splash: s.splash, dmg: s.dmg, src: t }); sfx('boom'); }
+  else if (s.kind === 'glue') { const p = lead(t.x, t.y, b, s.speed); t.ang = Math.atan2(p.y - t.y, p.x - t.x); S.projs.push({ k: 'glue', x: t.x, y: t.y, tx: p.x, ty: p.y, speed: s.speed, src: t }); }
   else if (s.kind === 'sniper') { t.ang = Math.atan2(b.y - t.y, b.x - t.x); S.fx.push({ k: 'line', x: t.x + Math.cos(t.ang) * 30, y: t.y + Math.sin(t.ang) * 30, x2: b.x, y2: b.y, t: 0, max: 0.12 }); hit(b, s.dmg, t); sfx('snipe'); }
   else if (s.kind === 'tesla') { const pts = [[t.x, t.y]], got = new Set(); let cur = b; for (let i = 0; i < s.chain && cur; i++) { got.add(cur.id); pts.push([cur.x, cur.y]); hit(cur, s.dmg, t); let nx = null, nd = s.jump; for (const o of S.balloons) { if (o.dead || got.has(o.id)) continue; const dd = Math.hypot(o.x - cur.x, o.y - cur.y); if (dd < nd) { nd = dd; nx = o; } } cur = nx; } S.fx.push({ k: 'bolt', pts, t: 0, max: 0.18 }); sfx('zap'); }
+  else if (s.kind === 'flame') {          // Flammenkegel (oder Ring), trifft die nächsten Ballons
+    t.ang = Math.atan2(b.y - t.y, b.x - t.x); const R = rangeOf(t), list = S.balloons.filter(o => { if (o.dead) return false; const dd = Math.hypot(o.x - t.x, o.y - t.y); if (dd > R + rad(o)) return false; if (s.arc >= 6) return true; let da = Math.abs(Math.atan2(o.y - t.y, o.x - t.x) - t.ang); if (da > Math.PI) da = TAU - da; return da <= s.arc / 2 + .15; }).sort((p, q) => Math.hypot(p.x - t.x, p.y - t.y) - Math.hypot(q.x - t.x, q.y - t.y)).slice(0, s.pierce);
+    list.forEach(o => { hit(o, o.kind === 'ceramic' ? s.dmg * 3 : s.dmg, t); if (s.burn && !o.dead) { o.burn = 3; o.burnD = Math.max(o.burnD, s.burn); } });
+    S.fx.push({ k: 'flame', x: t.x, y: t.y, a: t.ang, arc: s.arc, r: R, t: 0, max: .3 }); }
+  else if (s.kind === 'magnet') {         // zieht Metall/Keramik (mit Elektromagnet alle) zurück
+    const R = rangeOf(t), list = S.balloons.filter(o => !o.dead && !o.boss && (s.all || o.kind) && Math.hypot(o.x - t.x, o.y - t.y) <= R + rad(o)).sort((p, q) => q.d - p.d).slice(0, s.shots);
+    if (!list.length) { t.cd = 0.2; return; } t.ang = Math.atan2(list[0].y - t.y, list[0].x - t.x);
+    list.forEach(o => { S.fx.push({ k: 'pull', x: t.x, y: t.y, x2: o.x, y2: o.y, t: 0, max: .35 }); o.d = Math.max(0, o.d - s.pull); const p = posAt(o.d); o.x = p.x; o.y = p.y; if (o.kind) hit(o, o.kind === 'ceramic' ? 4 : 1, t); });
+    sfx('zap'); }
 }
 function gl(b, s, f) { const on = b.glueT > 0; b.glueF = Math.min(on ? b.glueF : 1, b.boss ? Math.max(.6, f) : f); b.glueT = Math.max(b.glueT, s.glueT || 6); if (s.acid) b.acid = Math.max(on ? b.acid : 0, s.acid); }
 function pulse(t) {
-  const s = t.s; let any = false; for (const b of S.balloons) { if (b.dead) continue; if (Math.hypot(b.x - t.x, b.y - t.y) <= s.range + rad(b)) { any = true; const on = b.slowT > 0; b.slowF = Math.min(on ? b.slowF : 1, b.boss ? Math.max(.6, s.slow) : s.slow); b.slowT = Math.max(b.slowT, s.freeze); if (s.dmg) hit(b, s.dmg, t); } }
-  if (any) { t.cd = rateOf(t); S.fx.push({ k: 'ring', x: t.x, y: t.y, r: s.range, c: '#bae6fd', t: 0, max: 0.45 }); }
+  const s = t.s, R = rangeOf(t); let any = false; for (const b of S.balloons) { if (b.dead) continue; if (Math.hypot(b.x - t.x, b.y - t.y) <= R + rad(b)) { any = true; const on = b.slowT > 0; b.slowF = Math.min(on ? b.slowF : 1, b.boss ? Math.max(.6, s.slow) : s.slow); b.slowT = Math.max(b.slowT, s.freeze); if (s.dmg) hit(b, s.dmg, t); } }
+  if (any) { t.cd = rateOf(t); S.fx.push({ k: 'ring', x: t.x, y: t.y, r: R, c: '#bae6fd', t: 0, max: 0.45 }); }
 }
+// Position eines Flugzeugs der Pilotin (kreist um die Kartenmitte)
+const planePos = (t, i) => { const a = t.pa + i * Math.PI; return { x: W / 2 + Math.cos(a) * 240, y: H / 2 + Math.sin(a) * 170, a: a + Math.PI / 2 }; };
 // Spezialfähigkeit auslösen
 function useAbility(t, quiet) {
   if (!t || !hasAbil(t) || t.abCd > 0 || S.over) return false; const [n, , cd] = ABIL[t.t], s = t.s; t.abCd = cd; M.abil++;
+  const strongest = k => S.balloons.filter(b => !b.dead).sort((a, b) => score(b) - score(a)).slice(0, k);
   if (t.t === 'dart') { t.boostT = 8; t.boostMul = .2; t.boostPierce = 0; }
   else if (t.t === 'boom') { t.boostT = 8; t.boostMul = .33; t.boostPierce = 10; }
   else if (t.t === 'bomb') { const R = s.range * 2; S.balloons.forEach(b => { if (!b.dead && Math.hypot(b.x - t.x, b.y - t.y) <= R) hit(b, 4, t); }); S.fx.push({ k: 'ring', x: t.x, y: t.y, r: R, c: '#fb923c', t: 0, max: .6 }); S.shake = .4; }
   else if (t.t === 'ice') { S.balloons.forEach(b => { b.slowT = Math.max(b.slowT, 3); b.slowF = b.boss ? .4 : 0; }); S.fx.push({ k: 'flash', c: 'rgba(186,230,253,.45)', t: 0, max: .5 }); }
-  else if (t.t === 'sniper') { let b = null; S.balloons.forEach(o => { if (o.dead) return; const v = o.boss ? 1e7 + o.hp : (o.kind ? 1e5 * KIND[o.kind].hp : 0) + o.layer * 1000 + o.d * .01; if (!b || v > b.v) b = { o, v }; }); if (b) { S.fx.push({ k: 'line', x: t.x, y: t.y, x2: b.o.x, y2: b.o.y, t: 0, max: .4, w: 6 }); hit(b.o, 500, t); } }
-  else if (t.t === 'bank') { const inc = Math.round(t.s.income * 1.5); S.money += inc; floatTxt(t.x, t.y - 26, '+' + fmt(inc) + ' €', '#fde68a'); }
+  else if (t.t === 'sniper') { const [b] = strongest(1); if (b) { S.fx.push({ k: 'line', x: t.x, y: t.y, x2: b.x, y2: b.y, t: 0, max: .4, w: 6 }); hit(b, 500, t); } }
+  else if (t.t === 'bank') { const inc = Math.round(t.s.income * 1.5); earn(inc); floatTxt(t.x, t.y - 26, '+' + fmt(inc) + ' €', '#fde68a'); }
   else if (t.t === 'tesla') { const list = S.balloons.filter(b => !b.dead).sort((a, b) => b.d - a.d).slice(0, 30), pts = [[t.x, t.y]]; list.forEach(b => { pts.push([b.x, b.y]); hit(b, 3, t); }); S.fx.push({ k: 'bolt', pts, t: 0, max: .5, big: true }); S.shake = .3; }
   else if (t.t === 'glue') { S.balloons.forEach(b => gl(b, { glueT: 6, acid: s.acid }, Math.min(s.glueF, .4))); S.fx.push({ k: 'flash', c: 'rgba(163,230,53,.3)', t: 0, max: .5 }); }
+  else if (t.t === 'flame') { const R = s.range * 2; S.balloons.forEach(b => { if (!b.dead && Math.hypot(b.x - t.x, b.y - t.y) <= R) { b.burn = 5; b.burnD = Math.max(b.burnD, 2); hit(b, 1, t); } }); S.fx.push({ k: 'ring', x: t.x, y: t.y, r: R, c: '#f97316', t: 0, max: .6 }); }
+  else if (t.t === 'magnet') { S.balloons.forEach(b => { if (!b.dead && !b.boss) { b.d = Math.max(0, b.d - 150); const p = posAt(b.d); b.x = p.x; b.y = p.y; } }); S.fx.push({ k: 'flash', c: 'rgba(147,197,253,.3)', t: 0, max: .5 }); }
+  else if (t.t === 'farm') { earn(600); floatTxt(t.x, t.y - 26, '+600 €', '#fde68a'); }
+  else if (t.t === 'heli') { strongest(20).forEach(b => { S.fx.push({ k: 'line', x: t.hx, y: t.hy, x2: b.x, y2: b.y, t: 0, max: .3, c: '#fb923c' }); hit(b, 6, { metal: true }); }); }
+  else if (t.t === 'pilot') { S.balloons.forEach(b => { if (!b.dead) hit(b, 4, t); }); S.fx.push({ k: 'flash', c: 'rgba(251,146,60,.3)', t: 0, max: .5 }); S.shake = .5; }
+  else if (t.t === 'magier') { const [b] = strongest(1); if (b) { const x = b.x, y = b.y; hit(b, 80, t); S.balloons.forEach(o => { if (!o.dead && Math.hypot(o.x - x, o.y - y) < 90) hit(o, 6, t); }); S.fx.push({ k: 'boom', x, y, r: 90, t: 0, max: .5 }); S.shake = .5; } }
   if (!quiet) { toast(`⚡ ${n}!`); sfx('abil'); checkAch(); renderAll(); } return true;
 }
 // Alle bereiten Türme einer Art auf einmal auslösen
-function useGroup(type) {
-  const list = S.towers.filter(t => t.t === type && hasAbil(t) && t.abCd <= 0); if (!list.length) return 0;
+function useGroup(type, remote) {
+  const list = S.towers.filter(t => t.t === type && hasAbil(t) && t.abCd <= 0); if (!list.length) return 0; if (!remote) netAct('abil', { type });
   list.forEach(t => useAbility(t, true)); toast(`⚡ ${ABIL[type][0]}${list.length > 1 ? ' × ' + list.length : ''}!`); sfx('abil'); checkAch(); renderAll(); return list.length;
 }
+// Gegenstände
+function useItem(id, x, y, remote) {
+  const it = ITEMS[id]; if (!it || !S || S.over) return false;
+  if (id === 'heart') { if (S.heart) { toast('Nur einmal pro Spiel'); return false; } if (M.diamonds < it.dia) { toast('Nicht genug 💎'); return false; } M.diamonds -= it.dia; S.heart = true; S.lives += 20; saveMeta(); toast('❤️ +20 Leben'); netAct('item', { id }, remote); renderAll(); return true; }
+  const c = price(it.cost); if (S.money < c) { toast('Nicht genug Geld'); return false; }
+  if (id === 'spikes') { const n = nearestD(x, y); if (n.dist > 34) { toast('Stachelstreifen auf den Weg legen'); return false; } if (S.spikes.length >= 3) { toast('Höchstens 3 Stachelstreifen gleichzeitig'); return false; } const p = posAt(n.d); S.spikes.push({ d: n.d, x: p.x, y: p.y, n: 20, ids: [] }); }
+  else if (id === 'icebomb') { S.balloons.forEach(b => { if (!b.dead && Math.hypot(b.x - x, b.y - y) < 130 + rad(b)) { b.slowT = Math.max(b.slowT, 4); b.slowF = b.boss ? .4 : 0; } }); S.fx.push({ k: 'ring', x, y, r: 130, c: '#e0f2fe', t: 0, max: .6 }); S.fx.push({ k: 'flash', c: 'rgba(186,230,253,.25)', t: 0, max: .35 }); sfx('abil'); }
+  S.money -= c; netAct('item', { id, x, y }, remote); renderAll(); return true;
+}
+function collect(i, remote) { const l = S.loot[i]; if (!l) return false; S.loot.splice(i, 1); earn(l.v); M.bananas++; floatTxt(l.x, l.y - 10, '+' + fmt(l.v) + ' €', '#fde68a'); sfx('place'); netAct('banana', { x: l.x, y: l.y }, remote); return true; }
 function step() {
   if (!S || S.over || S.paused) return; S.time += DT; popFx = Math.max(0, popFx - DT * 8);
   if (S.active) { S.waveT += DT; while (S.queue.length && S.queue[0].t <= S.waveT) spawn(S.queue.shift()); }
   for (const b of S.balloons) {
     if (b.dead) continue; b.d += speedOf(b) * DT; if (b.slowT > 0) b.slowT -= DT; if (b.glueT > 0) b.glueT -= DT; else b.acid = 0;
     if (b.acid > 0) { b.acAcc += b.acid * DT; while (b.acAcc >= 1 && !b.dead) { b.acAcc -= 1; hit(b, 1, { metal: true }); } }
+    if (b.burn > 0) { b.burn -= DT; b.brAcc += b.burnD * DT; while (b.brAcc >= 1 && !b.dead) { b.brAcc -= 1; hit(b, 1, { metal: true }); } }
     if (b.regrow && !b.kind && b.layer < b.regrow && !b.dead) { b.rgT += DT; if (b.rgT >= 3) { b.rgT = 0; b.layer++; } }
     if (b.dead) continue;
-    if (b.d >= PATH.len) { b.dead = true; const l = b.boss ? 20 : b.kind ? KIND[b.kind].into + 2 : b.layer; S.lives -= l; S.lost += l; fxPop(b.x, b.y, '#fff', 1); continue; }
+    if (b.d >= PATH.len) { b.dead = true; const l = b.boss ? 20 : b.kind ? KIND[b.kind].into + 2 : b.layer; S.lives -= l; S.lost += l; S.rl += l; fxPop(b.x, b.y, '#fff', 1); continue; }
     const p = posAt(b.d); b.x = p.x; b.y = p.y;
   }
+  // Stachelstreifen
+  for (const sp of S.spikes) for (const b of S.balloons) { if (sp.n <= 0 || b.dead || b.boss || Math.abs(b.d - sp.d) > rad(b) || sp.ids.includes(b.id)) continue; sp.ids.push(b.id); if (sp.ids.length > 400) sp.ids.splice(0, 200); hit(b, 1, { metal: true }); sp.n--; }
+  S.spikes = S.spikes.filter(s => s.n > 0);
+  // Feuerwände des Magiers
+  for (const w of S.walls) { w.t -= DT; w.tick += DT; if (w.tick >= .4) { w.tick = 0; for (const b of S.balloons) if (!b.dead && Math.abs(b.d - w.d) < 22) hit(b, 1, w.src); } }
+  S.walls = S.walls.filter(w => w.t > 0);
+  // Bananen
+  for (const l of S.loot) l.t += DT; S.loot = S.loot.filter(l => l.keep || l.t < 14);
   for (const t of S.towers) {
     if (t.abCd > 0) t.abCd = Math.max(0, t.abCd - DT); if (t.boostT > 0) t.boostT -= DT; if (t.flash > 0) t.flash -= DT;
-    const k = t.s.kind; if (k === 'bank') continue; t.cd -= DT; if (t.cd > 0) continue; if (k === 'ice') { pulse(t); continue; } const b = pick(t); if (b) fire(t, b); else t.cd = 0;
+    if (t.stun > 0) { t.stun -= DT; continue; }
+    const k = t.s.kind; if (k === 'bank') continue;
+    if (k === 'farm') { if (!S.active) continue; t.cd -= DT; if (t.cd > 0) continue; t.cd = t.s.rate; const v = Math.round(t.s.value * (1 + .05 * M.up.bonus));
+      if (t.s.auto) { earn(v); M.bananas++; floatTxt(t.x, t.y - 26, '+' + v + ' €', '#fde68a'); } else { const a = Math.random() * TAU, r = 26 + Math.random() * 18; S.loot.push({ x: clamp(t.x + Math.cos(a) * r, 12, W - 12), y: clamp(t.y + Math.sin(a) * r, 12, H - 12), v, t: 0, keep: !!t.s.keep }); } continue; }
+    if (k === 'heli') {            // fliegt zum Ziel, bleibt etwas Abstand
+      const tg = pick(t, t.hx, t.hy, 99999), sp = t.s.fly * DT; let tx = t.x, ty = t.y; if (tg) { const a = Math.atan2(t.hy - tg.y, t.hx - tg.x); tx = tg.x + Math.cos(a) * 60; ty = tg.y + Math.sin(a) * 60; }
+      const dx = tx - t.hx, dy = ty - t.hy, dd = Math.hypot(dx, dy); if (dd > sp) { t.hx += dx / dd * sp; t.hy += dy / dd * sp; } t.hx = clamp(t.hx, 10, W - 10); t.hy = clamp(t.hy, 10, H - 10);
+      t.cd -= DT; if (t.cd > 0) continue; const b = pick(t, t.hx, t.hy); if (!b) { t.cd = 0; continue; } t.cd = rateOf(t); t.flash = .06; t.ang = Math.atan2(b.y - t.hy, b.x - t.hx);
+      for (let i = 0; i < t.s.shots; i++) dart(t.hx, t.hy, t.ang + (i - (t.s.shots - 1) / 2) * .25, t.s, t, t.s.pierce); sfx('shot'); continue; }
+    if (k === 'pilot') {
+      t.pa += DT * .55; t.cd -= DT; if (t.cd > 0) continue; let shot = false;
+      for (let i = 0; i < t.s.planes; i++) { const p = planePos(t, i), b = pick(t, p.x, p.y); if (!b) continue; shot = true; const a = Math.atan2(b.y - p.y, b.x - p.x); for (let k2 = 0; k2 < t.s.shots; k2++) dart(p.x, p.y, a + (k2 - (t.s.shots - 1) / 2) * .12, { ...t.s, pierce: 1 }, t, 1); }
+      t.cd = shot ? rateOf(t) : 0; if (shot) sfx('shot'); continue; }
+    if (k === 'magier') {
+      if (t.s.wall) { t.wallT = (t.wallT || 0) + DT; if (t.wallT >= 8 && S.active) { const tg = pick(t); if (tg) { t.wallT = 0; S.walls.push({ d: tg.d + 30, t: 4, tick: 0, src: t }); } } }
+      if (t.s.morph) { t.morphT = (t.morphT || 0) + DT; if (t.morphT >= 10) { const c = S.balloons.filter(b => !b.dead && !b.boss && (b.kind || b.layer > 1)); if (c.length) { t.morphT = 0; const b = c[Math.floor(Math.random() * c.length)]; b.kind = null; b.layer = 1; b.regrow = 0; S.fx.push({ k: 'ring', x: b.x, y: b.y, r: 24, c: '#c084fc', t: 0, max: .5 }); } } }
+    }
+    t.cd -= DT; if (t.cd > 0) continue; if (k === 'ice') { pulse(t); continue; } const b = pick(t); if (b) fire(t, b); else t.cd = 0;
   }
   for (const p of S.projs) {
-    if (p.k === 'dart') { p.x += p.vx * DT; p.y += p.vy * DT; p.life -= DT; p.a += p.disc ? 0.5 : 0; for (const b of S.balloons) { if (b.dead || p.hit.has(b.id)) continue; if (Math.hypot(b.x - p.x, b.y - p.y) <= rad(b) + 5) { p.hit.add(b.id); hit(b, p.dmg, p.src); if (--p.pierce <= 0) { p.life = 0; break; } } } }
+    if (p.k === 'dart') { p.x += (p.vx + (S.wx === 'wind' ? 55 : 0)) * DT; p.y += p.vy * DT; p.life -= DT; p.a += p.disc ? 0.5 : 0; for (const b of S.balloons) { if (b.dead || p.hit.has(b.id)) continue; if (Math.hypot(b.x - p.x, b.y - p.y) <= rad(b) + 5) { p.hit.add(b.id); hit(b, p.dmg, p.src); if (--p.pierce <= 0) { p.life = 0; break; } } } }
     else { const dx = p.tx - p.x, dy = p.ty - p.y, dd = Math.hypot(dx, dy), m = p.speed * DT;
       if (dd > m) { p.x += dx / dd * m; p.y += dy / dd * m; continue; }
       p.life = 0;
-      if (p.k === 'bomb') { S.fx.push({ k: 'boom', x: p.tx, y: p.ty, r: p.splash, t: 0, max: 0.35 }); for (const b of S.balloons) if (!b.dead && Math.hypot(b.x - p.tx, b.y - p.ty) <= p.splash + rad(b) * 0.6) hit(b, p.dmg, p.src); }
+      if (p.k === 'bomb' || p.k === 'fire') { S.fx.push({ k: 'boom', x: p.tx, y: p.ty, r: p.splash, t: 0, max: 0.35, fire: p.k === 'fire' }); for (const b of S.balloons) if (!b.dead && Math.hypot(b.x - p.tx, b.y - p.ty) <= p.splash + rad(b) * 0.6) hit(b, p.dmg, p.src); }
       else { const s = p.src.s, R = Math.max(18, s.splash || 0), near = S.balloons.filter(b => !b.dead && Math.hypot(b.x - p.tx, b.y - p.ty) <= R + rad(b)).sort((a, b) => Math.hypot(a.x - p.tx, a.y - p.ty) - Math.hypot(b.x - p.tx, b.y - p.ty));
         (s.splash ? near : near.slice(0, s.pierce)).forEach(b => gl(b, s, s.glueF)); S.fx.push({ k: 'splat', x: p.tx, y: p.ty, r: R, t: 0, max: .4 }); } }
   }
   S.projs = S.projs.filter(p => p.life === undefined || p.life > 0); for (const f of S.fx) f.t += DT; S.fx = S.fx.filter(f => f.t < f.max); if (S.shake > 0) S.shake -= DT;
   S.balloons = S.balloons.filter(b => !b.dead);
+  if (S.coop && S.coop.role === 'guest') return;           // Gast: Runde, Leben und Ende bestimmt der Gastgeber
   if (S.lives <= 0) return gameOver();
   if (S.active && !S.queue.length && !S.balloons.length) endRound();
   else if (!S.active && S.auto && S.autoIn > 0) { S.autoIn -= DT; if (S.autoIn <= 0) startRound(); }
 }
 function endRound() {
   S.active = false; const income = S.towers.reduce((a, t) => a + (t.s.kind === 'bank' ? t.s.income : 0), 0), bonus = 120 + S.round * 6 + 10 * M.up.roundBonus;
-  S.money += bonus + income; M.best[S.map] = Math.max(M.best[S.map] || 0, S.round); S.lastBonus = bonus + income; toast(`Runde ${S.round} geschafft: +${fmt(bonus + income)} €`); S.round++; S.projs = []; checkAch(); saveRun(); saveMeta(); if (S.auto) S.autoIn = 1.5; renderAll();
+  earn(bonus + income); S.hist.push({ r: S.round, c: Math.round(S.rc), l: S.rl }); if (S.hist.length > 300) S.hist.shift();
+  S.towers.forEach(t => { if (isHero(t.t)) gainXp(t, 25); });
+  if (BUILTIN.includes(S.map) || MAPS[S.map].custom) M.best[S.map] = Math.max(M.best[S.map] || 0, S.round);
+  S.lastBonus = bonus + income; toast(`Runde ${S.round} geschafft: +${fmt(bonus + income)} €`); S.round++; S.projs = []; S.wx = '';
+  netScore(false); checkAch(); saveRun(); saveMeta(); if (S.auto) S.autoIn = 1.5; renderAll(); netSnap(true);
+  if (S.goal && !S.won && S.round - 1 >= S.goal) winGoal();
+}
+// Ziel-Runde geschafft (Ziel-Modus oder Tages-Challenge)
+function winGoal() {
+  S.won = true; let msg = '';
+  if (S.ch) { if (!M.daily[S.ch.id]) { M.daily[S.ch.id] = 1; M.dailyN++; M.diamonds += S.ch.reward; msg = `+${S.ch.reward} 💎 für die Tages-Challenge`; const ks = Object.keys(M.daily).sort(); while (ks.length > 40) delete M.daily[ks.shift()]; } else msg = 'Heute schon geschafft'; }
+  else { const st = 1 + (S.lost <= 20 ? 1 : 0) + (S.lost === 0 ? 1 : 0), key = S.map + ':' + S.diff, old = M.stars[key] || 0; S.stars = st; if (st > old) { const gain = (st - old) * 10; M.stars[key] = st; M.diamonds += gain; msg = `+${gain} 💎 für neue Sterne`; } else msg = 'Keine neuen Sterne'; }
+  S.winMsg = msg; checkAch(); saveMeta(); S.paused = true; showOverlay('win'); renderAll();
 }
 // Verloren: Man kann die Runde nochmal versuchen, einen Spielstand laden oder beenden (erst dann gibt es die Diamanten)
 function gameOver() {
-  if (S.over) return; S.over = true; S.active = false; const dn = S.round - 1; S.earned = Math.floor(Math.pow(Math.max(0, dn), 1.3) / 2 * D().dia); S.paid = false; M.best[S.map] = Math.max(M.best[S.map] || 0, dn); checkAch(); saveMeta(); showOverlay('over'); renderAll();
+  if (S.over) return; S.over = true; S.active = false; const dn = S.round - 1; S.earned = Math.floor(Math.pow(Math.max(0, dn), 1.3) / 2 * D().dia); S.paid = false; if (!S.ch) M.best[S.map] = Math.max(M.best[S.map] || 0, dn); S.hist.push({ r: S.round, c: Math.round(S.rc), l: S.rl, over: true });
+  netScore(true); checkAch(); saveMeta(); netSnap(true); showOverlay('over'); renderAll();
 }
-function finishRun() { if (!S || !S.over || S.paid) return; S.paid = true; M.diamonds += S.earned; M.runs++; savedRun = null; checkAch(); saveMeta(); }
-function retryRound() { if (!S || !S.cp) return false; const q = S.cp; loadRun(q); toast(`Runde ${q.round} nochmal – viel Glück!`); return true; }
+function finishRun() { if (!S || !S.over || S.paid) return; S.paid = true; M.diamonds += S.earned; M.runs++; if (!S.coop || S.coop.role === 'host') savedRun = null; checkAch(); saveMeta(); }
+function retryRound() { if (!S || !S.cp || S.coop) return false; const q = S.cp; loadRun(q); toast(`Runde ${q.round} nochmal – viel Glück!`); return true; }
+// Online-Funktionen (Bestenliste, Zusammenspielen) liegen in online.js; ohne sie passiert hier nichts
+function netAct(type, data, remote) { if (!remote && S && S.coop && window.NET) NET.act(type, data); }
+function netScore(final) { if (window.NET && S && !S.coop) NET.score(final); }
+function netSnap(now) { if (window.NET && S && S.coop && S.coop.role === 'host') NET.snap(now); }
+// Aufstellung merken und wieder aufbauen (je Karte)
+function saveTemplate() { if (!S || !S.towers.length) return false; M.tpl[S.map] = S.towers.slice(0, 60).map(t => ({ t: t.t, x: t.x, y: t.y, a: t.a, b: t.b, mode: t.mode, radar: !!t.radar })); saveMeta(); toast(`📐 Aufstellung gemerkt (${M.tpl[S.map].length} Türme)`); renderAll(); return true; }
+function buildTemplate() {
+  const tp = M.tpl[S.map]; if (!tp) return 0; let n = 0;
+  tp.forEach(e => { if (!towerAt(e.x, e.y) && allowedType(e.t)) { const t = place(e.t, e.x, e.y); if (t) { t.mode = e.mode; n++; } } });
+  let more = true; while (more) { more = false; for (const e of tp) { const t = towerAt(e.x, e.y); if (!t || t.t !== e.t) continue; if (t.a < e.a && upgrade(t, 'A')) { more = true; n++; } if (t.b < e.b && upgrade(t, 'B')) { more = true; n++; } if (e.radar && !t.radar && buyRadar(t)) n++; } }
+  const left = tp.filter(e => { const t = towerAt(e.x, e.y); return !t || t.t !== e.t || t.a < e.a || t.b < e.b; }).length;
+  toast(left ? `📐 ${n} Schritte gebaut, ${left} Türme fehlen noch (Geld)` : '📐 Aufstellung komplett aufgebaut'); renderAll(); return n;
+}
 // ================= Töne (nur wenn eingeschaltet) =================
 let AC = null, sndN = 0; setInterval(() => { sndN = 0; }, 100);
 function sfx(k) {
@@ -328,84 +522,117 @@ function sfx(k) {
 const SLOTS = 3; let slots = [null, null, null];
 function saveMeta() { try { const o = { v: 1, meta: M, run: savedRun, slots }; localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
 // Spielstand in einen Platz speichern. Während einer Runde wird der Stand vom Rundenbeginn gespeichert.
-function saveSlot(i) { if (!S || S.over || i < 0 || i >= SLOTS) return false; const d = S.active ? S.cp : runData(); if (!d) return false; slots[i] = { ...JSON.parse(JSON.stringify(d)), at: Date.now() }; saveMeta(); toast(`💾 In Platz ${i + 1} gespeichert (Runde ${d.round})`); return true; }
+function saveSlot(i) { if (!S || S.over || S.coop || i < 0 || i >= SLOTS) return false; const d = S.active ? S.cp : runData(); if (!d) return false; slots[i] = { ...JSON.parse(JSON.stringify(d)), at: Date.now() }; saveMeta(); toast(`💾 In Platz ${i + 1} gespeichert (Runde ${d.round})`); return true; }
 function deleteSlot(i) { slots[i] = null; saveMeta(); }
-function runData() { return S && !S.over ? { map: S.map, diff: S.diff, round: S.round, money: S.money, lives: S.lives, lost: S.lost, types: S.types, towers: S.towers.map(t => ({ t: t.t, x: t.x, y: t.y, a: t.a, b: t.b, mode: t.mode, spent: t.spent, pops: t.pops || 0, radar: !!t.radar, abCd: Math.round(t.abCd || 0) })) } : null; }
-function saveRun() { savedRun = runData(); saveMeta(); }
+function runData() {
+  if (!S || S.over || (S.coop && S.coop.role === 'guest')) return null;
+  return { map: S.map, diff: S.diff, round: S.round, money: S.money, lives: S.lives, lost: S.lost, types: S.types, cash: Math.round(S.cash), hist: S.hist.slice(-200), popBy: S.popBy, heart: S.heart, goal: S.goal, won: S.won, ch: S.ch,
+    towers: S.towers.map(t => ({ t: t.t, x: t.x, y: t.y, a: t.a, b: t.b, mode: t.mode, spent: t.spent, pops: t.pops || 0, radar: !!t.radar, abCd: Math.round(t.abCd || 0), xp: Math.round(t.xp || 0) })) };
+}
+function saveRun() { if (S && S.coop && S.coop.role === 'guest') return; savedRun = runData(); saveMeta(); }
 function idleSave() { if (S && !S.active && !S.over) saveRun(); }
 const num = (v, d) => (typeof v === 'number' && isFinite(v) ? v : d);
 function sanitize(o) {
   const m = freshMeta(), r = o && typeof o === 'object' ? o : {}, mm = r.meta && typeof r.meta === 'object' ? r.meta : {};
   m.playMs = Math.max(0, num(mm.playMs, 0)); m.last = Math.max(0, num(mm.last, 0)); m.diamonds = Math.max(0, Math.floor(num(mm.diamonds, 0))); m.runs = Math.max(0, num(mm.runs, 0)); m.popped = Math.max(0, num(mm.popped, 0)); m.snd = mm.snd === true;
-  m.bosses = Math.max(0, Math.floor(num(mm.bosses, 0))); m.abil = Math.max(0, Math.floor(num(mm.abil, 0))); m.grid = mm.grid !== false; m.diff = DIFF[mm.diff] ? mm.diff : 'normal';
-  m.ach = Array.isArray(mm.ach) ? [...new Set(mm.ach.filter(id => ACH.some(a => a[0] === id)))] : []; m.seen = {}; if (mm.seen && typeof mm.seen === 'object') ['metal', 'ceramic', 'camo', 'regrow'].forEach(k => { if (mm.seen[k]) m.seen[k] = 1; });
+  m.bosses = Math.max(0, Math.floor(num(mm.bosses, 0))); m.abil = Math.max(0, Math.floor(num(mm.abil, 0))); m.grid = mm.grid !== false; m.diff = DIFF[mm.diff] ? mm.diff : 'normal'; m.wx = mm.wx !== false; m.mode = mm.mode === 'goal' ? 'goal' : 'endless';
+  m.bananas = Math.max(0, Math.floor(num(mm.bananas, 0))); m.dailyN = Math.max(0, Math.floor(num(mm.dailyN, 0)));
+  if (mm.daily && typeof mm.daily === 'object') Object.keys(mm.daily).filter(k => /^\d{8}$/.test(k)).slice(-40).forEach(k => { m.daily[k] = 1; });
+  if (mm.stars && typeof mm.stars === 'object') Object.entries(mm.stars).slice(0, 200).forEach(([k, v]) => { if (/^[\w:]{1,60}$/.test(k)) m.stars[k] = clamp(Math.floor(num(v, 0)), 0, 3); });
+  // eigene und geteilte Karten zuerst eintragen, damit Spielstände darauf geladen werden können
+  if (mm.custom && typeof mm.custom === 'object') Object.entries(mm.custom).slice(0, 40).forEach(([id, c]) => { if (!/^[\w-]{1,40}$/.test(id) || !c || !Array.isArray(c.pts)) return; const pts = c.pts.slice(0, 60).filter(p => Array.isArray(p) && p.length === 2).map(p => [num(+p[0], 0), num(+p[1], 0)]); if (pts.length < 3) return; m.custom[id] = { n: String(c.n || '').slice(0, 40), theme: c.theme, pts, by: String(c.by || '').slice(0, 40), mine: c.mine === true, remote: String(c.remote || '').slice(0, 40) }; registerCustom(id, m.custom[id]); });
+  m.ach = Array.isArray(mm.ach) ? [...new Set(mm.ach.filter(id => ACH.some(a => a[0] === id)))] : []; m.seen = {}; if (mm.seen && typeof mm.seen === 'object') Object.keys(mm.seen).slice(0, 40).forEach(k => { if (/^[\w]{1,20}$/.test(k)) m.seen[k] = 1; });
   META.forEach(([k]) => { m.up[k] = clamp(Math.floor(num(mm.up && mm.up[k], 0)), 0, META_MAX); }); Object.keys(MAPS).forEach(k => { m.best[k] = Math.max(0, Math.floor(num(mm.best && mm.best[k], 0))); });
+  if (mm.tpl && typeof mm.tpl === 'object') Object.entries(mm.tpl).forEach(([k, list]) => { if (!MAPS[k] || !Array.isArray(list)) return; m.tpl[k] = list.slice(0, 60).filter(e => e && TOWERS[e.t]).map(e => ({ t: e.t, x: clamp(num(e.x, 0), 0, W), y: clamp(num(e.y, 0), 0, H), a: clamp(Math.floor(num(e.a, 0)), 0, 3), b: clamp(Math.floor(num(e.b, 0)), 0, 3), mode: MODES.some(x => x[0] === e.mode) ? e.mode : 'first', radar: e.radar === true })); });
   const run = sanitizeRun(r.run), sl = Array.isArray(r.slots) ? r.slots : [];
   return { meta: m, run, slots: Array.from({ length: SLOTS }, (_, i) => { const x = sanitizeRun(sl[i]); if (x) x.at = Math.max(0, num(sl[i].at, 0)); return x; }) };
 }
 function sanitizeRun(q) {
   let run = null; const keep = PATH;
   if (q && typeof q === 'object' && MAPS[q.map] && Array.isArray(q.towers)) {
-    run = { map: q.map, diff: DIFF[q.diff] ? q.diff : 'normal', round: Math.max(1, Math.floor(num(q.round, 1))), money: Math.max(0, num(q.money, 0)), lives: Math.max(1, num(q.lives, 1)), lost: Math.max(0, num(q.lost, 0)), types: Array.isArray(q.types) ? q.types.filter(k => TOWERS[k]) : [], towers: [] };
+    run = { map: q.map, diff: DIFF[q.diff] ? q.diff : 'normal', round: Math.max(1, Math.floor(num(q.round, 1))), money: Math.max(0, num(q.money, 0)), lives: Math.max(1, num(q.lives, 1)), lost: Math.max(0, num(q.lost, 0)), types: Array.isArray(q.types) ? q.types.filter(k => TOWERS[k]) : [], towers: [],
+      cash: Math.max(0, num(q.cash, 0)), hist: Array.isArray(q.hist) ? q.hist.slice(-200).filter(h => h && typeof h === 'object').map(h => ({ r: Math.floor(num(h.r, 0)), c: Math.floor(num(h.c, 0)), l: Math.floor(num(h.l, 0)) })) : [], popBy: {}, heart: q.heart === true, goal: q.goal === GOAL || (q.ch && q.goal > 0) ? Math.floor(num(q.goal, 0)) : 0, won: q.won === true, ch: null };
+    if (q.popBy && typeof q.popBy === 'object') Object.keys(TOWERS).forEach(k => { if (q.popBy[k] > 0) run.popBy[k] = Math.floor(num(q.popBy[k], 0)); });
+    if (q.ch && typeof q.ch === 'object' && /^\d{8}$/.test(q.ch.id)) { const c = daily(q.ch.id); if (c.map === q.map) run.ch = c; }
     const P = buildPath(q.map); const ok = (x, y) => { PATH = P; return x >= 22 && x <= W - 22 && y >= 22 && y <= H - 22 && distToPath(x, y) >= 30; };
-    q.towers.slice(0, 80).forEach(t => { if (t && TOWERS[t.t] && ok(num(t.x, -1), num(t.y, -1)) && !run.towers.some(u => Math.hypot(u.x - t.x, u.y - t.y) < 36)) run.towers.push({ t: t.t, x: t.x, y: t.y, a: clamp(Math.floor(num(t.a, 0)), 0, TOWERS[t.t].A.length), b: clamp(Math.floor(num(t.b, 0)), 0, TOWERS[t.t].B.length), mode: MODES.some(x => x[0] === t.mode) ? t.mode : 'first', spent: Math.max(0, num(t.spent, 0)), pops: Math.max(0, Math.floor(num(t.pops, 0))), radar: t.radar === true, abCd: clamp(num(t.abCd, 0), 0, 60) }); });
+    q.towers.slice(0, 80).forEach(t => { if (t && TOWERS[t.t] && ok(num(t.x, -1), num(t.y, -1)) && !run.towers.some(u => Math.hypot(u.x - t.x, u.y - t.y) < 36) && (!isHero(t.t) || !run.towers.some(u => isHero(u.t)))) run.towers.push({ t: t.t, x: t.x, y: t.y, a: clamp(Math.floor(num(t.a, 0)), 0, TOWERS[t.t].A.length), b: clamp(Math.floor(num(t.b, 0)), 0, TOWERS[t.t].B.length), mode: MODES.some(x => x[0] === t.mode) ? t.mode : 'first', spent: Math.max(0, num(t.spent, 0)), pops: Math.max(0, Math.floor(num(t.pops, 0))), radar: t.radar === true, abCd: clamp(num(t.abCd, 0), 0, 60), xp: clamp(num(t.xp, 0), 0, 1e6) }); });
     run.towers.forEach(t => { if (!run.types.includes(t.t)) run.types.push(t.t); });
   }
   PATH = keep; return run;
 }
 function load() { try { const r = localStorage.getItem(KEY); if (r) { const o = sanitize(JSON.parse(r)); M = o.meta; savedRun = o.run; slots = o.slots; } } catch (e) { M = freshMeta(); savedRun = null; slots = [null, null, null]; } }
 function resume() { return savedRun ? loadRun(savedRun) : false; }
-function loadRun(q) { if (!q) return false; q = JSON.parse(JSON.stringify(q)); newRun(q.map, q.diff); pickMap = q.map; S.round = q.round; S.money = q.money; S.lives = q.lives; S.lost = q.lost; S.types = [...q.types]; S.towers = q.towers.map(t => { const o = { ...t, cd: 0.2, ang: 0, boostT: 0, flash: 0 }; o.s = stats(o); return o; }); saveRun(); hideOverlay(); renderAll(); return true; }
+function loadRun(q) {
+  if (!q || !MAPS[q.map]) return false; q = JSON.parse(JSON.stringify(q)); newRun(q.map, q.diff, { ch: q.ch, goal: q.goal === GOAL }); pickMap = q.map;
+  Object.assign(S, { round: q.round, money: q.money, lives: q.lives, lost: q.lost, types: [...q.types], cash: q.cash || 0, hist: q.hist || [], popBy: q.popBy || {}, heart: !!q.heart, goal: q.goal || 0, won: !!q.won });
+  S.towers = q.towers.map(t => { const o = { ...t, id: S.tid++, cd: 0.2, ang: 0, boostT: 0, flash: 0, stun: 0, hx: t.x, hy: t.y, pa: 0 }; o.s = stats(o); return o; }); saveRun(); hideOverlay(); renderAll(); return true;
+}
 // ================= Zeichnen =================
 function fit() { const w = $('cvw'), r = w.getBoundingClientRect(), k = Math.min(r.width / W, (r.height || r.width * 0.75) / H, 2.2), dpr = Math.min(window.devicePixelRatio || 1, 2); const cw = Math.max(200, Math.floor(W * k)), ch = Math.floor(H * (cw / W)); cv.style.width = cw + 'px'; cv.style.height = ch + 'px'; const bw = Math.min(1600, Math.round(cw * dpr)); if (cv.width !== bw) { cv.width = bw; cv.height = Math.round(bw * H / W); } }      // mehr als 1600 Pixel Breite bringen kein schärferes Bild, kosten aber Zeit
-function bg() { const k = cv.width / W, c = document.createElement('canvas'); c.width = Math.round(W * k); c.height = Math.round(H * k); const g = c.getContext('2d'); g.scale(k, k); ART.ground(g, W, H, MAPS[curMap].pts, distToPath, MAPS[curMap].theme); return c; }
+function bg(pts, theme) { const k = cv.width / W, c = document.createElement('canvas'); c.width = Math.round(W * k); c.height = Math.round(H * k); const g = c.getContext('2d'); g.scale(k, k); ART.ground(g, W, H, pts, distToPath, theme); return c; }
 // Fertige Bilder (Sprites) für Türme und Ballons: einmal pro Fenstergröße gezeichnet, nicht in jedem Bild neu
 let SPR = null, SPRK = 0;
 function sprites() {
   const k = cv.width / W; if (SPR && SPRK === k) return SPR; SPRK = k; SPR = { base: {}, head: {}, b: {}, ov: {} };
   const mk = (w, h) => { const c = document.createElement('canvas'); c.width = Math.ceil(w * k); c.height = Math.ceil(h * k); const g = c.getContext('2d'); g.scale(k, k); return [c, g]; };
-  Object.keys(TOWERS).forEach(id => { for (let tier = 0; tier <= 3; tier++) { let [c, g] = mk(64, 64); g.translate(32, 30); ART.base(g, id, tier); SPR.base[id + tier] = c; [c, g] = mk(80, 80); g.translate(40, 40); ART.head(g, id, tier, 0); SPR.head[id + tier] = c; } });
+  SHOP.forEach(id => { for (let tier = 0; tier <= 3; tier++) { let [c, g] = mk(64, 64); g.translate(32, 30); ART.base(g, id, tier); SPR.base[id + tier] = c; [c, g] = mk(80, 80); g.translate(40, 40); ART.head(g, id, tier, 0); SPR.head[id + tier] = c; } });
   const bl = (key, kind, r) => { const [c, g] = mk(r * 2 + 12, r * 2 + 26); g.translate(r + 6, r + 6); ART.balloon(g, kind, r, 0); SPR.b[key] = { c, ox: r + 6, oy: r + 6, w: r * 2 + 12, h: r * 2 + 26 }; };
   for (let l = 1; l <= 5; l++) bl('l' + l, LAYER[l].k, LAYER[l].r); bl('metal', 'metall', KIND.metal.r); bl('ceramic', 'keramik', KIND.ceramic.r);
   { const r = 17, [c, g] = mk(r * 2 + 12, r * 2 + 12); g.translate(r + 6, r + 6); g.save(); g.beginPath(); g.ellipse(0, 0, r * .86, r, 0, 0, TAU); g.clip(); [['rgba(54,83,20,.75)', -4, -6, 6], ['rgba(161,98,7,.7)', 5, -2, 5], ['rgba(26,46,5,.75)', -2, 6, 6], ['rgba(101,163,13,.7)', 6, 7, 4], ['rgba(120,53,15,.7)', -7, 2, 4]].forEach(([cl, x, y, s]) => { g.fillStyle = cl; g.beginPath(); g.ellipse(x * r / 15, y * r / 15, s * r / 15, s * .7 * r / 15, x, 0, TAU); g.fill(); }); g.restore();
     g.setLineDash([3, 3]); g.strokeStyle = 'rgba(255,255,255,.65)'; g.lineWidth = 1.2; g.beginPath(); g.ellipse(0, 0, r * .86 + 2, r + 2, 0, 0, TAU); g.stroke(); SPR.ov.camo = { c, o: r + 6, w: r * 2 + 12 }; }
   { const r = 17, [c, g] = mk(r * 2 + 12, r * 2 + 12); g.translate(r + 6, r + 6); const cols = ['#f472b6', '#fb923c', '#facc15', '#4ade80', '#38bdf8', '#a78bfa']; cols.forEach((cl, i) => { g.strokeStyle = cl; g.lineWidth = 2; g.beginPath(); g.ellipse(0, 0, r * .86 + 2, r + 2, 0, i / 6 * TAU, (i + 1) / 6 * TAU); g.stroke(); });
     g.fillStyle = '#fff'; g.strokeStyle = 'rgba(0,0,0,.5)'; g.lineWidth = 2.5; g.font = '900 15px system-ui'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.strokeText('+', 0, 1); g.fillText('+', 0, 1); SPR.ov.regrow = { c, o: r + 6, w: r * 2 + 12 }; }
+  { const [c, g] = mk(40, 30); g.translate(20, 15); ART.item(g, 'spikes', 0); SPR.spikes = c; }
   return SPR;
 }
 // Kleine Bilder der Türme für Laden und Infobereich
-const ICON = {}; function towerIcon(id, tier = 0) { const k = id + tier; if (ICON[k]) return ICON[k]; const c = document.createElement('canvas'); c.width = c.height = 96; const g = c.getContext('2d'); g.scale(2, 2); g.translate(24, 23); g.scale(.95, .95); ART.tower(g, id, tier, -0.6, 0); return (ICON[k] = c.toDataURL()); }
+const ICON = {}; function towerIcon(id, tier = 0) { const k = id + tier; if (ICON[k]) return ICON[k]; const c = document.createElement('canvas'); c.width = c.height = 96; const g = c.getContext('2d'); g.scale(2, 2); g.translate(24, 23); g.scale(.95, .95); if (isHero(id)) { g.scale(.95, .95); ART.hero(g, id, tier || 1, -0.6, 0); } else ART.tower(g, id, tier, -0.6, 0); return (ICON[k] = c.toDataURL()); }
+function itemIcon(id) { const k = 'i_' + id; if (ICON[k]) return ICON[k]; const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); g.scale(2, 2); g.translate(16, 17); g.scale(.9, .9); ART.item(g, id, 0); return (ICON[k] = c.toDataURL()); }
+function drawBanana(x, y, b) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x, y + 8, 7, 2.5, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#facc15'; ctx.strokeStyle = '#a16207'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x, y + b, 7, .3, Math.PI - .3); ctx.arc(x, y + b + 3, 4.2, Math.PI - .3, .3, true); ctx.closePath(); ctx.fill(); ctx.stroke(); }
 function draw() {
-  if (!S) return; const key = curMap + cv.width; if (!BG || BGK !== key) { BG = bg(); BGK = key; } const k = cv.width / W, sp = sprites(), T = performance.now() / 1000;
+  if (EDIT) return drawEditor(); if (!S) return;
+  const key = curMap + cv.width + MAPS[curMap].pts.length; if (!BG || BGK !== key) { BG = bg(MAPS[curMap].pts, MAPS[curMap].theme); BGK = key; } const k = cv.width / W, sp = sprites(), T = performance.now() / 1000;
   ctx.setTransform(1, 0, 0, 1, 0, 0); if (S.shake > 0) ctx.translate((Math.random() - .5) * 10 * S.shake * k, (Math.random() - .5) * 10 * S.shake * k); ctx.drawImage(BG, 0, 0); ctx.setTransform(k, 0, 0, k, 0, 0); if (S.shake > 0) ctx.translate((Math.random() - .5) * 8 * S.shake, (Math.random() - .5) * 8 * S.shake);
-  // Raster beim Platzieren
-  if (placing) {
-    ctx.save(); ctx.lineCap = ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(239,68,68,.16)'; ctx.beginPath(); const p0 = MAPS[curMap].pts; ctx.moveTo(p0[0][0], p0[0][1]); p0.slice(1).forEach(q => ctx.lineTo(q[0], q[1])); ctx.lineWidth = 60; ctx.stroke();
-    if (M.grid) { ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 1; ctx.beginPath(); for (let x = GRID; x < W; x += GRID) { ctx.moveTo(x, 0); ctx.lineTo(x, H); } for (let y = GRID; y < H; y += GRID) { ctx.moveTo(0, y); ctx.lineTo(W, y); } ctx.stroke();
+  // Zusammenspiel: Hälften markieren
+  if (S.coop) { ctx.fillStyle = S.coop.role === 'host' ? 'rgba(56,189,248,.08)' : 'rgba(244,114,182,.09)'; ctx.fillRect(S.coop.role === 'host' ? 0 : W / 2, 0, W / 2, H); ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.setLineDash([8, 8]); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(W / 2, 0); ctx.lineTo(W / 2, H); ctx.stroke(); ctx.setLineDash([]); }
+  // Raster beim Platzieren und Verschieben
+  if (placing || moving) {
+    ctx.save(); ctx.lineCap = ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(239,68,68,.16)'; ctx.beginPath(); const p0 = MAPS[curMap].pts; ctx.moveTo(p0[0][0], p0[0][1]); p0.slice(1).forEach(q => ctx.lineTo(q[0], q[1])); ctx.lineWidth = 60; if (!(placing && placing.startsWith('item:'))) ctx.stroke();
+    if (M.grid && !(placing && placing.startsWith('item:'))) { ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 1; ctx.beginPath(); for (let x = GRID; x < W; x += GRID) { ctx.moveTo(x, 0); ctx.lineTo(x, H); } for (let y = GRID; y < H; y += GRID) { ctx.moveTo(0, y); ctx.lineTo(W, y); } ctx.stroke();
       ctx.fillStyle = 'rgba(255,255,255,.18)'; for (let x = 2 * GRID; x < W; x += 2 * GRID) for (let y = 2 * GRID; y < H; y += 2 * GRID) { ctx.fillRect(x - 1, y - 1, 2, 2); } }
-    S.towers.forEach(t => { ctx.strokeStyle = 'rgba(239,68,68,.35)'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(t.x, t.y, 36, 0, TAU); ctx.stroke(); ctx.setLineDash([]); }); ctx.restore();
+    if (!(placing && placing.startsWith('item:'))) S.towers.forEach(t => { if (t === moving) return; ctx.strokeStyle = 'rgba(239,68,68,.35)'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(t.x, t.y, 36, 0, TAU); ctx.stroke(); ctx.setLineDash([]); }); ctx.restore();
   }
-  const sel = selTower; if (sel && sel.s.range < 9000 && sel.s.range > 0) { ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(sel.x, sel.y, sel.s.range, 0, TAU); ctx.fill(); ctx.stroke(); }
+  const sel = selTower; if (sel && sel.t === 'pilot') { ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.setLineDash([8, 6]); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(W / 2, H / 2, 240, 170, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]); for (let i = 0; i < sel.s.planes; i++) { const pp = planePos(sel, i); ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.beginPath(); ctx.arc(pp.x, pp.y, rangeOf(sel), 0, TAU); ctx.fill(); } } else if (sel && sel.s.range < 9000 && sel.s.range > 0) { const R = rangeOf(sel), cx = sel.t === 'heli' ? sel.hx : sel.x, cy = sel.t === 'heli' ? sel.hy : sel.y; ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fill(); ctx.stroke(); }
+  // Auf dem Weg: Stacheln und Feuerwände
+  for (const s of S.spikes) { ctx.drawImage(sp.spikes, s.x - 20, s.y - 15, 40, 30); ctx.fillStyle = '#fff'; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 2.5; ctx.font = '800 10px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.strokeText(s.n, s.x, s.y + 14); ctx.fillText(s.n, s.x, s.y + 14); }
+  for (const w of S.walls) { const p = posAt(w.d); for (let i = 0; i < 7; i++) { const q = (T * 2 + i / 7) % 1, a = i * .9; ctx.fillStyle = `rgba(${q < .4 ? '253,224,71' : '249,115,22'},${.7 * (1 - q)})`; ctx.beginPath(); ctx.arc(p.x + Math.cos(a) * 12, p.y + Math.sin(a) * 8 - q * 14, 5 + q * 4, 0, TAU); ctx.fill(); } }
   // Kleber unter den Ballons
   for (const b of S.balloons) if (b.glueT > 0) { ctx.fillStyle = b.acid ? 'rgba(190,242,100,.45)' : 'rgba(132,204,22,.38)'; ctx.beginPath(); ctx.ellipse(b.x, b.y + 5, rad(b) + 4, rad(b) * .6, 0, 0, TAU); ctx.fill(); }
   // Türme
   for (const t of S.towers) {
-    const tier = tierOf(t), id = t.t; ctx.drawImage(sp.base[id + tier], t.x - 32, t.y - 30, 64, 64);
-    const glow = id === 'ice' ? 'rgba(125,211,252,' : id === 'tesla' ? 'rgba(103,232,249,' : null; if (glow) { const p = .5 + .5 * Math.sin(T * (id === 'tesla' ? 9 : 3) + t.x); ctx.fillStyle = glow + (.12 + p * .18) + ')'; ctx.beginPath(); ctx.arc(t.x, t.y, 15 + p * 3, 0, TAU); ctx.fill(); }
-    const rot = id === 'boom' ? T * 5 : ART.ROTATES[id] ? t.ang : 0; ctx.save(); ctx.translate(t.x, t.y); if (rot) ctx.rotate(rot); ctx.drawImage(sp.head[id + tier], -40, -40, 80, 80);
-    if (t.flash > 0 && (id === 'bomb' || id === 'sniper' || id === 'dart')) { const L = id === 'sniper' ? 36 : id === 'bomb' ? 30 : 22; ctx.fillStyle = 'rgba(253,230,138,.9)'; ctx.beginPath(); ctx.arc(L, 0, id === 'bomb' ? 7 : 4, 0, TAU); ctx.fill(); }
-    ctx.restore();
-    if (id === 'tesla') { ctx.strokeStyle = 'rgba(165,243,252,.8)'; ctx.lineWidth = 1; ctx.beginPath(); for (let i = 0; i < 3; i++) { const a = T * 6 + i * 2.1; ctx.moveTo(t.x + Math.cos(a) * 4, t.y + Math.sin(a) * 4); ctx.lineTo(t.x + Math.cos(a + .4) * 10, t.y + Math.sin(a + .4) * 10); } ctx.stroke(); }
+    const id = t.t;
+    if (isHero(id)) { ctx.save(); ctx.translate(t.x, t.y); ART.hero(ctx, id, heroLvl(t), id === 'magier' ? t.ang : Math.sin(T) * .3, T); ctx.restore(); }
+    else { const tier = tierOf(t); ctx.drawImage(sp.base[id + tier], t.x - 32, t.y - 30, 64, 64);
+      const glow = id === 'ice' ? 'rgba(125,211,252,' : id === 'tesla' ? 'rgba(103,232,249,' : null; if (glow) { const p = .5 + .5 * Math.sin(T * (id === 'tesla' ? 9 : 3) + t.x); ctx.fillStyle = glow + (.12 + p * .18) + ')'; ctx.beginPath(); ctx.arc(t.x, t.y, 15 + p * 3, 0, TAU); ctx.fill(); }
+      if (id === 'heli') { ctx.fillStyle = 'rgba(15,23,42,.6)'; ctx.font = '900 16px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('H', t.x, t.y + 1); }
+      else { const rot = id === 'boom' ? T * 5 : ART.ROTATES[id] ? t.ang : 0; ctx.save(); ctx.translate(t.x, t.y); if (rot) ctx.rotate(rot); if (id === 'flame' || id === 'magnet' || id === 'farm') { ART.head(ctx, id, tier, T); } else ctx.drawImage(sp.head[id + tier], -40, -40, 80, 80);
+        if (t.flash > 0 && (id === 'bomb' || id === 'sniper' || id === 'dart')) { const L = id === 'sniper' ? 36 : id === 'bomb' ? 30 : 22; ctx.fillStyle = 'rgba(253,230,138,.9)'; ctx.beginPath(); ctx.arc(L, 0, id === 'bomb' ? 7 : 4, 0, TAU); ctx.fill(); }
+        ctx.restore(); }
+      if (id === 'tesla') { ctx.strokeStyle = 'rgba(165,243,252,.8)'; ctx.lineWidth = 1; ctx.beginPath(); for (let i = 0; i < 3; i++) { const a = T * 6 + i * 2.1; ctx.moveTo(t.x + Math.cos(a) * 4, t.y + Math.sin(a) * 4); ctx.lineTo(t.x + Math.cos(a + .4) * 10, t.y + Math.sin(a + .4) * 10); } ctx.stroke(); } }
+    if (t.stun > 0) { ctx.fillStyle = 'rgba(15,23,42,.5)'; ctx.beginPath(); ctx.arc(t.x, t.y, 22, 0, TAU); ctx.fill(); ctx.font = '16px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('💫', t.x, t.y - 22 + Math.sin(T * 6) * 2); }
     if (t.boostT > 0) { ctx.strokeStyle = `rgba(250,204,21,${.5 + .4 * Math.sin(T * 12)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(t.x, t.y, 24, 0, TAU); ctx.stroke(); }
     if (hasAbil(t) && t.abCd <= 0) { ctx.fillStyle = '#facc15'; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 2; ctx.font = '900 13px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const y = t.y - 26 + Math.sin(T * 4) * 1.5; ctx.strokeText('⚡', t.x + 18, y); ctx.fillText('⚡', t.x + 18, y); }
     if (t.radar) { ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(t.x - 18, t.y - 18, 6.5, 0, TAU); ctx.fill(); ctx.font = '9px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('📡', t.x - 18, t.y - 17.5); }
     const v = vetOf(t); if (v) { ctx.fillStyle = ['', '#cd7f32', '#cbd5e1', '#facc15'][v]; ctx.beginPath(); ctx.moveTo(t.x - 24, t.y + 12); ctx.lineTo(t.x - 18, t.y + 9); ctx.lineTo(t.x - 12, t.y + 12); ctx.lineTo(t.x - 12, t.y + 20); ctx.lineTo(t.x - 18, t.y + 17); ctx.lineTo(t.x - 24, t.y + 20); ctx.fill(); }
+    if (S.coop && t.own && t.own !== S.coop.role) { ctx.fillStyle = 'rgba(244,114,182,.9)'; ctx.beginPath(); ctx.arc(t.x + 18, t.y + 16, 4, 0, TAU); ctx.fill(); }
     if (t === selTower) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.arc(t.x, t.y, 25, 0, TAU); ctx.stroke(); ctx.setLineDash([]); }
   }
+  // Bananen
+  S.loot.forEach((l, i) => { const b = Math.sin(T * 3 + i) * 2; if (!l.keep && l.t > 10 && Math.floor(T * 6) % 2) return; drawBanana(l.x, l.y, b); });
   // Ballons
   for (const b of S.balloons) {
-    if (b.boss) { ctx.save(); ctx.translate(b.x, b.y); ART.balloon(ctx, 'zeppelin', 36, 0); if (b.slowT > 0 || b.glueT > 0) { ctx.strokeStyle = b.glueT > 0 ? '#84cc16' : '#7dd3fc'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(0, 0, 44, 25, 0, 0, TAU); ctx.stroke(); } ctx.restore();
-      ctx.fillStyle = '#0b1220'; ctx.fillRect(b.x - 30, b.y - 38, 60, 6); ctx.fillStyle = '#ef4444'; ctx.fillRect(b.x - 30, b.y - 38, 60 * Math.max(0, b.hp / b.max), 6); continue; }
+    if (b.boss) { ctx.save(); ctx.translate(b.x, b.y); if (b.bk === 'zeppelin') ART.balloon(ctx, 'zeppelin', 36, 0); else ART.boss(ctx, b.bk, T); if (b.slowT > 0 || b.glueT > 0) { ctx.strokeStyle = b.glueT > 0 ? '#84cc16' : '#7dd3fc'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(0, 0, 44, 28, 0, 0, TAU); ctx.stroke(); } ctx.restore();
+      ctx.fillStyle = '#0b1220'; ctx.fillRect(b.x - 30, b.y - 42, 60, 6); ctx.fillStyle = b.bk === 'panzer' ? '#fbbf24' : '#ef4444'; ctx.fillRect(b.x - 30, b.y - 42, 60 * Math.max(0, b.hp / b.max), 6); continue; }
     const bob = Math.sin(T * 4 + b.id) * 1.2, q = sp.b[b.kind || 'l' + b.layer], r = rad(b);
     if (b.camo) ctx.globalAlpha = .82; ctx.drawImage(q.c, b.x - q.ox, b.y - q.oy + bob, q.w, q.h); ctx.globalAlpha = 1;
     if (b.camo) { const o = sp.ov.camo, s = r / 17; ctx.drawImage(o.c, b.x - o.o * s, b.y - o.o * s + bob, o.w * s, o.w * s); }
@@ -413,10 +640,18 @@ function draw() {
     if (b.kind === 'ceramic' && b.hp < 10) { ctx.strokeStyle = 'rgba(20,6,0,.85)'; ctx.lineWidth = 1.2; ctx.beginPath(); const n = Math.ceil((10 - b.hp) / 3); for (let i = 0; i < n; i++) { const a = i * 2.2 + b.id; ctx.moveTo(b.x, b.y + bob); ctx.lineTo(b.x + Math.cos(a) * r * .8, b.y + bob + Math.sin(a) * r * .8); } ctx.stroke(); }
     if (b.slowT > 0) { ctx.strokeStyle = 'rgba(186,230,253,.95)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(b.x, b.y + bob, r * .86 + 1, r + 1, 0, 0, TAU); ctx.stroke(); }
     if (b.glueT > 0) { ctx.fillStyle = 'rgba(132,204,22,.55)'; ctx.beginPath(); ctx.ellipse(b.x + 2, b.y + r * .4 + bob, r * .6, r * .35, 0, 0, TAU); ctx.fill(); }
+    if (b.burn > 0) { ctx.fillStyle = `rgba(249,115,22,${.5 + .3 * Math.sin(T * 20 + b.id)})`; ctx.beginPath(); ctx.arc(b.x + 3, b.y - r * .6 + bob, 4, 0, TAU); ctx.fill(); }
+  }
+  // Hubschrauber und Flugzeuge (über den Ballons)
+  for (const t of S.towers) {
+    if (t.t === 'heli') { ctx.save(); ctx.translate(t.hx, t.hy); ctx.rotate(t.ang); ART.head(ctx, 'heli', tierOf(t), T); ctx.restore(); }
+    if (t.t === 'pilot') for (let i = 0; i < (t.s.planes || 1); i++) { const p = planePos(t, i); ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ART.plane(ctx, T); ctx.restore(); }
   }
   // Geschosse
   for (const p of S.projs) {
-    if (p.k === 'bomb') { const tot = Math.hypot(p.tx - p.sx, p.ty - p.sy) || 1, q = 1 - Math.hypot(p.tx - p.x, p.ty - p.y) / tot, h = Math.sin(q * Math.PI) * 18; ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(p.x, p.y + 4, 5, 2.5, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#111827'; ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x, p.y - h, 6, 0, TAU); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(p.x + 3, p.y - h - 5, 1.8, 0, TAU); ctx.fill(); }
+    if (p.k === 'bomb' || p.k === 'fire') { const tot = Math.hypot(p.tx - p.sx, p.ty - p.sy) || 1, q = 1 - Math.hypot(p.tx - p.x, p.ty - p.y) / tot, h = p.k === 'bomb' ? Math.sin(q * Math.PI) * 18 : 0; ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(p.x, p.y + 4, 5, 2.5, 0, 0, TAU); ctx.fill();
+      if (p.k === 'fire') { ctx.fillStyle = 'rgba(251,146,60,.5)'; ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, TAU); ctx.fill(); ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, TAU); ctx.fill(); }
+      else { ctx.fillStyle = '#111827'; ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x, p.y - h, 6, 0, TAU); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(p.x + 3, p.y - h - 5, 1.8, 0, TAU); ctx.fill(); } }
     else if (p.k === 'glue') { ctx.fillStyle = '#a3e635'; ctx.strokeStyle = '#3f6212'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, TAU); ctx.fill(); ctx.stroke(); }
     else if (p.disc) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = '#f59e0b'; ctx.strokeStyle = '#78350f'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(6, -10, 11, -7); ctx.quadraticCurveTo(6, -4, 3, 1); ctx.quadraticCurveTo(6, 6, 11, 8); ctx.quadraticCurveTo(6, 11, 0, 0); ctx.fill(); ctx.stroke(); ctx.restore(); }
     else { const a = Math.atan2(p.vy, p.vx); ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(a); ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(4, 0); ctx.stroke(); ctx.fillStyle = '#f8fafc'; ctx.beginPath(); ctx.moveTo(7, 0); ctx.lineTo(3, -2.5); ctx.lineTo(3, 2.5); ctx.fill(); ctx.fillStyle = '#ef4444'; ctx.fillRect(-11, -2, 3, 4); ctx.restore(); }
@@ -425,33 +660,45 @@ function draw() {
   for (const f of S.fx) { const q = f.t / f.max;
     if (f.k === 'pop') { ctx.fillStyle = f.c; ctx.globalAlpha = 1 - q; for (let i = 0; i < 6; i++) { const a = f.a + i / 6 * TAU, d = 5 + q * 18; ctx.beginPath(); ctx.ellipse(f.x + Math.cos(a) * d, f.y + Math.sin(a) * d, 3.2 * (1 - q * .5), 1.6, a, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1; }
     else if (f.k === 'ring') { ctx.strokeStyle = f.c; ctx.globalAlpha = (1 - q) * .8; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (0.3 + q * 0.7), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
-    else if (f.k === 'boom') { ctx.fillStyle = `rgba(251,146,60,${.55 * (1 - q)})`; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (.4 + q * .6), 0, TAU); ctx.fill(); ctx.fillStyle = `rgba(254,240,138,${.8 * (1 - q)})`; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * .35 * (1 - q), 0, TAU); ctx.fill(); }
+    else if (f.k === 'boom') { ctx.fillStyle = f.fire ? `rgba(249,115,22,${.6 * (1 - q)})` : `rgba(251,146,60,${.55 * (1 - q)})`; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (.4 + q * .6), 0, TAU); ctx.fill(); ctx.fillStyle = `rgba(254,240,138,${.8 * (1 - q)})`; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * .35 * (1 - q), 0, TAU); ctx.fill(); }
     else if (f.k === 'splat') { ctx.fillStyle = `rgba(163,230,53,${.5 * (1 - q)})`; for (let i = 0; i < 5; i++) { const a = i * 1.26; ctx.beginPath(); ctx.arc(f.x + Math.cos(a) * f.r * .5 * q, f.y + Math.sin(a) * f.r * .5 * q, 4, 0, TAU); ctx.fill(); } }
-    else if (f.k === 'line') { ctx.strokeStyle = '#ddd6fe'; ctx.globalAlpha = 1 - q; ctx.lineWidth = f.w || 3; ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.lineTo(f.x2, f.y2); ctx.stroke(); ctx.globalAlpha = 1; }
+    else if (f.k === 'flame') { const n = f.arc >= 6 ? 22 : 12; for (let i = 0; i < n; i++) { const u = ((q + i / n) % 1), a = f.arc >= 6 ? i / n * TAU : f.a + (Math.sin(i * 7.3) * f.arc / 2), r = 18 + u * f.r; ctx.fillStyle = `rgba(${u < .4 ? '253,224,71' : '249,115,22'},${.7 * (1 - u) * (1 - q * .5)})`; ctx.beginPath(); ctx.arc(f.x + Math.cos(a) * r, f.y + Math.sin(a) * r, 3 + u * 7, 0, TAU); ctx.fill(); } }
+    else if (f.k === 'pull') { ctx.strokeStyle = `rgba(147,197,253,${1 - q})`; ctx.lineWidth = 2; ctx.setLineDash([4, 5]); ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.lineTo(f.x2, f.y2); ctx.stroke(); ctx.setLineDash([]); }
+    else if (f.k === 'line') { ctx.strokeStyle = f.c || '#ddd6fe'; ctx.globalAlpha = 1 - q; ctx.lineWidth = f.w || 3; ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.lineTo(f.x2, f.y2); ctx.stroke(); ctx.globalAlpha = 1; }
     else if (f.k === 'bolt') { ctx.save(); ctx.strokeStyle = '#a5f3fc'; ctx.shadowColor = '#22d3ee'; ctx.shadowBlur = 10; ctx.globalAlpha = 1 - q; ctx.lineWidth = f.big ? 3 : 2; ctx.beginPath(); ctx.moveTo(f.pts[0][0], f.pts[0][1]); for (let i = 1; i < f.pts.length; i++) { const [x0, y0] = f.pts[i - 1], [x1, y1] = f.pts[i]; for (let s = 1; s < 4; s++) { const u = s / 4; ctx.lineTo(x0 + (x1 - x0) * u + (Math.random() - .5) * 9, y0 + (y1 - y0) * u + (Math.random() - .5) * 9); } ctx.lineTo(x1, y1); } ctx.stroke(); ctx.restore(); }
     else if (f.k === 'txt') { ctx.globalAlpha = 1 - q; ctx.fillStyle = f.c; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 3; ctx.font = '800 13px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.strokeText(f.txt, f.x, f.y - q * 22); ctx.fillText(f.txt, f.x, f.y - q * 22); ctx.globalAlpha = 1; }
     else if (f.k === 'clank') { ctx.strokeStyle = `rgba(226,232,240,${1 - q})`; ctx.lineWidth = 1.5; ctx.beginPath(); for (let i = 0; i < 4; i++) { const a = i * 1.57 + .4; ctx.moveTo(f.x + Math.cos(a) * 8, f.y + Math.sin(a) * 8); ctx.lineTo(f.x + Math.cos(a) * (12 + q * 6), f.y + Math.sin(a) * (12 + q * 6)); } ctx.stroke(); }
     else if (f.k === 'flash') { ctx.fillStyle = f.c; ctx.globalAlpha = 1 - q; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; } }
-  // Vorschau beim Platzieren
-  if (placing && ghost) { const g = snap(ghost), d = TOWERS[placing], ok = validSpot(g.x, g.y) && S.money >= price(d.cost);
+  // Wetter
+  if (S.wx) ART.weather(ctx, W, H, S.wx, T);
+  // Vorschau beim Platzieren und Verschieben
+  const gp = ghost && (placing || moving);
+  if (gp && placing && placing.startsWith('item:')) { const id = placing.slice(5); ctx.globalAlpha = .9; if (id === 'icebomb') { ctx.fillStyle = 'rgba(186,230,253,.15)'; ctx.strokeStyle = 'rgba(186,230,253,.8)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(ghost.x, ghost.y, 130, 0, TAU); ctx.fill(); ctx.stroke(); }
+    let x = ghost.x, y = ghost.y; if (id === 'spikes') { const n = nearestD(x, y); if (n.dist < 34) { const p = posAt(n.d); x = p.x; y = p.y; } else ctx.globalAlpha = .4; } ctx.save(); ctx.translate(x, y); ART.item(ctx, id, 0); ctx.restore(); ctx.globalAlpha = 1; }
+  else if (gp) { const g = snap(ghost), id = moving ? moving.t : placing, d = TOWERS[id], ok = moving ? validSpot(g.x, g.y, moving) && S.money >= moveCost(moving) : validSpot(g.x, g.y) && S.money >= price(d.cost) && allowedType(id) && !(d.hero && S.towers.some(t => isHero(t.t)));
     if (M.grid) { ctx.fillStyle = ok ? 'rgba(52,211,153,.18)' : 'rgba(239,68,68,.22)'; ctx.strokeStyle = ok ? 'rgba(52,211,153,.9)' : 'rgba(239,68,68,.9)'; ctx.lineWidth = 2; ctx.fillRect(g.x - GRID, g.y - GRID, GRID * 2, GRID * 2); ctx.strokeRect(g.x - GRID, g.y - GRID, GRID * 2, GRID * 2); }
-    if (d.base.range < 9000 && d.base.range > 0) { ctx.fillStyle = ok ? 'rgba(255,255,255,.1)' : 'rgba(239,68,68,.14)'; ctx.strokeStyle = ok ? 'rgba(255,255,255,.6)' : 'rgba(239,68,68,.8)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(g.x, g.y, d.base.range, 0, TAU); ctx.fill(); ctx.stroke(); }
-    ctx.globalAlpha = ok ? .9 : .5; ctx.drawImage(sp.base[placing + 0], g.x - 32, g.y - 30, 64, 64); ctx.drawImage(sp.head[placing + 0], g.x - 40, g.y - 40, 80, 80); ctx.globalAlpha = 1; }
+    const R = moving ? rangeOf(moving) : d.base.range; if (R < 9000 && R > 0) { ctx.fillStyle = ok ? 'rgba(255,255,255,.1)' : 'rgba(239,68,68,.14)'; ctx.strokeStyle = ok ? 'rgba(255,255,255,.6)' : 'rgba(239,68,68,.8)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(g.x, g.y, R, 0, TAU); ctx.fill(); ctx.stroke(); }
+    ctx.globalAlpha = ok ? .9 : .5; ctx.save(); ctx.translate(g.x, g.y); if (d.hero) ART.hero(ctx, id, moving ? heroLvl(moving) : 1, 0, 0); else ART.tower(ctx, id, moving ? tierOf(moving) : 0, 0, 0); ctx.restore(); ctx.globalAlpha = 1; }
 }
 // ================= Oberfläche =================
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function toast(m, ms) { const o = $('stage'); o.querySelectorAll('.toast').forEach(x => x.remove()); const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; t.setAttribute('role', 'status'); o.appendChild(t); setTimeout(() => t.remove(), ms || 2600); }
 const setT = (el, t) => { if (el._t !== t) { el._t = t; el.textContent = t; } };      // nur schreiben, wenn sich der Text geändert hat
+const guest = () => !!(S && S.coop && S.coop.role === 'guest');
 function renderHud() {
-  if (!S) return; setT($('h-lives'), fmt(Math.max(0, S.lives))); setT($('h-money'), fmt(S.money)); setT($('h-round'), String(S.round)); $('h-lives').parentElement.classList.toggle('warn', S.lives <= Math.min(15, D().lives * .15));
+  if (!S) return; setT($('h-lives'), fmt(Math.max(0, S.lives))); setT($('h-money'), fmt(S.money)); setT($('h-round'), String(S.round) + (S.goal ? ' / ' + S.goal : '')); $('h-lives').parentElement.classList.toggle('warn', S.lives <= Math.min(15, D().lives * .15));
   const b = $('b-start'); b.disabled = S.active || S.over; setT(b, S.active ? `Runde ${S.round} läuft` : `▶ Runde ${S.round}`); setT($('b-speed'), '×' + S.speed); setT($('b-pause'), S.paused ? '▶' : '❚❚'); $('b-pause').classList.toggle('on', S.paused); $('b-auto').classList.toggle('on', S.auto); $('b-auto').setAttribute('aria-pressed', S.auto);
+  $('b-speed').disabled = $('b-pause').disabled = $('b-auto').disabled = guest();
   $('b-grid').classList.toggle('on', M.grid); $('b-grid').setAttribute('aria-pressed', M.grid); setT($('b-snd'), M.snd ? '🔊' : '🔇'); renderPrev(); renderAbil();
 }
 let prevKey = '';
 function renderPrev() {
-  const el = $('prev'); let h;
-  if (S.active) h = `<span class="pl">Runde ${S.round}</span><span class="pc">noch ${fmt(S.queue.length + S.balloons.length)} Ballons</span>`;
-  else { const c = preview(S.round), dot = (col, n, t) => n ? `<span class="pc" title="${t}"><i style="background:${col}"></i>${n}</span>` : '';
-    h = `<span class="pl">Nächste Runde</span>${[1, 2, 3, 4, 5].map(l => dot(LAYER[l].c, c.l[l], LAYER[l].n)).join('')}${dot('linear-gradient(135deg,#f8fafc,#64748b)', c.metal, 'Metall')}${dot('linear-gradient(135deg,#fdba74,#7c2d12)', c.ceramic, 'Keramik')}${c.camo ? `<span class="pc" title="Tarn">👻 ${c.camo}</span>` : ''}${c.regrow ? `<span class="pc" title="Nachwachsend">🌱 ${c.regrow}</span>` : ''}${c.boss ? '<span class="pc boss">🛩️ Zeppelin</span>' : ''}`; }
+  const el = $('prev'); let h = '';
+  if (S.coop) h += `<span class="pc coop" title="Zusammen gespielt">🤝 ${esc(S.coop.role === 'host' ? 'mit ' + (S.coop.other || '…') : 'bei ' + (S.coop.other || '…'))}</span>`;
+  if (S.ch) h += `<span class="pc ch" title="Tages-Challenge">📅 Ziel Runde ${S.ch.goal}</span>`; else if (S.goal) h += `<span class="pc ch">🎯 Ziel Runde ${S.goal}</span>`;
+  if (S.active) h += `<span class="pl">Runde ${S.round}</span><span class="pc">noch ${fmt((guest() ? S.qn || 0 : S.queue.length) + S.balloons.length)} Ballons</span>${S.wx ? `<span class="pc wx" title="${WEATHER[S.wx].d}">${WEATHER[S.wx].e} ${WEATHER[S.wx].n}</span>` : ''}`;
+  else { const c = preview(S.round), w = weatherFor(S.round), dot = (col, n, t) => n ? `<span class="pc" title="${t}"><i style="background:${col}"></i>${n}</span>` : '';
+    h += `<span class="pl">Nächste Runde</span>${[1, 2, 3, 4, 5].map(l => dot(LAYER[l].c, c.l[l], LAYER[l].n)).join('')}${dot('linear-gradient(135deg,#f8fafc,#64748b)', c.metal, 'Metall')}${dot('linear-gradient(135deg,#fdba74,#7c2d12)', c.ceramic, 'Keramik')}${c.camo ? `<span class="pc" title="Tarn">👻 ${c.camo}</span>` : ''}${c.regrow ? `<span class="pc" title="Nachwachsend">🌱 ${c.regrow}</span>` : ''}${c.boss ? `<span class="pc boss">🛩️ ${BOSS[c.bk].n}</span>` : ''}${w ? `<span class="pc wx" title="${WEATHER[w].d}">${WEATHER[w].e} ${WEATHER[w].n}</span>` : ''}`; }
   if (h !== prevKey) { prevKey = h; el.innerHTML = h; }
 }
 let abilKey = '';
@@ -461,120 +708,220 @@ function renderAbil() {
   const items = Object.keys(TOWERS).filter(k => groups[k]).map(k => { const l = groups[k], ready = l.filter(t => t.abCd <= 0).length, next = ready ? 0 : Math.min(...l.map(t => t.abCd)); return { k, n: l.length, ready, next }; });
   const key = items.map(i => i.k + i.n + ':' + i.ready + ':' + Math.ceil(i.next)).join(','); if (key === abilKey) return; abilKey = key;
   $('abil').innerHTML = items.map(({ k, n, ready, next }) => { const [nm, d, cd] = ABIL[k], wait = !ready;
-    return `<button class="ab${wait ? ' cd' : ''}" data-abt="${k}" title="${nm}: ${d}. Löst ${ready > 1 ? 'alle ' + ready + ' bereiten Türme' : 'den Turm'} gleichzeitig aus.${wait ? ` Wieder bereit in ${Math.ceil(next)} s.` : ''}" ${wait ? 'disabled' : ''} style="--p:${(wait ? next / cd * 100 : 0).toFixed(1)}%"><img src="${towerIcon(k, 3)}" alt=""><span>${wait ? Math.ceil(next) + ' s' : nm}</span>${n > 1 ? `<b class="cnt">${ready && ready < n ? ready + '/' + n : '×' + n}</b>` : ''}</button>`; }).join('');
+    return `<button class="ab${wait ? ' cd' : ''}" data-abt="${k}" title="${nm}: ${d}. Löst ${ready > 1 ? 'alle ' + ready + ' bereiten Türme' : 'den Turm'} gleichzeitig aus.${wait ? ` Wieder bereit in ${Math.ceil(next)} s.` : ''}" ${wait ? 'disabled' : ''} style="--p:${(wait ? next / cd * 100 : 0).toFixed(1)}%"><img src="${towerIcon(k, isHero(k) ? 10 : 3)}" alt=""><span>${wait ? Math.ceil(next) + ' s' : nm}</span>${n > 1 ? `<b class="cnt">${ready && ready < n ? ready + '/' + n : '×' + n}</b>` : ''}</button>`; }).join('');
   $('abil').classList.toggle('hidden', !items.length);
 }
 function renderShop() {
-  $('shop').innerHTML = Object.entries(TOWERS).map(([id, d]) => { const c = price(d.cost); return `<button class="tw${placing === id ? ' sel' : ''}${S && S.money < c ? ' no' : ''}" data-t="${id}" title="${d.n}: ${d.d} (Taste ${d.key})"><span class="k">${d.key}</span><img class="ti" src="${towerIcon(id)}" alt=""><span class="n">${d.n}</span><span class="c">${fmt(c)} €</span></button>`; }).join('');
+  if (EDIT) { $('shop').innerHTML = ''; $('shop2').innerHTML = ''; return; }
+  const heroTaken = S && S.towers.some(t => isHero(t.t));
+  const btn = id => { const d = TOWERS[id], c = price(d.cost), off = !allowedType(id) || (d.hero && heroTaken); return `<button class="tw${placing === id ? ' sel' : ''}${S && S.money < c ? ' no' : ''}${off ? ' off' : ''}" data-t="${id}" title="${d.n}: ${d.d}${d.key ? ` (Taste ${d.key.toUpperCase()})` : ''}${off ? (d.hero && heroTaken ? ' – nur ein Held pro Spiel' : ' – heute nicht erlaubt') : ''}">${d.key ? `<span class="k">${d.key.toUpperCase()}</span>` : ''}<img class="ti" src="${towerIcon(id, d.hero ? 1 : 0)}" alt=""><span class="n">${d.n}</span><span class="c">${fmt(c)} €</span></button>`; };
+  $('shop').innerHTML = SHOP.map(btn).join('');
+  const tp = S && M.tpl[S.map], canTpl = S && !S.ch && !S.coop;
+  $('shop2').innerHTML = `<div class="hrow">${HEROES.map(btn).join('')}</div>
+    <div class="irow">${Object.entries(ITEMS).map(([id, it]) => `<button class="it${placing === 'item:' + id ? ' sel' : ''}" data-item="${id}" title="${it.n}: ${it.d}"><img src="${itemIcon(id)}" alt=""><span>${it.n}</span><b>${it.dia ? it.dia + ' 💎' : fmt(price(it.cost)) + ' €'}</b></button>`).join('')}</div>
+    ${canTpl ? `<div class="trow"><button class="btn sm" data-tpl="save" ${S.towers.length ? '' : 'disabled'} title="Die jetzige Aufstellung für diese Karte merken">📐 Aufstellung merken</button><button class="btn sm${tp ? ' go' : ''}" data-tpl="build" ${tp ? '' : 'disabled'} title="Gemerkte Türme bauen und ausbauen, soweit das Geld reicht">📐 Aufbauen${tp ? ` (${tp.length})` : ''}</button></div>` : ''}`;
 }
 function renderInfo() {
-  const box = $('info'), t = selTower;
-  if (!t) { box.innerHTML = placing ? `<div class="help"><b>${TOWERS[placing].n}</b><br>${TOWERS[placing].d}<br><br>Tippe oder klicke auf das Spielfeld, um den Turm zu platzieren.${M.grid ? ' Er rastet im Raster ein (Taste <b>G</b> schaltet das Raster aus).' : ''} Er darf nicht auf dem Weg (rot) oder zu nah an einem anderen Turm stehen. Mit <b>Umschalt</b> setzt du mehrere. Abbrechen mit <b>Esc</b> oder Rechtsklick.</div>`
-    : `<div class="help"><b>So geht's:</b><br>1. Wähle oben einen Turm und setze ihn neben den Weg.<br>2. Starte die Runde. Jeder geplatzte Ballon bringt Geld.<br>3. Klicke einen Turm an, um ihn zu verbessern.<br>4. Ist ein Pfad ganz ausgebaut, hat der Turm eine ⚡ Spezialfähigkeit.<br><br>Erreichen Ballons das Ziel, verlierst du Leben. Tarn-Ballons sehen nur Türme mit 📡 Radar, an Metall-Ballons prallen Darts ab. Tasten: <b>1–8</b> Turm, <b>Leertaste</b> Runde, <b>Q</b> Fähigkeit, <b>F</b> Tempo, <b>P</b> Pause, <b>G</b> Raster.</div>`; return; }
-  const d = TOWERS[t.t], s = t.s, st = (a, b) => `<div><b>${a}</b>${b}</div>`, v = vetOf(t);
-  const stats3 = s.kind === 'bank' ? st(fmt(s.income) + ' €', 'pro Runde') + st('–', '') + st('–', '')
-    : st(s.range > 9000 ? '∞' : Math.round(s.range), 'Reichweite') + st((1 / rateOf(t)).toFixed(1).replace('.', ',') + '/s', 'Tempo') + st(s.kind === 'ice' ? Math.round((1 - s.slow) * 100) + ' %' : s.kind === 'glue' ? Math.round((1 - s.glueF) * 100) + ' %' : s.kind === 'tesla' ? s.dmg + ' × ' + s.chain : s.dmg * (s.shots || 1), s.kind === 'ice' || s.kind === 'glue' ? 'Bremsung' : s.kind === 'tesla' ? 'Schaden × Ziele' : 'Schaden');
+  const box = $('info'), t = selTower; if (EDIT) return renderEditor();
+  if (moving) { box.innerHTML = `<div class="help"><b>Turm verschieben</b><br>Klicke auf den neuen Platz. Das kostet ${fmt(moveCost(moving))} €. Abbrechen mit <b>Esc</b> oder Rechtsklick.</div>`; return; }
+  if (!t) { const pl = placing && placing.startsWith('item:') ? ITEMS[placing.slice(5)] : placing ? TOWERS[placing] : null;
+    box.innerHTML = pl ? `<div class="help"><b>${pl.n}</b><br>${pl.d}<br><br>${placing.startsWith('item:') ? (placing === 'item:spikes' ? 'Klicke auf den Weg.' : 'Klicke auf das Spielfeld.') : `Tippe oder klicke auf das Spielfeld, um den Turm zu platzieren.${M.grid ? ' Er rastet im Raster ein (Taste <b>G</b> schaltet das Raster aus).' : ''} Er darf nicht auf dem Weg (rot) oder zu nah an einem anderen Turm stehen.${S.coop ? ' Im Zusammenspiel baust du nur auf deiner Hälfte.' : ''} Mit <b>Umschalt</b> setzt du mehrere.`} Abbrechen mit <b>Esc</b> oder Rechtsklick.</div>`
+    : `<div class="help"><b>So geht's:</b><br>1. Wähle oben einen Turm und setze ihn neben den Weg.<br>2. Starte die Runde. Jeder geplatzte Ballon bringt Geld.<br>3. Klicke einen Turm an, um ihn zu verbessern oder zu verschieben.<br>4. Ist ein Pfad ganz ausgebaut, hat der Turm eine ⚡ Spezialfähigkeit.<br>5. Ein 🦸 Held pro Spiel wird von allein stärker.<br><br>Tarn-Ballons sehen nur Türme mit 📡 Radar, an Metall-Ballons prallen Darts ab. 🍌 Bananen antippen oder mit der Maus darüberfahren. Tasten: <b>1–0, B, H</b> Turm, <b>Leertaste</b> Runde, <b>Q</b> Fähigkeit, <b>F</b> Tempo, <b>P</b> Pause, <b>G</b> Raster.</div>`; return; }
+  const d = TOWERS[t.t], s = t.s, st = (a, b) => `<div><b>${a}</b>${b}</div>`, v = vetOf(t), hero = isHero(t.t), L = hero ? heroLvl(t) : 0;
+  const k = s.kind, R = rangeOf(t);
+  const stats3 = k === 'bank' ? st(fmt(s.income) + ' €', 'pro Runde') + st('–', '') + st('–', '')
+    : k === 'farm' ? st(fmt(s.value) + ' €', 'je Banane') + st((60 / s.rate).toFixed(0), 'Bananen/Min') + st(s.auto ? 'auto' : s.keep ? 'bleiben' : '14 s', 'Einsammeln')
+    : k === 'magnet' ? st(Math.round(R), 'Reichweite') + st((1 / rateOf(t)).toFixed(1).replace('.', ',') + '/s', 'Tempo') + st(s.pull + ' px', s.all ? 'alle Ballons' : 'Metall/Keramik')
+    : st(s.range > 9000 ? '∞' : Math.round(R), 'Reichweite') + st((1 / rateOf(t)).toFixed(1).replace('.', ',') + '/s', 'Tempo') + st(k === 'ice' ? Math.round((1 - s.slow) * 100) + ' %' : k === 'glue' ? Math.round((1 - s.glueF) * 100) + ' %' : k === 'tesla' ? s.dmg + ' × ' + s.chain : s.dmg * (s.shots || 1) * (s.planes || 1), k === 'ice' || k === 'glue' ? 'Bremsung' : k === 'tesla' ? 'Schaden × Ziele' : 'Schaden');
   const upBtn = (p, label) => { const list = d[p]; if (!list.length) return ''; const n = p === 'A' ? t.a : t.b, up = list[n], pips = list.map((_, i) => `<i class="${i < n ? 'f' : ''}"></i>`).join(''); if (!up) return `<button class="up max" disabled><div><div class="ul">${label}</div><div class="un">Maximal ausgebaut</div><div class="pips">${pips}</div></div></button>`; const c = price(up[1]); return `<button class="up${S.money >= c ? ' can' : ''}" data-up="${p}"><div><div class="ul">${label}</div><div class="un">${up[0]}</div><div class="pips">${pips}</div></div><div class="uc">${fmt(c)} €</div></button>`; };
-  const tags = [s.metal ? '<span class="tg">🔩 trifft Metall</span>' : '<span class="tg off">🔩 kein Metall</span>', s.radar ? '<span class="tg">📡 sieht Tarn</span>' : (t.t === 'bank' || t.t === 'ice') ? '' : '<span class="tg off">📡 kein Radar</span>'].join('');
-  const vet = s.kind === 'bank' ? '' : `<div class="vet"><span>${['Neuling', 'Veteran Stufe 1', 'Veteran Stufe 2', 'Veteran Stufe 3'][v]}</span><b>${fmt(t.pops || 0)} geplatzt</b>${v < 3 ? `<div class="bar"><i style="width:${Math.min(100, (t.pops || 0) / VET[v] * 100)}%"></i></div><small>Nächste Stufe ab ${fmt(VET[v])} (+5 % Tempo)</small>` : '<small>+15 % Tempo</small>'}</div>`;
-  const ab = ABIL[t.t], abBtn = hasAbil(t) ? `<button class="up abl${t.abCd <= 0 ? ' can' : ''}" data-abil ${t.abCd > 0 ? 'disabled' : ''}><div><div class="ul">⚡ Spezialfähigkeit (Q: alle dieser Art)</div><div class="un">${ab[0]}</div><small>${ab[1]}</small></div><div class="uc">${t.abCd > 0 ? Math.ceil(t.abCd) + ' s' : 'Los!'}</div></button>` : `<div class="hint">⚡ Baue einen Pfad ganz aus für „${ab[0]}“: ${ab[1]}.</div>`;
-  const radar = !s.radar && t.t !== 'bank' && t.t !== 'ice' ? `<button class="up${S.money >= price(RADAR) ? ' can' : ''}" data-radar><div><div class="ul">Zusatz</div><div class="un">📡 Radar einbauen</div><small>Sieht und trifft Tarn-Ballons</small></div><div class="uc">${fmt(price(RADAR))} €</div></button>` : '';
-  box.innerHTML = `<div class="ih"><img class="ti big" src="${towerIcon(t.t, tierOf(t))}" alt=""><div><b>${d.n}</b><small>${d.d}</small></div></div><div class="tgs">${tags}</div><div class="st">${stats3}</div>${vet}
-    ${s.kind === 'bank' ? '' : `<div class="mode">${MODES.map(([k, l]) => `<button data-mode="${k}" class="${t.mode === k ? 'on' : ''}">${l}</button>`).join('')}</div>`}
-    ${abBtn}${upBtn('A', s.kind === 'bank' ? 'Ausbau' : 'Pfad A: Kraft')}${upBtn('B', 'Pfad B: Tempo und Reichweite')}${radar}<button class="btn bad" style="width:100%;margin-top:4px" data-sell>Verkaufen für ${fmt(Math.floor(t.spent * 0.7))} €</button>`;
+  const noTags = ['bank', 'farm'].includes(t.t), tags = noTags ? '' : [s.metal ? '<span class="tg">🔩 trifft Metall</span>' : '<span class="tg off">🔩 kein Metall</span>', s.radar ? '<span class="tg">📡 sieht Tarn</span>' : (t.t === 'ice' || t.t === 'magnet') ? '' : '<span class="tg off">📡 kein Radar</span>'].join('');
+  const vet = hero ? `<div class="vet"><span>Level ${L}${L >= 10 ? ' (maximal)' : ''}</span><b>${fmt(t.pops || 0)} geplatzt</b>${L < 10 ? `<div class="bar"><i style="width:${Math.min(100, ((t.xp || 0) - XPL[L - 1]) / (XPL[L] - XPL[L - 1]) * 100)}%"></i></div><small>Erfahrung durch Runden und Treffer. ${Object.entries(HERO_LV[t.t]).filter(([l]) => +l > L).slice(0, 1).map(([l, w]) => `Level ${l}: ${w}`).join('')}</small>` : '<small>Alles freigeschaltet</small>'}</div>`
+    : (k === 'bank' || k === 'farm') ? '' : `<div class="vet"><span>${['Neuling', 'Veteran Stufe 1', 'Veteran Stufe 2', 'Veteran Stufe 3'][v]}</span><b>${fmt(t.pops || 0)} geplatzt</b>${v < 3 ? `<div class="bar"><i style="width:${Math.min(100, (t.pops || 0) / VET[v] * 100)}%"></i></div><small>Nächste Stufe ab ${fmt(VET[v])} (+5 % Tempo)</small>` : '<small>+15 % Tempo</small>'}</div>`;
+  const ab = ABIL[t.t], abBtn = hasAbil(t) ? `<button class="up abl${t.abCd <= 0 ? ' can' : ''}" data-abil ${t.abCd > 0 ? 'disabled' : ''}><div><div class="ul">⚡ Spezialfähigkeit (Q: alle dieser Art)</div><div class="un">${ab[0]}</div><small>${ab[1]}</small></div><div class="uc">${t.abCd > 0 ? Math.ceil(t.abCd) + ' s' : 'Los!'}</div></button>` : `<div class="hint">⚡ ${hero ? 'Ab Level 6' : 'Baue einen Pfad ganz aus'} für „${ab[0]}“: ${ab[1]}.</div>`;
+  const radar = !s.radar && !['bank', 'ice', 'farm', 'magnet'].includes(t.t) ? `<button class="up${S.money >= price(RADAR) ? ' can' : ''}" data-radar><div><div class="ul">Zusatz</div><div class="un">📡 Radar einbauen</div><small>Sieht und trifft Tarn-Ballons</small></div><div class="uc">${fmt(price(RADAR))} €</div></button>` : '';
+  const mine = !S.coop || !t.own || t.own === S.coop.role, noSell = S.ch && S.ch.noSell;
+  box.innerHTML = `<div class="ih"><img class="ti big" src="${towerIcon(t.t, hero ? L : tierOf(t))}" alt=""><div><b>${d.n}</b><small>${d.d}</small></div></div>${tags ? `<div class="tgs">${tags}</div>` : ''}<div class="st">${stats3}</div>${vet}
+    ${['bank', 'farm'].includes(k) ? '' : `<div class="mode">${MODES.map(([m, l]) => `<button data-mode="${m}" class="${t.mode === m ? 'on' : ''}">${l}</button>`).join('')}</div>`}
+    ${abBtn}${mine ? upBtn('A', k === 'bank' ? 'Ausbau' : 'Pfad A: Kraft') + upBtn('B', 'Pfad B: Tempo und Reichweite') + radar : '<div class="hint">Dieser Turm gehört deinem Mitspieler.</div>'}
+    ${mine ? `<div class="row2"><button class="btn" data-move title="Turm an einen anderen Platz stellen">↔ Verschieben (${fmt(moveCost(t))} €)</button><button class="btn bad" data-sell ${noSell ? 'disabled title="Heute kein Verkaufen"' : ''}>Verkaufen ${fmt(Math.floor(t.spent * 0.7))} €</button></div>` : ''}`;
 }
 function renderAll() { renderHud(); renderShop(); renderInfo(); }
 function mapOpen(k) { const u = MAPS[k].unlock; return !u || (M.best[u[0]] || 0) >= u[1]; }
+// Statistik eines Spiels: Kennzahlen, Geldkurve und welche Türme am meisten geplatzt haben
+function statsHtml() {
+  if (!S) return ''; const h = S.hist.filter(x => x.r), worst = h.reduce((a, x) => (x.l > (a ? a.l : 0) ? x : a), null);
+  let cum = 0; const pts = h.map(x => (cum += x.c)), max = Math.max(1, ...pts), n = Math.max(1, pts.length - 1), X = i => (i / n * 400).toFixed(1), Y = v => (86 - v / max * 80).toFixed(1);
+  const line = pts.map((v, i) => `${i ? 'L' : 'M'}${X(i)} ${Y(v)}`).join(' '), wi = worst ? h.indexOf(worst) : -1;
+  const top = Object.entries(S.popBy).sort((a, b) => b[1] - a[1]).slice(0, 5), tmax = Math.max(1, ...top.map(x => x[1]));
+  return `<div class="stx"><div class="kp"><div><b>${S.round - 1}</b>Runden</div><div><b>${fmt(S.popped)}</b>geplatzt</div><div><b>${fmt(S.cash)} €</b>verdient</div><div><b>${worst && worst.l ? 'Runde ' + worst.r : '–'}</b>${worst && worst.l ? `gefährlichste (−${worst.l})` : 'kein Leben verloren'}</div></div>
+    ${pts.length > 1 ? `<svg viewBox="0 0 400 90" class="chart" aria-label="Verdientes Geld über die Runden"><defs><linearGradient id="gg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#34d399" stop-opacity=".45"/><stop offset="1" stop-color="#34d399" stop-opacity="0"/></linearGradient></defs><path d="${line} L400 90 L0 90Z" fill="url(#gg)"/><path d="${line}" fill="none" stroke="#34d399" stroke-width="2"/>${wi >= 0 && worst.l ? `<line x1="${X(wi)}" x2="${X(wi)}" y1="0" y2="90" stroke="#f43f5e" stroke-dasharray="3 3"/>` : ''}</svg>` : ''}
+    ${top.map(([k, v]) => `<div class="twr"><span><img src="${towerIcon(k, isHero(k) ? 1 : 0)}" alt="">${TOWERS[k].n}</span><div class="bar"><i style="width:${v / tmax * 100}%"></i></div><b>${fmt(v)}</b></div>`).join('')}</div>`;
+}
 function showOverlay(kind) {
-  const o = $('ov'); o.classList.remove('hidden');
+  const o = $('ov'); o.classList.remove('hidden'); const on = (id, f) => { if ($(id)) $(id).onclick = f; };
   if (kind === 'over') {
-    const has = slots.some(Boolean), cp = S.cp;
-    o.innerHTML = `<div class="card box"><h2>Spiel vorbei</h2><p class="lead">Du hast ${S.round - 1} Runden geschafft auf „${MAPS[S.map].n}“ (${DIFF[S.diff].n}). Bestwert: ${M.best[S.map]}.</p>
-      ${S.paid ? `<p style="font-size:18px">Du hast <span class="dia">${S.earned} 💎</span> erhalten (insgesamt ${M.diamonds} 💎).</p>` : `<p style="font-size:15px;line-height:1.6">Du kannst <b>Runde ${S.round} nochmal versuchen</b> (mit allen Türmen und dem Geld vom Rundenbeginn) oder einen gespeicherten Spielstand laden. Beendest du das Spiel, erhältst du <span class="dia">${S.earned} 💎</span>${D().dia !== 1 ? ` (×${String(D().dia).replace('.', ',')} für ${DIFF[S.diff].n})` : ''}.</p>`}
-      <div class="row">${S.paid ? `<button class="btn" id="o-up">Verbesserungen</button><button class="btn go" id="o-new">Neues Spiel</button>` : `${has ? '<button class="btn" id="o-slots">💾 Spielstand laden</button>' : ''}<button class="btn" id="o-end">Beenden und ${S.earned} 💎 nehmen</button>${cp ? `<button class="btn go" id="o-retry">↺ Runde ${S.round} nochmal</button>` : ''}`}</div></div>`;
-    const on = (id, f) => { if ($(id)) $(id).onclick = f; };
-    on('o-new', () => { menuTab = 'play'; showOverlay('menu'); }); on('o-up', () => { menuTab = 'up'; showOverlay('menu'); });
+    const has = slots.some(Boolean), cp = S.cp && !S.coop;
+    o.innerHTML = `<div class="card box"><h2>Spiel vorbei</h2><p class="lead">Du hast ${S.round - 1} Runden geschafft auf „${esc(MAPS[S.map].n)}“ (${DIFF[S.diff].n}${S.ch ? ', Tages-Challenge' : ''}). ${S.ch ? '' : 'Bestwert: ' + (M.best[S.map] || 0) + '.'}</p>
+      ${S.paid ? `<p style="font-size:18px">Du hast <span class="dia">${S.earned} 💎</span> erhalten (insgesamt ${M.diamonds} 💎).</p>` : `<p style="font-size:15px;line-height:1.6">${cp ? `Du kannst <b>Runde ${S.round} nochmal versuchen</b> (mit allen Türmen und dem Geld vom Rundenbeginn) oder einen gespeicherten Spielstand laden. ` : ''}Beendest du das Spiel, erhältst du <span class="dia">${S.earned} 💎</span>${D().dia !== 1 ? ` (×${String(D().dia).replace('.', ',')} für ${DIFF[S.diff].n})` : ''}.</p>`}
+      <div class="row">${S.paid ? `<button class="btn" id="o-up">Verbesserungen</button><button class="btn go" id="o-new">Neues Spiel</button>` : `${has && !S.coop ? '<button class="btn" id="o-slots">💾 Spielstand laden</button>' : ''}<button class="btn" id="o-end">Beenden und ${S.earned} 💎 nehmen</button>${cp ? `<button class="btn go" id="o-retry">↺ Runde ${S.round} nochmal</button>` : ''}`}</div>
+      <h3 class="sh">📊 Statistik</h3>${statsHtml()}</div>`;
+    on('o-new', () => { if (S.coop && window.NET) NET.leave(); menuTab = 'play'; showOverlay('menu'); }); on('o-up', () => { menuTab = 'up'; showOverlay('menu'); });
     on('o-retry', retryRound); on('o-slots', () => { menuTab = 'saves'; showOverlay('menu'); }); on('o-end', () => { finishRun(); showOverlay('over'); renderAll(); }); return;
   }
-  const tabs = `<div class="mt"><button data-m="play" class="${menuTab === 'play' ? 'on' : ''}">Spielen</button><button data-m="saves" class="${menuTab === 'saves' ? 'on' : ''}">💾 Spielstände</button><button data-m="up" class="${menuTab === 'up' ? 'on' : ''}">Verbesserungen <span class="dia">${M.diamonds} 💎</span></button><button data-m="ach" class="${menuTab === 'ach' ? 'on' : ''}">Erfolge ${M.ach.length}/${ACH.length}</button></div>`;
+  if (kind === 'win') {
+    const st = S.stars || 0;
+    o.innerHTML = `<div class="card box"><h2>🎉 ${S.ch ? 'Tages-Challenge geschafft!' : `Ziel erreicht: Runde ${S.goal}!`}</h2>${S.ch ? '' : `<div class="stars">${'⭐'.repeat(st)}<i>${'⭐'.repeat(3 - st)}</i></div><p class="lead">⭐ geschafft · ⭐⭐ höchstens 20 Leben verloren · ⭐⭐⭐ kein Leben verloren. Du hast ${S.lost} Leben verloren.</p>`}
+      <p style="font-size:16px">${esc(S.winMsg || '')}</p><div class="row"><button class="btn" id="o-endw">Beenden</button><button class="btn go" id="o-cont">Weiterspielen (endlos)</button></div><h3 class="sh">📊 Statistik</h3>${statsHtml()}</div>`;
+    on('o-cont', () => { S.goal = 0; S.paused = false; hideOverlay(); renderAll(); }); on('o-endw', () => { S.lives = 0; S.paused = false; gameOver(); }); return;
+  }
+  if (kind === 'coop') { if (window.NET) NET.render(o); else { o.innerHTML = '<div class="card box"><h2>Zusammen spielen</h2><p class="lead">Dafür musst du im Portal angemeldet sein.</p><div class="row"><button class="btn" id="o-back">Zurück</button></div></div>'; on('o-back', () => showOverlay('menu')); } return; }
+  const live = S && !S.over && !EDIT;
+  const tabs = `<div class="mt"><button data-m="play" class="${menuTab === 'play' ? 'on' : ''}">Spielen</button><button data-m="saves" class="${menuTab === 'saves' ? 'on' : ''}">💾 Spielstände</button><button data-m="board" class="${menuTab === 'board' ? 'on' : ''}">🏆 Bestenliste</button><button data-m="up" class="${menuTab === 'up' ? 'on' : ''}">Verbesserungen <span class="dia">${M.diamonds} 💎</span></button><button data-m="ach" class="${menuTab === 'ach' ? 'on' : ''}">Erfolge ${M.ach.length}/${ACH.length}</button></div>`;
   if (menuTab === 'play') {
-    o.innerHTML = `<div class="card box"><h2>🎈 Ballon-Alarm</h2><p class="lead">Halte die Ballons auf, bevor sie ins Ziel kommen. Ein Spiel ohne Ende: Wie viele Runden schaffst du?</p>${tabs}
-      <div class="maps">${Object.entries(MAPS).map(([k, m]) => { const open = mapOpen(k); return `<button class="mp${k === pickMap ? ' sel' : ''}${open ? '' : ' lock'}" data-map="${k}" ${open ? '' : 'disabled'}><span class="me">${open ? m.e : '🔒'}</span><b>${m.n}</b><small>${m.d}<br>Bestwert: Runde ${M.best[k] || 0}${open ? '' : `<br>Freischalten: Runde ${m.unlock[1]} auf „${MAPS[m.unlock[0]].n}“`}</small></button>`; }).join('')}</div>
+    const c = daily(), cd = !!M.daily[c.id], goal = M.mode === 'goal';
+    const mapCard = (k, m) => { const open = mapOpen(k), st = M.stars[k + ':' + M.diff] || 0; return `<button class="mp${k === pickMap ? ' sel' : ''}${open ? '' : ' lock'}" data-map="${k}" ${open ? '' : 'disabled'}><span class="me">${open ? m.e : '🔒'}</span>${goal && open ? `<span class="mst">${'⭐'.repeat(st)}<i>${'⭐'.repeat(3 - st)}</i></span>` : ''}<b>${esc(m.n)}</b><small>${esc(m.d)}<br>Bestwert: Runde ${M.best[k] || 0}${open ? '' : `<br>Freischalten: Runde ${m.unlock[1]} auf „${MAPS[m.unlock[0]].n}“`}</small></button>`; };
+    const customs = Object.keys(MAPS).filter(k => MAPS[k].custom);
+    o.innerHTML = `<div class="card box"><h2>🎈 Ballon-Alarm</h2><p class="lead">Halte die Ballons auf, bevor sie ins Ziel kommen. Wie viele Runden schaffst du?</p>${tabs}
+      <div class="dc${cd ? ' ok' : ''}"><span class="big">📅</span><div class="t"><b>Tages-Challenge · ${new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })} · ${esc(MAPS[c.map].n)}</b><small>Schaffe Runde ${c.goal}. ${cd ? '✓ Heute schon geschafft' : `Belohnung: ${c.reward} 💎`}</small><div class="rules">${chRules(c).map(r => `<span>${esc(r)}</span>`).join('')}</div></div><button class="btn go" id="o-daily">${cd ? 'Nochmal' : 'Starten'}</button></div>
+      <div class="opt"><span class="seg"><button data-gm="endless" class="${goal ? '' : 'on'}">♾️ Endlos</button><button data-gm="goal" class="${goal ? 'on' : ''}">🎯 Ziel: Runde ${GOAL} mit Sternen</button></span><label class="ck"><input type="checkbox" id="o-wx" ${M.wx ? 'checked' : ''}> Wetter</label></div>
+      <div class="maps">${BUILTIN.map(k => mapCard(k, MAPS[k])).join('')}</div>
+      <div class="cm"><b>✏️ Eigene Karten</b>${customs.length ? customs.map(k => `<button class="chip2${k === pickMap ? ' on' : ''}" data-map="${k}" title="${esc(MAPS[k].d)}">${esc(MAPS[k].n)}${M.best[k] ? ' · R ' + M.best[k] : ''}</button>`).join('') : '<span class="note">Noch keine. Bau eine oder lade Karten der Familie.</span>'}<button class="btn sm" id="o-edit">✏️ Karte bauen</button>${window.NET && NET.ok() ? '<button class="btn sm" id="o-maps">🌍 Karten der Familie</button>' : ''}</div>
       <div class="dif"><b>Schwierigkeit</b>${Object.entries(DIFF).map(([k, d]) => `<button data-diff="${k}" class="${M.diff === k ? 'on' : ''}"><span>${d.n}</span><small>${d.d} · 💎 ×${String(d.dia).replace('.', ',')}</small></button>`).join('')}</div>
-      <div class="row">${savedRun ? `<button class="btn" id="o-resume">Fortsetzen (Runde ${savedRun.round}, ${MAPS[savedRun.map].n}, ${DIFF[savedRun.diff].n})</button>` : ''}<button class="btn go" id="o-start">Neues Spiel starten</button>${S && !S.over ? '<button class="btn" id="o-save">💾 Speichern</button><button class="btn" id="o-close">Zurück zum Spiel</button>' : ''}</div></div>`;
+      <div class="row"><button class="btn" id="o-coop">🤝 Zusammen spielen</button>${savedRun ? `<button class="btn" id="o-resume">Fortsetzen (Runde ${savedRun.round}, ${esc(MAPS[savedRun.map].n)})</button>` : ''}<button class="btn go" id="o-start">Neues Spiel starten</button>${live ? '<button class="btn" id="o-save">💾 Speichern</button><button class="btn" id="o-close">Zurück zum Spiel</button>' : ''}</div></div>`;
     o.querySelectorAll('[data-map]').forEach(b => b.onclick = () => { pickMap = b.dataset.map; showOverlay('menu'); });
     o.querySelectorAll('[data-diff]').forEach(b => b.onclick = () => { M.diff = b.dataset.diff; saveMeta(); showOverlay('menu'); });
-    $('o-start').onclick = () => { if (savedRun && !confirm('Neues Spiel starten? Der automatische Spielstand wird dabei ersetzt. Deine 💾 Speicherplätze bleiben erhalten.')) return; if (S && S.over && !S.paid) finishRun(); savedRun = null; newRun(pickMap, M.diff); saveMeta(); hideOverlay(); };
-    if ($('o-resume')) $('o-resume').onclick = () => resume(); if ($('o-close')) $('o-close').onclick = hideOverlay; if ($('o-save')) $('o-save').onclick = () => { menuTab = 'saves'; showOverlay('menu'); };
+    o.querySelectorAll('[data-gm]').forEach(b => b.onclick = () => { M.mode = b.dataset.gm; saveMeta(); showOverlay('menu'); });
+    $('o-wx').onchange = e => { M.wx = e.target.checked; saveMeta(); };
+    const leave = () => { if (S && S.coop && window.NET) NET.leave(); };
+    on('o-start', () => { if (savedRun && !(S && S.coop) && !confirm('Neues Spiel starten? Der automatische Spielstand wird dabei ersetzt. Deine 💾 Speicherplätze bleiben erhalten.')) return; leave(); if (S && S.over && !S.paid) finishRun(); savedRun = null; newRun(pickMap, M.diff, { goal: M.mode === 'goal' }); saveRun(); hideOverlay(); });
+    on('o-daily', () => { if (savedRun && !confirm('Tages-Challenge starten? Der automatische Spielstand wird dabei ersetzt. Deine 💾 Speicherplätze bleiben erhalten.')) return; leave(); if (S && S.over && !S.paid) finishRun(); newRun(c.map, 'normal', { ch: c }); saveRun(); hideOverlay(); toast('📅 Tages-Challenge: ' + chRules(c).join(' · '), 5000); });
+    on('o-resume', () => { leave(); resume(); }); on('o-close', hideOverlay); on('o-save', () => { menuTab = 'saves'; showOverlay('menu'); });
+    on('o-edit', () => { leave(); openEditor(); }); on('o-coop', () => showOverlay('coop')); on('o-maps', () => NET.browseMaps(o));
   } else if (menuTab === 'saves') {
-    const live = S && !S.over, d = live ? (S.active ? S.cp : runData()) : null, when = t => t ? new Date(t).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' Uhr' : '';
-    const card = (q, title, btns) => q ? `<div class="sv"><span class="se">${MAPS[q.map].e}</span><div class="t"><b>${title}</b><small>${MAPS[q.map].n} · ${DIFF[q.diff].n} · <b>Runde ${q.round}</b> · ❤️ ${fmt(q.lives)} · 💰 ${fmt(q.money)} · ${q.towers.length} Türme${q.at ? ' · ' + when(q.at) : ''}</small></div><div class="sb">${btns}</div></div>`
+    const d = live && !S.coop ? (S.active ? S.cp : runData()) : null, when = t => t ? new Date(t).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' Uhr' : '';
+    const card = (q, title, btns) => q ? `<div class="sv"><span class="se">${MAPS[q.map].e}</span><div class="t"><b>${title}</b><small>${esc(MAPS[q.map].n)} · ${DIFF[q.diff].n}${q.ch ? ' · Tages-Challenge' : q.goal ? ' · Ziel ' + q.goal : ''} · <b>Runde ${q.round}</b> · ❤️ ${fmt(q.lives)} · 💰 ${fmt(q.money)} · ${q.towers.length} Türme${q.at ? ' · ' + when(q.at) : ''}</small></div><div class="sb">${btns}</div></div>`
       : `<div class="sv empty"><span class="se">💾</span><div class="t"><b>${title}</b><small>Leer</small></div><div class="sb">${btns}</div></div>`;
     o.innerHTML = `<div class="card box"><h2>Spielstände</h2><p class="lead">Speichere dein Spiel in einen von ${SLOTS} Plätzen und mach später genau dort weiter. ${live && S.active ? 'Während einer Runde wird der Stand vom Rundenbeginn gespeichert.' : ''} Spielstände liegen in deinem Konto und gelten auf allen Geräten.</p>${tabs}
       <div class="svs">${card(savedRun, 'Automatisch (nach jeder Runde)', savedRun ? '<button class="btn go" data-load="auto">Laden</button>' : '')}
-      ${slots.map((q, i) => card(q, `Platz ${i + 1}`, `${q ? `<button class="btn go" data-load="${i}">Laden</button>` : ''}${live && d ? `<button class="btn" data-save="${i}">${q ? 'Überschreiben' : 'Hier speichern'}</button>` : ''}${q ? `<button class="btn bad" data-del="${i}" aria-label="Platz ${i + 1} löschen">🗑</button>` : ''}`)).join('')}</div>
+      ${slots.map((q, i) => card(q, `Platz ${i + 1}`, `${q ? `<button class="btn go" data-load="${i}">Laden</button>` : ''}${d ? `<button class="btn" data-save="${i}">${q ? 'Überschreiben' : 'Hier speichern'}</button>` : ''}${q ? `<button class="btn bad" data-del="${i}" aria-label="Platz ${i + 1} löschen">🗑</button>` : ''}`)).join('')}</div>
       <div class="row">${live ? '<button class="btn" id="o-close">Zurück zum Spiel</button>' : '<button class="btn" id="o-back">Zurück</button>'}</div></div>`;
-    o.querySelectorAll('[data-load]').forEach(b => b.onclick = () => { const k = b.dataset.load, q = k === 'auto' ? savedRun : slots[+k]; if (!q) return; if (live && !confirm('Das laufende Spiel wird dabei verlassen. Laden?')) return; if (S && S.over && !S.paid) finishRun(); loadRun(q); toast(`Spielstand geladen: Runde ${q.round}`); });
+    o.querySelectorAll('[data-load]').forEach(b => b.onclick = () => { const k = b.dataset.load, q = k === 'auto' ? savedRun : slots[+k]; if (!q) return; if (live && !confirm('Das laufende Spiel wird dabei verlassen. Laden?')) return; if (S && S.coop && window.NET) NET.leave(); if (S && S.over && !S.paid) finishRun(); loadRun(q); toast(`Spielstand geladen: Runde ${q.round}`); });
     o.querySelectorAll('[data-save]').forEach(b => b.onclick = () => { const i = +b.dataset.save; if (slots[i] && !confirm(`Platz ${i + 1} überschreiben?`)) return; saveSlot(i); showOverlay('menu'); });
     o.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { const i = +b.dataset.del; if (!confirm(`Spielstand in Platz ${i + 1} löschen?`)) return; deleteSlot(i); showOverlay('menu'); });
-    if ($('o-close')) $('o-close').onclick = hideOverlay; if ($('o-back')) $('o-back').onclick = () => { menuTab = 'play'; showOverlay('menu'); };
+    on('o-close', hideOverlay); on('o-back', () => { menuTab = 'play'; showOverlay('menu'); });
+  } else if (menuTab === 'board') {
+    o.innerHTML = `<div class="card box"><h2>🏆 Bestenliste</h2><p class="lead">Wer kommt am weitesten? Alle im Portal mit dem Recht „Web-Apps“ sehen deinen Vornamen und deine beste Runde.</p>${tabs}<div id="lb"></div><div class="row"><button class="btn" id="o-back">Zurück</button></div></div>`;
+    on('o-back', () => { menuTab = 'play'; showOverlay('menu'); });
+    if (window.NET) NET.renderBoard($('lb')); else $('lb').innerHTML = '<p class="note">Die Bestenliste braucht eine Anmeldung im Portal und eine Internetverbindung.</p>';
   } else if (menuTab === 'ach') {
     o.innerHTML = `<div class="card box"><h2>Erfolge</h2><p class="lead">${M.ach.length} von ${ACH.length} geschafft. Jeder Erfolg bringt 💎 und erscheint auch im Game Center.</p>${tabs}<div class="achs">${ACH.map(([id, e, n, d, dia]) => { const ok = M.ach.includes(id); return `<div class="ac${ok ? ' ok' : ''}"><span class="ae">${ok ? e : '🔒'}</span><div><b>${n}</b><small>${d}</small></div><span class="dia">${ok ? '✓' : '+' + dia + ' 💎'}</span></div>`; }).join('')}</div><div class="row"><button class="btn" id="o-back">Zurück</button></div></div>`;
-    $('o-back').onclick = () => { menuTab = 'play'; showOverlay('menu'); };
+    on('o-back', () => { menuTab = 'play'; showOverlay('menu'); });
   } else {
-    o.innerHTML = `<div class="card box"><h2>Verbesserungen</h2><p class="lead">Bezahle mit 💎 aus beendeten Spielen und Erfolgen. Die Boni gelten dauerhaft für jedes neue Spiel (nicht bei „Ein Leben“ für Leben).</p>${tabs}<div class="ml">${META.map(([k, n, d, c0, g]) => { const lv = M.up[k], cost = Math.ceil(c0 * Math.pow(g, lv)), max = lv >= META_MAX; return `<div class="mu"><div class="t"><b>${n}</b> <span class="lv">Stufe ${lv}/${META_MAX}</span><small>${d}</small></div><button class="btn${!max && M.diamonds >= cost ? ' go' : ''}" data-buy="${k}" ${max || M.diamonds < cost ? 'disabled' : ''}>${max ? 'Max' : cost + ' 💎'}</button></div>`; }).join('')}</div><div class="row"><button class="btn" id="o-back">Zurück</button></div></div>`;
-    o.querySelectorAll('[data-buy]').forEach(b => b.onclick = () => buyMeta(b.dataset.buy)); $('o-back').onclick = () => { menuTab = 'play'; showOverlay('menu'); };
+    o.innerHTML = `<div class="card box"><h2>Verbesserungen</h2><p class="lead">Bezahle mit 💎 aus beendeten Spielen und Erfolgen. Die Boni gelten dauerhaft für jedes neue Spiel (nicht bei „Ein Leben“ für Leben, nicht bei der Tages-Challenge für Startgeld und Leben).</p>${tabs}<div class="ml">${META.map(([k, n, d, c0, g]) => { const lv = M.up[k], cost = Math.ceil(c0 * Math.pow(g, lv)), max = lv >= META_MAX; return `<div class="mu"><div class="t"><b>${n}</b> <span class="lv">Stufe ${lv}/${META_MAX}</span><small>${d}</small></div><button class="btn${!max && M.diamonds >= cost ? ' go' : ''}" data-buy="${k}" ${max || M.diamonds < cost ? 'disabled' : ''}>${max ? 'Max' : cost + ' 💎'}</button></div>`; }).join('')}</div><div class="row"><button class="btn" id="o-back">Zurück</button></div></div>`;
+    o.querySelectorAll('[data-buy]').forEach(b => b.onclick = () => buyMeta(b.dataset.buy)); on('o-back', () => { menuTab = 'play'; showOverlay('menu'); });
   }
   o.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { menuTab = b.dataset.m; showOverlay('menu'); });
 }
 function buyMeta(k) { const m = META.find(x => x[0] === k); if (!m) return false; const lv = M.up[k], cost = Math.ceil(m[3] * Math.pow(m[4], lv)); if (lv >= META_MAX || M.diamonds < cost) return false; M.diamonds -= cost; M.up[k]++; saveMeta(); if (!$('ov').classList.contains('hidden')) showOverlay('menu'); return true; }
 const hideOverlay = () => $('ov').classList.add('hidden');
+// ================= Kartenbau =================
+// Wegpunkte anklicken; Anfang und Ende werden automatisch bis zum Rand verlängert
+function openEditor(base) { hideOverlay(); placing = null; selTower = null; EDIT = { pts: base ? base.pts.slice(1, -1).map(p => [...p]) : [], theme: base ? base.theme : 'wiese', title: base ? base.n : '', bgk: '' }; BG = null; $('stage').classList.add('editing'); renderAll(); toast('✏️ Klicke Wegpunkte auf das Spielfeld', 3200); }
+function closeEditor() { EDIT = null; $('stage').classList.remove('editing'); BG = null; if (S) { PATH = buildPath(S.map); curMap = S.map; } renderAll(); menuTab = 'play'; showOverlay('menu'); }
+function edgeOf(p) { const [x, y] = p, d = [x, W - x, y, H - y], m = Math.min(...d), i = d.indexOf(m); return i === 0 ? [-20, y] : i === 1 ? [W + 20, y] : i === 2 ? [x, -20] : [x, H + 20]; }
+function editorPts() { const p = EDIT.pts; return p.length ? [edgeOf(p[0]), ...p, edgeOf(p[p.length - 1])] : []; }
+function pathLen(pts) { let L = 0; for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return L; }
+function drawEditor() {
+  const k = cv.width / W, pts = editorPts(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+  const key = EDIT.theme + JSON.stringify(pts) + cv.width; if (EDIT.bgk !== key) { EDIT.bgk = key; const keepP = PATH; if (pts.length >= 2) { PATH = { segs: buildPathFrom(pts) }; EDIT.bg = bg(pts, EDIT.theme); } else { PATH = { segs: [{ x1: -999, y1: -999, x2: -998, y2: -999, len: 1, cum: 0 }] }; EDIT.bg = bg([[-999, -999], [-998, -999]], EDIT.theme); } PATH = keepP; }
+  ctx.drawImage(EDIT.bg, 0, 0); ctx.setTransform(k, 0, 0, k, 0, 0);
+  ctx.strokeStyle = 'rgba(15,23,42,.18)'; ctx.lineWidth = 1; ctx.beginPath(); for (let x = 40; x < W; x += 40) { ctx.moveTo(x, 0); ctx.lineTo(x, H); } for (let y = 40; y < H; y += 40) { ctx.moveTo(0, y); ctx.lineTo(W, y); } ctx.stroke();
+  EDIT.pts.forEach(([x, y], i) => { ctx.fillStyle = '#34d399'; ctx.strokeStyle = '#03170f'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 11, 0, TAU); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#03170f'; ctx.font = '800 11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(i + 1, x, y + .5); });
+  if (ghost && EDIT.pts.length) { const g = snap20(ghost), l = EDIT.pts[EDIT.pts.length - 1]; ctx.setLineDash([8, 6]); ctx.strokeStyle = '#34d399'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(l[0], l[1]); ctx.lineTo(g.x, g.y); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = 'rgba(52,211,153,.35)'; ctx.beginPath(); ctx.arc(g.x, g.y, 12, 0, TAU); ctx.fill(); }
+  else if (ghost) { const g = snap20(ghost); ctx.fillStyle = 'rgba(52,211,153,.35)'; ctx.beginPath(); ctx.arc(g.x, g.y, 12, 0, TAU); ctx.fill(); }
+}
+function buildPathFrom(pts) { const segs = []; let cum = 0; for (let i = 0; i < pts.length - 1; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[i + 1], len = Math.hypot(x2 - x1, y2 - y1) || .01; segs.push({ x1, y1, x2, y2, len, cum }); cum += len; } return segs; }
+const snap20 = p => ({ x: clamp(Math.round(p.x / 20) * 20, 20, W - 20), y: clamp(Math.round(p.y / 20) * 20, 20, H - 20) });
+function renderEditor() {
+  const pts = editorPts(), L = Math.round(pathLen(pts)), ok = EDIT.pts.length >= 2 && L >= 1200;
+  $('info').innerHTML = `<div class="help"><b>✏️ Kartenbau</b><br>Klicke Wegpunkte in der Reihenfolge, in der die Ballons laufen sollen. Anfang und Ende werden automatisch bis zum nächsten Rand verlängert. Rechtsklick nimmt den letzten Punkt zurück.</div>
+    <label class="fld"><span>Name der Karte</span><input id="ed-title" maxlength="30" value="${esc(EDIT.title)}" placeholder="z. B. Omas Garten"></label>
+    <div class="seg full">${[['wiese', '🌿 Wiese'], ['winter', '❄️ Winter'], ['wueste', '🌵 Wüste']].map(([k, l]) => `<button data-th="${k}" class="${EDIT.theme === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <div class="vet"><span>${EDIT.pts.length} Wegpunkte</span><b>${fmt(L)} px Weg</b><div class="bar"><i style="width:${Math.min(100, L / 1200 * 100)}%"></i></div><small>${ok ? 'Länge passt.' : 'Mindestens 2 Punkte und 1.200 px Weglänge.'}</small></div>
+    <div class="row2"><button class="btn" id="ed-undo" ${EDIT.pts.length ? '' : 'disabled'}>↶ Rückgängig</button><button class="btn" id="ed-clear" ${EDIT.pts.length ? '' : 'disabled'}>Leeren</button></div>
+    <div class="row2"><button class="btn" id="ed-test" ${ok ? '' : 'disabled'}>▶ Testen</button><button class="btn go" id="ed-save" ${ok ? '' : 'disabled'}>💾 Speichern${window.NET && NET.ok() ? ' & teilen' : ''}</button></div>
+    <button class="btn" style="width:100%;margin-top:8px" id="ed-close">Abbrechen</button>`;
+  const on = (id, f) => { $(id).onclick = f; };
+  $('ed-title').oninput = e => { EDIT.title = e.target.value; };
+  $('info').querySelectorAll('[data-th]').forEach(b => b.onclick = () => { EDIT.theme = b.dataset.th; renderEditor(); });
+  on('ed-undo', () => { EDIT.pts.pop(); renderEditor(); }); on('ed-clear', () => { EDIT.pts = []; renderEditor(); }); on('ed-close', closeEditor);
+  on('ed-test', () => { const id = 'test'; const k = registerCustom(id, { n: (EDIT.title || 'Testkarte') + ' (Test)', theme: EDIT.theme, pts: editorPts() }); EDIT = null; $('stage').classList.remove('editing'); newRun(k, M.diff); toast('Testlauf: Diese Karte ist noch nicht gespeichert.', 3500); });
+  on('ed-save', saveEditorMap);
+}
+async function saveEditorMap() {
+  const title = (EDIT.title || '').trim() || 'Meine Karte', pts = editorPts(), id = 'm' + Date.now().toString(36);
+  const def = { n: title.slice(0, 30), theme: EDIT.theme, pts, by: 'dir', mine: true };
+  if (window.NET && NET.ok()) { try { const r = await NET.publishMap(def); if (r) { def.remote = r.id; def.by = r.by; } } catch (e) { toast('Teilen fehlgeschlagen, nur auf diesem Konto gespeichert'); } }
+  M.custom[id] = def; registerCustom(id, def); M.best['c_' + id] = 0; saveMeta(); checkAch(); pickMap = 'c_' + id; EDIT = null; $('stage').classList.remove('editing'); toast(`💾 Karte „${def.n}“ gespeichert${def.remote ? ' und mit der Familie geteilt' : ''}`); menuTab = 'play'; renderAll(); showOverlay('menu');
+}
 // ================= Bedienung =================
 function toWorld(e) { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
-function setPlacing(id) { placing = placing === id ? null : id; selTower = null; ghost = null; renderAll(); }
+function setPlacing(id) { if (EDIT) return; if (id && !id.startsWith('item:') && !allowedType(id)) { toast('Heute nicht erlaubt'); return; } placing = placing === id ? null : id; moving = null; selTower = null; ghost = null; renderAll(); }
 function toggleGrid() { M.grid = !M.grid; saveMeta(); renderHud(); if (placing) renderInfo(); toast(M.grid ? 'Raster an: Türme rasten ein' : 'Raster aus: freies Platzieren'); }
+const lootAt = (p, r) => S.loot.findIndex(l => Math.hypot(l.x - p.x, l.y - p.y) < r);
 function wire() {
   $('shop').onclick = e => { const b = e.target.closest('[data-t]'); if (b) setPlacing(b.dataset.t); };
-  cv.addEventListener('pointermove', e => { if (placing) ghost = toWorld(e); });
-  cv.addEventListener('pointerleave', () => { if (placing && matchMedia('(hover: hover)').matches) ghost = null; });
+  $('shop2').onclick = e => { const b = e.target.closest('[data-t]'), it = e.target.closest('[data-item]'), tp = e.target.closest('[data-tpl]');
+    if (b) setPlacing(b.dataset.t); else if (it) { if (it.dataset.item === 'heart') useItem('heart'); else setPlacing('item:' + it.dataset.item); } else if (tp) { if (tp.dataset.tpl === 'save') saveTemplate(); else buildTemplate(); } };
+  cv.addEventListener('pointermove', e => { const p = toWorld(e); if (placing || moving || EDIT) ghost = p; if (S && !EDIT && e.pointerType === 'mouse' && S.loot.length) { const i = lootAt(p, 18); if (i >= 0) collect(i); } });
+  cv.addEventListener('pointerleave', () => { if (matchMedia('(hover: hover)').matches) ghost = null; });
   cv.addEventListener('pointerdown', e => {
-    if (!S || S.over || e.button === 2) return; const p = toWorld(e);
-    if (placing) { ghost = p; const q = snap(p), t = place(placing, q.x, q.y); if (t) { if (!e.shiftKey) { placing = null; } selTower = t; renderAll(); } else if (S.money < price(TOWERS[placing].cost)) toast('Nicht genug Geld'); else toast('Hier kann kein Turm stehen'); return; }
+    if (e.button === 2) return; const p = toWorld(e);
+    if (EDIT) { const g = snap20(p), l = EDIT.pts[EDIT.pts.length - 1]; if (!l || l[0] !== g.x || l[1] !== g.y) { if (EDIT.pts.length >= 40) return toast('Höchstens 40 Wegpunkte'); EDIT.pts.push([g.x, g.y]); renderEditor(); } return; }
+    if (!S || S.over) return;
+    const li = lootAt(p, 24); if (li >= 0 && !placing && !moving) { collect(li); return; }
+    if (moving) { const q = snap(p); if (moveTower(moving, q.x, q.y)) { selTower = moving; moving = null; renderAll(); } else toast(S.money < moveCost(moving) ? 'Nicht genug Geld' : 'Hier kann der Turm nicht stehen'); return; }
+    if (placing && placing.startsWith('item:')) { if (useItem(placing.slice(5), p.x, p.y) && !e.shiftKey) { placing = null; renderAll(); } return; }
+    if (placing) { ghost = p; const q = snap(p), t = place(placing, q.x, q.y); if (t) { if (!e.shiftKey || isHero(placing)) { placing = null; } selTower = t; renderAll(); } else if (S.money < price(TOWERS[placing].cost)) toast('Nicht genug Geld'); else if (isHero(placing) && S.towers.some(x => isHero(x.t))) toast('Nur ein Held pro Spiel'); else toast(S.coop && !mySide(q.x) ? 'Das ist die Hälfte deines Mitspielers' : 'Hier kann kein Turm stehen'); return; }
     let near = null, nd = 26; for (const t of S.towers) { const d = Math.hypot(t.x - p.x, t.y - p.y); if (d < nd) { near = t; nd = d; } } selTower = near; abilKey = ''; renderAll();
   });
-  cv.addEventListener('contextmenu', e => { e.preventDefault(); placing = null; renderAll(); });
+  cv.addEventListener('contextmenu', e => { e.preventDefault(); if (EDIT) { EDIT.pts.pop(); renderEditor(); return; } placing = null; moving = null; renderAll(); });
   $('info').onclick = e => {
-    const t = selTower; if (!t) return; const u = e.target.closest('[data-up]'), m = e.target.closest('[data-mode]'), s = e.target.closest('[data-sell]');
-    if (u) { if (!upgrade(t, u.dataset.up)) toast('Nicht genug Geld'); } else if (e.target.closest('[data-radar]')) { if (!buyRadar(t)) toast('Nicht genug Geld'); } else if (e.target.closest('[data-abil]')) useAbility(t);
-    else if (m) { t.mode = m.dataset.mode; renderInfo(); } else if (s && confirm('Turm verkaufen?')) sell(t);
+    const t = selTower; if (!t || EDIT) return; const u = e.target.closest('[data-up]'), m = e.target.closest('[data-mode]'), s = e.target.closest('[data-sell]');
+    if (u) { if (!upgrade(t, u.dataset.up)) toast('Nicht genug Geld'); } else if (e.target.closest('[data-radar]')) { if (!buyRadar(t)) toast('Nicht genug Geld'); } else if (e.target.closest('[data-abil]')) { if (guest()) netAct('abil1', { x: t.x, y: t.y }); useAbility(t); }
+    else if (e.target.closest('[data-move]')) { if (S.money < moveCost(t)) return toast('Nicht genug Geld'); moving = t; placing = null; selTower = null; ghost = null; renderAll(); }
+    else if (m) { t.mode = m.dataset.mode; netAct('mode', { x: t.x, y: t.y, m: t.mode }); renderInfo(); } else if (s && !s.disabled && confirm('Turm verkaufen?')) sell(t);
   };
   $('abil').onclick = e => { const b = e.target.closest('[data-abt]'); if (b) useGroup(b.dataset.abt); };
-  $('b-start').onclick = () => startRound(); $('b-speed').onclick = () => { S.speed = S.speed % 3 + 1; renderHud(); }; $('b-pause').onclick = () => { S.paused = !S.paused; renderHud(); };
-  $('b-auto').onclick = () => { S.auto = !S.auto; if (S.auto && !S.active) S.autoIn = 0.3; renderHud(); };
+  const speed = () => { if (guest()) return; S.speed = S.speed % 4 + 1; renderHud(); netSnap(true); };
+  $('b-start').onclick = () => startRound(); $('b-speed').onclick = speed; $('b-pause').onclick = () => { if (guest()) return; S.paused = !S.paused; renderHud(); };
+  $('b-auto').onclick = () => { if (guest()) return; S.auto = !S.auto; if (S.auto && !S.active) S.autoIn = 0.3; renderHud(); };
   $('b-grid').onclick = toggleGrid; $('b-snd').onclick = () => { M.snd = !M.snd; saveMeta(); renderHud(); if (M.snd) sfx('pop'); };
-  $('b-menu').onclick = () => { menuTab = 'play'; showOverlay('menu'); };
+  $('b-menu').onclick = () => { if (EDIT) return closeEditor(); menuTab = 'play'; showOverlay('menu'); };
   document.addEventListener('keydown', e => {
-    if (!S || /INPUT|TEXTAREA/.test(e.target.tagName) || e.ctrlKey || e.metaKey || e.altKey) return; const k = e.key.toLowerCase();
-    const t = Object.entries(TOWERS).find(([, d]) => d.key === e.key); if (t && !S.over) return setPlacing(t[0]);
-    if (k === 'escape') { placing = null; selTower = null; renderAll(); } else if (k === ' ') { e.preventDefault(); startRound(); } else if (k === 'f') { S.speed = S.speed % 3 + 1; renderHud(); } else if (k === 'p') { S.paused = !S.paused; renderHud(); }
+    if (!S || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.ctrlKey || e.metaKey || e.altKey || EDIT) return; const k = e.key.toLowerCase();
+    const t = Object.entries(TOWERS).find(([, d]) => d.key && d.key === k); if (t && !S.over) return setPlacing(t[0]);
+    if (k === 'escape') { placing = null; selTower = null; moving = null; renderAll(); } else if (k === ' ') { e.preventDefault(); startRound(); } else if (k === 'f') speed(); else if (k === 'p' && !guest()) { S.paused = !S.paused; renderHud(); }
     else if (k === 'g') toggleGrid(); else if (k === 'q') { const c = selTower && hasAbil(selTower) && selTower.abCd <= 0 ? selTower : S.towers.find(x => hasAbil(x) && x.abCd <= 0); if (c) useGroup(c.t); }
   });
-  window.addEventListener('resize', fit); window.addEventListener('pagehide', () => { idleSave(); saveMeta(); }); document.addEventListener('visibilitychange', () => { if (document.hidden) { idleSave(); if (S && S.active) { S.paused = true; renderHud(); } } else lastT = performance.now(); });
+  window.addEventListener('resize', fit); window.addEventListener('pagehide', () => { idleSave(); saveMeta(); }); document.addEventListener('visibilitychange', () => { if (document.hidden) { idleSave(); if (S && S.active && !S.coop) { S.paused = true; renderHud(); } } else lastT = performance.now(); });
 }
 let achT = 0, infoT = 0;
 function loop(now) {
-  const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now; if (S && !S.over && !S.paused) { acc += dt * S.speed; let n = 0; while (acc >= DT && n < 24) { step(); acc -= DT; n++; } if (acc > DT * 24) acc = 0; }
-  draw(); const h = $('h-money'); if (S && h.textContent !== fmt(S.money)) { renderHud(); renderShop(); if (selTower) renderInfo(); } else if (S) { renderHud(); }
-  if (S && (achT += dt) > 1) { achT = 0; checkAch(); } if (S && selTower && (infoT += dt) > .5) { infoT = 0; renderInfo(); }
+  const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now; if (S && !S.over && !S.paused && !EDIT) { acc += dt * S.speed; let n = 0; while (acc >= DT && n < 40) { step(); acc -= DT; n++; } if (acc > DT * 40) acc = 0; }
+  draw(); if (!EDIT && S) { const h = $('h-money'); if (h.textContent !== fmt(S.money)) { renderHud(); renderShop(); if (selTower) renderInfo(); } else renderHud();
+    if ((achT += dt) > 1) { achT = 0; checkAch(); } if (selTower && (infoT += dt) > .5) { infoT = 0; renderInfo(); } if (window.NET) NET.tick(dt); }
   requestAnimationFrame(loop);
 }
 // ================= Start =================
 GameSave.ready([KEY], { reloadOnRemote: true, badge: true }).then(() => {      // Spielstand erst mit dem Konto abgleichen, dann starten
-load(); pickMap = 'wiese'; newRun('wiese', M.diff); wire(); fit(); showOverlay('menu'); requestAnimationFrame(loop);
+load(); pickMap = 'wiese'; newRun('wiese', M.diff); wire(); fit(); showOverlay('menu'); requestAnimationFrame(loop); if (window.NET) NET.init();
 // Spielzeit und "zuletzt gespielt" für das Game Center (nur solange die Seite sichtbar ist)
 setInterval(() => { if (document.hidden) return; M.playMs += 5000; M.last = Date.now(); saveMeta(); }, 5000);
-window.TD = { get S() { return S; }, get M() { return M; }, step(n = 1) { for (let i = 0; i < n; i++) step(); }, place, upgrade, sell, buyRadar, useAbility, useGroup, startRound, newRun, waveFor, preview, validSpot, distToPath, posAt, get pathLen() { return PATH.len; }, stats, price, hit, spawn, endRound, gameOver, buyMeta, saveRun, load, resume, loadRun, saveSlot, deleteSlot, retryRound, finishRun, get slots() { return slots; }, sanitize, checkAch, snap, get savedRun() { return savedRun; }, set savedRun(v) { savedRun = v; }, TOWERS, MAPS, ACH, tower(i) { return S.towers[i]; }, select(t) { selTower = t; renderAll(); }, setM(o) { Object.assign(M, o); saveMeta(); }, mapOpen, setPlacing, set ghost(p) { ghost = p; } };
+window.TD = { get S() { return S; }, get M() { return M; }, step(n = 1) { for (let i = 0; i < n; i++) step(); }, place, upgrade, sell, buyRadar, useAbility, useGroup, useItem, collect, moveTower, saveTemplate, buildTemplate, startRound, newRun, waveFor, preview, weatherFor, daily, validSpot, distToPath, posAt, nearestD, get pathLen() { return PATH.len; }, stats, price, hit, spawn, endRound, gameOver, winGoal, buyMeta, saveRun, load, resume, loadRun, saveSlot, deleteSlot, retryRound, finishRun, sanitize, checkAch, snap, heroLvl, gainXp, registerCustom, openEditor, closeEditor, get EDIT() { return EDIT; }, get slots() { return slots; }, get savedRun() { return savedRun; }, set savedRun(v) { savedRun = v; }, TOWERS, MAPS, ACH, tower(i) { return S.towers[i]; }, select(t) { selTower = t; renderAll(); }, setM(o) { Object.assign(M, o); saveMeta(); }, mapOpen, setPlacing, set ghost(p) { ghost = p; }, statsHtml, showOverlay };
 });
 </script>
+
+<script src="online.js"></script>
 </body>
 </html>
