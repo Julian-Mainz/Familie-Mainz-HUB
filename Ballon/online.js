@@ -62,7 +62,7 @@
   function code() { let s = ''; const r = crypto.getRandomValues(new Uint32Array(6)); for (let i = 0; i < 6; i++) s += CODE_CH[r[i] % CODE_CH.length]; return s; }
   function stop() { const R = N.room; if (!R) return; (R.unsub || (() => {}))(); (R.actsUnsub || (() => {}))(); N.room = null; }
   async function leave() { const R = N.room; if (!R) return; stop(); if (S && S.coop) S.coop = null; if (R.role === 'host') { try { await roomRef(R.code).delete(); } catch (e) {} } }
-  function rerender() { const o = $('ov'); if (o && !o.classList.contains('hidden') && o.querySelector('[data-coop]')) render(o); }
+  function rerender() { const o = $('ov'); if (o && !o.classList.contains('hidden') && o.querySelector('[data-coop]')) render($('ovm') || o); }
   async function host() {
     const c = code(), m = MAPS[pickMap], def = m.custom ? { n: m.n, theme: m.theme, pts: flat(m.pts) } : null;
     await roomRef(c).set({ host: N.user.uid, hostName: N.name, guest: null, guestName: null, map: pickMap, diff: M.diff, mapDef: def, state: 'lobby', at: TS() });
@@ -71,7 +71,7 @@
     rerender();
   }
   async function startHost() {
-    const R = N.room; if (!R || R.role !== 'host') return; newRun(R.map, R.diff, { coop: { role: 'host', code: R.code, other: R.other } }); $('ov').classList.add('hidden');
+    const R = N.room; if (!R || R.role !== 'host') return; newRun(R.map, R.diff, { coop: { role: 'host', code: R.code, other: R.other } }); hideOverlay();
     await roomRef(R.code).update({ state: 'play', snap: JSON.stringify(snapState()), at: TS() }).catch(() => {});
     R.actsUnsub = roomRef(R.code).collection('acts').orderBy('at').onSnapshot(s => s.docChanges().forEach(ch => { if (ch.type !== 'added' || R.seen.has(ch.doc.id)) return; R.seen.add(ch.doc.id); const a = ch.doc.data(); if (a.by !== N.user.uid) apply(a); }), () => {});
   }
@@ -86,7 +86,7 @@
       N.room = { code: c, role: 'guest', other: d.hostName, map, diff: d.diff, seen: new Set() }; rerender();
       N.room.unsub = roomRef(c).onSnapshot(sn => {
         if (!sn.exists) { if (S && S.coop) { toast('Der Gastgeber hat das Spiel beendet', 4000); S.coop = null; S.over = true; S.paid = true; showOverlay('menu'); } stop(); return; }
-        const x = sn.data(); if (x.state === 'play' && (!S || !S.coop)) { newRun(N.room.map, N.room.diff, { coop: { role: 'guest', code: c, other: x.hostName } }); $('ov').classList.add('hidden'); toast(`🤝 Spiel mit ${x.hostName} läuft. Du baust auf der rechten Hälfte.`, 4500); }
+        const x = sn.data(); if (x.state === 'play' && (!S || !S.coop)) { newRun(N.room.map, N.room.diff, { coop: { role: 'guest', code: c, other: x.hostName } }); hideOverlay(); toast(`🤝 Spiel mit ${x.hostName} läuft. Du baust auf der rechten Hälfte.`, 4500); }
         if (x.snap && S && S.coop) { try { applySnap(JSON.parse(x.snap)); } catch (e) {} }
       }, () => {});
     } catch (e) { toast(e && e.code === 'permission-denied' ? 'Kein Zugriff: Die neuen Datenbank-Regeln fehlen noch.' : 'Beitreten fehlgeschlagen'); }
