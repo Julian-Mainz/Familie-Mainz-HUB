@@ -232,7 +232,7 @@
         let st = null, fetchedAt = 0, devices = [], seeking = false, pollT = null, devT = 0, lastVol = 0;
         let lastActive = sessionStorage.getItem('sp_last_active') || '', lastTransferAt = 0, polled = false; const names = {};
         const stopPolling = () => { clearInterval(pollT); pollT = null; };
-        function startPolling() { if (pollT) return; poll(); loadDevices(); pollT = setInterval(() => { poll(); if (Date.now() - devT > 12000) loadDevices(); }, 3000); }
+        function startPolling() { if (pollT) return; poll(); loadDevices(); pollT = setInterval(() => { if (document.hidden && performance.now() - fetchedAt < 15000) return; poll(); if (!document.hidden && Date.now() - devT > 12000) loadDevices(); }, 3000); }   // im Hintergrund-Tab nur alle 15 s (Schlaf-Timer braucht den Titel)
         async function poll() {
             if (document.hidden || Date.now() < backoffUntil) return;
             try {
@@ -286,7 +286,7 @@
             const it = st && st.item; if (!it || seeking) return;
             const c = Math.min(cur(), it.duration_ms); setT($('t-pos'), mmss(c)); $('seek').value = Math.round(c / it.duration_ms * 1000);
         }
-        setInterval(renderProgress, 500);
+        setInterval(() => { if (!document.hidden) renderProgress(); }, 500);
         function renderDevices() {
             const icon = { Smartphone: 'fa-mobile-screen', Computer: 'fa-laptop', TV: 'fa-tv', Tablet: 'fa-tablet-screen-button' };
             const webRow = devices.some(d => d.id === web.id) ? '' : `<button data-web="1" class="row dev web"><i class="fa-solid fa-globe di"></i><span class="n"><span class="ell">Dieser Browser</span><small>${web.err ? esc(web.err) : web.loading && !web.ready ? 'Wird verbunden …' : 'Direkt hier hören (Premium)'}</small></span><small class="sw2">${web.err ? '' : 'Hier abspielen'}</small></button>`;

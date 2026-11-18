@@ -31,7 +31,8 @@ body.ux ::-webkit-scrollbar { width: 5px; height: 5px; } body.ux ::-webkit-scrol
 .ux-btn.pri { border: 0; color: #fff; background: linear-gradient(135deg, var(--m), var(--m2)); box-shadow: 0 12px 28px -8px rgba(var(--mr), .75); } .ux-btn.pri:hover { filter: brightness(1.08); box-shadow: 0 16px 34px -8px rgba(var(--mr), .9); }
 .ux-btn.stop { border: 0; color: #fff; background: linear-gradient(135deg, #f43f5e, #fb7185); box-shadow: 0 12px 28px -8px rgba(244, 63, 94, .7); } .ux-btn.stop:hover { filter: brightness(1.08); background: linear-gradient(135deg, #f43f5e, #fb7185); }
 .ux-btn.wide { width: 100%; padding: 14px 18px; font-size: 15px; border-radius: 17px; } .ux-btn:disabled { opacity: .55; cursor: progress; transform: none; }
-.ux-btn.run { animation: uxGlow 2.4s ease-in-out infinite; }
+.ux-btn.run { position: relative; }
+.ux-btn.run::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 12px 38px -4px rgba(244, 63, 94, .85); opacity: 0; animation: uxGlowO 2.4s ease-in-out infinite; pointer-events: none; }      /* Leuchten nur über opacity */
 .ux-ib { width: 34px; height: 34px; flex: none; border-radius: 12px; border: 1px solid rgba(148, 163, 184, .16); background: rgba(255, 255, 255, .04); color: #94a3b8; display: inline-grid; place-items: center; font-size: 13px; cursor: pointer; transition: background-color .2s, color .2s, transform .2s; }
 .ux-ib:hover { color: #fff; background: rgba(var(--mr), .22); transform: translateY(-1px); } .ux-ib.bad:hover { color: #fecdd3; background: rgba(244, 63, 94, .22); }
 
@@ -64,7 +65,7 @@ body.ux ::-webkit-scrollbar { width: 5px; height: 5px; } body.ux ::-webkit-scrol
 .chip.g { color: #86efac; background: rgba(34, 197, 94, .12); border-color: rgba(34, 197, 94, .3); } .chip.r { color: #fda4af; background: rgba(244, 63, 94, .12); border-color: rgba(244, 63, 94, .3); }
 .chip.a { color: #fcd34d; background: rgba(245, 158, 11, .12); border-color: rgba(245, 158, 11, .3); } .chip.b { color: #7dd3fc; background: rgba(14, 165, 233, .12); border-color: rgba(14, 165, 233, .3); } .chip.p { color: #c4b5fd; background: rgba(139, 92, 246, .12); border-color: rgba(139, 92, 246, .3); }
 button.chip { cursor: pointer; transition: background-color .2s, border-color .2s, transform .15s; } button.chip:hover { background: rgba(var(--mr), .2); border-color: rgba(var(--mr), .45); } button.chip.on { color: #fff; background: linear-gradient(135deg, var(--m), var(--m2)); border-color: transparent; box-shadow: 0 6px 16px -6px rgba(var(--mr), .7); }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; animation: uxPulse 2.4s infinite; flex: none; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; flex: none; position: relative; } .dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: rgba(74, 222, 128, .6); animation: uiRing 2.4s infinite; pointer-events: none; }
 .ux-seg { flex: none; display: inline-flex; padding: 4px; border-radius: 17px; background: rgba(2, 6, 16, .6); border: 1px solid rgba(148, 163, 184, .16); position: relative; max-width: 100%; overflow-x: auto; }
 .ux-seg button { position: relative; z-index: 1; padding: 9px 18px; font: inherit; font-size: 13.5px; font-weight: 600; color: #94a3b8; border: 0; border-radius: 13px; background: none; cursor: pointer; white-space: nowrap; transition: color .2s; } .ux-seg button:hover { color: #e2e8f0; }
 .ux-seg button.on { color: #fff; background: linear-gradient(135deg, var(--m), var(--m2)); box-shadow: 0 8px 20px -6px rgba(var(--mr), .7); animation: uxPop .35s cubic-bezier(.2, .9, .3, 1.2); }
@@ -92,6 +93,8 @@ button.chip { cursor: pointer; transition: background-color .2s, border-color .2
 /* ----- Listen ----- */
 .day { margin: 14px 0 4px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #64748b; display: flex; gap: 10px; align-items: center; } .day::after { content: ""; flex: 1; height: 1px; background: rgba(148, 163, 184, .12); } .day:first-child { margin-top: 0; }
 .row { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 18px; border: 1px solid rgba(148, 163, 184, .1); background: rgba(255, 255, 255, .025); margin-top: 8px; transition: background-color .2s, border-color .2s, transform .2s; animation: uiRise .45s var(--ui-ease, cubic-bezier(.2, .8, .2, 1)) backwards; }
+/* Lange Listen: Zeilen außerhalb des Bildschirms werden nicht gezeichnet */
+.row { content-visibility: auto; contain-intrinsic-size: auto 68px; }
 .row:hover { background: rgba(255, 255, 255, .05); border-color: rgba(var(--mr), .3); transform: translateX(2px); }
 .row .tile { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 17px; color: var(--c, var(--m)); background: rgba(var(--cr, var(--mr)), .14); flex: none; }
 .row .n { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; } .row .n small { display: block; font-size: 12px; color: #94a3b8; font-weight: 400; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .row .n .ell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -140,5 +143,6 @@ button.chip { cursor: pointer; transition: background-color .2s, border-color .2
 @keyframes uxGrow { from { transform: scaleY(0); opacity: .2; } to { transform: none; opacity: 1; } }
 @keyframes uxFloat { 50% { transform: translateY(-5px); } }
 @keyframes uxPulse { 0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, .6); } 70% { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0); } 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } }
+@keyframes uxGlowO { 50% { opacity: 1; } }
 @keyframes uxGlow { 50% { box-shadow: 0 12px 38px -4px rgba(244, 63, 94, .85); } }
 @keyframes uxShimmer { to { background-position: -200% 0; } }

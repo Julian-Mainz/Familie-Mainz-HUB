@@ -24,6 +24,49 @@
     <script src="/js/ux.js"></script>
     <script src="/js/layout.js"></script>
     <script src="/js/drawer.js"></script>
+    <style>
+        .ux-seg button i { margin-right: 7px; } @media (max-width: 700px) { .ux-seg button i { display: none; } .ux-seg button { padding: 9px 12px; } }
+        /* Monatskalender */
+        .mc-head { display: flex; align-items: center; justify-content: center; gap: 16px; margin: -2px 0 12px; }
+        .mc-head b { font-size: 18px; font-weight: 600; min-width: 170px; text-align: center; }
+        .mc { display: grid; grid-template-columns: 44px repeat(7, minmax(0, 1fr)); gap: 6px; align-items: center; }
+        .mc .wd { font-size: 12.5px; font-weight: 600; color: #cbd5e1; text-align: center; } .mc .wd.we { color: #c4b5fd; }
+        .mc .kw { font-size: 11.5px; color: #cbd5e1; font-weight: 600; white-space: nowrap; }
+        .cd { --c: 20, 184, 166; position: relative; height: 46px; border-radius: 9px; display: block; padding: 6px 8px; font: inherit; font-size: 14px; font-weight: 600; text-align: left; color: #f1f5f9; font-variant-numeric: tabular-nums;
+             background: linear-gradient(180deg, rgba(var(--c), .42), rgba(var(--c), .26)); border: 1px solid rgba(var(--c), .55); cursor: pointer; transition: transform .15s, border-color .15s; contain: layout paint; }
+        .cd:hover { transform: translateY(-1px); border-color: rgba(var(--c), .95); } .cd:focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
+        .cd i { position: absolute; right: 7px; bottom: 6px; font-size: 12px; } .cd em { position: absolute; right: 7px; bottom: 5px; font-style: normal; font-size: 10.5px; font-weight: 600; color: rgba(255, 255, 255, .72); }
+        .cd.out { opacity: .35; } .cd.fut { opacity: .8; }
+        .cd.we { --c: 124, 58, 237; background: linear-gradient(180deg, rgba(var(--c), .26), rgba(var(--c), .16)); border-color: rgba(var(--c), .35); }
+        .cd.flex { --c: 168, 85, 247; background: linear-gradient(180deg, rgba(var(--c), .75), rgba(var(--c), .55)); }
+        .cd.vacation { --c: 234, 179, 8; background: linear-gradient(180deg, rgba(var(--c), .85), rgba(var(--c), .62)); }
+        .cd.sick { --c: 239, 68, 68; background: linear-gradient(180deg, rgba(var(--c), .7), rgba(var(--c), .5)); }
+        .cd.hol { --c: 59, 130, 246; background: linear-gradient(180deg, rgba(var(--c), .7), rgba(var(--c), .5)); }
+        .cd.today { border: 2px solid #22d3ee; box-shadow: 0 0 0 3px rgba(34, 211, 238, .18); }
+        .mc-leg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; margin-top: 16px; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(148, 163, 184, .14); background: rgba(2, 6, 16, .35); }
+        .mc-leg span { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #e2e8f0; }
+        .mc-leg .cd { width: 30px; height: 26px; padding: 0; cursor: default; display: grid; place-items: center; flex: none; } .mc-leg .cd:hover { transform: none; } .mc-leg .cd i { position: static; font-size: 11px; }
+        @media (max-width: 600px) { .mc { grid-template-columns: 36px repeat(7, minmax(0, 1fr)); gap: 4px; } .mc .kw { font-size: 10px; } .cd { height: 38px; padding: 5px 6px; font-size: 13px; } .cd em { display: none; } .cd i { right: 5px; bottom: 4px; font-size: 10px; } .mc-head b { font-size: 16px; min-width: 140px; } .mc-leg { padding: 12px; gap: 8px 10px; } .mc-leg span { font-size: 12px; gap: 8px; } }
+        /* Tagesmenü */
+        .cal-pop { position: fixed; z-index: 80; width: 270px; max-width: calc(100vw - 24px); padding: 14px; border-radius: 18px; background: #0f172a; border: 1px solid rgba(148, 163, 184, .25); box-shadow: 0 22px 44px rgba(0, 0, 0, .55); animation: uiFade .15s ease; }
+        .cal-pop h4 { margin: 0 0 3px; font-size: 14px; display: flex; align-items: center; gap: 8px; } .cal-pop h4 button { margin-left: auto; width: 28px; height: 28px; }
+        .cal-pop .ux-note { margin-bottom: 10px; } .cal-pop .acts { display: grid; gap: 6px; }
+        .cal-pop .acts button { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 11px; border: 1px solid rgba(148, 163, 184, .16); background: rgba(255, 255, 255, .04); color: #e2e8f0; font: inherit; font-size: 13px; cursor: pointer; text-align: left; transition: background-color .15s, border-color .15s; }
+        .cal-pop .acts button:hover { background: rgba(var(--mr), .16); border-color: rgba(var(--mr), .4); } .cal-pop .acts button i { width: 16px; text-align: center; }
+        .cal-pop .acts button.cur { border-color: rgba(var(--mr), .6); background: rgba(var(--mr), .12); } .cal-pop .acts small { margin-left: auto; color: #94a3b8; font-size: 11.5px; }
+        @media (max-width: 600px) { .cal-pop { left: 12px !important; right: 12px; top: auto !important; bottom: 12px; width: auto; max-width: none; } }
+        /* Überstundenkonto */
+        .ux-kpi .l .ot-ed { margin-left: auto; width: 30px; height: 30px; font-size: 12px; }
+        .ot-sign { display: flex; gap: 6px; } .ot-sign button { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid rgba(148, 163, 184, .2); background: rgba(255, 255, 255, .04); color: #cbd5e1; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .ot-sign button.on { background: linear-gradient(135deg, var(--m), var(--m2)); color: #fff; border-color: transparent; }
+        .ux-btn.bad { color: #fda4af; } .ux-btn.bad:hover { background: rgba(244, 63, 94, .16); border-color: rgba(244, 63, 94, .45); } .ux-acts .ux-btn.bad { margin-right: auto; }
+        /* Abwesenheiten */
+        .abs-k { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+        .abs-k div { --c: 148, 163, 184; padding: 12px 14px; border-radius: 16px; background: rgba(var(--c), .1); border: 1px solid rgba(var(--c), .3); }
+        .abs-k b { display: block; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; } .abs-k small { color: #cbd5e1; font-size: 12px; display: flex; align-items: center; gap: 6px; }
+        #abs-list { max-height: 360px; overflow-y: auto; }
+        @media (max-width: 560px) { .abs-k { gap: 6px; } .abs-k div { padding: 10px; } .abs-k b { font-size: 19px; } }
+    </style>
 </head>
 <body class="ux">
 <main class="ux-page" style="--m:#34d399;--m2:#06b6d4;--mr:52,211,153">
@@ -32,14 +75,20 @@
         <div class="ux-ico"><i class="fa-solid fa-business-time"></i></div>
         <div><h1 class="ux-h1">Zeiterfassung</h1><div class="ux-sub" id="ux-date">&nbsp;</div></div>
         <div class="ux-sp"></div>
+        <div class="ux-seg" role="tablist">
+            <button class="tab" data-tab="ov" onclick="showTab('ov')"><i class="fa-solid fa-gauge-high"></i>Übersicht</button>
+            <button class="tab" data-tab="zeiten" onclick="showTab('zeiten')"><i class="fa-solid fa-list-check"></i>Zeiten</button>
+            <button class="tab" data-tab="abw" onclick="showTab('abw')"><i class="fa-solid fa-umbrella-beach"></i>Abwesenheit</button>
+        </div>
         <div class="ux-pill"><button type="button" onclick="monthShift(1)" aria-label="Älterer Monat"><i class="fa-solid fa-chevron-left"></i></button>
             <select id="work-filter-month" onchange="renderAll(false)" aria-label="Monat wählen"></select>
             <button type="button" onclick="monthShift(-1)" aria-label="Neuerer Monat"><i class="fa-solid fa-chevron-right"></i></button></div>
-        <button class="ux-btn" id="lay-btn" onclick="Layout.toggle()" title="Karten verschieben, Breite ändern, ausblenden"><i class="fa-solid fa-table-columns"></i>Anpassen</button>
+        <button class="ux-btn" id="lay-btn" onclick="Layout.toggle()" title="Karten und Reiter verschieben, Breite ändern, ausblenden"><i class="fa-solid fa-table-columns"></i>Anpassen</button>
         <button class="ux-btn" onclick="openVacReq()"><i class="fa-solid fa-file-pdf"></i>Urlaubsantrag</button>
     </div>
 
-    <div class="ux-grid lay-grid" id="lay">
+    <!-- ===== Reiter: Übersicht ===== -->
+    <div class="ux-grid lay-grid" id="tab-ov">
         <!-- Stempeluhr -->
         <section class="ux-card glow" id="mod-stamp">
             <div class="ux-t"><i class="fa-solid fa-stopwatch"></i>Stempeluhr<small><span id="work-status-badge" class="chip">Inaktiv</span>
@@ -59,57 +108,73 @@
             <button id="btn-toggle-work" onclick="toggleWorkSession()" class="ux-btn wide pri"></button>
         </section>
 
-        <!-- Kennzahlen des Monats -->
-            <section class="ux-card ux-kpi" id="mod-ist"><div class="l"><i class="fa-solid fa-clock"></i>Ist im Monat</div><div class="v" id="m-ist">–</div><span class="chip g" id="m-days"></span>
-                <svg class="spark" width="110" height="46" viewBox="0 0 110 46" aria-hidden="true"><path d="M0 38 C14 34 20 30 32 28 S52 24 62 18 S88 12 110 4" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round"/></svg></section>
-            <section class="ux-card ux-kpi" id="mod-soll"><div class="l"><i class="fa-solid fa-check"></i>Soll (bis heute)</div><div class="v" id="m-soll">–</div><span class="chip">Tagessoll <span id="cfg-day"></span></span>
-                <svg class="spark" width="110" height="46" viewBox="0 0 110 46" aria-hidden="true"><path d="M0 40 L110 6" fill="none" stroke="#64748b" stroke-width="3" stroke-dasharray="2 7" stroke-linecap="round"/></svg></section>
+        <!-- Kalender und Kennzahlen -->
+        <section class="ux-card" id="mod-cal">
+            <div class="ux-t"><i class="fa-solid fa-calendar-days"></i>Monatskalender<small><span class="chip" id="cal-soll"></span></small></div>
+            <div class="mc-head"><button class="ux-ib" type="button" onclick="monthShift(1)" aria-label="Vorheriger Monat"><i class="fa-solid fa-chevron-left"></i></button><b id="cal-title"></b><button class="ux-ib" type="button" onclick="monthShift(-1)" aria-label="Nächster Monat"><i class="fa-solid fa-chevron-right"></i></button></div>
+            <div class="mc" id="cal-grid"></div>
+            <div class="mc-leg">
+                <span><b class="cd"></b>Arbeit</span><span><b class="cd vacation"><i class="fa-solid fa-umbrella-beach"></i></b>Urlaub</span>
+                <span><b class="cd sick"><i class="fa-solid fa-plus"></i></b>Krank</span><span><b class="cd hol"><i class="fa-solid fa-star"></i></b>Feiertag</span>
+                <span><b class="cd flex"><i class="fa-solid fa-hourglass-half"></i></b>Überstundenabbau</span><span><b class="cd we"><i class="fa-solid fa-calendar"></i></b>Wochenende</span>
+            </div>
+        </section>
+            <section class="ux-card ux-kpi" id="mod-konto"><div class="l"><i class="fa-solid fa-scale-balanced"></i>Überstundenkonto<button class="ux-ib ot-ed" onclick="openOt()" title="Stand anpassen" aria-label="Überstundenkonto anpassen"><i class="fa-solid fa-pen"></i></button></div><div class="v" id="acct">–</div><span class="chip" id="acct-since"></span></section>
             <section class="ux-card ux-kpi" id="mod-saldo"><div class="l"><i class="fa-solid fa-arrow-trend-down"></i>Saldo im Monat</div><div class="v" id="m-saldo">–</div><span class="chip" id="m-saldo-chip"></span></section>
-            <section class="ux-card ux-kpi" id="mod-konto"><div class="l"><i class="fa-solid fa-fire"></i>Überstundenkonto</div><div class="v" id="acct">–</div><span class="chip" id="acct-since"></span></section>
+            <section class="ux-card ux-kpi" id="mod-vleft"><div class="l"><i class="fa-solid fa-umbrella-beach"></i>Urlaub übrig <span id="vl-year"></span></div><div class="v" id="vl-left">–</div><span class="chip" id="vl-chip"></span></section>
         <section class="ux-card" id="mod-week">
             <div class="ux-t"><i class="fa-solid fa-calendar-day"></i>Diese Woche<small id="week-txt"></small></div>
             <div id="week-chart" class="cols week"></div>
             <div class="bar"><i id="week-bar" style="width:0"></i></div>
         </section>
+            <section class="ux-card ux-kpi" id="mod-ist"><div class="l"><i class="fa-solid fa-clock"></i>Ist im Monat</div><div class="v" id="m-ist">–</div><span class="chip g" id="m-days"></span>
+                <svg class="spark" width="110" height="46" viewBox="0 0 110 46" aria-hidden="true"><path d="M0 38 C14 34 20 30 32 28 S52 24 62 18 S88 12 110 4" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round"/></svg></section>
+            <section class="ux-card ux-kpi" id="mod-soll"><div class="l"><i class="fa-solid fa-check"></i>Soll (bis heute)</div><div class="v" id="m-soll">–</div><span class="chip">Tagessoll <span id="cfg-day"></span></span>
+                <svg class="spark" width="110" height="46" viewBox="0 0 110 46" aria-hidden="true"><path d="M0 40 L110 6" fill="none" stroke="#64748b" stroke-width="3" stroke-dasharray="2 7" stroke-linecap="round"/></svg></section>
+    </div>
 
-        <!-- Stunden pro Tag -->
-        <section class="ux-card" id="mod-chart">
-            <div class="ux-t"><i class="fa-solid fa-chart-column"></i>Stunden pro Tag<small><span class="chip g">Arbeit</span><span class="chip b">Urlaub</span><span class="chip a">Krank</span><span class="chip">Gleitzeit</span></small></div>
+    <!-- ===== Reiter: Zeiten ===== -->
+    <div class="ux-grid hidden" id="tab-zeiten">
+        <div class="c12"><section class="ux-card" id="mod-chart">
+            <div class="ux-t"><i class="fa-solid fa-chart-column"></i>Stunden pro Tag<small><span class="chip g">Arbeit</span><span class="chip a">Urlaub</span><span class="chip r">Krank</span><span class="chip p">Überstundenabbau</span></small></div>
             <div id="chart" class="cols tall"></div>
-        </section>
+        </section></div>
+        <div class="c12"><section class="ux-card" id="mod-entries">
+            <div class="ux-t"><i class="fa-solid fa-list-check"></i>Erfasste Zeiten<small><span id="work-table-count">0 Einträge</span></small></div>
+            <div id="ent-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+                <button class="chip on" data-f="all">Alle</button><button class="chip" data-f="work">Arbeit</button><button class="chip" data-f="vacation">Urlaub</button><button class="chip" data-f="sick">Krank</button><button class="chip" data-f="flex">Überstundenabbau</button></div>
+            <div id="worktime-table-body"></div>
+        </section></div>
+        <div class="c12"><section class="ux-card" id="mod-actions">
+            <div class="ux-t"><i class="fa-solid fa-bolt"></i>Aktionen &amp; Export</div>
+            <div class="acts-grid">
+                <button class="act" onclick="openWorkModal()"><span class="ic"><i class="fa-solid fa-plus"></i></span><span>Zeit manuell erfassen<small>Start, Ende und Pause nachtragen</small></span></button>
+                <button class="act" style="--c:#eab308;--cr:234,179,8" onclick="openAbsence()"><span class="ic"><i class="fa-solid fa-umbrella-beach"></i></span><span>Urlaub / Krank / Überstundenabbau<small>für einen Zeitraum eintragen</small></span></button>
+                <button class="act" style="--c:#4ade80;--cr:74,222,128" onclick="exportWorkCSV()"><span class="ic"><i class="fa-solid fa-file-csv"></i></span><span>Stundenzettel (CSV)<small>für Excel, ausgewählter Monat</small></span></button>
+                <button class="act" style="--c:#a78bfa;--cr:167,139,250" onclick="printWorkTimesheet()"><span class="ic"><i class="fa-solid fa-print"></i></span><span>Stundenzettel drucken<small>oder als PDF speichern</small></span></button>
+            </div>
+        </section></div>
+    </div>
 
-        <!-- Urlaubskonto -->
-        <section class="ux-card glow" id="mod-vac">
+    <!-- ===== Reiter: Abwesenheit ===== -->
+    <div class="ux-grid hidden" id="tab-abw">
+        <div class="c5"><section class="ux-card glow" id="mod-vac">
             <div class="ux-t"><i class="fa-solid fa-umbrella-beach"></i>Urlaubskonto<small><button class="ux-ib" style="width:30px;height:30px" onclick="vacShift(-1)" aria-label="Vorjahr"><i class="fa-solid fa-chevron-left"></i></button><b id="vac-year" style="min-width:42px;text-align:center;color:#e2e8f0;font-size:13px"></b><button class="ux-ib" style="width:30px;height:30px" onclick="vacShift(1)" aria-label="Nächstes Jahr"><i class="fa-solid fa-chevron-right"></i></button></small></div>
             <div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap">
                 <div class="ring mid2"><svg width="150" height="150" viewBox="0 0 150 150"><defs><linearGradient id="gv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
-                    <circle class="trk" cx="75" cy="75" r="62" stroke-width="13"/><circle id="vac-arc-plan" class="arc" cx="75" cy="75" r="62" stroke="#fbbf24" stroke-width="13"/><circle id="vac-arc-taken" class="arc" cx="75" cy="75" r="62" stroke="url(#gv)" stroke-width="13"/></svg>
+                    <circle class="trk" cx="75" cy="75" r="62" stroke-width="13"/><circle id="vac-arc-plan" class="arc" cx="75" cy="75" r="62" stroke="#fde047" stroke-width="13"/><circle id="vac-arc-taken" class="arc" cx="75" cy="75" r="62" stroke="url(#gv)" stroke-width="13"/></svg>
                     <div class="mid"><b id="vac-left">–</b><small>Tage übrig</small></div></div>
                 <div class="leg" id="vac-sub" style="flex:1;min-width:150px"></div>
             </div>
             <div id="vac-ranges" style="margin-top:12px;max-height:132px;overflow-y:auto"></div>
             <div style="display:flex;gap:10px;margin-top:14px"><button onclick="openAbsence('vacation')" class="ux-btn pri" style="flex:1"><i class="fa-solid fa-plus"></i>Eintragen</button>
                 <button onclick="openVacReq()" class="ux-btn" style="flex:1"><i class="fa-solid fa-file-pdf"></i>Antrag</button></div>
-        </section>
-
-        <!-- Aktionen -->
-        <section class="ux-card" id="mod-actions">
-            <div class="ux-t"><i class="fa-solid fa-bolt"></i>Aktionen &amp; Export</div>
-            <div class="acts-grid">
-                <button class="act" onclick="openWorkModal()"><span class="ic"><i class="fa-solid fa-plus"></i></span><span>Zeit manuell erfassen<small>Start, Ende und Pause nachtragen</small></span></button>
-                <button class="act" style="--c:#38bdf8;--cr:56,189,248" onclick="openAbsence()"><span class="ic"><i class="fa-solid fa-umbrella-beach"></i></span><span>Urlaub / Krank / Gleitzeit<small>für einen Zeitraum eintragen</small></span></button>
-                <button class="act" style="--c:#4ade80;--cr:74,222,128" onclick="exportWorkCSV()"><span class="ic"><i class="fa-solid fa-file-csv"></i></span><span>Stundenzettel (CSV)<small>für Excel, ausgewählter Monat</small></span></button>
-                <button class="act" style="--c:#a78bfa;--cr:167,139,250" onclick="printWorkTimesheet()"><span class="ic"><i class="fa-solid fa-print"></i></span><span>Stundenzettel drucken<small>oder als PDF speichern</small></span></button>
-            </div>
-        </section>
-
-        <!-- Einträge -->
-        <section class="ux-card" id="mod-entries">
-            <div class="ux-t"><i class="fa-solid fa-list-check"></i>Erfasste Zeiten<small><span id="work-table-count">0 Einträge</span></small></div>
-            <div id="ent-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-                <button class="chip on" data-f="all">Alle</button><button class="chip" data-f="work">Arbeit</button><button class="chip" data-f="vacation">Urlaub</button><button class="chip" data-f="sick">Krank</button><button class="chip" data-f="flex">Gleitzeit</button></div>
-            <div id="worktime-table-body"></div>
-        </section>
+        </section></div>
+        <div class="c7"><section class="ux-card" id="mod-abs">
+            <div class="ux-t"><i class="fa-solid fa-calendar-week"></i>Abwesenheiten <span id="abs-year"></span><small><button onclick="openAbsence()" class="ux-btn pri" style="padding:8px 14px"><i class="fa-solid fa-plus"></i>Eintragen</button></small></div>
+            <div class="abs-k" id="abs-kpis"></div>
+            <div id="abs-list"></div>
+        </section></div>
     </div>
 </main>
 
@@ -129,7 +194,7 @@
     <h3><i class="fa-solid fa-umbrella-beach"></i>Abwesenheit eintragen<button class="ux-ib" onclick="closeModal('modal-absence')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3>
     <p class="sub">Für jeden Arbeitstag im Zeitraum wird ein Eintrag angelegt. Wochenenden und Feiertage (NRW) werden übersprungen.</p>
     <form onsubmit="saveAbsence(event)">
-        <label class="ux-f"><span>Art</span><select id="ab-type" class="ux-in"><option value="vacation">Urlaub (Tagessoll gutgeschrieben)</option><option value="sick">Krank (Tagessoll gutgeschrieben)</option><option value="flex">Gleitzeit / Überstundenabbau (0 Std, Soll bleibt)</option></select></label>
+        <label class="ux-f"><span>Art</span><select id="ab-type" class="ux-in"><option value="vacation">Urlaub (Tagessoll gutgeschrieben)</option><option value="sick">Krank (Tagessoll gutgeschrieben)</option><option value="flex">Überstundenabbau (0 Std, Soll bleibt)</option></select></label>
         <div class="ux-row2"><label class="ux-f"><span>Von</span><input type="date" id="ab-from" required class="ux-in"></label><label class="ux-f"><span>Bis</span><input type="date" id="ab-to" required class="ux-in"></label></div>
         <label class="ux-f"><span>Notiz (optional)</span><input type="text" id="ab-note" class="ux-in"></label>
         <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('modal-absence')">Abbrechen</button><button class="ux-btn pri">Eintragen</button></div>
@@ -150,6 +215,21 @@
         <label id="vr-book-wrap" class="ux-check"><input type="checkbox" id="vr-book" checked><span>Zeitraum gleichzeitig im Urlaubskonto als geplanten Urlaub vormerken <span class="mut">(nur bei Erholungsurlaub)</span></span></label>
         <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('modal-vacreq')">Abbrechen</button><button class="ux-btn pri"><i class="fa-solid fa-print"></i>Antrag drucken / PDF</button></div>
     </form></div></div>
+
+<!-- Fenster: Überstundenkonto anpassen -->
+<div id="modal-ot" class="ux-modal hidden"><div class="ux-box" style="--m:#34d399;--m2:#06b6d4;--mr:52,211,153">
+    <h3><i class="fa-solid fa-scale-balanced"></i>Überstundenkonto anpassen<button class="ux-ib" onclick="closeModal('modal-ot')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3>
+    <p class="sub">Trag deinen Stand ein, z. B. von deiner letzten Abrechnung. Ab dem Tag danach rechnet das Dashboard automatisch weiter.</p>
+    <form onsubmit="saveOt(event)">
+        <div class="ux-f"><span>Stand</span><div class="ot-sign"><button type="button" data-s="1" class="on">+ Plus</button><button type="button" data-s="-1">− Minus</button></div></div>
+        <div class="ux-row2"><label class="ux-f"><span>Stunden</span><input type="number" id="ot-h" min="0" max="9999" step="1" required class="ux-in c"></label><label class="ux-f"><span>Minuten</span><input type="number" id="ot-m" min="0" max="59" step="1" class="ux-in c"></label></div>
+        <label class="ux-f"><span>Stand bis einschließlich</span><input type="date" id="ot-date" required class="ux-in"></label>
+        <div id="ot-info" class="ux-info"></div>
+        <div class="ux-acts"><button type="button" class="ux-btn bad hidden" id="ot-reset" onclick="resetOt()">Zurücksetzen</button><button type="button" class="ux-btn" onclick="closeModal('modal-ot')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div>
+    </form></div></div>
+
+<!-- Tagesmenü im Kalender -->
+<div id="cal-pop" class="cal-pop hidden" role="dialog" aria-modal="false"></div>
 
 <!-- Fenster: Einstellungen -->
 <div id="modal-settings" class="ux-modal hidden"><div class="ux-box" style="--m:#818cf8;--m2:#a78bfa;--mr:129,140,248">
@@ -181,25 +261,40 @@
         // Art: [Name, Symbol, Farbe, Farbe als r,g,b, Chip-Farbe, Balkenfarbe]
         const TYPES = {
             work: ['Arbeit', 'fa-business-time', '#34d399', '52,211,153', 'g', ''],
-            vacation: ['Urlaub', 'fa-umbrella-beach', '#38bdf8', '56,189,248', 'b', 'linear-gradient(180deg,#7dd3fc,#0ea5e9)'],
-            sick: ['Krank', 'fa-notes-medical', '#fbbf24', '251,191,36', 'a', 'linear-gradient(180deg,#fcd34d,#f59e0b)'],
-            flex: ['Gleitzeit', 'fa-hourglass-half', '#94a3b8', '148,163,184', '', 'linear-gradient(180deg,#94a3b8,#64748b)']
+            vacation: ['Urlaub', 'fa-umbrella-beach', '#eab308', '234,179,8', 'a', 'linear-gradient(180deg,#fde047,#eab308)'],
+            sick: ['Krank', 'fa-notes-medical', '#ef4444', '239,68,68', 'r', 'linear-gradient(180deg,#fca5a5,#ef4444)'],
+            flex: ['Überstundenabbau', 'fa-hourglass-half', '#a855f7', '168,85,247', 'p', 'linear-gradient(180deg,#d8b4fe,#a855f7)']
         };
         const WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
         const csvCell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
 
         // ---------- Anpassbares Layout (js/layout.js) ----------
         // [Kennung, Name, Standardbreite in Zwölfteln]
-        const LAY = [['stamp', 'Stempeluhr', 4], ['ist', 'Ist im Monat', 4], ['soll', 'Soll (bis heute)', 4], ['saldo', 'Saldo im Monat', 4], ['konto', 'Überstundenkonto', 4], ['week', 'Diese Woche', 8], ['chart', 'Stunden pro Tag', 8], ['vac', 'Urlaubskonto', 4], ['actions', 'Aktionen & Export', 12], ['entries', 'Erfasste Zeiten', 12]];
+        const LAY = [['stamp', 'Stempeluhr', 4], ['cal', 'Monatskalender', 5], ['konto', 'Überstundenkonto', 3], ['saldo', 'Saldo im Monat', 3], ['vleft', 'Urlaub übrig', 3], ['week', 'Diese Woche', 5], ['ist', 'Ist im Monat', 3], ['soll', 'Soll (bis heute)', 3]];
+        let curTab = 'ov';
+        const TABS = [['ov', 'Übersicht'], ['zeiten', 'Zeiten'], ['abw', 'Abwesenheit']];
         const LAY_PRESETS = {
             'Standard': {},
-            'Kompakt': { order: ['ist', 'soll', 'saldo', 'konto', 'stamp', 'vac', 'entries'], hidden: ['week', 'chart', 'actions'], width: { ist: 3, soll: 3, saldo: 3, konto: 3, stamp: 6, vac: 6, entries: 12 } },
-            'Fokus Stempeluhr': { order: ['stamp', 'konto', 'saldo', 'week', 'vac', 'entries'], hidden: ['ist', 'soll', 'chart', 'actions'], width: { stamp: 6, konto: 3, saldo: 3, week: 6, vac: 6, entries: 12 } }
+            'Kompakt': { order: ['cal', 'konto', 'saldo', 'vleft', 'stamp', 'ist', 'soll'], hidden: ['week'], width: { cal: 6, konto: 3, saldo: 3, vleft: 3, stamp: 3, ist: 3, soll: 3 } },
+            'Fokus Stempeluhr': { order: ['stamp', 'konto', 'saldo', 'week', 'cal'], hidden: ['ist', 'soll', 'vleft'], width: { stamp: 6, konto: 3, saldo: 3, week: 6, cal: 6 } }
         };
-        Layout.init({ key: 'zeit', root: $('lay'), modules: LAY.map(([id, title, w]) => ({ id, title, w, el: $('mod-' + id) })), presets: LAY_PRESETS, save: async l => {
-            await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.layouts.zeit': l });
-            currentUser.userPrefs = { ...(currentUser.userPrefs || {}), layouts: { ...((currentUser.userPrefs || {}).layouts || {}), zeit: l } }; logSystemEvent('data', 'Layout gespeichert', { seite: 'zeit' });
+        Layout.init({ key: 'zeit', root: $('tab-ov'), modules: LAY.map(([id, title, w]) => ({ id, title, w, el: $('mod-' + id) })), presets: LAY_PRESETS,
+            tabs: { items: TABS.map(([id, title]) => ({ id, title, el: document.querySelector(`.tab[data-tab="${id}"]`) })) }, onTabs: () => { if (Layout.tabHidden(curTab)) showTab(curTab); },
+            onEdit: on => { if (on && curTab !== 'ov') showTab('ov'); }, save: async l => {
+            await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.layouts.zeit2': l });
+            currentUser.userPrefs = { ...(currentUser.userPrefs || {}), layouts: { ...((currentUser.userPrefs || {}).layouts || {}), zeit2: l } }; logSystemEvent('data', 'Layout gespeichert', { seite: 'zeit' });
         } });
+
+        // ---------- Reiter ----------
+        function showTab(t) {
+            if (!$('tab-' + t) || Layout.tabHidden(t)) t = Layout.firstTab() || 'ov';          // ausgeblendete Reiter öffnen nicht
+            curTab = t; closeCalPop();
+            TABS.forEach(([k]) => $('tab-' + k).classList.toggle('hidden', k !== t));
+            document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+            history.replaceState(null, '', '#' + t);
+            if (t === 'ov') Layout.refresh();
+        }
+        window.addEventListener('hashchange', () => showTab(location.hash.slice(1) || 'ov'));
 
         // ---------- Einstellungen ----------
         const W = () => ({ pause: 60, after: 6, weekly: 40, vacation: 30, carry: 0, carryYear: 0, ...(currentUser.userPrefs?.work || {}) });
@@ -207,7 +302,7 @@
         function openSettings() { const w = W(); $('set-pause').value = w.pause; $('set-after').value = w.after; $('set-weekly').value = w.weekly; $('set-vac').value = w.vacation; $('set-carry').value = w.carryYear === new Date().getFullYear() ? w.carry : 0; openModal('modal-settings'); }
         function saveSettings(e) {
             e.preventDefault();
-            const work = { pause: Math.max(0, +$('set-pause').value), after: Math.max(0, +$('set-after').value), weekly: Math.min(60, Math.max(1, +$('set-weekly').value)), vacation: Math.max(0, +$('set-vac').value), carry: Math.max(0, +$('set-carry').value), carryYear: new Date().getFullYear() };
+            const work = { ...(currentUser.userPrefs?.work || {}), pause: Math.max(0, +$('set-pause').value), after: Math.max(0, +$('set-after').value), weekly: Math.min(60, Math.max(1, +$('set-weekly').value)), vacation: Math.max(0, +$('set-vac').value), carry: Math.max(0, +$('set-carry').value), carryYear: new Date().getFullYear() };
             run(async () => {
                 await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.work': work });
                 currentUser.userPrefs = { ...(currentUser.userPrefs || {}), work };
@@ -246,7 +341,8 @@
         initAuthGuard(user => {
             if (!user || started) return;
             started = true;
-            renderDrawer(); applyConfig(); headDate(); setInterval(headDate, 60000); Layout.load(currentUser.userPrefs?.layouts?.zeit);
+            renderDrawer(); applyConfig(); headDate(); setInterval(headDate, 60000); Layout.load(currentUser.userPrefs?.layouts?.zeit2); showTab(location.hash.slice(1) || Layout.firstTab() || 'ov');
+            $('cal-grid').addEventListener('click', e => { const c = e.target.closest('[data-day]'); if (c) openCalPop(c.dataset.day, c); });
             $('ent-filters').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (b) { entFilter = b.dataset.f; renderTable(); } });
             $('custom-start-time').value = fmtT(new Date());
             updateUI(false);
@@ -256,6 +352,8 @@
                 if (active?.startTime) { startTimer(active.startTime.toDate()); $('live-pause').value = active.pauseMinutes ?? W().pause; } else stopTimer();
                 updateUI(!!active); renderSummary();
             });
+            document.querySelector('.ot-sign').addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (b) setOtSign(+b.dataset.s); });
+            ['ot-h', 'ot-m', 'ot-date'].forEach(i => $(i).addEventListener('input', otPreview));
             $('worktime-table-body').addEventListener('click', e => {
                 const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
                 if (ed) openWorkModal(ed.dataset.edit); if (del) deleteEntry(del.dataset.del);
@@ -316,13 +414,15 @@
 
         function renderAll(refreshMonths = true) {
             if (refreshMonths) {
-                const sel = $('work-filter-month'), prev = sel.value, set = new Set([todayStr]);
-                workEntries.forEach(w => { if (w.date?.length >= 7) set.add(w.date.slice(0, 7)); });
-                const sorted = [...set].sort().reverse();
+                const sel = $('work-filter-month'), prev = sel.value, ym = workEntries.map(w => w.date?.slice(0, 7)).filter(m => m && m.length === 7).sort();
+                const addM = (m, n) => { const d = new Date(+m.slice(0, 4), +m.slice(5) - 1 + n, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
+                let lo = ym[0] && ym[0] < todayStr ? ym[0] : todayStr, hi = addM(todayStr, 12); if (ym.length && ym[ym.length - 1] > hi) hi = ym[ym.length - 1];
+                if (lo < addM(todayStr, -120)) lo = addM(todayStr, -120);
+                const sorted = []; for (let m = hi; m >= lo; m = addM(m, -1)) sorted.push(m);
                 sel.innerHTML = sorted.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
                 sel.value = sorted.includes(prev) ? prev : todayStr;      // beim Öffnen der aktuelle Monat (nicht der neueste mit geplantem Urlaub)
             }
-            renderSummary(); renderTable(); renderChart(); renderVacation();
+            renderSummary(); renderTable(); renderChart(); renderVacation(); renderCal(); renderAbs();
         }
 
         function renderSummary() {
@@ -350,11 +450,9 @@
             $('m-days').innerText = wd ? `${wd} ${wd === 1 ? 'Arbeitstag' : 'Arbeitstage'} · Ø ${hm(sumNet(mw) / wd)}` : 'Noch keine Arbeitstage';
             const sc = $('m-saldo-chip'); sc.innerText = diff > 0 ? 'über Soll' : diff < 0 ? 'unter Soll' : 'genau im Soll'; sc.className = 'chip ' + (diff > 0 ? 'g' : diff < 0 ? 'r' : '');
             // Gesamtkonto
-            const first = workEntries.reduce((a, w) => (!a || w.date < a ? w.date : a), '');
-            if (first) {
-                const acc = sumNet(inRange(first, today)) - sollMin(first, today);
-                UX.setNum($('acct'), disp(sg(acc)), tone(acc)); $('acct-since').innerText = `seit ${first.split('-').reverse().join('.')}`; $('acct-since').classList.remove('hidden');
-            } else { UX.setNum($('acct'), '–', ''); $('acct-since').classList.add('hidden'); }
+            const ac = account(today);
+            if (ac) { UX.setNum($('acct'), disp(sg(ac.min)), tone(ac.min)); $('acct-since').innerText = ac.label; $('acct-since').classList.remove('hidden'); }
+            else { UX.setNum($('acct'), '–', ''); $('acct-since').classList.add('hidden'); }
         }
 
         function renderChart() {
@@ -457,17 +555,20 @@
             const total = w.vacation + (w.carryYear === year ? w.carry : 0), taken = dates.filter(d => d <= today).length, planned = dates.length - taken;
             return { total, taken, planned, left: total - taken - planned, carry: w.carryYear === year ? w.carry : 0, dates };
         }
-        function vacShift(d) { vacYear += d; renderVacation(); }
+        function vacShift(d) { vacYear += d; renderVacation(); renderAbs(); }
         function renderVacation() {
             if (!currentUser) return;
             const st = vacStats(vacYear), today = localDate();
             $('vac-year').innerText = vacYear;
+            const cy = new Date().getFullYear(), cs = cy === vacYear ? st : vacStats(cy);          // Kachel "Urlaub übrig" immer fürs laufende Jahr
+            $('vl-year').innerText = cy; UX.setNum($('vl-left'), String(Math.round(cs.left * 2) / 2).replace('.', ',') + ' Tage', cs.left < 0 ? 'neg' : cs.left <= 3 ? 'warn' : '');
+            $('vl-chip').innerText = cs.planned ? `${cs.planned} geplant · ${cs.taken} genommen` : `${cs.taken} von ${cs.total} genommen`; $('vl-chip').className = 'chip' + (cs.planned ? ' a' : '');
             UX.setNum($('vac-left'), String(Math.round(st.left * 2) / 2).replace('.', ','), st.left < 0 ? 'neg' : st.left <= 3 ? 'warn' : '');
-            $('vac-sub').innerHTML = `<div><i style="background:rgba(148,163,184,.5)"></i>Anspruch<b>${st.total - st.carry}${st.carry ? ' + ' + st.carry + ' Rest' : ''}</b></div><div><i style="background:#06b6d4"></i>Genommen<b>${st.taken}</b></div><div><i style="background:#fbbf24"></i>Geplant<b>${st.planned}</b></div>`;
+            $('vac-sub').innerHTML = `<div><i style="background:rgba(148,163,184,.5)"></i>Anspruch<b>${st.total - st.carry}${st.carry ? ' + ' + st.carry + ' Rest' : ''}</b></div><div><i style="background:#06b6d4"></i>Genommen<b>${st.taken}</b></div><div><i style="background:#fde047"></i>Geplant<b>${st.planned}</b></div>`;
             const pct = n => st.total > 0 ? Math.min(1, n / st.total) : 0, pt = pct(st.taken);
             UX.ring($('vac-arc-taken'), pt); UX.ring($('vac-arc-plan'), Math.min(1 - pt, pct(st.planned)), pt);
             const ranges = []; st.dates.forEach(d => { const l = ranges[ranges.length - 1]; if (l && nextWork(l.to) === d) { l.to = d; l.n++; } else ranges.push({ from: d, to: d, n: 1 }); });
-            $('vac-ranges').innerHTML = ranges.length ? ranges.map(r => `<div class="vr"><span class="d ${r.to < today ? 'mut' : ''}"><i class="fa-solid fa-umbrella-beach" style="color:${r.to < today ? '#64748b' : '#38bdf8'};margin-right:7px"></i>${gdShort(r.from)}${r.from !== r.to ? ' – ' + gdShort(r.to) : ''} · ${r.n} ${r.n === 1 ? 'Tag' : 'Tage'}</span>
+            $('vac-ranges').innerHTML = ranges.length ? ranges.map(r => `<div class="vr"><span class="d ${r.to < today ? 'mut' : ''}"><i class="fa-solid fa-umbrella-beach" style="color:${r.to < today ? '#64748b' : '#eab308'};margin-right:7px"></i>${gdShort(r.from)}${r.from !== r.to ? ' – ' + gdShort(r.to) : ''} · ${r.n} ${r.n === 1 ? 'Tag' : 'Tage'}</span>
                 <span class="acts"><button onclick="openVacReq('${r.from}','${r.to}')" class="ux-ib" title="Urlaubsantrag drucken" aria-label="Urlaubsantrag drucken"><i class="fa-solid fa-print"></i></button>
                 <button onclick="delVacRange('${r.from}','${r.to}')" class="ux-ib bad" title="Zeitraum löschen" aria-label="Zeitraum löschen"><i class="fa-solid fa-trash-can"></i></button></span></div>`).join('')
                 : '<div class="ux-note" style="margin-top:8px">Noch kein Urlaub eingetragen.</div>';
@@ -476,6 +577,152 @@
             const list = workEntries.filter(e => typeOf(e) === 'vacation' && e.date >= from && e.date <= to);
             if (!list.length || !confirm(`Urlaub vom ${gdShort(from)} bis ${gdShort(to)} (${list.length} Einträge) löschen?`)) return;
             run(async () => { const b = db.batch(); list.forEach(e => b.delete(db.collection('worktime').doc(e.id))); await b.commit(); logSystemEvent('data', 'Urlaub gelöscht', { von: from, bis: to }); });
+        }
+
+        // ---------- Überstundenkonto (eigener Stand) ----------
+        const dayAfter = ds => { const d = parse(ds); d.setDate(d.getDate() + 1); return localDate(d); };
+        const gdFull = ds => ds.split('-').reverse().join('.');
+        const otOf = () => { const o = W().ot; return o && /^\d{4}-\d{2}-\d{2}$/.test(o.upto || '') && Number.isFinite(+o.min) ? { min: Math.round(+o.min), upto: o.upto } : null; };
+        // Kontostand bis "to": mit eigenem Stand ab dem Tag danach weiterrechnen, sonst seit dem ersten Eintrag
+        function account(to) {
+            const ot = otOf();
+            if (ot) { const from = dayAfter(ot.upto), add = from <= to ? sumNet(inRange(from, to)) - sollMin(from, to) : 0; return { min: ot.min + add, label: `Stand ${disp(sg(ot.min))} am ${gdShort(ot.upto)}` }; }
+            const first = workEntries.reduce((a, w) => (w.date && (!a || w.date < a) ? w.date : a), '');
+            return first ? { min: sumNet(inRange(first, to)) - sollMin(first, to), label: `seit ${gdFull(first)}` } : null;
+        }
+        let otSign = 1;
+        function setOtSign(v) { otSign = v; document.querySelectorAll('.ot-sign button').forEach(b => b.classList.toggle('on', +b.dataset.s === v)); otPreview(); }
+        function otVal() { return otSign * ((Math.max(0, parseInt($('ot-h').value, 10) || 0)) * 60 + Math.min(59, Math.max(0, parseInt($('ot-m').value, 10) || 0))); }
+        function otPreview() {
+            const upto = $('ot-date').value, today = localDate();
+            if (!upto) { $('ot-info').innerText = ''; return; }
+            if (upto > today) { $('ot-info').innerHTML = '<span class="neg">Das Datum darf nicht in der Zukunft liegen.</span>'; return; }
+            const from = dayAfter(upto), add = from <= today ? sumNet(inRange(from, today)) - sollMin(from, today) : 0, tot = otVal() + add;
+            $('ot-info').innerHTML = `Ab ${gdShort(from)} rechnet das Dashboard weiter. Kontostand heute: <b class="${tone(tot)}">${disp(sg(tot))}</b>`;
+        }
+        function openOt() {
+            const ot = otOf(), cur = ot ? ot.min : (account(localDate())?.min || 0), y = new Date(); y.setDate(y.getDate() - 1);
+            setOtSign(cur < 0 ? -1 : 1); $('ot-h').value = Math.floor(Math.abs(cur) / 60); $('ot-m').value = Math.abs(cur) % 60;
+            $('ot-date').value = ot ? ot.upto : localDate(y); $('ot-date').max = localDate();
+            $('ot-reset').classList.toggle('hidden', !ot); otPreview(); openModal('modal-ot'); setTimeout(() => $('ot-h').select(), 50);
+        }
+        function saveOt(e) {
+            e.preventDefault();
+            const upto = $('ot-date').value; if (!upto || upto > localDate()) return alert('Bitte ein Datum bis heute wählen.');
+            const ot = { min: otVal(), upto };
+            run(async () => {
+                await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.work.ot': ot });
+                currentUser.userPrefs = { ...(currentUser.userPrefs || {}), work: { ...(currentUser.userPrefs?.work || {}), ot } };
+                closeModal('modal-ot'); renderSummary(); logSystemEvent('data', 'Überstundenkonto angepasst', ot);
+            });
+        }
+        function resetOt() {
+            if (!confirm('Eigenen Stand entfernen? Das Konto wird dann wieder ab deinem ersten Eintrag berechnet.')) return;
+            run(async () => {
+                await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.work.ot': firebase.firestore.FieldValue.delete() });
+                const work = { ...(currentUser.userPrefs?.work || {}) }; delete work.ot; currentUser.userPrefs = { ...(currentUser.userPrefs || {}), work };
+                closeModal('modal-ot'); renderSummary(); logSystemEvent('data', 'Überstundenkonto zurückgesetzt');
+            });
+        }
+
+        // ---------- Monatskalender ----------
+        const HOLN = {};
+        function holName(y) {
+            if (HOLN[y]) return HOLN[y];
+            const e = n => { const d = easter(y); d.setDate(d.getDate() + n); return localDate(d); };
+            return HOLN[y] = new Map([[`${y}-01-01`, 'Neujahr'], [e(-2), 'Karfreitag'], [e(1), 'Ostermontag'], [`${y}-05-01`, 'Tag der Arbeit'], [e(39), 'Christi Himmelfahrt'], [e(50), 'Pfingstmontag'], [e(60), 'Fronleichnam'],
+                [`${y}-10-03`, 'Tag der Deutschen Einheit'], [`${y}-11-01`, 'Allerheiligen'], [`${y}-12-25`, '1. Weihnachtstag'], [`${y}-12-26`, '2. Weihnachtstag']]);
+        }
+        const ABS_ORDER = ['sick', 'vacation', 'flex'], ABS_ICON = { vacation: 'fa-umbrella-beach', sick: 'fa-plus', flex: 'fa-hourglass-half' };
+        const absOf = es => ABS_ORDER.find(t => es.some(e => typeOf(e) === t)) || '';
+        function renderCal() {
+            const m = selMonth(), y = +m.slice(0, 4), mo = +m.slice(5) - 1, first = new Date(y, mo, 1), lastD = new Date(y, mo + 1, 0).getDate(), lead = (first.getDay() + 6) % 7;
+            const weeks = Math.ceil((lead + lastD) / 7), today = localDate(), by = {};
+            workEntries.forEach(w => { if (w.date) (by[w.date] = by[w.date] || []).push(w); });
+            let h = '<span></span>' + ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((w, i) => `<div class="wd${i > 4 ? ' we' : ''}">${w}</div>`).join('');
+            for (let i = 0; i < weeks * 7; i++) {
+                const d = new Date(y, mo, 1 - lead + i), key = localDate(d), es = by[key] || [], out = d.getMonth() !== mo;
+                if (i % 7 === 0) h += `<div class="kw">KW ${UX.kw(d)}</div>`;
+                const at = absOf(es), hn = holName(d.getFullYear()).get(key), we = d.getDay() % 6 === 0, cls = at || (hn ? 'hol' : we ? 'we' : '');
+                const net = sumNet(es.filter(e => typeOf(e) === 'work')), ico = at ? ABS_ICON[at] : hn ? 'fa-star' : '';
+                const what = at ? TYPES[at][0] : hn || (we ? 'Wochenende' : net ? 'Arbeit ' + hm(net) : 'Arbeitstag');
+                h += `<button type="button" class="cd ${cls}${out ? ' out' : ''}${key === today ? ' today' : ''}${!cls && !out && key > today ? ' fut' : ''}" data-day="${key}" title="${d.getDate()}.${d.getMonth() + 1}.: ${esc(what)}" aria-label="${d.getDate()}. ${esc(what)}">`
+                    + `${String(d.getDate()).padStart(2, '0')}${net && !at ? `<em>${hm(net).replace(' Std', '')}</em>` : ''}${ico ? `<i class="fa-solid ${ico}"></i>` : ''}</button>`;
+            }
+            $('cal-grid').innerHTML = h;
+            $('cal-title').innerText = monthLabel(m);
+            const n = sollMin(`${m}-01`, `${m}-${String(lastD).padStart(2, '0')}`) / dayMin(); $('cal-soll').innerText = `${n} Soll-Tage`;
+        }
+        // Tagesmenü
+        let popDay = '';
+        function openCalPop(key, el) {
+            const p = $('cal-pop');
+            if (popDay === key && !p.classList.contains('hidden')) return closeCalPop();
+            popDay = key;
+            const d = parse(key), es = workEntries.filter(w => w.date === key), work = es.filter(w => typeOf(w) === 'work').sort((a, b) => (a.start || '').localeCompare(b.start || ''));
+            const at = absOf(es), hn = holName(d.getFullYear()).get(key), we = d.getDay() % 6 === 0, wd = isWork(d), today = localDate(), net = sumNet(work);
+            const head = at ? TYPES[at][0] : hn ? 'Feiertag' : we ? 'Wochenende' : 'Arbeitstag';
+            const note = at ? (at === 'flex' ? '0 Std · Soll bleibt, baut Überstunden ab' : 'Ganzer Tag · Tagessoll gutgeschrieben') + (net ? ` · zusätzlich ${hm(net)} gearbeitet` : '')
+                : net ? `Gearbeitet: <b>${hm(net)}</b>` + (wd ? ` · Soll ${hm(dayMin())}` : '') : hn ? esc(hn) + ' · kein Sollarbeitstag' : we ? 'Kein Sollarbeitstag' : key > today ? 'Noch nichts eingetragen' : 'Keine Zeit erfasst';
+            let a = work.map(w => `<button type="button" data-a="edit" data-id="${esc(w.id)}"><i class="fa-solid fa-pen-to-square" style="color:#34d399"></i>${esc(w.start || '--:--')} – ${esc(w.end || '--:--')}<small>${hm(w.netMinutes || 0)}</small></button>`).join('');
+            a += `<button type="button" data-a="add"><i class="fa-solid fa-plus" style="color:#34d399"></i>Arbeitszeit erfassen</button>`;
+            if (wd) a += ABS_ORDER.map(t => { const T = TYPES[t], cur = at === t; return `<button type="button" data-a="set" data-t="${t}"${cur ? ' class="cur" disabled' : ''}><i class="fa-solid ${ABS_ICON[t]}" style="color:${T[2]}"></i>${cur ? T[0] + ' (eingetragen)' : (at ? 'Auf ' + T[0] + ' ändern' : T[0])}</button>`; }).join('');
+            if (at) a += `<button type="button" data-a="clear"><i class="fa-solid fa-trash-can" style="color:#fda4af"></i>${TYPES[at][0]} entfernen</button>`;
+            p.innerHTML = `<h4>${WD[d.getDay()]}, ${gdShort(key)} · ${head}<button class="ux-ib" type="button" data-a="close" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h4><div class="ux-note">${note}</div><div class="acts">${a}</div>`;
+            p.classList.remove('hidden');
+            const r = el.getBoundingClientRect(), pw = p.offsetWidth, ph = p.offsetHeight;
+            let left = Math.min(Math.max(12, r.left + r.width / 2 - pw / 2), innerWidth - pw - 12), top = r.bottom + 8;
+            if (top + ph > innerHeight - 12) top = Math.max(12, r.top - ph - 8);
+            p.style.left = left + 'px'; p.style.top = top + 'px';
+            const f = p.querySelector('.acts button:not([disabled])'); if (f && matchMedia('(pointer: fine)').matches) f.focus({ preventScroll: true });
+        }
+        function closeCalPop() { const p = $('cal-pop'); if (p) p.classList.add('hidden'); popDay = ''; }
+        $('cal-pop').addEventListener('click', e => {
+            const b = e.target.closest('[data-a]'); if (!b || b.disabled) return; const key = popDay;
+            if (b.dataset.a === 'close') return closeCalPop();
+            closeCalPop();
+            if (b.dataset.a === 'edit') openWorkModal(b.dataset.id);
+            else if (b.dataset.a === 'add') { openWorkModal(); $('work-date').value = key; }
+            else if (b.dataset.a === 'set') setDayType(key, b.dataset.t);
+            else if (b.dataset.a === 'clear') clearDayAbs(key);
+        });
+        document.addEventListener('pointerdown', e => { if (popDay && !e.target.closest('#cal-pop') && !e.target.closest('[data-day]')) closeCalPop(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && popDay) closeCalPop(); });
+        window.addEventListener('scroll', () => { if (popDay && !matchMedia('(max-width: 600px)').matches) closeCalPop(); }, { passive: true });
+        window.addEventListener('resize', () => { if (popDay) closeCalPop(); });
+        function setDayType(key, t) {
+            const old = workEntries.filter(w => w.date === key && typeOf(w) !== 'work');
+            if (t === 'vacation' && !old.some(o => typeOf(o) === 'vacation')) { const st = vacStats(+key.slice(0, 4)); if (st.left - 1 < 0 && !confirm(`Damit überschreitest du deinen Urlaubsanspruch ${key.slice(0, 4)}. Trotzdem eintragen?`)) return; }
+            run(async () => {
+                const b = db.batch(); old.forEach(o => b.delete(db.collection('worktime').doc(o.id)));
+                b.set(db.collection('worktime').doc(), { type: t, date: key, start: '', end: '', pauseMinutes: 0, netMinutes: t === 'flex' ? 0 : dayMin(), note: TYPES[t][0], owner: currentUser.email, createdAt: TS() });
+                await b.commit(); logSystemEvent('data', 'Abwesenheit im Kalender gesetzt', { date: key, type: t });
+            });
+        }
+        function clearDayAbs(key) {
+            const old = workEntries.filter(w => w.date === key && typeOf(w) !== 'work'); if (!old.length) return;
+            run(async () => { const b = db.batch(); old.forEach(o => b.delete(db.collection('worktime').doc(o.id))); await b.commit(); logSystemEvent('data', 'Abwesenheit im Kalender entfernt', { date: key }); });
+        }
+
+        // ---------- Abwesenheiten im Jahr ----------
+        function renderAbs() {
+            if (!currentUser) return;
+            const y = String(vacYear), today = localDate(), cnt = {}, ranges = [];
+            ABS_ORDER.forEach(t => {
+                const dates = [...new Set(workEntries.filter(e => typeOf(e) === t && e.date?.startsWith(y)).map(e => e.date))].sort(); cnt[t] = dates.length;
+                dates.forEach(d => { const l = ranges.find(r => r.t === t && nextWork(r.to) === d); if (l) { l.to = d; l.n++; } else ranges.push({ t, from: d, to: d, n: 1 }); });
+            });
+            $('abs-year').innerText = y;
+            $('abs-kpis').innerHTML = ['vacation', 'sick', 'flex'].map(t => `<div style="--c:${TYPES[t][3]}"><small><i class="fa-solid ${ABS_ICON[t]}" style="color:${TYPES[t][2]}"></i>${TYPES[t][0]}</small><b>${cnt[t]}</b><small>${cnt[t] === 1 ? 'Tag' : 'Tage'}</small></div>`).join('');
+            ranges.sort((a, b) => b.from.localeCompare(a.from));
+            $('abs-list').innerHTML = ranges.length ? ranges.map(r => { const T = TYPES[r.t], past = r.to < today; return `<div class="vr"><span class="d ${past ? 'mut' : ''}"><i class="fa-solid ${ABS_ICON[r.t]}" style="color:${past ? '#64748b' : T[2]};margin-right:7px"></i>${gdShort(r.from)}${r.from !== r.to ? ' – ' + gdShort(r.to) : ''} · ${r.n} ${r.n === 1 ? 'Tag' : 'Tage'}</span>
+                <span class="chip ${T[4]}">${T[0]}</span><span class="acts"><button onclick="delAbsRange('${r.t}','${r.from}','${r.to}')" class="ux-ib bad" title="Zeitraum löschen" aria-label="Zeitraum löschen"><i class="fa-solid fa-trash-can"></i></button></span></div>`; }).join('')
+                : `<div class="ux-empty"><i class="fa-solid fa-calendar-check"></i>Keine Abwesenheiten in ${y}.</div>`;
+        }
+        function delAbsRange(t, from, to) {
+            const list = workEntries.filter(e => typeOf(e) === t && e.date >= from && e.date <= to);
+            if (!list.length || !confirm(`${TYPES[t][0]} vom ${gdShort(from)} bis ${gdShort(to)} (${list.length} ${list.length === 1 ? 'Eintrag' : 'Einträge'}) löschen?`)) return;
+            run(async () => { const b = db.batch(); list.forEach(e => b.delete(db.collection('worktime').doc(e.id))); await b.commit(); logSystemEvent('data', 'Abwesenheit gelöscht', { type: t, von: from, bis: to }); });
         }
 
         // ---------- Urlaubsantrag ----------

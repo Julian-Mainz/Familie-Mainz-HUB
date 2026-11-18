@@ -12,6 +12,8 @@ html { transition: filter .45s ease; }                       /* weicher Wechsel 
 @keyframes uiFade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes uiPop  { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
 @keyframes sbIn   { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+/* Puls-Ring nur mit transform und opacity: l√§uft auf der Grafikkarte, ohne die Seite neu zu zeichnen */
+@keyframes uiRing { 0% { transform: scale(1); opacity: .6; } 70%, 100% { transform: scale(2.6); opacity: 0; } }
 @keyframes uiPulse { 0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, .55); } 70% { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0); } 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } }
 
 main > * { animation: uiRise .6s var(--ui-ease) backwards; }               /* Karten schweben beim Laden nacheinander ein */
@@ -31,7 +33,9 @@ button, [role="button"] { transition: transform .14s ease, background-color .2s 
 button:not(:disabled):active { transform: scale(.96); }
 
 /* ---------- Hintergrund und Kopfzeile bei vorhandener Navigation ---------- */
-body.has-sb { background: radial-gradient(900px 520px at 14% -8%, rgba(99, 102, 241, .13), transparent 70%), radial-gradient(760px 460px at 100% 0, rgba(56, 189, 248, .08), transparent 70%), #080c14 !important; background-attachment: fixed; }
+/* Hintergrund als eigene, feste Ebene statt "background-attachment: fixed": sonst zeichnen Chrome und Firefox bei jedem Scrollen die ganze Seite neu */
+body.has-sb { background: #080c14 !important; }
+body.has-sb::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(900px 520px at 14% -8%, rgba(99, 102, 241, .13), transparent 70%), radial-gradient(760px 460px at 100% 0, rgba(56, 189, 248, .08), transparent 70%); }
 body.has-sb header { background: transparent !important; border-color: transparent !important; }
 body.sb-lock { overflow: hidden !important; }
 
@@ -79,7 +83,8 @@ html.sb-collapsed .sb-nav { overflow: visible; }   /* eingeklappt: die Untermen√
 .sb-user { display: flex; align-items: center; gap: 11px; padding: 8px; border-radius: 16px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(148, 163, 184, .1); }
 .sb-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
 .sb-avatar { position: relative; flex: none; width: 38px; height: 38px; border-radius: 13px; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #6366f1, #06b6d4); }
-.sb-avatar i { position: absolute; right: -3px; bottom: -3px; width: 11px; height: 11px; border-radius: 50%; background: #4ade80; border: 2px solid #0b1120; animation: uiPulse 2.4s infinite; }
+.sb-avatar i { position: absolute; right: -3px; bottom: -3px; width: 11px; height: 11px; border-radius: 50%; background: #4ade80; border: 2px solid #0b1120; }
+.sb-avatar i::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; background: rgba(74, 222, 128, .55); animation: uiRing 2.4s infinite; pointer-events: none; }
 a.sb-user { text-decoration: none; color: inherit; position: relative; cursor: pointer; transition: background-color .2s, border-color .2s, transform .2s; }
 a.sb-user:hover { background: rgba(129, 140, 248, .14); border-color: rgba(129, 140, 248, .38); transform: translateY(-1px); }
 a.sb-user.on { background: rgba(129, 140, 248, .18); border-color: rgba(129, 140, 248, .5); }

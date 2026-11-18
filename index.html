@@ -51,7 +51,7 @@
         .lg-round { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: rgba(15, 23, 42, .6); color: #cbd5e1; display: grid; place-items: center; font-size: 15px; transition: transform .25s, background-color .2s, color .2s; }
         .lg-round:hover { color: #fff; background: rgba(129, 140, 248, .22); transform: rotate(-12deg) scale(1.06); }
         .lg-status { display: flex; align-items: center; gap: 8px; padding: 9px 15px; border-radius: 99px; font-size: 12px; font-weight: 500; color: #cbd5e1; border: 1px solid var(--line); background: rgba(15, 23, 42, .6); }
-        .lg-dot { width: 8px; height: 8px; border-radius: 50%; } .lg-dot.on { background: #4ade80; animation: lgPulse 2.4s infinite; } .lg-dot.off { background: #fb7185; }
+        .lg-dot { width: 8px; height: 8px; border-radius: 50%; } .lg-dot.on { background: #4ade80; position: relative; } .lg-dot.on::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: rgba(74, 222, 128, .6); animation: uiRing 2.4s infinite; } .lg-dot.off { background: #fb7185; }
         @keyframes lgPulse { 0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, .6); } 70% { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0); } 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } }
         .lg-foot { border-top: 1px solid rgba(148, 163, 184, .1); font-size: 12px; color: #64748b; }
         .lg-foot nav { display: flex; gap: 18px; flex-wrap: wrap; } .lg-foot a, .lg-foot button { color: inherit; text-decoration: none; background: none; border: 0; font-size: inherit; padding: 0; transition: color .2s; } .lg-foot a:hover, .lg-foot button:hover { color: #e2e8f0; }
@@ -80,8 +80,10 @@
         .lg-live b { font-size: 2rem; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; } .lg-live span { color: #c7d2fe; font-weight: 600; } .lg-live small { color: var(--mut); }
 
         /* ----- Karte mit umlaufendem Lichtrand ----- */
-        .lg-cardwrap { width: 100%; max-width: 456px; margin: 0 auto; padding: 1.5px; border-radius: 32px; background: conic-gradient(from var(--ang), transparent 0 52%, rgba(129, 140, 248, .95) 72%, rgba(34, 211, 238, .95) 88%, transparent 100%), rgba(148, 163, 184, .16); animation: lgSpin 8s linear infinite; box-shadow: 0 40px 100px -20px rgba(0, 0, 0, .7), 0 0 80px -20px rgba(99, 102, 241, .35); }
-        @keyframes lgSpin { to { --ang: 360deg; } }
+        /* Der Lichtrand dreht sich als eigene Ebene (nur "transform"), damit Chrome und Firefox die Karte samt Schatten nicht in jedem Bild neu zeichnen */
+        .lg-cardwrap { position: relative; overflow: hidden; isolation: isolate; width: 100%; max-width: 456px; margin: 0 auto; padding: 1.5px; border-radius: 32px; background: rgba(148, 163, 184, .16); box-shadow: 0 40px 100px -20px rgba(0, 0, 0, .7), 0 0 80px -20px rgba(99, 102, 241, .35); }
+        .lg-cardwrap::before { content: ""; position: absolute; left: 50%; top: 50%; z-index: -1; width: 220%; aspect-ratio: 1; background: conic-gradient(transparent 0 52%, rgba(129, 140, 248, .95) 72%, rgba(34, 211, 238, .95) 88%, transparent 100%); transform: translate(-50%, -50%); animation: lgSpin 8s linear infinite; will-change: transform; pointer-events: none; }
+        @keyframes lgSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
         .lg-card { padding: 28px; border-radius: 30.5px; background: linear-gradient(180deg, rgba(14, 20, 36, .98), rgba(8, 12, 22, .985)); }
         .lg-tabs { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; margin-bottom: 22px; border-radius: 18px; background: rgba(2, 6, 16, .7); border: 1px solid var(--line); }
         .lg-tabs button { position: relative; z-index: 1; padding: 11px 8px; border: 0; background: none; color: var(--mut); font-size: 13.5px; font-weight: 600; border-radius: 14px; transition: color .25s; }
@@ -165,7 +167,7 @@
             .lg-top, .lg-foot { padding: 16px 18px; } .lg-main { padding: 0 16px 28px; } .lg-card { padding: 22px 18px; } .lg-cols { grid-template-columns: 1fr; }
             .lg-feats { grid-template-columns: 1fr 1fr; gap: 9px; } .lg-feat { padding: 11px; gap: 10px; } .lg-feat small { display: none; } .lg-ft { width: 36px; height: 36px; font-size: 15px; } .lg-lead { font-size: .95rem; }
         }
-        @media (prefers-reduced-motion: reduce) { .lg-orb, .lg-cardwrap, .lg-rot, .lg-feat { animation: none !important; } }
+        @media (prefers-reduced-motion: reduce) { .lg-orb, .lg-cardwrap, .lg-cardwrap::before, .lg-rot, .lg-feat, .lg-dot.on::after { animation: none !important; } }
     </style>
 </head>
 <body>

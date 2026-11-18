@@ -375,7 +375,7 @@
             clockCfg = { ...clockCfg, ...(HP().clock || {}) }; applyClock();
             $('clk-modes').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return; clockCfg.mode = b.dataset.m; applyClock(); savePref('clock', { ...clockCfg }); });
             $('clk-sec').addEventListener('change', e => { clockCfg.sec = e.target.checked; applyClock(); savePref('clock', { ...clockCfg }); });
-            updateClock(); setInterval(updateClock, 1000);
+            updateClock(); setInterval(() => { if (!document.hidden) updateClock(); }, 1000); document.addEventListener('visibilitychange', () => { if (!document.hidden) updateClock(); });   // im Hintergrund-Tab nicht zeichnen
         }
         function applyClock() {
             if (!['both', 'digital', 'analog'].includes(clockCfg.mode)) clockCfg.mode = 'both';
@@ -458,8 +458,11 @@
             $('st-wl').innerText = lbl; $('k-wk-l').innerText = stOffset === 0 ? 'Diese Woche' : `${lbl} · ${mon.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}–${sun.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}`; $('st-wn').disabled = stOffset >= 0;
             setT($('k-wk'), hh(wIst)); $('k-wk-s').innerText = `von ${hh(wSoll)}`; $('k-wk-b').style.width = pct(wIst, wSoll);
             // Überstundenkonto seit dem ersten Eintrag (wie auf der Seite Zeiterfassung)
-            const first = workEntries.reduce((x, e) => (e.date && (!x || e.date < x) ? e.date : x), '');
-            if (first) { const acc = sumNet(first, today) - sollMin(first, today); setT($('k-ot'), (acc > 0 ? '+' : '') + hh(acc)); $('k-ot').className = 'v ' + (acc >= 0 ? 'g' : 'r'); $('k-ot-s').innerText = 'seit ' + first.split('-').reverse().join('.'); }
+            const first = workEntries.reduce((x, e) => (e.date && (!x || e.date < x) ? e.date : x), ''), ot = W().ot, otOk = ot && /^\d{4}-\d{2}-\d{2}$/.test(ot.upto || '') && Number.isFinite(+ot.min);
+            if (otOk) {          // eigener Stand aus der Zeiterfassung: ab dem Tag danach weiterrechnen
+                const nx = pDate(ot.upto); nx.setDate(nx.getDate() + 1); const from = localDate(nx), acc = Math.round(+ot.min) + (from <= today ? sumNet(from, today) - sollMin(from, today) : 0);
+                setT($('k-ot'), (acc > 0 ? '+' : '') + hh(acc)); $('k-ot').className = 'v ' + (acc >= 0 ? 'g' : 'r'); $('k-ot-s').innerText = 'Stand heute';
+            } else if (first) { const acc = sumNet(first, today) - sollMin(first, today); setT($('k-ot'), (acc > 0 ? '+' : '') + hh(acc)); $('k-ot').className = 'v ' + (acc >= 0 ? 'g' : 'r'); $('k-ot-s').innerText = 'seit ' + first.split('-').reverse().join('.'); }
             else { setT($('k-ot'), '–'); $('k-ot').className = 'v'; $('k-ot-s').innerText = 'Noch keine Einträge'; }
             // Resturlaub im laufenden Jahr
             const w = W(), y = now.getFullYear(), total = w.vacation + (w.carryYear === y ? w.carry : 0);
