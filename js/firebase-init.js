@@ -182,19 +182,22 @@ async function handleLogout() {
 
 
 // ---------- Design: Hell / Dunkel ----------
-// Hell wird über einen Farbfilter auf der ganzen Seite erzeugt. So gilt es ohne Umbau auf allen Seiten.
+// Seiten mit /assets/light.css bekommen ein echtes helles Design (Klasse "hell" an <html>).
+// Seiten ohne light.css nutzen weiter den Farbfilter als Notlösung.
 // Seiten, die immer dunkel bleiben sollen (Wandkalender), setzen <html data-theme-lock="dark">.
 (function () {
     const css = document.createElement('style');
-    css.textContent = 'html.light{filter:invert(.94) hue-rotate(180deg)}html.light img,html.light video,html.light iframe{filter:invert(1) hue-rotate(180deg)}';
+    css.textContent = 'html.light:not(.hell){filter:invert(.94) hue-rotate(180deg)}html.light:not(.hell) img,html.light:not(.hell) video,html.light:not(.hell) iframe{filter:invert(1) hue-rotate(180deg)}';
     document.head.appendChild(css);
 })();
 window.applyTheme = function () {
     const lock = document.documentElement.dataset.themeLock;
     const pref = lock || safeStore(() => localStorage.getItem('theme')) || 'dark';
     const light = pref === 'light' || (pref === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches);
+    const own = !!document.querySelector('link[href*="/assets/light.css"]');       // Seite hat ein echtes helles Design
     document.documentElement.classList.toggle('light', light);
-    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = light ? '#f1f5f9' : '#080c14';
+    document.documentElement.classList.toggle('hell', light && own);
+    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = light ? (own ? '#eef1f6' : '#f1f5f9') : '#080c14';
     window.updateThemeButtons();
 };
 window.updateThemeButtons = function () {
