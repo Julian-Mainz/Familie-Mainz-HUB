@@ -44,6 +44,7 @@
                         <div><span>Push-Alarm</span><span id="set-stat-push" class="gs-mu">Inaktiv</span></div>
                     </div>
                     <button onclick="toggleTheme()" class="gs-row"><span><i data-theme-icon class="fa-solid fa-moon" style="color:#94a3b8;margin-right:8px"></i>Design</span><span data-theme-text class="gs-mu">Dunkel</span></button>
+                    <label class="gs-row" id="row-space"><span><b><i class="fa-solid fa-star" style="color:#a78bfa;margin-right:8px"></i>Weltall-Hintergrund</b><small>Sterne, Nebel und Planet im dunklen Design (auf diesem Gerät)</small></span><input type="checkbox" id="pref-space" onchange="window.Space && Space.set(this.checked)"></label>
                     <div class="gs-row" style="flex-direction:column;align-items:stretch;gap:10px">
                         <b><i class="fa-solid fa-user-shield" style="color:#818cf8;margin-right:8px"></i>Meine Daten &amp; Konto</b>
                         <button id="btn-export" onclick="exportMyData()" class="gs-btn full"><i class="fa-solid fa-download" style="color:#34d399;margin-right:8px"></i>Alle meine Daten herunterladen (JSON)</button>
@@ -92,6 +93,7 @@
         buildModal();
         refreshPushUI();
         if (typeof updateThemeButtons === 'function') updateThemeButtons();
+        const sp = document.getElementById('pref-space'); if (sp) { sp.checked = !!(window.Space && Space.on()); document.getElementById('row-space').classList.toggle('hidden', !window.Space); }
         document.getElementById('modal-settings').classList.remove('hidden');
     };
     window.closeSettingsModal = function () {
