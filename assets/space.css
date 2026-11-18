@@ -1,35 +1,28 @@
 /* assets/space.css - Weltall-Hintergrund. Nur im dunklen Design, nur mit <html class="space"> (abschaltbar in den Einstellungen).
-   Leistung: Sterne und Nebel werden einmal auf ein Canvas gezeichnet (kein Neuzeichnen beim Scrollen),
+   Leistung: ein festes Bild (28 KB) als eigene Ebene, beim Scrollen wird nichts neu gezeichnet;
    bewegt werden nur wenige kleine Punkte über opacity/transform. */
 
 html.space:not(.hell) body.has-sb::before { display: none; }
-#space-bg { position: fixed; inset: 0; z-index: -2; pointer-events: none; display: none; }
+#space-bg { position: fixed; inset: 0; z-index: -2; pointer-events: none; display: none; background: #04041a url("/assets/img/space-bg.webp") left bottom / cover no-repeat; }
 html.space:not(.hell) #space-bg { display: block; }
-#space-bg canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+html.space:not(.hell) body.has-sb { background: #04041a !important; }
+/* PC: Bild beginnt rechts neben der Seitenleiste, damit die Planeten nicht dahinter verschwinden */
+@media (min-width: 1024px) { html.space:not(.hell) body.has-sb #space-bg { left: calc(var(--sbw) + 14px); transition: left .3s ease; } }
 /* funkelnde Sterne */
-#space-bg i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px 1px rgba(191, 219, 254, .9); opacity: .2; animation: spTw var(--d, 4s) ease-in-out infinite; animation-delay: var(--w, 0s); }
-@keyframes spTw { 50% { opacity: 1; transform: scale(1.6); } }
+#space-bg i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px 1px rgba(196, 181, 253, .9); opacity: .15; animation: spTw var(--d, 4s) ease-in-out infinite; animation-delay: var(--w, 0s); }
+@keyframes spTw { 50% { opacity: .9; transform: scale(1.6); } }
 /* Sternschnuppe */
-#space-bg b { position: absolute; top: 0; left: 0; width: 140px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .95)); opacity: 0; transform-origin: right center; }
+#space-bg b { position: absolute; top: 0; left: 0; width: 140px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(233, 213, 255, .95)); opacity: 0; transform-origin: right center; }
 #space-bg b.go { animation: spShoot 1.1s ease-out forwards; }
 @keyframes spShoot { 0% { opacity: 0; transform: translate(var(--x0), var(--y0)) rotate(var(--r)); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x1), var(--y1)) rotate(var(--r)); } }
 
-/* Karten leicht durchscheinend, damit das All durchkommt (ohne Unschärfe-Filter) */
-html.space:not(.hell) .ux-card { background: linear-gradient(180deg, rgba(17, 25, 46, .78), rgba(9, 14, 28, .84)); }
-html.space:not(.hell) #sb { background: linear-gradient(180deg, rgba(17, 25, 46, .86), rgba(8, 12, 24, .9)); overflow: hidden; }
+/* Karten und Seitenleiste leicht durchscheinend, damit das Bild durchkommt (ohne Unschärfe-Filter) */
+html.space:not(.hell) .ux-card { background: linear-gradient(180deg, rgba(16, 16, 42, .78), rgba(8, 8, 26, .84)); }
+html.space:not(.hell) #sb { background: linear-gradient(180deg, rgba(16, 16, 42, .8), rgba(8, 8, 26, .84)); }
+@media (max-width: 1023.98px) { html.space:not(.hell) #sb { background: linear-gradient(180deg, #10102a, #08081a); } }   /* Handy: Menü liegt über der Seite, daher deckend */
 
-/* Planeten-Szene unten in der Seitenleiste */
-.sb-scene { display: none; }
-html.space:not(.hell) .sb-scene { display: block; position: absolute !important; left: 0; right: 0; bottom: 0; height: 360px; pointer-events: none; z-index: 0; }
-.sb-scene svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-html.space:not(.hell) .sb-scene { -webkit-mask-image: linear-gradient(180deg, transparent, #000 28%); mask-image: linear-gradient(180deg, transparent, #000 28%); }   /* weicher oberer Rand */
-html.space:not(.hell) .sb-foot { position: relative; z-index: 1; }
-html.space:not(.hell) .sb-tool { background: rgba(8, 12, 24, .55); }
-html.space:not(.hell) .sb-user { background: rgba(8, 12, 24, .6); }
-html.space:not(.hell) .sb-legal { color: #94a3b8; }
-
-/* Login: Sternenhimmel statt Raster */
+/* Login: Bild statt Raster */
 html.space:not(.hell) .lg-grid { display: none; }
+html.space:not(.hell) .lg-feat, html.space:not(.hell) .lg-live, html.space:not(.hell) .lg-pill { background: rgba(8, 8, 26, .86); }
 
 @media (prefers-reduced-motion: reduce) { #space-bg i, #space-bg b { animation: none !important; } }
-@media (max-width: 1023.98px) { html.space:not(.hell) .sb-scene { height: 320px; } html.space:not(.hell) #sb { background: linear-gradient(180deg, #111a2e, #080c18); } }   /* Handy: Menü liegt über der Seite, daher deckend */
