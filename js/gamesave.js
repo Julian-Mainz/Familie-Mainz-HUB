@@ -6,7 +6,7 @@
 // Zustand anzeigen:   GameSave.onStatus(s => ...)   s = 'local' | 'sync' | 'saved' | 'offline' | 'error'
 (function () {
     'use strict';
-    const GAMES = { 'ballon-alarm-v1': 'ballon', 'keks-fabrik-v1': 'keks', 'buero-imperium-v1': 'buero', 'gc-meta': 'gc' };
+    const GAMES = { 'ballon-alarm-v1': 'ballon', 'keks-fabrik-v1': 'keks', 'buero-imperium-v1': 'buero', 'sternenkolonie-v1': 'kolonie', 'gc-meta': 'gc' };
     const MAX = 200000, WAIT_MS = 3500, UPLOAD_EVERY = 15000;
     const CFG = { apiKey: 'AIzaSyCfKWWHQ17-ujYGJcHw6efFBESArA8uY0Q', authDomain: 'familie-mainz-netzwerk.firebaseapp.com', projectId: 'familie-mainz-netzwerk', storageBucket: 'familie-mainz-netzwerk.firebasestorage.app', messagingSenderId: '361922663455', appId: '1:361922663455:web:ed3eb8d34103ce89be312a' };
     const LS = window.localStorage, rawSet = Storage.prototype.setItem, rawRemove = Storage.prototype.removeItem;
@@ -43,14 +43,25 @@
         return m.dirty ? 'up' : null;
     }
     function schedule() { if (!ref) return; clearTimeout(timer); timer = setTimeout(upload, UPLOAD_EVERY); }
+    const blockedF = {};          // einzelne Spiele, die das Konto (noch) nicht annimmt, z. B. ein neues Spiel vor dem Regel-Update
     async function upload() {
         clearTimeout(timer); if (!ref || Date.now() < blockedUntil) return;
         const out = {}, done = [];
-        watched.forEach(k => { const m = meta(k); if (!m.dirty) return; const v = LS.getItem(k); if (v != null && v.length > MAX) return; out[field(k)] = { data: v == null ? '' : v, ms: m.ms || Date.now(), at: firebase.firestore.FieldValue.serverTimestamp() }; done.push([k, m.ms]); });
+        watched.forEach(k => { const m = meta(k); if (!m.dirty) return; if ((blockedF[field(k)] || 0) > Date.now()) return; const v = LS.getItem(k); if (v != null && v.length > MAX) return; out[field(k)] = { data: v == null ? '' : v, ms: m.ms || Date.now(), at: firebase.firestore.FieldValue.serverTimestamp() }; done.push([k, m.ms]); });
         if (!done.length) return;
         setStatus('sync');
-        try { await ref.set(out, { merge: true }); done.forEach(([k, ms]) => { const m = meta(k); if (m.ms === ms) setMeta(k, { ms, syncedMs: ms }); cloud[field(k)] = out[field(k)]; }); setStatus('saved'); }
-        catch (e) { setStatus(navigator.onLine === false ? 'offline' : 'error'); if (e && e.code === 'permission-denied') blockedUntil = Date.now() + 600000; else schedule(); }
+        const ok = list => list.forEach(([k, ms]) => { const m = meta(k); if (m.ms === ms) setMeta(k, { ms, syncedMs: ms }); cloud[field(k)] = out[field(k)]; });
+        try { await ref.set(out, { merge: true }); ok(done); setStatus('saved'); }
+        catch (e) {
+            if (e && e.code === 'permission-denied' && done.length > 1) {      // ein abgelehntes Spiel soll die anderen nicht blockieren: einzeln versuchen
+                let good = 0;
+                for (const d of done) { const f = field(d[0]); try { await ref.set({ [f]: out[f] }, { merge: true }); ok([d]); good++; } catch (e2) { if (e2 && e2.code === 'permission-denied') blockedF[f] = Date.now() + 600000; } }
+                if (good) return setStatus('saved');
+                blockedUntil = Date.now() + 600000; return setStatus('error');
+            }
+            setStatus(navigator.onLine === false ? 'offline' : 'error');
+            if (e && e.code === 'permission-denied') { if (done.length === 1) blockedF[field(done[0][0])] = Date.now() + 600000; else blockedUntil = Date.now() + 600000; } else schedule();
+        }
     }
     async function pull() {
         if (!ref) return [];

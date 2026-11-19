@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sternenkolonie</title>
+<meta name="theme-color" content="#04051a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='18' fill='%236d28d9'/%3E%3Cellipse cx='32' cy='34' rx='30' ry='8' fill='none' stroke='%23c4b5fd' stroke-width='3' transform='rotate(-18 32 34)'/%3E%3C/svg%3E">
+<style>
+:root{--pan:linear-gradient(180deg,rgba(14,20,44,.9),rgba(7,10,26,.92));--line:rgba(125,211,252,.22);--txt:#e2e8f0;--mut:#94a3b8;--acc:#67e8f9;--acc2:#a5b4fc;--ok:#4ade80;--bad:#fb7185;--warn:#fbbf24}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#04051a;color:var(--txt);font:14px/1.4 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+button{font:inherit;color:inherit;cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}
+#cv{position:fixed;inset:0;touch-action:none;cursor:grab}#cv:active{cursor:grabbing}
+.glass{background:var(--pan);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 34px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06)}
+svg{display:block}
+/* ---------- Kopfzeile ---------- */
+#top{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));display:flex;gap:8px;align-items:stretch;pointer-events:none;z-index:5}
+#top>*{pointer-events:auto}
+.back{display:grid;place-items:center;width:44px;text-decoration:none;color:var(--acc)}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 14px 6px 8px;cursor:pointer;border:1px solid var(--line)}
+.lvl{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-weight:900;color:#03111c;background:linear-gradient(135deg,#67e8f9,#818cf8);box-shadow:0 0 18px rgba(103,232,249,.35)}
+.brand b{display:block;font-size:14px;letter-spacing:.06em;white-space:nowrap}.brand small{display:block;font-size:10.5px;color:#7dd3fc;letter-spacing:.1em;font-weight:700;white-space:nowrap}
+#res{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;flex:0 1 auto;min-width:0}#res::-webkit-scrollbar{display:none}
+.res{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 9px;flex:none;background:var(--pan);border:1px solid var(--line);border-radius:14px}
+.res svg{width:24px;height:24px;flex:none}.res b{display:block;font-size:14.5px;font-variant-numeric:tabular-nums;line-height:1.15;white-space:nowrap}.res small{display:block;font-size:10.5px;color:var(--ok);font-weight:700;white-space:nowrap}
+.res.warn{border-color:rgba(251,113,133,.6)}.res.warn small{color:var(--bad)}.res.full small{color:var(--warn)}
+.sp{flex:1}
+.tools{display:flex;gap:8px}.tool{width:48px;display:grid;place-items:center;font-size:20px;background:var(--pan);border:1px solid var(--line);border-radius:14px;position:relative}
+.tool:hover{border-color:var(--acc)}.tool span{position:absolute;bottom:-18px;font-size:10px;color:var(--mut);white-space:nowrap;opacity:0;transition:.2s}.tool:hover span{opacity:1}
+/* ---------- links: Auftrag & Ereignisse ---------- */
+#left{position:fixed;left:12px;top:calc(var(--th,66px) + 10px);width:270px;display:flex;flex-direction:column;gap:8px;z-index:4;max-height:calc(100% - 270px);overflow:auto;scrollbar-width:none}
+#quest{padding:12px 14px}#quest .qh span{font-size:10.5px;letter-spacing:.14em;color:#7dd3fc;font-weight:800}#quest b{display:block;font-size:14px;margin:4px 0 3px}#quest p{margin:0 0 6px;color:var(--mut);font-size:12.5px}
+.qr{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--mut)}
+.cost{display:inline-flex;align-items:center;gap:3px;font-weight:700;font-size:12px;font-variant-numeric:tabular-nums;margin-right:6px;white-space:nowrap}.cost svg{width:15px;height:15px}.cost.no{color:var(--bad)}
+.alert{padding:10px 12px;border-radius:14px;background:var(--pan);border:1px solid rgba(103,232,249,.35);font-size:12.5px;cursor:default}.alert.info{cursor:pointer;padding:8px 12px}
+.alert.bad{background:linear-gradient(135deg,rgba(127,29,29,.55),rgba(30,8,20,.9));border-color:rgba(251,113,133,.55)}
+.alert .ah{display:flex;justify-content:space-between;gap:8px;align-items:center}.alert .tm{font-weight:800;font-variant-numeric:tabular-nums;color:var(--acc)}.alert.bad .tm{color:var(--bad)}
+.alert p{margin:5px 0 3px}.alert small{color:var(--mut)}
+.ok{color:var(--ok)}.no,.bad{color:var(--bad)}.warn{color:var(--warn)}.mut{color:var(--mut)}
+/* ---------- rechts: Gebäude ---------- */
+#info{position:fixed;right:12px;top:calc(var(--th,66px) + 10px);width:300px;padding:14px;z-index:4;max-height:calc(100% - 270px);overflow:auto}
+.ih{display:flex;gap:10px;align-items:center;margin-bottom:6px}.ih img{width:64px;height:48px;object-fit:contain}.ih small{color:#7dd3fc;font-weight:800;letter-spacing:.12em;font-size:10.5px}.ih h3{margin:0;font-size:17px}
+.x{margin-left:auto;align-self:flex-start;width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+#info p{margin:4px 0 10px;font-size:12.5px}
+.kv{display:grid;gap:0;margin:8px 0 10px}.kv div{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid rgba(148,163,184,.12);font-size:12.5px}.kv span{color:var(--mut)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-weight:700;font-size:13px}
+.btn:hover:not(:disabled){border-color:var(--acc)}.btn.pri{border:0;color:#03111c;background:linear-gradient(135deg,#67e8f9,#a5b4fc);box-shadow:0 0 22px rgba(103,232,249,.25)}.btn.sm{padding:7px 11px;font-size:12px;border-radius:10px}.btn.wide{width:100%;margin-top:8px}.btn.ghost{background:transparent;color:var(--mut);font-weight:600}
+.btn .cost{color:inherit}.btn.pri .cost.no{color:#9f1239}
+.costs{display:flex;flex-wrap:wrap;gap:2px;margin:6px 0 2px}
+.prog{height:7px;border-radius:5px;background:rgba(148,163,184,.18);overflow:hidden;margin:8px 0 4px}.prog i{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#818cf8);border-radius:5px}
+.row2{display:flex;gap:8px;margin-top:8px}.row2 .btn{flex:1}
+/* ---------- unten: Bauleiste ---------- */
+#dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom));max-width:calc(100% - 24px);padding:8px 10px 10px;z-index:5}
+#cats{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto;scrollbar-width:none}#cats::-webkit-scrollbar{display:none}
+.cat{padding:6px 12px;border-radius:10px;font-size:12px;font-weight:700;color:var(--mut);background:rgba(255,255,255,.04);border:0;white-space:nowrap}.cat.on{color:#03111c;background:linear-gradient(135deg,#67e8f9,#a5b4fc)}
+#cards{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}#cards::-webkit-scrollbar{display:none}
+.card{flex:none;width:108px;padding:6px 6px 7px;border-radius:13px;background:rgba(255,255,255,.035);border:1px solid rgba(148,163,184,.14);text-align:center;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-2px);border-color:rgba(103,232,249,.5)}.card img{display:block;width:84px;height:64px;margin:0 auto 2px;object-fit:contain}.card b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .cs{display:flex;flex-wrap:wrap;justify-content:center;font-size:11px;margin-top:2px;min-height:17px;color:var(--mut)}.card .cs .cost{font-size:11px;margin-right:3px}.card .cs .cost svg{width:13px;height:13px}
+.card.on{border-color:var(--acc);background:rgba(34,211,238,.12);box-shadow:0 0 22px rgba(34,211,238,.3)}.card.lock{opacity:.5}
+#buildbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(178px + env(safe-area-inset-bottom));display:flex;gap:12px;align-items:center;padding:9px 10px 9px 16px;z-index:6;font-size:12.5px;white-space:nowrap}#buildbar span{color:var(--mut)}
+.zoom{position:fixed;right:12px;bottom:calc(178px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px;z-index:4}.zoom button{width:40px;height:40px;border-radius:12px;background:var(--pan);border:1px solid var(--line);font-size:18px;font-weight:700}
+/* ---------- Fenster ---------- */
+.modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(2,4,14,.62);padding:16px}
+.hidden{display:none!important}
+.box{width:min(980px,100%);max-height:100%;overflow:auto;padding:18px}
+.mh{display:flex;align-items:center;gap:10px;margin-bottom:12px}.mh h2{margin:0;font-size:19px;letter-spacing:.04em}.mh .mut{font-size:12.5px}
+.mgrid{display:grid;grid-template-columns:1.25fr 1fr;gap:14px}
+.ship{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(148,163,184,.12);margin-bottom:8px}
+.ship img{width:110px;height:66px;object-fit:contain}.ship p{margin:2px 0 4px;color:var(--mut);font-size:12px}.sv{display:flex;gap:8px;font-size:11.5px;color:#cbd5e1}.sb{display:flex;flex-direction:column;align-items:flex-end;gap:4px;max-width:150px;text-align:right}.ship.lock{opacity:.5}
+.fl{display:flex;gap:10px;align-items:center;padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.03);margin-bottom:6px}.fl img{width:64px;height:38px;object-fit:contain}.fl small{display:block;color:var(--mut);font-size:11.5px}
+.rs{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(148,163,184,.12);margin-bottom:8px}.rs p{margin:2px 0 0;color:var(--mut);font-size:12px}.rs.done{opacity:.7}.rs .prog{width:120px}
+.mk{display:grid;grid-template-columns:26px 1fr auto auto auto;gap:10px;align-items:center;padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.03);margin-bottom:8px}.mk svg{width:24px;height:24px}.mk .btn svg{width:14px;height:14px}
+/* Sternenkarte */
+#m-map .box{width:min(1240px,100%);height:min(760px,100%);display:grid;grid-template-columns:1fr 320px;grid-template-rows:auto 1fr;gap:12px}
+#m-map .mh{grid-column:1/-1;margin:0}.mapwrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);min-height:300px}#mapcv{position:absolute;inset:0;width:100%;height:100%;cursor:pointer}
+#map-side{overflow:auto}#map-side h4{margin:0 0 6px;font-size:13px;letter-spacing:.12em;color:#7dd3fc;text-transform:uppercase}#map-side p{font-size:12.5px;margin:4px 0 10px}
+.mis{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);margin-bottom:8px}.mis:hover{border-color:var(--acc)}.mis small{display:flex;gap:4px;align-items:center;color:var(--mut);font-size:11.5px;margin-top:2px}.mis small svg{width:13px;height:13px}
+.pick{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.03);margin-bottom:6px}.pick img{width:62px;height:38px;object-fit:contain}.pick small{display:block;color:var(--mut);font-size:11.5px}
+.step{margin-left:auto;display:flex;align-items:center;gap:8px}.step button{width:32px;height:32px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-size:16px;font-weight:800}.step b{min-width:16px;text-align:center}
+/* Menü */
+#m-menu .box{width:min(560px,100%);text-align:center;padding:26px 22px}
+.title{font-size:34px;font-weight:900;letter-spacing:.08em;margin:6px 0 2px;background:linear-gradient(90deg,#67e8f9,#a5b4fc,#f0abfc);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub2{color:#7dd3fc;letter-spacing:.2em;font-size:11px;font-weight:800}
+#mm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0}#mm-stats div{padding:10px;border-radius:12px;background:rgba(255,255,255,.04)}#mm-stats b{display:block;font-size:18px}#mm-stats small{color:var(--mut);font-size:11px}
+.mbtns{display:grid;gap:8px;margin-top:12px}.mbtns .btn{padding:12px}
+.wb{padding:10px 12px;border-radius:12px;background:rgba(34,211,238,.08);border:1px solid rgba(103,232,249,.3);font-size:12.5px;text-align:left;margin:8px 0}.wb svg{width:14px;height:14px;display:inline-block;vertical-align:-2px}
+#mm-ach{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px}.ach{padding:4px 9px;border-radius:9px;font-size:11.5px;background:rgba(255,255,255,.04);color:#64748b;filter:grayscale(1)}.ach.got{color:var(--txt);filter:none;background:rgba(250,204,21,.12)}
+#menu-help{text-align:left;font-size:12.5px;color:#cbd5e1;margin-top:12px;padding:12px;border-radius:12px;background:rgba(255,255,255,.03)}#menu-help li{margin:3px 0}
+#m-report .box{width:min(440px,100%)}#m-report[data-kind=good] .box{border-color:rgba(74,222,128,.5)}#m-report[data-kind=bad] .box{border-color:rgba(251,113,133,.55)}
+/* Meldungen */
+#toasts{position:fixed;left:50%;transform:translateX(-50%);top:calc(74px + env(safe-area-inset-top));z-index:30;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+.toast{padding:9px 14px;border-radius:12px;background:rgba(7,10,26,.92);border:1px solid var(--line);font-size:13px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.4);animation:tin .3s ease;display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;max-width:92vw}
+.toast.good{border-color:rgba(74,222,128,.5)}.toast.bad{border-color:rgba(251,113,133,.55)}.toast.out{opacity:0;transform:translateY(-6px);transition:.4s}.toast svg{width:14px;height:14px}
+@keyframes tin{from{opacity:0;transform:translateY(-8px)}}
+/* ---------- Handy ---------- */
+@media (max-width:900px){
+ #top{flex-wrap:wrap;left:8px;right:8px;gap:6px}.brand{padding:4px 10px 4px 6px}.lvl{width:30px;height:30px}.brand small{display:none}
+ #res{order:5;flex:1 1 100%}.res{padding:5px 9px 5px 7px}.res svg{width:20px;height:20px}.res b{font-size:13px}
+ .tool{width:42px;font-size:18px}.tool span{display:none}.back{width:40px}
+ #left{top:calc(var(--th,118px) + 8px);left:8px;width:min(260px,62vw)}#quest p{display:none}#left .alert p,#left .alert small{font-size:11.5px}
+ #info{left:8px;right:8px;width:auto;top:auto;bottom:calc(176px + env(safe-area-inset-bottom));max-height:46vh;z-index:7}
+ .card{width:92px}.card img{width:72px;height:54px}#dock{left:8px;right:8px;transform:none;max-width:none}
+ #buildbar{bottom:calc(172px + env(safe-area-inset-bottom));max-width:calc(100% - 16px);white-space:normal}.zoom{display:none}
+ .mgrid{grid-template-columns:1fr}#m-map .box{grid-template-columns:1fr;grid-template-rows:auto 48vh auto;height:100%}.ship{grid-template-columns:80px 1fr}.ship img{width:80px}.sb{grid-column:1/-1;flex-direction:row;align-items:center;max-width:none;justify-content:flex-end}
+ .modal{padding:8px}.box{padding:14px}.mk{grid-template-columns:22px 1fr;}.mk .btn{grid-column:span 1}
+}
+@media (max-width:900px) and (max-height:560px){#left{display:none}}
+</style>
+</head>
+<body>
+<canvas id="cv" aria-label="Deine Kolonie"></canvas>
+
+<div id="top">
+  <a class="back glass" href="/Spiele/" title="Zurück zum Game Center" aria-label="Zurück zum Game Center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></a>
+  <div class="glass brand" data-act="menu" title="Menü"><div class="lvl" id="lvl">1</div><div><b id="cname">Nova Prime</b><small id="store">Lager</small></div></div>
+  <div id="res"></div>
+  <div class="sp"></div>
+  <div class="tools">
+    <button class="tool" data-act="map" title="Sternenkarte">🗺️<span>Karte</span></button>
+    <button class="tool" data-act="fleet" title="Werft & Flotte">🛠️<span>Werft</span></button>
+    <button class="tool" data-act="research" title="Forschung">🔬<span>Forschung</span></button>
+    <button class="tool" data-act="market" title="Markt">💱<span>Markt</span></button>
+    <button class="tool" data-act="menu" title="Menü">☰<span>Menü</span></button>
+  </div>
+</div>
+
+<div id="left"><div class="glass" id="quest"></div><div id="events" style="display:flex;flex-direction:column;gap:8px"></div></div>
+<div id="info" class="glass hidden"></div>
+<div id="buildbar" class="glass hidden"></div>
+<div class="zoom"><button id="zin" aria-label="Hineinzoomen">+</button><button id="zout" aria-label="Herauszoomen">−</button><button id="zhome" aria-label="Zur Zentrale" style="font-size:15px">⌂</button></div>
+<div id="dock" class="glass"><div id="cats"></div><div id="cards"></div></div>
+<div id="toasts" aria-live="polite"></div>
+
+<!-- Sternenkarte -->
+<div class="modal hidden" id="m-map"><div class="box glass">
+  <div class="mh"><h2>🗺️ Sternenkarte</h2><span class="mut">Sektor 2</span><span class="sp"></span><button class="x" data-act="close" aria-label="Schließen">✕</button></div>
+  <div class="mapwrap"><canvas id="mapcv"></canvas></div>
+  <div id="map-side"></div>
+</div></div>
+<!-- Werft -->
+<div class="modal hidden" id="m-fleet"><div class="box glass">
+  <div class="mh"><h2>🛠️ Werft & Flotte</h2><span class="mut" id="fl-cap"></span><span class="sp"></span><button class="x" data-act="close" aria-label="Schließen">✕</button></div>
+  <p class="mut" id="fl-note" style="margin:0 0 10px"></p>
+  <div class="mgrid"><div id="fl-classes"></div><div><h4 class="mut" style="margin:0 0 8px;letter-spacing:.12em;font-size:11.5px">DEINE FLOTTE</h4><div id="fl-list"></div></div></div>
+</div></div>
+<!-- Forschung -->
+<div class="modal hidden" id="m-research"><div class="box glass" style="width:min(640px,100%)">
+  <div class="mh"><h2>🔬 Forschung</h2><span class="sp"></span><button class="x" data-act="close" aria-label="Schließen">✕</button></div>
+  <p class="mut" id="rs-note" style="margin:0 0 10px"></p><div id="rs-list"></div>
+</div></div>
+<!-- Markt -->
+<div class="modal hidden" id="m-market"><div class="box glass" style="width:min(640px,100%)">
+  <div class="mh"><h2>💱 Markt</h2><span class="mut">Rohstoffe gegen Credits tauschen</span><span class="sp"></span><button class="x" data-act="close" aria-label="Schließen">✕</button></div>
+  <div id="mk-list"></div><p class="mut" style="font-size:12px">Bessere Preise gibt es mit Frachtern auf der Sternenkarte.</p>
+</div></div>
+<!-- Menü -->
+<div class="modal hidden" id="m-menu"><div class="box glass">
+  <div class="sub2">AUFBAUSTRATEGIE</div><div class="title">STERNENKOLONIE</div>
+  <div id="mm-welcome"></div>
+  <div id="mm-stats"></div>
+  <div class="mbtns">
+    <button class="btn pri" data-act="continue" id="mm-continue">Weiterspielen</button>
+    <div class="row2" style="margin:0"><button class="btn" data-act="help">❓ So geht’s</button><button class="btn" data-act="rename">✏️ Kolonie benennen</button></div>
+    <div class="row2" style="margin:0"><button class="btn" data-act="fx" id="mm-fx">Effekte</button><button class="btn" data-act="new">🔄 Neu anfangen</button></div>
+    <a class="btn ghost" href="/Spiele/" style="text-decoration:none">← Zurück zum Game Center</a>
+  </div>
+  <ol id="menu-help" class="hidden">
+    <li><b>Bauen:</b> Wähle unten ein Gebäude und tippe auf ein freies Feld. Am Handy erst tippen (Vorschau), dann noch mal tippen.</li>
+    <li><b>Energie & Bewohner:</b> Solarfelder liefern Strom, Wohnkuppeln und Gewächshäuser lassen Bewohner einziehen. Ohne genug Strom oder Arbeiter läuft die Produktion langsamer.</li>
+    <li><b>Kommandozentrale ausbauen:</b> schaltet neue Gebäude, höhere Stufen und mehr Bauland frei.</li>
+    <li><b>Fabrik & Raffinerie:</b> machen aus Erz Bauteile und Treibstoff.</li>
+    <li><b>Raumfahrt:</b> Landeplätze, Werft und Schiffe. Auf der Sternenkarte schickst du Schiffe auf Missionen.</li>
+    <li><b>Piraten:</b> greifen ab Zentrale Stufe 2 regelmäßig an. Abwehrtürme, Jäger und Kreuzer schützen dich.</li>
+    <li>Die Kolonie produziert bis zu 8 Stunden weiter, wenn du nicht spielst. Der Spielstand wird im Konto gespeichert.</li>
+    <li>Ziehen zum Verschieben, Mausrad oder zwei Finger zum Zoomen.</li>
+  </ol>
+  <div id="mm-ach"></div>
+</div></div>
+<!-- Bericht -->
+<div class="modal hidden" id="m-report"><div class="box glass"><div class="mh"><h2 id="rp-title"></h2><span class="sp"></span><button class="x" data-act="close" aria-label="Schließen">✕</button></div><div id="rp-body"></div><button class="btn pri wide" data-act="close">OK</button></div></div>
+
+<script src="/js/gamesave.js"></script>
+<script src="ships.js"></script>
+<script src="art.js"></script>
+<script src="game.js"></script>
+<script src="ui.js"></script>
+<script>(function(){var t=document.getElementById('top');if(!t)return;function f(){var r=t.getBoundingClientRect();document.documentElement.style.setProperty('--th',Math.round(r.bottom)+'px')}f();if(window.ResizeObserver)new ResizeObserver(f).observe(t);addEventListener('resize',f)})();</script>
+</body>
+</html>
