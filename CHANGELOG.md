@@ -25,5 +25,29 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 ### Datenschutz
 - Ergänzt: Startstand und Monatsabschlüsse des Überstundenkontos, Position und Größe der Karten im gespeicherten Layout.
 
+### Neu: Sternenkolonie (Aufbau-Strategiespiel)
+- Neues Spiel unter /Kolonie/: Weltraumkolonie auf einem Asteroiden aufbauen, im Iso-Stil mit eigener Grafik.
+- 15 Gebäude (Kommandozentrale, Wohnkuppel, Gewächshaus, Solarfeld, Mine, Kristallbohrer, Fabrik, Raffinerie, Lager, Landeplatz, Werft, Abwehrturm, Schildgenerator, Labor), ausbaubar, reparierbar, abreißbar.
+- Wirtschaft mit Erz, Kristallen, Bauteilen, Treibstoff und Credits; Energie und Arbeiter müssen reichen. Kommandozentrale bis Stufe 5, jede Stufe bringt mehr Bauland.
+- 5 Schiffe (Drohne, Frachter, Forscher, Jäger, Kreuzer), die auf Landeplätzen parken und animiert starten und landen.
+- Sternenkarte mit Missionen: Erz abbauen, handeln, Anomalien scannen, unbekannte Systeme erkunden, Piratennest angreifen.
+- Piratenangriffe mit Vorwarnung, sichtbarem Kampf und Bericht; Händler-Angebote.
+- Forschung (8 Technologien), Markt, 23 Aufträge, 14 Erfolge.
+- Läuft bis zu 8 Stunden offline weiter. Steuerung mit Maus und Mausrad oder Wischen und Pinch-Zoom.
+- Spielstand im Konto, auf jedem Gerät weiterspielbar.
+
+### Game Center
+- Sternenkolonie in der Bibliothek, mit Titelbild, Fortschritt (Aufträge, Zentrale, Forschung, Sternenkarte), Statistiken und Erfolgen.
+
+### Spielstände im Konto
+- Lehnt das Konto ein einzelnes Spiel ab, werden die anderen trotzdem gespeichert (vorher war 10 Minuten lang alles blockiert).
+
+### Optik
+- Echtes helles Design mit eigenem Farbschema auf allen Seiten statt Filter; Klasse heißt jetzt `hell` (kein Konflikt mehr mit dem Admin-Bereich).
+- Weltall-Hintergrund im dunklen Design: animierter Sternenhimmel mit Funkeln und Sternschnuppen, Planeten-Motiv unten im Menü. Abschaltbar in den Einstellungen.
+
+### Firestore-Regeln
+- gamesaves: Feld `kolonie` erlaubt.
+
 ### Geänderte Dateien
-zeiterfassung.html, menu.html, wand.html, datenschutz.html, js/layout.js, js/calendar-core.js, assets/layout.css
+zeiterfassung.html, menu.html, wand.html, datenschutz.html, js/layout.js, js/calendar-core.js, assets/layout.css, Kolonie/ (neu), Spiele/index.html, js/gamesave.js, assets/light.css, assets/space.css, js/space.js, js/settings.js, js/firebase-init.js, assets/img/menu-planet.webp
