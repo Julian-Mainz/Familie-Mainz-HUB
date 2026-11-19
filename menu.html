@@ -130,6 +130,13 @@
         @media (max-width: 1023.98px) { #fab { bottom: calc(88px + env(safe-area-inset-bottom)); right: 16px; } }
         body.lay-on #fab { display: none; }
         #modal-evdel { z-index: 130; }
+        .ev-cols { display: flex; gap: 8px; flex-wrap: wrap; padding: 2px 0 4px; } .ev-cols label { position: relative; cursor: pointer; }
+        .ev-cols input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+        .ev-cols .sw { width: 32px; height: 32px; border-radius: 50%; background: var(--c); display: grid; place-items: center; color: #0b1220; font-size: 12px; transition: transform .15s, box-shadow .15s; }
+        .ev-cols .sw.auto { background: rgba(255, 255, 255, .06); border: 1px dashed rgba(148, 163, 184, .5); color: #cbd5e1; }
+        .ev-cols label:hover .sw { transform: scale(1.08); } .ev-cols input:checked + .sw { box-shadow: 0 0 0 2px #0b1220, 0 0 0 4px var(--c, #94a3b8); }
+        .ev-cols input:focus-visible + .sw { outline: 2px solid #22d3ee; outline-offset: 3px; } .ev-cols input:disabled + .sw { opacity: .5; cursor: default; }
+        .ev-cols .sw i { display: none; } .ev-cols input:checked + .sw i { display: block; } .ev-cols .sw.auto i { display: block; }
         .evb { width: 100%; justify-content: flex-start; margin-bottom: 8px; text-align: left; } .evb.bad { color: #fecdd3; border-color: rgba(244, 63, 94, .4); background: rgba(244, 63, 94, .12); }
         @media (max-width: 600px) { .clk .dt { font-size: 34px; } .wk span { padding: 0 6px; min-width: 0; } }
     </style>
@@ -185,7 +192,7 @@
                 <div class="kp4">
                     <div><div class="l">Heute</div><div id="k-day" class="v">–</div><div id="k-day-s" class="s"></div><div class="bar"><i id="k-day-b" style="width:0"></i></div></div>
                     <div><div id="k-wk-l" class="l">Diese Woche</div><div id="k-wk" class="v">–</div><div id="k-wk-s" class="s"></div><div class="bar"><i id="k-wk-b" style="width:0"></i></div></div>
-                    <div><div class="l">Überstunden</div><div id="k-ot" class="v">–</div><div id="k-ot-s" class="s">Stand heute</div></div>
+                    <div><div class="l">Überstunden</div><div id="k-ot" class="v">–</div><div id="k-ot-s" class="s"></div></div>
                     <div><div class="l">Resturlaub</div><div id="k-vac" class="v b">–</div><div id="k-vac-s" class="s"></div></div>
                 </div>
             </div>
@@ -269,6 +276,7 @@
             <label class="ux-ck" style="margin:4px 0"><input type="radio" name="evscope" value="all" checked onchange="applyScope()"> Die ganze Serie</label>
         </div>
         <label class="ux-f"><span>Titel / Anlass</span><input type="text" id="ev-title" required maxlength="120" class="ux-in"></label>
+        <div class="ux-f"><span id="ev-col-l">Farbe</span><div class="ev-cols" id="ev-cols" role="radiogroup" aria-labelledby="ev-col-l"></div></div>
         <div class="ux-row2">
             <label class="ux-f"><span id="ev-date-label">Datum</span><input type="date" id="ev-date" required class="ux-in"></label>
             <label class="ux-ck" style="align-self:end;padding-bottom:14px"><input type="checkbox" id="ev-allday" checked onchange="toggleAllDay()"> Ganztägig</label>
@@ -278,9 +286,9 @@
             <label class="ux-f"><span>Ende (optional)</span><input type="time" id="ev-end" class="ux-in"></label>
         </div>
         <div id="ev-repeat-box">
-            <label class="ux-f"><span>Wiederholung</span><select id="ev-repeat" onchange="toggleRepeat()" class="ux-in"><option value="none">Keine Wiederholung</option><option value="daily">Täglich</option><option value="weekly">Wöchentlich</option><option value="monthly">Monatlich</option><option value="yearly">Jährlich</option></select></label>
+            <label class="ux-f"><span>Wiederholung</span><select id="ev-repeat" onchange="toggleRepeat()" class="ux-in"><option value="none">Keine Wiederholung</option><option value="daily">Täglich</option><option value="workdays">Werktags (Mo–Fr, ohne Feiertage)</option><option value="weekly">Wöchentlich</option><option value="monthly">Monatlich</option><option value="yearly">Jährlich</option></select></label>
             <div id="ev-repeat-opts" class="ux-row2 hidden">
-                <label class="ux-f"><span>Alle</span><span class="ux-flex" style="display:flex"><input type="number" id="ev-interval" min="1" max="99" value="1" class="ux-in"><span id="ev-unit" class="ux-note" style="white-space:nowrap;margin:0">Tag(e)</span></span></label>
+                <label class="ux-f" id="ev-int-wrap"><span>Alle</span><span class="ux-flex" style="display:flex"><input type="number" id="ev-interval" min="1" max="99" value="1" class="ux-in"><span id="ev-unit" class="ux-note" style="white-space:nowrap;margin:0">Tag(e)</span></span></label>
                 <label class="ux-f"><span>Bis (optional)</span><input type="date" id="ev-until" class="ux-in"></label>
             </div>
         </div>
@@ -460,16 +468,22 @@
             const lbl = stOffset === 0 ? 'Diese Woche' : stOffset === -1 ? 'Letzte Woche' : 'KW ' + isoWeek(mon);
             $('st-wl').innerText = lbl; $('k-wk-l').innerText = stOffset === 0 ? 'Diese Woche' : `${lbl} · ${mon.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}–${sun.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}`; $('st-wn').disabled = stOffset >= 0;
             setT($('k-wk'), hh(wIst)); $('k-wk-s').innerText = `von ${hh(wSoll)}`; $('k-wk-b').style.width = pct(wIst, wSoll);
-            // Überstundenkonto seit dem ersten Eintrag (wie auf der Seite Zeiterfassung)
-            const first = workEntries.reduce((x, e) => (e.date && (!x || e.date < x) ? e.date : x), ''), ot = W().ot, otOk = ot && /^\d{4}-\d{2}-\d{2}$/.test(ot.upto || '') && Number.isFinite(+ot.min);
-            if (otOk) {          // eigener Stand aus der Zeiterfassung: ab dem Tag danach weiterrechnen
-                const nx = pDate(ot.upto); nx.setDate(nx.getDate() + 1); const from = localDate(nx), acc = Math.round(+ot.min) + (from <= today ? sumNet(from, today) - sollMin(from, today) : 0);
-                setT($('k-ot'), (acc > 0 ? '+' : '') + hh(acc)); $('k-ot').className = 'v ' + (acc >= 0 ? 'g' : 'r'); $('k-ot-s').innerText = 'Stand heute';
-            } else if (first) { const acc = sumNet(first, today) - sollMin(first, today); setT($('k-ot'), (acc > 0 ? '+' : '') + hh(acc)); $('k-ot').className = 'v ' + (acc >= 0 ? 'g' : 'r'); $('k-ot-s').innerText = 'seit ' + first.split('-').reverse().join('.'); }
-            else { setT($('k-ot'), '–'); $('k-ot').className = 'v'; $('k-ot-s').innerText = 'Noch keine Einträge'; }
+            // Überstundenkonto wie auf der Seite Zeiterfassung: Startstand + abgeschlossene Monate (gearbeitet − ausgezahlt)
+            const ot = W().ot, cl = W().closings || {}, cur = today.slice(0, 7), otOk = ot && /^\d{4}-\d{2}-\d{2}$/.test(ot.upto || '') && Number.isFinite(+ot.min);
+            const addM = (ym, n) => { const d = new Date(+ym.slice(0, 4), +ym.slice(5) - 1 + n, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
+            const mEnd = ym => `${ym}-${String(new Date(+ym.slice(0, 4), +ym.slice(5), 0).getDate()).padStart(2, '0')}`;
+            const first = workEntries.reduce((x, e) => (e.date && (!x || e.date < x) ? e.date : x), '');
+            if (otOk || first) {
+                let acc = otOk ? Math.round(+ot.min) : 0, start = otOk ? addM(ot.upto.slice(0, 7), 1) : first.slice(0, 7), last = '';
+                if (otOk && ot.upto < mEnd(ot.upto.slice(0, 7)) && today > mEnd(ot.upto.slice(0, 7))) { const nx = pDate(ot.upto); nx.setDate(nx.getDate() + 1); const f = localDate(nx), me = mEnd(ot.upto.slice(0, 7)); acc += sumNet(f, me) - sollMin(f, me); }
+                for (let m = start, i = 0; m <= cur && i < 240; m = addM(m, 1), i++) { const c = cl[m]; if (c && Number.isFinite(+c.paid)) { acc += sumNet(`${m}-01`, mEnd(m)) - Math.round(+c.paid); last = m; } }
+                const ml = ym => new Date(+ym.slice(0, 4), +ym.slice(5) - 1, 1).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+                setT($('k-ot'), (acc > 0 ? '+' : '') + hh(acc)); $('k-ot').className = 'v ' + (acc >= 0 ? 'g' : 'r');
+                $('k-ot-s').innerText = last ? 'nach ' + ml(last) : otOk ? 'Startstand nach ' + ml(ot.upto.slice(0, 7)) : 'noch kein Monat abgeschlossen';
+            } else { setT($('k-ot'), '–'); $('k-ot').className = 'v'; $('k-ot-s').innerText = 'Noch keine Einträge'; }
             // Resturlaub im laufenden Jahr
             const w = W(), y = now.getFullYear(), total = w.vacation + (w.carryYear === y ? w.carry : 0);
-            const used = new Set(workEntries.filter(e => typeOf(e) === 'vacation' && e.date && e.date.startsWith(String(y))).map(e => e.date)).size, left = total - used, nf = n => String(n).replace('.', ',');
+            const used = new Set(workEntries.filter(e => typeOf(e) === 'vacation' && e.date && e.date.startsWith(String(y))).map(e => e.date)).size + Math.max(0, +((w.vacPre || {})[y]) || 0), left = total - used, nf = n => String(n).replace('.', ',');
             setT($('k-vac'), `${nf(left)} ${Math.abs(left) === 1 ? 'Tag' : 'Tage'}`); $('k-vac').className = 'v ' + (left < 0 ? 'r' : 'b'); $('k-vac-s').innerText = `von ${nf(total)} Tagen`;
         }
 
@@ -538,7 +552,7 @@
             [/einkauf|shopping|markt|besorg/i, 'fa-cart-shopping', '#34d399'], [/urlaub|reise|flug|ferien|trip|hotel/i, 'fa-plane', '#38bdf8'],
             [/schule|kita|uni|prüfung|klausur|kurs|seminar/i, 'fa-graduation-cap', '#facc15'], [/party|feier|hochzeit|fest|konzert|kino/i, 'fa-champagne-glasses', '#f472b6'],
             [/arbeit|meeting|büro|besprechung|call|schicht|dienst/i, 'fa-briefcase', '#94a3b8'], [/auto|werkstatt|tüv|reifen/i, 'fa-car', '#94a3b8']];
-        const evStyle = o => { const k = EVK.find(x => x[0].test(o.title || '')); return k ? [k[1], k[2]] : ['fa-calendar-day', o.isPublic ? '#818cf8' : '#a78bfa']; };
+        const evStyle = o => { const k = EVK.find(x => x[0].test(o.title || '')), c = CAL.colorOf(o); return k ? [k[1], c || k[2]] : ['fa-calendar-day', c || (o.isPublic ? '#818cf8' : '#a78bfa')]; };
         const tm = t => { const [h, m] = String(t).split(':').map(Number); return (h || 0) + (m || 0) / 60; };
         const endOf = o => { const s = tm(o.time); let e = o.endTime ? tm(o.endTime) : s + 1; if (e <= s) e = Math.min(24, s + 1); return e; };
         const dShort = s => pDate(s).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
@@ -696,10 +710,14 @@
         // ---------- Termin anlegen, ansehen, bearbeiten, löschen ----------
         const UNITS = { daily: 'Tag(e)', weekly: 'Woche(n)', monthly: 'Monat(e)', yearly: 'Jahr(e)' };
         function toggleAllDay() { $('ev-times').classList.toggle('hidden', $('ev-allday').checked); }
-        function toggleRepeat() { const r = $('ev-repeat').value; $('ev-repeat-opts').classList.toggle('hidden', r === 'none'); if (UNITS[r]) $('ev-unit').textContent = UNITS[r]; }
+        function toggleRepeat() { const r = $('ev-repeat').value; $('ev-repeat-opts').classList.toggle('hidden', r === 'none'); $('ev-int-wrap').classList.toggle('hidden', r === 'workdays'); if (UNITS[r]) $('ev-unit').textContent = UNITS[r]; }
+        // Farbauswahl: "Automatisch" (nach Titel) oder eine feste Farbe
+        $('ev-cols').innerHTML = `<label title="Automatisch nach Titel"><input type="radio" name="evcol" value="" aria-label="Automatisch nach Titel"><span class="sw auto"><i class="fa-solid fa-wand-magic-sparkles"></i></span></label>`
+            + CAL.COLORS.map(([c, n]) => `<label title="${n}"><input type="radio" name="evcol" value="${c}" aria-label="${n}"><span class="sw" style="--c:${c}"><i class="fa-solid fa-check"></i></span></label>`).join('');
+        const setEvColor = c => { const r = document.querySelector(`input[name="evcol"][value="${CAL.colorOf({ color: c }) || ''}"]`); if (r) r.checked = true; };
         function setEventForm(f, readOnly) {
             $('ev-title').value = f.title || ''; $('ev-date').value = f.date || ''; $('ev-allday').checked = !f.time; $('ev-time').value = f.time || ''; $('ev-end').value = f.endTime || '';
-            $('ev-repeat').value = CAL.isRecurring(f) ? f.repeat : 'none'; $('ev-interval').value = f.interval || 1; $('ev-until').value = f.until || ''; $('ev-public').checked = f.isPublic !== false;
+            $('ev-repeat').value = CAL.isRecurring(f) ? f.repeat : 'none'; $('ev-interval').value = f.interval || 1; $('ev-until').value = f.until || ''; $('ev-public').checked = f.isPublic !== false; setEvColor(f.color);
             toggleAllDay(); toggleRepeat(); $('ev-repeat-box').classList.remove('hidden'); $('ev-date-label').textContent = 'Datum';
             $('ev-form').querySelectorAll('input:not([type=hidden]), select').forEach(el => { el.disabled = readOnly; });
         }
@@ -729,7 +747,8 @@
         function readEventForm() {
             const allDay = $('ev-allday').checked, rep = $('ev-repeat').value;
             return { title: $('ev-title').value.trim(), date: $('ev-date').value, time: allDay ? '' : $('ev-time').value, endTime: allDay ? '' : $('ev-end').value, isPublic: $('ev-public').checked,
-                repeat: rep, interval: rep === 'none' ? 1 : Math.max(1, Math.min(99, parseInt($('ev-interval').value, 10) || 1)), until: rep === 'none' ? '' : $('ev-until').value };
+                repeat: rep, interval: rep === 'none' || rep === 'workdays' ? 1 : Math.max(1, Math.min(99, parseInt($('ev-interval').value, 10) || 1)), until: rep === 'none' ? '' : $('ev-until').value,
+                color: CAL.colorOf({ color: (document.querySelector('input[name="evcol"]:checked') || {}).value }) };
         }
         function saveCalendarEvent(e) {
             e.preventDefault();

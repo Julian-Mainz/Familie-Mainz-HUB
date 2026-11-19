@@ -60,3 +60,12 @@ body.lay-resizing, body.lay-resizing * { cursor: nwse-resize !important; user-se
 .lay-top button[hidden] { display: none; }
 .lay-ctl { flex-wrap: wrap; }
 @media (max-width: 1100px) { .lay-rs, .lay-sz { display: none; } }
+
+/* ----- Freie Anordnung im Raster (nur breite Bildschirme) ----- */
+@media (min-width: 1100.02px) {
+    .lay-grid.lay-free { display: block; }
+    .lay-grid.lay-free > .lay-item { position: absolute; margin: 0; box-sizing: border-box; }
+    .lay-grid.lay-free.lay-editing > .lay-item:not(.lay-drag):not(.lay-sizing) { transition: left .24s cubic-bezier(.2, .8, .2, 1), top .24s cubic-bezier(.2, .8, .2, 1), width .24s cubic-bezier(.2, .8, .2, 1); }
+    .lay-grid.lay-free.lay-editing { box-sizing: content-box; }
+}
+.lay-ph { position: absolute; z-index: 4; border-radius: 18px; border: 2px dashed rgba(var(--mr, 129, 140, 248), .85); background: rgba(var(--mr, 129, 140, 248), .14); pointer-events: none; transition: left .12s, top .12s, width .12s, height .12s; }
