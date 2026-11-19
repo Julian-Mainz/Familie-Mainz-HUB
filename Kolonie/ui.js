@@ -23,7 +23,7 @@
   // ================= Zustand der Oberfläche =================
   const cv = $('cv'), ctx = cv.getContext('2d');
   let vw = 0, vh = 0, dpr = 1, cam = { x: OX, y: OY + N * TH / 2, z: 1 }, world = document.createElement('canvas'), wctx = world.getContext('2d'), wz = 0, dirty = true, bg = document.createElement('canvas');
-  let mode = null, ghost = null, sel = null, hover = null, cat = 'basis', anims = [], beams = [], battle = null, mapSel = null, mapMis = null, mapPick = {};
+  let mode = null, moveB = null, ghost = null, sel = null, hover = null, cat = 'basis', anims = [], beams = [], battle = null, mapSel = null, mapMis = null, mapPick = {};
   const fx = () => G.S.opt.fx !== 'low';
 
   // ================= Hintergrund =================
@@ -152,7 +152,9 @@
     ART.use(ctx, P); const ts = t / 1000;
     // Auswahl / Vorschau unter den Effekten
     if (sel && G.S.bld.includes(sel)) outline(sel.i, sel.j, G.B[sel.type].s, '103,232,249');
-    if (mode && ghost) { const ok = G.canPlace(mode, ghost.i, ghost.j).ok && G.canPay(G.B[mode].cost); outline(ghost.i, ghost.j, G.B[mode].s, ok ? '74,222,128' : '248,113,113', true); ctx.globalAlpha = ok ? .7 : .4; ART.draw({ type: mode, i: ghost.i, j: ghost.j, lvl: 1, w: G.B[mode].s }); ctx.globalAlpha = 1; }
+    if (moveB && G.S.bld.includes(moveB)) outline(moveB.i, moveB.j, G.B[moveB.type].s, '251,191,36', false, .55);
+    const gk = mode || (moveB && moveB.type);
+    if (gk && ghost) { const ok = G.canPlace(gk, ghost.i, ghost.j, moveB).ok && (moveB || G.canPay(G.B[gk].cost)); outline(ghost.i, ghost.j, G.B[gk].s, ok ? '74,222,128' : '248,113,113', true); ctx.globalAlpha = ok ? .7 : .4; ART.draw({ type: gk, i: ghost.i, j: ghost.j, lvl: moveB ? moveB.lvl : 1, w: G.B[gk].s }); ctx.globalAlpha = 1; }
     for (const b of sorted()) { const o = Object.assign({ w: G.B[b.type].s }, b); if (b.build) { const p = Math.min(1, (Date.now() - (b.t0 || Date.now())) / (b.build - (b.t0 || b.build - 1))); ART.construction(o, ts, p); bar(b, p); } else if (b.dmg) ART.damaged(o, ts); else if (fx() || b.type === 'pad') ART.anim(o, ts); }
     drawShips(t); ambient(t); drawBattle(t);
     if (hover && !mode && !('ontouchstart' in window && navigator.maxTouchPoints)) { const b = G.bAt(hover.i, hover.j); if (b && b !== sel) outline(b.i, b.j, G.B[b.type].s, '255,255,255', false, .35); }
@@ -172,7 +174,7 @@
     if (pinch && ptrs.size === 2) { const [a, b] = [...ptrs.values()]; cam.z = pinch.z * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d; clampCam(); lastZoom = performance.now(); return; }
     if (drag) { const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.hypot(dx, dy) > 7) drag.moved = true; if (drag.moved) { cam.x = drag.cx - dx / cam.z; cam.y = drag.cy - dy / cam.z; clampCam(); } }
     const t = toTile(e.clientX, e.clientY); hover = { i: Math.floor(t.fi), j: Math.floor(t.fj) };
-    if (mode && e.pointerType === 'mouse') { const s = G.B[mode].s; ghost = { i: Math.floor(t.fi - (s - 1) / 2), j: Math.floor(t.fj - (s - 1) / 2) }; }
+    if ((mode || moveB) && e.pointerType === 'mouse') { const s = G.B[mode || moveB.type].s; ghost = { i: Math.floor(t.fi - (s - 1) / 2), j: Math.floor(t.fj - (s - 1) / 2) }; }
   });
   const up = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; if (drag && !drag.moved && e.type === 'pointerup') tap(e.clientX, e.clientY, drag.type); if (ptrs.size === 0) drag = null; };
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); cv.addEventListener('pointerleave', () => { hover = null; });
@@ -182,9 +184,12 @@
     if (mode) { const s = G.B[mode].s, gi = Math.floor(t.fi - (s - 1) / 2), gj = Math.floor(t.fj - (s - 1) / 2);
       if (ptype !== 'mouse' && (!ghost || ghost.i !== gi || ghost.j !== gj)) { ghost = { i: gi, j: gj }; buildBar(); return; }      // Handy: erst Vorschau, dann noch mal tippen
       const r = G.place(mode, gi, gj); if (r.ok) { dirty = true; toast(`🏗️ ${G.B[mode].n} wird gebaut`); if (!G.canPay(G.B[mode].cost)) cancelBuild(); else buildBar(); refresh(); } else toast('⚠ ' + r.why, 'bad'); return; }
+    if (moveB) { const s = G.B[moveB.type].s, gi = Math.floor(t.fi - (s - 1) / 2), gj = Math.floor(t.fj - (s - 1) / 2);
+      if (ptype !== 'mouse' && (!ghost || ghost.i !== gi || ghost.j !== gj)) { ghost = { i: gi, j: gj }; buildBar(); return; }
+      const mb = moveB, r = G.move(mb, gi, gj); if (r.ok) { if (!r.same) toast(`✥ ${G.B[mb.type].n} verschoben`); dirty = true; cancelBuild(); select(mb); refresh(); } else toast('⚠ ' + r.why, 'bad'); return; }
     const b = G.bAt(i, j); select(b || null);
   }
-  addEventListener('keydown', e => { if (e.key === 'Escape') { if (document.querySelector('.modal:not(.hidden)')) closeModals(); else if (mode) cancelBuild(); else select(null); } });
+  addEventListener('keydown', e => { if (e.key === 'Escape') { if (document.querySelector('.modal:not(.hidden)')) closeModals(); else if (mode || moveB) cancelBuild(); else select(null); } });
 
   // ================= Oberfläche =================
   function hud() {
@@ -222,7 +227,7 @@
     ART.draw({ type: k, i: 0, j: 0, lvl: 1, w: s }); if (k === 'yard') ART.front({ type: k, i: 0, j: 0, lvl: 1 });
     ART.use(ctx, P); return ICONS[k] = c.toDataURL();
   }
-  function select(b) { sel = b; if (b) mode = null; info(); buildBar(); }
+  function select(b) { sel = b; if (b) { mode = null; moveB = null; } info(); buildBar(); }
   function info() {
     const p = $('info'); if (!sel || !G.S.bld.includes(sel)) { p.classList.add('hidden'); return; }
     const b = sel, d = G.B[b.type], st = G.stats(), l = b.lvl, nl = l + 1, maxL = b.type === 'hq' ? 5 : d.max;
@@ -247,12 +252,13 @@
       <p class="mut">${d.d}${b.type === 'mine' && tl === 'ore' ? ' <b class="ok">Steht auf einer Erzader.</b>' : ''}</p>
       ${st.f < 1 && (d.out || d.conv) && !b.build ? `<p class="warn">Läuft nur mit ${Math.round(st.f * 100)} % (${st.eff < 1 ? 'zu wenig Energie' : 'zu wenig Arbeiter'}).</p>` : ''}
       <div class="kv">${lines.map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>${act}${extra}
+      <button class="btn wide" data-act="move">✥ Verschieben</button>
       ${b.type !== 'hq' ? `<button class="btn ghost wide" data-act="demolish">Abreißen${b.build && !b.up ? ' (volle Erstattung)' : ' (50 % zurück)'}</button>` : ''}`;
     p.classList.remove('hidden');
   }
-  function buildBar() { const el = $('buildbar'); if (!mode) { el.classList.add('hidden'); return; } const d = G.B[mode]; const touch = matchMedia('(pointer: coarse)').matches; el.innerHTML = `<b>${d.n} platzieren</b><span>${touch ? (ghost ? 'Noch einmal tippen zum Bauen' : 'Tippe auf ein freies Feld') : 'Klicke auf ein freies Feld'}${d.tile ? ' · nur auf Kristallfeldern' : ''}</span><button class="btn sm" data-act="cancel-build">Fertig</button>`; el.classList.remove('hidden'); }
-  function startBuild(k) { if (!G.unlocked(k)) { toast(`🔒 ${G.B[k].n}: ab Kommandozentrale Stufe ${G.B[k].hq}`, 'bad'); return; } mode = k; ghost = null; sel = null; info(); buildBar(); dock(); }
-  function cancelBuild() { mode = null; ghost = null; buildBar(); dock(); }
+  function buildBar() { const el = $('buildbar'); if (moveB) { const touch = matchMedia('(pointer: coarse)').matches; el.innerHTML = `<b>${G.B[moveB.type].n} verschieben</b><span>${touch ? (ghost ? 'Noch einmal tippen zum Abstellen' : 'Tippe auf den neuen Platz') : 'Klicke auf den neuen Platz'} · kostenlos</span><button class="btn sm" data-act="cancel-build">Abbrechen</button>`; el.classList.remove('hidden'); return; } if (!mode) { el.classList.add('hidden'); return; } const d = G.B[mode]; const touch = matchMedia('(pointer: coarse)').matches; el.innerHTML = `<b>${d.n} platzieren</b><span>${touch ? (ghost ? 'Noch einmal tippen zum Bauen' : 'Tippe auf ein freies Feld') : 'Klicke auf ein freies Feld'}${d.tile ? ' · nur auf Kristallfeldern' : ''}</span><button class="btn sm" data-act="cancel-build">Fertig</button>`; el.classList.remove('hidden'); }
+  function startBuild(k) { if (!G.unlocked(k)) { toast(`🔒 ${G.B[k].n}: ab Kommandozentrale Stufe ${G.B[k].hq}`, 'bad'); return; } mode = k; moveB = null; ghost = null; sel = null; info(); buildBar(); dock(); }
+  function cancelBuild() { mode = null; moveB = null; ghost = null; buildBar(); dock(); }
   function refresh() { hud(); dock(); info(); }
 
   // ================= Fenster =================
@@ -366,6 +372,7 @@
       case 'repair': if (G.repair(sel)) { dirty = true; toast('🔧 Repariert'); } info(); break;
       case 'demolish': if (confirm(`${G.B[sel.type].n} abreißen?`)) { if (G.demolish(sel)) { dirty = true; select(null); } else toast('⚠ Geht gerade nicht', 'bad'); } break;
       case 'cancel-build': cancelBuild(); break;
+      case 'move': { const mb = sel; select(null); mode = null; moveB = mb; ghost = null; buildBar(); dock(); break; }
       case 'fleet': openModal('m-fleet'); break; case 'research': openModal('m-research'); break; case 'market': openModal('m-market'); break; case 'map': openModal('m-map'); break;
       case 'menu': openMenu(); break;
       case 'close': closeModals(); break;

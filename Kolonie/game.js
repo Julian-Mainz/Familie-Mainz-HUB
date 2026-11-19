@@ -250,9 +250,9 @@
   function repair(b) { const c = repairCost(b); if (!canPay(c)) return false; pay(c); b.dmg = 0; save(); return true; }
 
   // ---------- Bauen ----------
-  function canPlace(k, i, j) {
+  function canPlace(k, i, j, ign) {
     const d = B[k]; if (!d) return { ok: false, why: '' };
-    for (let a = 0; a < d.s; a++) for (let c = 0; c < d.s; c++) { const t = tileAt(i + a, j + c); if (t === 'void' || t === 'crater' || !inArea(i + a, j + c)) return { ok: false, why: t === 'crater' ? 'Krater' : 'außerhalb des Baulands' }; if (bAt(i + a, j + c)) return { ok: false, why: 'belegt' }; }
+    for (let a = 0; a < d.s; a++) for (let c = 0; c < d.s; c++) { const t = tileAt(i + a, j + c); if (t === 'void' || t === 'crater' || !inArea(i + a, j + c)) return { ok: false, why: t === 'crater' ? 'Krater' : 'außerhalb des Baulands' }; { const o = bAt(i + a, j + c); if (o && o !== ign) return { ok: false, why: 'belegt' }; } }
     if (d.tile && tileAt(i, j) !== d.tile) return { ok: false, why: 'nur auf Kristallfeldern' };
     return { ok: true };
   }
@@ -261,6 +261,10 @@
     const d = B[k]; if (!unlocked(k)) return { ok: false, why: `ab Kommandozentrale Stufe ${d.hq}` };
     const p = canPlace(k, i, j); if (!p.ok) return p; if (!canPay(d.cost)) return { ok: false, why: 'nicht genug Rohstoffe' };
     pay(d.cost); const b = { id: S.nid++, type: k, i, j, lvl: 1, build: now() + d.time * 1000, t0: now() }; S.bld.push(b); save(); return { ok: true, b };
+  }
+  function move(b, i, j) {
+    if (!S.bld.includes(b)) return { ok: false, why: '' }; if (b.i === i && b.j === j) return { ok: true, same: true };
+    const p = canPlace(b.type, i, j, b); if (!p.ok) return p; b.i = i; b.j = j; save(); return { ok: true };
   }
   function maxLvl(k) { const hq = hqLvl(S); return k === 'hq' ? 5 : Math.min(B[k].max, hq >= 4 ? 3 : hq >= 3 ? 2 : hq >= 2 ? 2 : 1); }
   function upgrade(b) {
@@ -374,7 +378,7 @@
 
   window.G = {
     KEY, N, B, SH, SYS, SBY, LANES, RS, Q, ACH, CATS, RN, RES, MARKET, LVF,
-    get S() { return S; }, get T() { return T; }, tileAt, inArea, area, bAt, stats, rates, upCost, upTime, maxLvl, unlocked, canPlace, place, upgrade, demolish, repair, repairCost,
+    get S() { return S; }, get T() { return T; }, tileAt, inArea, area, bAt, stats, rates, upCost, upTime, maxLvl, unlocked, canPlace, place, move, upgrade, demolish, repair, repairCost,
     canBuild, buildShip, scrapShip, shipCost, home, known, missionInfo, launch, startResearch, trade, acceptOffer, canPay, hqLvl: () => hqLvl(S), fleetN: t => fleetN(S, t),
     tick, events, load, newGame, save, catchUp, valid, log, cargo
   };

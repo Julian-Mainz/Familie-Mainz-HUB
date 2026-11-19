@@ -35,6 +35,7 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 - Forschung (8 Technologien), Markt, 23 Aufträge, 14 Erfolge.
 - Läuft bis zu 8 Stunden offline weiter. Steuerung mit Maus und Mausrad oder Wischen und Pinch-Zoom.
 - Spielstand im Konto, auf jedem Gerät weiterspielbar.
+- Gebäude lassen sich kostenlos verschieben (Gebäude antippen → „Verschieben“ → neuen Platz wählen).
 
 ### Game Center
 - Sternenkolonie in der Bibliothek, mit Titelbild, Fortschritt (Aufträge, Zentrale, Forschung, Sternenkarte), Statistiken und Erfolgen.
