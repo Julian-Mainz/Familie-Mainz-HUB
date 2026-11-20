@@ -42,7 +42,14 @@
     .inv.paid{opacity:.62}
     .inv .att{color:#93c5fd}
     .ux-btn.ok{border-color:rgba(74,222,128,.45);color:#86efac}
-    .ux-btn.bad{border-color:rgba(251,113,133,.45);color:#fda4af}.ux-btn:disabled{opacity:.45;cursor:not-allowed}
+    .ux-btn.bad{border-color:rgba(251,113,133,.45);color:#fda4af}
+    .iidet{margin:2px 0 12px}.iidet summary{cursor:pointer;font-size:13px;color:#cbd5e1;padding:6px 0}.iidet summary b{color:#facc15}
+    .iimap{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin:8px 0 4px}@media(max-width:600px){.iimap{grid-template-columns:1fr 1fr}}.iimap label{font-size:11.5px;color:#94a3b8;display:flex;flex-direction:column;gap:4px}.iimap select{padding:7px 9px;font-size:13px}
+    .iiwrap{max-height:52vh;overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:12px}
+    .iit{width:100%;border-collapse:collapse;font-size:13px}.iit th{position:sticky;top:0;background:#0f1726;text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;padding:9px 10px;font-weight:600;z-index:1}
+    .iit td{padding:8px 10px;border-top:1px solid rgba(255,255,255,.06);vertical-align:middle}.iit tr.off td{opacity:.45}.iit td.r{text-align:right;white-space:nowrap;font-weight:600}
+    .iit select{padding:5px 7px;font-size:12px;border-radius:8px;max-width:150px}.iit .hint{font-size:11.5px;color:#fbbf24}.iit .dup{color:#f87171}
+    .stt{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap}.stt.open{background:rgba(96,165,250,.15);color:#93c5fd}.stt.paid{background:rgba(74,222,128,.15);color:#86efac}.ux-btn:disabled{opacity:.45;cursor:not-allowed}
     .badge-p{font-size:10.5px;padding:3px 8px;border-radius:6px;background:rgba(74,222,128,.15);color:#86efac;font-weight:700;letter-spacing:.06em}
     .drop2{display:block;border:1.5px dashed rgba(250,204,21,.45);border-radius:14px;padding:14px;text-align:center;color:#cbd5e1;font-size:13px;background:rgba(250,204,21,.04);cursor:pointer}
     .drop2.on{background:rgba(250,204,21,.12)}.drop2 i.big{font-size:22px;color:#facc15;display:block;margin:0 auto 6px}
@@ -146,6 +153,7 @@
             <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center" id="inv-filter">
                 <button class="chip on" data-f="open">Offen</button><button class="chip" data-f="over">Überfällig</button><button class="chip" data-f="paid">Bezahlt</button><button class="chip" data-f="all">Alle</button>
                 <span style="flex:1"></span><input id="inv-q" class="ux-in" style="max-width:260px" placeholder="Suchen: Anbieter, Nummer …" aria-label="Rechnungen durchsuchen">
+                <label class="ux-btn" style="cursor:pointer" title="Rechnungen aus einer CSV-Datei übernehmen (z. B. aus Excel oder einer Tabelle)"><i class="fa-solid fa-upload" style="color:#60a5fa"></i>Importieren<input type="file" accept=".csv,text/csv" hidden onchange="invImportFile(event)"></label>
                 <button class="ux-btn pri" onclick="openInv()"><i class="fa-solid fa-plus"></i>Rechnung</button>
             </div>
             <div id="inv-list"></div>
@@ -188,6 +196,15 @@
     <form onsubmit="saveBudgets(event)"><div id="bud-fields"></div>
         <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-bud')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div></form></div></div>
 
+<!-- Fenster: Rechnungen importieren -->
+<div id="m-iimp" class="ux-modal hidden"><div class="ux-box fin" style="--m:#facc15;--m2:#f59e0b;--mr:250,204,21;max-width:1080px;width:min(1080px,96vw)">
+    <h3><i class="fa-solid fa-upload"></i>Rechnungen importieren<button class="ux-ib" onclick="closeModal('m-iimp')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3>
+    <p class="sub" id="ii-sub"></p>
+    <details id="ii-det" class="iidet"><summary id="ii-sum"></summary><div id="ii-map" class="iimap"></div></details>
+    <div class="iiwrap"><table class="iit"><thead><tr><th><input type="checkbox" id="ii-all" checked aria-label="Alle auswählen"></th><th>Anbieter</th><th>Beschreibung</th><th style="text-align:right">Betrag</th><th>Fällig</th><th>Status</th><th>Kategorie</th><th>Hinweis</th></tr></thead><tbody id="ii-rows"></tbody></table></div>
+    <div class="ux-acts"><span class="ux-note" id="ii-count" style="margin-right:auto"></span><button type="button" class="ux-btn" onclick="closeModal('m-iimp')">Abbrechen</button><button type="button" class="ux-btn pri" id="ii-go" onclick="invImportGo()">Übernehmen</button></div>
+</div></div>
+
 <!-- Fenster: Buchungen löschen -->
 <div id="m-txdel" class="ux-modal hidden"><div class="ux-box fin" style="--m:#facc15;--m2:#f59e0b;--mr:250,204,21;max-width:520px">
     <h3><i class="fa-solid fa-trash-can"></i>Buchungen löschen<button class="ux-ib" onclick="closeModal('m-txdel')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Gelöschte Buchungen lassen sich nicht wiederherstellen. Fixkosten kannst du danach erneut buchen, einen Sparkasse-Export erneut einlesen.</p>
@@ -203,8 +220,8 @@
     <h3><i class="fa-solid fa-file-invoice"></i><span id="iv-title">Rechnung anlegen</span><button class="ux-ib" onclick="closeModal('m-inv')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Trag die Rechnung ein und häng das PDF oder ein Foto an. Du siehst dann immer, was wann fällig ist.</p>
     <form onsubmit="saveInv(event)"><input type="hidden" id="iv-id">
         <label class="drop2" id="iv-drop"><input type="file" id="iv-file" accept=".pdf,application/pdf,image/png,image/jpeg,image/webp,image/*" hidden><span id="iv-drop-c"></span></label>
-        <div class="ux-row2" style="margin-top:12px"><label class="ux-f"><span>Anbieter / Absender</span><input id="iv-vendor" required maxlength="80" class="ux-in" placeholder="z. B. Stadtwerke, Zahnarzt, ADAC"></label><label class="ux-f"><span>Betrag (€)</span><input type="number" step="0.01" min="0" id="iv-amount" required class="ux-in" placeholder="89.90"></label></div>
-        <div class="ux-row2"><label class="ux-f"><span>Rechnungsdatum</span><input type="date" id="iv-date" class="ux-in"></label><label class="ux-f"><span>Fällig am</span><input type="date" id="iv-due" required class="ux-in"><div class="quick"><button type="button" data-q="14">+14 Tage</button><button type="button" data-q="30">+30 Tage</button><button type="button" data-q="0">Sofort</button></div></label></div>
+        <div class="ux-row2" style="margin-top:12px"><label class="ux-f"><span>Anbieter / Absender</span><input id="iv-vendor" required maxlength="80" class="ux-in" placeholder="z. B. Stadtwerke, Zahnarzt, ADAC"></label><label class="ux-f"><span>Betrag (€)</span><input type="number" step="0.01" min="0" id="iv-amount" class="ux-in" placeholder="89.90 (leer = noch unbekannt)"></label></div>
+        <div class="ux-row2"><label class="ux-f"><span>Rechnungsdatum</span><input type="date" id="iv-date" class="ux-in"></label><label class="ux-f"><span>Fällig am</span><input type="date" id="iv-due" class="ux-in"><div class="quick"><button type="button" data-q="14">+14 Tage</button><button type="button" data-q="30">+30 Tage</button><button type="button" data-q="0">Sofort</button></div></label></div>
         <div class="ux-row2"><label class="ux-f"><span>Kategorie</span><select id="iv-category" class="ux-in"></select></label><label class="ux-f"><span>Rechnungsnummer (optional)</span><input id="iv-number" maxlength="60" class="ux-in"></label></div>
         <div class="ux-row2"><label class="ux-f"><span>IBAN (optional, zum Kopieren)</span><input id="iv-iban" maxlength="42" class="ux-in" placeholder="DE…"></label><label class="ux-f"><span>Verwendungszweck (optional)</span><input id="iv-ref" maxlength="140" class="ux-in"></label></div>
         <label class="ux-f"><span>Notiz</span><input id="iv-note" maxlength="200" class="ux-in" placeholder="z. B. per Überweisung, Ratenzahlung vereinbart …"></label>
@@ -629,10 +646,11 @@
         const dayDiff = d => Math.round((Date.parse(d + 'T00:00:00') - Date.parse(localDate() + 'T00:00:00')) / 864e5);
         const dShort = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : '';
         const dLong = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('de-DE') : '';
-        const invState = v => { if (v.status === 'paid') return 'paid'; const d = dayDiff(v.due); return d < 0 ? 'over' : d <= 7 ? 'week' : 'later'; };
+        const invState = v => { if (v.status === 'paid') return 'paid'; if (!v.due) return 'later'; const d = dayDiff(v.due); return d < 0 ? 'over' : d <= 7 ? 'week' : 'later'; };
         const INV_COL = { over: ['#f87171', '248,113,113'], week: ['#fbbf24', '251,191,36'], later: ['#60a5fa', '96,165,250'], paid: ['#4ade80', '74,222,128'] };
         function dueText(v) {
-            if (v.status === 'paid') return [`bezahlt ${dShort(v.paidAt)}`, v.txId ? 'als Buchung eingetragen' : ''];
+            if (v.status === 'paid') return [v.paidAt ? `bezahlt ${dShort(v.paidAt)}` : 'bezahlt', v.txId ? 'als Buchung eingetragen' : ''];
+            if (!v.due) return ['Fälligkeit unbekannt', 'bitte eintragen'];
             const d = dayDiff(v.due), t = d < -1 ? `seit ${-d} Tagen überfällig` : d === -1 ? 'seit gestern überfällig' : d === 0 ? 'heute fällig' : d === 1 ? 'morgen fällig' : `in ${d} Tagen`;
             return [t, `fällig ${dShort(v.due)}`];
         }
@@ -640,19 +658,19 @@
         const nRe = n => n === 1 ? '1 Rechnung' : n + ' Rechnungen';
         function invRow(v, mini) {
             const st = invState(v), [c, cr] = INV_COL[st], [t1, t2] = dueText(v), icon = catM(v.category)[2];
-            const sub = mini ? esc(t1) + (st !== 'over' && st !== 'paid' ? ' · ' + dShort(v.due) : '')
-                : [v.number ? 'Nr. ' + esc(v.number) : '', esc(v.category || ''), v.note ? esc(v.note) : ''].filter(Boolean).join(' · ') + (v.fileName ? ` · <span class="att"><i class="fa-solid fa-paperclip"></i> ${/pdf/.test(v.fileMime || '') ? 'PDF' : 'Foto'}</span>` : '');
+            const sub = mini ? esc(t1) + (st !== 'over' && st !== 'paid' && v.due ? ' · ' + dShort(v.due) : '')
+                : [v.number ? 'Nr. ' + esc(v.number) : '', esc(v.category || ''), v.note ? esc(v.note) : '', v.ref ? 'VZ ' + esc(v.ref) : ''].filter(Boolean).join(' · ') + (v.fileName ? ` · <span class="att"><i class="fa-solid fa-paperclip"></i> ${/pdf/.test(v.fileMime || '') ? 'PDF' : 'Foto'}</span>` : '');
             const acts = mini ? '' : `<div class="acts">${st === 'paid' ? `<span class="badge-p">BEZAHLT</span><button class="ux-ib" data-ia="unpaid" data-id="${esc(v.id)}" title="Wieder als offen markieren" aria-label="Wieder offen"><i class="fa-solid fa-rotate-left"></i></button>`
                 : `<button class="ux-btn ok" data-ia="paid" data-id="${esc(v.id)}" style="padding:7px 11px;font-size:12px"><i class="fa-solid fa-check"></i>Bezahlt</button>`}
-                ${v.iban ? `<button class="ux-ib" data-ia="iban" data-id="${esc(v.id)}" title="IBAN kopieren" aria-label="IBAN kopieren"><i class="fa-regular fa-copy"></i></button>` : ''}
+                ${v.iban || v.ref ? `<button class="ux-ib" data-ia="iban" data-id="${esc(v.id)}" title="${v.iban ? 'IBAN' : 'Verwendungszweck'} kopieren" aria-label="${v.iban ? 'IBAN' : 'Verwendungszweck'} kopieren"><i class="fa-regular fa-copy"></i></button>` : ''}
                 ${v.fileName ? `<button class="ux-ib" data-ia="view" data-id="${esc(v.id)}" title="Datei ansehen" aria-label="Datei ansehen"><i class="fa-solid fa-eye"></i></button>` : ''}
                 <button class="ux-ib" data-ia="edit" data-id="${esc(v.id)}" title="Bearbeiten" aria-label="Bearbeiten"><i class="fa-solid fa-pen"></i></button></div>`;
             return `<div class="inv ${st}" style="--c:${c};--cr:${cr}"${mini ? ` data-ia="edit" data-id="${esc(v.id)}" role="button" tabindex="0" style="--c:${c};--cr:${cr};cursor:pointer"` : ''}><div class="ic"><i class="fa-solid ${icon}"></i></div>
-                <div class="n"><b>${esc(v.vendor)}</b><small>${sub}</small></div>${mini ? '' : `<div class="due"><b>${esc(t1)}</b>${esc(t2)}</div>`}<div class="amt">${eur(+v.amount || 0)}</div>${acts}</div>`;
+                <div class="n"><b>${esc(v.vendor)}</b><small>${sub}</small></div>${mini ? '' : `<div class="due"><b>${esc(t1)}</b>${esc(t2)}</div>`}<div class="amt">${v.amount == null || v.amount === '' ? '<span style="font-size:13px;color:#fbbf24">Betrag offen</span>' : eur(+v.amount || 0)}</div>${acts}</div>`;
         }
         function renderInv() {
             if (!$('inv-list')) return;
-            const open = invs.filter(v => v.status !== 'paid').sort((a, b) => (a.due || '').localeCompare(b.due || '')), over = open.filter(v => invState(v) === 'over'), week = open.filter(v => invState(v) === 'week');
+            const open = invs.filter(v => v.status !== 'paid').sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999')), over = open.filter(v => invState(v) === 'over'), week = open.filter(v => invState(v) === 'week');
             const m = ym(), paidM = invs.filter(v => v.status === 'paid' && (v.paidAt || '').startsWith(m));
             $('ik-open').textContent = eur(sumAmt(open)); $('ik-open-n').textContent = nRe(open.length);
             $('ik-over').textContent = eur(sumAmt(over)); $('ik-over-n').textContent = nRe(over.length);
@@ -728,8 +746,8 @@
         }
         function saveInv(e) {
             e.preventDefault();
-            const id = $('iv-id').value, amount = Math.abs(parseFloat($('iv-amount').value)); if (isNaN(amount)) return;
-            const data = { vendor: $('iv-vendor').value.trim().slice(0, 80), amount: Math.round(amount * 100) / 100, date: $('iv-date').value || '', due: $('iv-due').value, category: $('iv-category').value,
+            const id = $('iv-id').value, amt = $('iv-amount').value.trim(), amount = amt === '' ? null : Math.abs(parseFloat(amt)); if (amount !== null && isNaN(amount)) return;
+            const data = { vendor: $('iv-vendor').value.trim().slice(0, 80), amount: amount === null ? null : Math.round(amount * 100) / 100, date: $('iv-date').value || '', due: $('iv-due').value, category: $('iv-category').value,
                 number: $('iv-number').value.trim(), iban: $('iv-iban').value.replace(/\s+/g, ' ').trim().toUpperCase(), ref: $('iv-ref').value.trim(), note: $('iv-note').value.trim(), autoBook: $('iv-book').checked, owner: currentUser.email, updatedAt: TS() };
             const btn = $('iv-save'); if (btn.disabled) return; const pick = invPick; btn.disabled = true; btn.textContent = pick && pick !== 'remove' ? 'Lädt hoch …' : 'Speichert …';
             run(async () => {
@@ -749,7 +767,7 @@
                 const ref = db.collection('invoices').doc(v.id);
                 if (on) {
                     const upd = { status: 'paid', paidAt: localDate(), updatedAt: TS() };
-                    if (v.autoBook !== false) { const t = db.collection('finance_transactions').doc('inv_' + v.id); await t.set({ date: localDate(), partner: v.vendor, purpose: 'Rechnung' + (v.number ? ' ' + v.number : ''), category: v.category || 'Sonstiges', amount: -Math.abs(+v.amount || 0), owner: currentUser.email, source: 'invoice', createdAt: TS() }); upd.txId = t.id; }
+                    if (v.autoBook !== false && +v.amount > 0) { const t = db.collection('finance_transactions').doc('inv_' + v.id); await t.set({ date: localDate(), partner: v.vendor, purpose: 'Rechnung' + (v.number ? ' ' + v.number : ''), category: v.category || 'Sonstiges', amount: -Math.abs(+v.amount || 0), owner: currentUser.email, source: 'invoice', createdAt: TS() }); upd.txId = t.id; }
                     await ref.update(upd); UX.toast(upd.txId ? 'Bezahlt und als Ausgabe gebucht' : 'Als bezahlt markiert');
                 } else {
                     if (v.txId) await db.collection('finance_transactions').doc(v.txId).delete().catch(() => {});
@@ -765,7 +783,77 @@
                 if (w) w.location = url; else location.href = url; setTimeout(() => URL.revokeObjectURL(url), 60000);
             } catch (e) { if (w) w.close(); UX.toast('Datei konnte nicht geladen werden: ' + e.message, true); }
         }
-        function invCopy(v) { navigator.clipboard.writeText(v.iban.replace(/\s/g, '')).then(() => UX.toast('IBAN kopiert' + (v.ref ? ' · Verwendungszweck: ' + v.ref : '')), () => prompt('IBAN', v.iban)); }
+        // ---------- Rechnungen importieren (CSV) ----------
+        // Spalten werden über ihre Überschrift erkannt (änderbar); Doppelte werden erkannt und standardmäßig abgewählt.
+        const II_FIELDS = [['vendor', 'Anbieter', /gläubiger|anbieter|absender|firma|händler|haendler|lieferant|empfänger|empfaenger|name/i], ['note', 'Beschreibung', /^was$|beschreibung|leistung|artikel|bezeichnung|betreff|gegenstand/i],
+            ['amount', 'Betrag', /betrag|summe|preis|amount/i], ['due', 'Fällig am', /fällig|faellig|zahlbar|frist|due/i], ['date', 'Rechnungsdatum', /rechnungsdatum|^datum$|ausgestellt/i],
+            ['number', 'Rechnungsnummer', /rechnungs-?n(umme)?r|^nr\.?$|belegnummer|auftrag/i], ['ref', 'Verwendungszweck / Hinweis', /verwendungszweck|^vz$|hinweis|referenz/i], ['status', 'Status', /status|zustand/i], ['iban', 'IBAN', /iban/i], ['category', 'Kategorie', /kategorie/i]];
+        let II = null;
+        function csvParse(text) {
+            text = text.replace(/^\uFEFF/, ''); const first = text.split(/\r?\n/)[0] || '', sep = (first.match(/;/g) || []).length >= (first.match(/,/g) || []).length ? ';' : ',';
+            const rows = []; let row = [], cur = '', q = false;
+            for (let i = 0; i < text.length; i++) { const ch = text[i];
+                if (q) { if (ch === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+                else if (ch === '"') q = true; else if (ch === sep) { row.push(cur); cur = ''; } else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i + 1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; } else cur += ch; }
+            if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+            return rows.filter(r => r.some(c => c.trim() !== ''));
+        }
+        const iiNum = s => { s = String(s || '').replace(/[€\s]/g, ''); if (!s) return null; if (/,\d{1,2}$/.test(s)) s = s.replace(/\./g, '').replace(',', '.'); else s = s.replace(/,/g, ''); const n = parseFloat(s); return isNaN(n) ? null : Math.round(Math.abs(n) * 100) / 100; };
+        const iiDate = s => { s = String(s || '').trim(); let m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/); if (m) { const y = m[3].length === 2 ? '20' + m[3] : m[3]; return `${y}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`; } m = s.match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? m[0].slice(0, 10) : ''; };
+        const iiStatus = s => /bezahlt|erledigt|beglichen|paid/i.test(s || '') && !/un|nicht/i.test(s || '') ? 'paid' : 'open';
+        function iiCat(r) { const t = `${r.vendor} ${r.note}`.toLowerCase();
+            if (/versicherung|allianz|huk|adac|debeka|axa/.test(t)) return 'Versicherung'; if (/tank|auto|kfz|werkstatt|reifen|roller|hawk|ersatzteil/.test(t)) return 'Tanken / Auto';
+            if (/miete|strom|gas|stadtwerke|wasser|nebenkosten|möbel|stuhl|nachttisch|ikea/.test(t)) return 'Miete / Wohnen'; if (/vodafone|telekom|o2|netflix|spotify|abo|mobilfunk|internet|kino/.test(t)) return 'Freizeit / Abo';
+            if (/rewe|edeka|aldi|lidl|supermarkt|lebensmittel/.test(t)) return 'Supermarkt'; return 'Sonstiges'; }
+        async function invImportFile(e) {
+            const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+            const buf = await f.arrayBuffer(); let txt;
+            try { txt = new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (err) { txt = new TextDecoder('windows-1252').decode(buf); }   // Excel speichert CSV oft in Windows-1252
+            const rows = csvParse(txt); if (rows.length < 2) return UX.toast('In der Datei wurden keine Zeilen gefunden.', true);
+            const head = rows[0].map(h => h.trim()), map = {};
+            II_FIELDS.forEach(([k, , re]) => { const i = head.findIndex((h, j) => re.test(h) && !Object.values(map).includes(j)); if (i >= 0) map[k] = i; });
+            II = { name: f.name, head, rows: rows.slice(1), map, items: null }; iiBuild(true); openModal('m-iimp');
+        }
+        function iiBuild(fresh) {
+            const { head, rows, map } = II, cell = (r, k) => map[k] == null ? '' : String(r[map[k]] ?? '').trim();
+            $('ii-sub').innerHTML = `<b>${esc(II.name)}</b> · ${rows.length} Zeilen. Prüfe die Zuordnung der Spalten und wähle ab, was du nicht übernehmen möchtest.`;
+            $('ii-sum').innerHTML = `Spalten automatisch erkannt: <b>${II_FIELDS.filter(([k]) => map[k] != null).map(([, l]) => l).join(', ') || 'keine'}</b> · antippen zum Ändern`;
+            $('ii-map').innerHTML = II_FIELDS.map(([k, label]) => `<label>${label}<select class="ux-in" data-map="${k}"><option value="">– keine –</option>${head.map((h, i) => `<option value="${i}"${map[k] === i ? ' selected' : ''}>${esc(h)}</option>`).join('')}</select></label>`).join('');
+            II.items = rows.map((r, i) => {
+                const prev = II.items && !fresh ? II.items[i] : null, ref0 = cell(r, 'ref');
+                const it = { vendor: cell(r, 'vendor').slice(0, 80), note: cell(r, 'note'), amount: iiNum(cell(r, 'amount')), due: iiDate(cell(r, 'due')), date: iiDate(cell(r, 'date')), number: cell(r, 'number').slice(0, 60), iban: cell(r, 'iban').toUpperCase(), statusRaw: cell(r, 'status') };
+                // „VZ 1234 – Hinweis“: Verwendungszweck und Hinweis trennen
+                const m = ref0.match(/^VZ[:\s]+([^–—;]+?)(?:\s*[–—-]\s+(.*))?$/i); if (m) { it.ref = m[1].trim(); it.hint = (m[2] || '').trim(); } else { it.ref = ''; it.hint = ref0; }
+                it.status = iiStatus(it.statusRaw); it.category = prev ? prev.category : (CATS.includes(cell(r, 'category')) ? cell(r, 'category') : iiCat(it));
+                it.dup = invs.some(v => v.vendor === it.vendor && (v.amount ?? null) === it.amount && (v.due || '') === it.due && (v.note || '').startsWith(it.note.slice(0, 30)));
+                it.on = prev ? prev.on : !!it.vendor && !it.dup; return it; });
+            $('ii-rows').innerHTML = II.items.map((it, i) => {
+                const hints = [it.dup ? '<span class="dup">schon vorhanden</span>' : '', !it.vendor ? '<span class="dup">ohne Anbieter</span>' : '', it.amount == null ? 'Betrag fehlt' : '', !it.due && it.status !== 'paid' ? 'Fälligkeit fehlt' : '', /pause|prüf|pruef|mahn/i.test(it.statusRaw) ? esc(it.statusRaw) : ''].filter(Boolean).join(' · ');
+                return `<tr class="${it.on ? '' : 'off'}"><td><input type="checkbox" data-ii="${i}" ${it.on ? 'checked' : ''} ${it.vendor ? '' : 'disabled'} aria-label="Zeile übernehmen"></td><td><b>${esc(it.vendor)}</b></td><td>${esc(it.note)}${it.ref ? `<br><small style="color:#94a3b8">VZ ${esc(it.ref)}</small>` : ''}</td>
+                    <td class="r">${it.amount == null ? '–' : eur(it.amount)}</td><td>${it.due ? dLong(it.due) : '–'}</td><td><span class="stt ${it.status}">${it.status === 'paid' ? 'bezahlt' : 'offen'}</span></td>
+                    <td><select class="ux-in" data-iic="${i}">${CATS.map(c => `<option${c === it.category ? ' selected' : ''}>${c}</option>`).join('')}</select></td><td class="hint">${hints}</td></tr>`; }).join('');
+            iiCount();
+        }
+        function iiCount() { const n = II.items.filter(x => x.on).length; $('ii-count').textContent = `${n} von ${II.items.length} Rechnungen werden übernommen` + (II.items.some(x => x.on && x.status === 'paid') ? ' (bezahlte ohne neue Buchung)' : ''); $('ii-go').disabled = !n; $('ii-all').checked = II.items.every(x => x.on || !x.vendor); }
+        document.addEventListener('change', e => {
+            if (!II || !e.target.closest('#m-iimp')) return; const t = e.target;
+            if (t.dataset.map) { if (t.value === '') delete II.map[t.dataset.map]; else II.map[t.dataset.map] = +t.value; iiBuild(false); }
+            else if (t.dataset.ii) { II.items[+t.dataset.ii].on = t.checked; t.closest('tr').classList.toggle('off', !t.checked); iiCount(); }
+            else if (t.dataset.iic) II.items[+t.dataset.iic].category = t.value;
+            else if (t.id === 'ii-all') { II.items.forEach(x => { if (x.vendor) x.on = t.checked; }); iiBuild(false); }
+        });
+        function invImportGo() {
+            const list = II.items.filter(x => x.on); if (!list.length) return; const btn = $('ii-go'); btn.disabled = true; btn.textContent = 'Übernehme …';
+            run(async () => {
+                for (let i = 0; i < list.length; i += 400) { const b = db.batch();
+                    list.slice(i, i + 400).forEach(it => { const note = [it.note, it.hint, /pause|prüf|pruef/i.test(it.statusRaw) ? it.statusRaw : ''].filter(Boolean).join(' · ').slice(0, 200);
+                        const d = { vendor: it.vendor, amount: it.amount, date: it.date || '', due: it.due || '', category: it.category, number: it.number || '', iban: it.iban || '', ref: it.ref || '', note, autoBook: it.status !== 'paid', status: it.status, owner: currentUser.email, source: 'import', createdAt: TS(), updatedAt: TS() };
+                        if (it.status === 'paid') d.paidAt = it.due || localDate(); b.set(db.collection('invoices').doc(), d); });
+                    await b.commit(); }
+                closeModal('m-iimp'); UX.toast(`${list.length} Rechnung${list.length === 1 ? '' : 'en'} importiert`); logSystemEvent('data', 'Rechnungen importiert', { anzahl: list.length }); invFilter = 'open'; renderInv();
+            }).finally(() => { btn.disabled = false; btn.textContent = 'Übernehmen'; });
+        }
+        function invCopy(v) { const what = v.iban ? v.iban.replace(/\s/g, '') : v.ref; navigator.clipboard.writeText(what).then(() => UX.toast(v.iban ? 'IBAN kopiert' + (v.ref ? ' · Verwendungszweck: ' + v.ref : '') : 'Verwendungszweck kopiert'), () => prompt(v.iban ? 'IBAN' : 'Verwendungszweck', what)); }
     </script>
 </body>
 </html>

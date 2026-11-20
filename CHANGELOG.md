@@ -11,6 +11,7 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 - „Bezahlt“ abhaken trägt die Rechnung automatisch als Ausgabe in die Buchungen ein (pro Rechnung abschaltbar, rückgängig möglich).
 - Neue Karte „Nächste Rechnungen“ auf der Übersicht (verschieb- und ausblendbar).
 - Dokumente: neuer Bereich „Rechnungen“ mit allen angehängten Dateien.
+- Rechnungen importieren: CSV-Datei (z. B. aus Excel) mit Vorschau, automatischer Spalten-Erkennung, Kategorie-Vorschlag und Erkennung doppelter Einträge; bezahlte Zeilen kommen ohne neue Buchung rein. Rechnungen ohne Betrag oder Fälligkeit sind jetzt möglich, der Verwendungszweck lässt sich kopieren.
 - Buchungen: neuer Knopf „Löschen“ – entweder alle angezeigten Buchungen (Monat und Filter) oder alle Buchungen auf einmal löschen.
 - Firestore-Regeln: neue Sammlung `invoices` (mit Unter-Sammlung `chunks`).
 
