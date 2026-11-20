@@ -4,6 +4,15 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
 ## 20.11.2026
 
+### Finanzen: Rechnungen
+- Neuer Reiter „Rechnungen“: Rechnungen mit Anbieter, Betrag, Rechnungsdatum, Fälligkeit, Kategorie, Rechnungsnummer, IBAN, Verwendungszweck und Notiz anlegen.
+- PDF oder Foto anhängen (bis 3 MB, Handyfotos werden automatisch verkleinert); Ansehen mit einem Klick.
+- Übersicht nach Dringlichkeit (überfällig, diese Woche, später, bezahlt) mit Kennzahlen, Filter und Suche; IBAN kopieren per Knopf.
+- „Bezahlt“ abhaken trägt die Rechnung automatisch als Ausgabe in die Buchungen ein (pro Rechnung abschaltbar, rückgängig möglich).
+- Neue Karte „Nächste Rechnungen“ auf der Übersicht (verschieb- und ausblendbar).
+- Dokumente: neuer Bereich „Rechnungen“ mit allen angehängten Dateien.
+- Firestore-Regeln: neue Sammlung `invoices` (mit Unter-Sammlung `chunks`).
+
 ### Sternenkolonie: neue Kolonien, Tag & Nacht, Rover
 - Kolonieschiff freigeschaltet (Werft Stufe 3, Kommandozentrale Stufe 4). Über das Sprungtor auf der Sternenkarte gründest du neue Kolonien in Sektor 1: Boreas (Eiswelt, viele Kristallfelder) und Ignis (Lavawelt, viele Erzadern).
 - Jede Kolonie hat eigene Gebäude, Bewohner, Bauland und Kommandozentrale; Rohstoffe, Schiffe und Forschung sind gemeinsam. Lager und Landeplätze aller Kolonien zählen zusammen, Kolonien im Hintergrund produzieren weiter (auch offline) und können angegriffen werden.

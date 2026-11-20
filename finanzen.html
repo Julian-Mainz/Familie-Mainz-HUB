@@ -27,7 +27,29 @@
     <script src="/js/ux.js"></script>
     <script src="/js/layout.js"></script>
     <script src="/js/drawer.js"></script>
-    <style>.fin .ux-btn.pri, .fin .ux-seg button.on, .fin .ux-ico, .fin button.chip.on, .fin .ux-modal .pri { color: #1c1400; } .ux-seg button i { margin-right: 7px; } @media (max-width: 700px) { .ux-seg button i { display: none; } .ux-seg button { padding: 9px 12px; } }</style>
+    <style>.fin .ux-btn.pri, .fin .ux-seg button.on, .fin .ux-ico, .fin button.chip.on, .fin .ux-modal .pri { color: #1c1400; } .ux-seg button i { margin-right: 7px; } @media (max-width: 700px) { .ux-seg button i { display: none; } .ux-seg button { padding: 9px 12px; } }
+    /* Rechnungen */
+    .rk{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}@media(max-width:900px){.rk{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    .rk .v{font-size:24px;font-weight:700}
+    .rg{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#94a3b8;margin:18px 4px 8px;font-weight:700}.rg b{color:var(--c,#94a3b8)}
+    .inv{display:grid;grid-template-columns:46px minmax(0,1fr) auto auto auto;gap:14px;align-items:center;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);margin-bottom:8px}
+    .inv .ic{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;background:rgba(var(--cr),.14);color:var(--c)}
+    .inv .n{min-width:0}.inv .n b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.inv .n small{color:#94a3b8;font-size:12.5px}
+    .inv .due{text-align:right;font-size:13px;color:#cbd5e1}.inv .due b{display:block;color:var(--c)}
+    .inv .amt{font-size:17px;font-weight:700;min-width:96px;text-align:right;white-space:nowrap}
+    .inv .acts{display:flex;gap:6px;align-items:center;justify-content:flex-end;min-width:178px}
+    .inv.over{border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.06)}
+    .inv.paid{opacity:.62}
+    .inv .att{color:#93c5fd}
+    .ux-btn.ok{border-color:rgba(74,222,128,.45);color:#86efac}
+    .badge-p{font-size:10.5px;padding:3px 8px;border-radius:6px;background:rgba(74,222,128,.15);color:#86efac;font-weight:700;letter-spacing:.06em}
+    .drop2{display:block;border:1.5px dashed rgba(250,204,21,.45);border-radius:14px;padding:14px;text-align:center;color:#cbd5e1;font-size:13px;background:rgba(250,204,21,.04);cursor:pointer}
+    .drop2.on{background:rgba(250,204,21,.12)}.drop2 i.big{font-size:22px;color:#facc15;display:block;margin:0 auto 6px}
+    .drop2 .hasf{display:flex;align-items:center;gap:10px;text-align:left}
+    .quick{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.quick button{font-size:11.5px;padding:4px 9px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#cbd5e1;cursor:pointer}
+    #inv-ov .inv{grid-template-columns:40px minmax(0,1fr) auto;padding:10px 12px}#inv-ov .inv .ic{width:40px;height:40px;font-size:16px}
+    @media(max-width:760px){.inv .acts{min-width:0}.inv{grid-template-columns:42px minmax(0,1fr) auto;gap:10px}.inv .ic{width:42px;height:42px}.inv .due{grid-column:2;text-align:left}.inv .amt{grid-column:3;grid-row:1}.inv .acts{grid-column:2/4;justify-content:flex-end}}
+    </style>
 </head>
 <body class="ux">
 <main class="ux-page fin" style="--m:#facc15;--m2:#f59e0b;--mr:250,204,21">
@@ -40,6 +62,7 @@
             <button class="tab" data-tab="ov" onclick="showTab('ov')"><i class="fa-solid fa-chart-pie"></i>Übersicht</button>
             <button class="tab" data-tab="tx" onclick="showTab('tx')"><i class="fa-solid fa-list"></i>Buchungen</button>
             <button class="tab" data-tab="fix" onclick="showTab('fix')"><i class="fa-solid fa-repeat"></i>Fixkosten</button>
+            <button class="tab" data-tab="inv" onclick="showTab('inv')"><i class="fa-solid fa-file-invoice"></i>Rechnungen</button>
             <button class="tab" data-tab="pay" onclick="showTab('pay')"><i class="fa-solid fa-folder-open"></i>Lohn</button>
         </div>
         <div class="ux-pill"><button type="button" onclick="monthShift(1)" aria-label="Älterer Monat"><i class="fa-solid fa-chevron-left"></i></button>
@@ -80,6 +103,7 @@
         </section>
         <section class="ux-card" id="mod-fc"><div class="ux-t"><i class="fa-solid fa-chart-line"></i>Prognose Monatsende</div><div id="forecast"></div></section>
         <section class="ux-card" id="mod-top"><div class="ux-t"><i class="fa-solid fa-ranking-star"></i>Größte Ausgaben</div><div id="top-exp"></div></section>
+        <section class="ux-card" id="mod-inv"><div class="ux-t"><i class="fa-solid fa-file-invoice"></i>Nächste Rechnungen <span class="chip" id="inv-ov-n">0 offen</span></div><div id="inv-ov"></div><button class="ux-btn" style="width:100%;justify-content:center;margin-top:6px" onclick="showTab('inv')">Alle Rechnungen</button></section>
     </section>
 
     <!-- Buchungen -->
@@ -106,6 +130,24 @@
             <div style="display:flex;gap:10px;flex-wrap:wrap"><button onclick="bookDue()" class="ux-btn"><i class="fa-solid fa-circle-check" style="color:#4ade80"></i>Fällige buchen</button><button onclick="openFix()" class="ux-btn pri"><i class="fa-solid fa-plus"></i>Fixkosten</button></div>
         </div>
         <div id="fix-list" class="fxgrid"></div>
+    </section>
+
+    <!-- Rechnungen -->
+    <section id="tab-inv" class="hidden">
+        <div class="rk">
+            <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-file-invoice" style="color:#facc15"></i>Offen</div><div class="v" id="ik-open">–</div><span class="chip" id="ik-open-n"></span></section>
+            <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-triangle-exclamation" style="color:#f87171"></i>Überfällig</div><div class="v neg" id="ik-over">–</div><span class="chip" id="ik-over-n"></span></section>
+            <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-hourglass-half" style="color:#fbbf24"></i>Fällig in 7 Tagen</div><div class="v" id="ik-week">–</div><span class="chip" id="ik-week-n"></span></section>
+            <section class="ux-card ux-kpi"><div class="l"><i class="fa-solid fa-circle-check" style="color:#4ade80"></i><span id="ik-paid-l">Bezahlt im Monat</span></div><div class="v pos" id="ik-paid">–</div><span class="chip g" id="ik-paid-n"></span></section>
+        </div>
+        <div class="ux-card">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center" id="inv-filter">
+                <button class="chip on" data-f="open">Offen</button><button class="chip" data-f="over">Überfällig</button><button class="chip" data-f="paid">Bezahlt</button><button class="chip" data-f="all">Alle</button>
+                <span style="flex:1"></span><input id="inv-q" class="ux-in" style="max-width:260px" placeholder="Suchen: Anbieter, Nummer …" aria-label="Rechnungen durchsuchen">
+                <button class="ux-btn pri" onclick="openInv()"><i class="fa-solid fa-plus"></i>Rechnung</button>
+            </div>
+            <div id="inv-list"></div>
+        </div>
     </section>
 
     <!-- Lohn -->
@@ -144,6 +186,20 @@
     <form onsubmit="saveBudgets(event)"><div id="bud-fields"></div>
         <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-bud')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div></form></div></div>
 
+<!-- Fenster: Rechnung -->
+<div id="m-inv" class="ux-modal hidden"><div class="ux-box fin" style="--m:#facc15;--m2:#f59e0b;--mr:250,204,21;max-width:640px">
+    <h3><i class="fa-solid fa-file-invoice"></i><span id="iv-title">Rechnung anlegen</span><button class="ux-ib" onclick="closeModal('m-inv')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Trag die Rechnung ein und häng das PDF oder ein Foto an. Du siehst dann immer, was wann fällig ist.</p>
+    <form onsubmit="saveInv(event)"><input type="hidden" id="iv-id">
+        <label class="drop2" id="iv-drop"><input type="file" id="iv-file" accept=".pdf,application/pdf,image/png,image/jpeg,image/webp,image/*" hidden><span id="iv-drop-c"></span></label>
+        <div class="ux-row2" style="margin-top:12px"><label class="ux-f"><span>Anbieter / Absender</span><input id="iv-vendor" required maxlength="80" class="ux-in" placeholder="z. B. Stadtwerke, Zahnarzt, ADAC"></label><label class="ux-f"><span>Betrag (€)</span><input type="number" step="0.01" min="0" id="iv-amount" required class="ux-in" placeholder="89.90"></label></div>
+        <div class="ux-row2"><label class="ux-f"><span>Rechnungsdatum</span><input type="date" id="iv-date" class="ux-in"></label><label class="ux-f"><span>Fällig am</span><input type="date" id="iv-due" required class="ux-in"><div class="quick"><button type="button" data-q="14">+14 Tage</button><button type="button" data-q="30">+30 Tage</button><button type="button" data-q="0">Sofort</button></div></label></div>
+        <div class="ux-row2"><label class="ux-f"><span>Kategorie</span><select id="iv-category" class="ux-in"></select></label><label class="ux-f"><span>Rechnungsnummer (optional)</span><input id="iv-number" maxlength="60" class="ux-in"></label></div>
+        <div class="ux-row2"><label class="ux-f"><span>IBAN (optional, zum Kopieren)</span><input id="iv-iban" maxlength="42" class="ux-in" placeholder="DE…"></label><label class="ux-f"><span>Verwendungszweck (optional)</span><input id="iv-ref" maxlength="140" class="ux-in"></label></div>
+        <label class="ux-f"><span>Notiz</span><input id="iv-note" maxlength="200" class="ux-in" placeholder="z. B. per Überweisung, Ratenzahlung vereinbart …"></label>
+        <label style="display:flex;gap:9px;align-items:center;margin:10px 0 2px;font-size:13.5px"><input type="checkbox" id="iv-book" checked> Beim Abhaken als „bezahlt“ automatisch als Ausgabe in den Buchungen eintragen</label>
+        <div class="ux-acts"><button type="button" class="ux-btn bad hidden" id="iv-del" onclick="delInv()" style="margin-right:auto"><i class="fa-solid fa-trash-can"></i>Löschen</button><button type="button" class="ux-btn" onclick="closeModal('m-inv')">Abbrechen</button><button class="ux-btn pri" id="iv-save">Speichern</button></div>
+    </form></div></div>
+
 <!-- Fenster: Lohnabrechnung -->
 <div id="m-pay" class="ux-modal hidden"><div class="ux-box fin" style="--m:#facc15;--m2:#f59e0b;--mr:250,204,21">
     <h3><i class="fa-solid fa-file-invoice-dollar"></i>Lohnabrechnung ablegen<button class="ux-ib" onclick="closeModal('m-pay')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Die Datei wird verschlüsselt übertragen und in deinem Konto gespeichert. Das Netto wird als Gehalt gebucht.</p>
@@ -175,13 +231,13 @@
         const INT = { 1: 'monatlich', 3: 'vierteljährlich', 6: 'halbjährlich', 12: 'jährlich' };
         const csvCell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
 
-        let tx = [], pays = [], fixes = [], budgets = {}, started = false;
+        let tx = [], pays = [], fixes = [], invs = [], budgets = {}, started = false;
         let todayStr = localDate().slice(0, 7);
         setInterval(() => { todayStr = localDate().slice(0, 7); }, 60000);
 
         // ---------- Anpassbares Layout (js/layout.js) ----------
         // [Kennung, Name, Standardbreite in Zwölfteln]
-        const LAY = [['hero', 'Saldo', 4], ['inc', 'Einnahmen', 4], ['exp', 'Ausgaben', 4], ['fix', 'Fixkosten pro Monat', 4], ['fc', 'Prognose Monatsende', 4], ['trend', 'Die letzten 6 Monate', 8], ['cat', 'Ausgaben nach Kategorie', 4], ['bud', 'Budgets', 8], ['top', 'Größte Ausgaben', 4]];
+        const LAY = [['hero', 'Saldo', 4], ['inc', 'Einnahmen', 4], ['exp', 'Ausgaben', 4], ['fix', 'Fixkosten pro Monat', 4], ['fc', 'Prognose Monatsende', 4], ['trend', 'Die letzten 6 Monate', 8], ['cat', 'Ausgaben nach Kategorie', 4], ['bud', 'Budgets', 8], ['top', 'Größte Ausgaben', 4], ['inv', 'Nächste Rechnungen', 4]];
         const LAY_PRESETS = {
             'Standard': {},
             'Kompakt': { order: ['hero', 'inc', 'exp', 'fix', 'bud', 'cat'], hidden: ['trend', 'fc', 'top'], width: { hero: 6, inc: 3, exp: 3, fix: 6, bud: 6, cat: 6 } },
@@ -189,7 +245,7 @@
         };
         Layout.init({
             key: 'fin', root: $('tab-ov'), modules: LAY.map(([id, title, w]) => ({ id, title, w, el: $('mod-' + id) })), presets: LAY_PRESETS,
-            tabs: { items: [['ov', 'Übersicht'], ['tx', 'Buchungen'], ['fix', 'Fixkosten'], ['pay', 'Lohn']].map(([id, title]) => ({ id, title, el: document.querySelector(`.tab[data-tab="${id}"]`) })) },
+            tabs: { items: [['ov', 'Übersicht'], ['tx', 'Buchungen'], ['fix', 'Fixkosten'], ['inv', 'Rechnungen'], ['pay', 'Lohn']].map(([id, title]) => ({ id, title, el: document.querySelector(`.tab[data-tab="${id}"]`) })) },
             onTabs: () => { if (started) showTab(curTab); }, onEdit: on => { if (on && started) showTab('ov'); },
             save: async l => {
                 await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.layouts.fin': l });
@@ -204,7 +260,8 @@
             const mine = c => db.collection(c).where('owner', '==', currentUser.email);
             const list = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
             $('tx-cat').innerHTML = '<option value="">Alle Kategorien</option>' + CATS.map(c => `<option>${c}</option>`).join('');
-            ['tx-category', 'fx-category'].forEach(id => $(id).innerHTML = CATS.map(c => `<option>${c}</option>`).join(''));
+            ['tx-category', 'fx-category', 'iv-category'].forEach(id => $(id).innerHTML = CATS.map(c => `<option>${c}</option>`).join(''));
+            invWire();
             $('fx-start').innerHTML = Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}">${new Date(2000, i, 1).toLocaleString('de-DE', { month: 'long' })}</option>`).join('');
             $('tx-body').addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) b.dataset.act === 'edit' ? openTx(b.dataset.id) : delTx(b.dataset.id); });
             $('fix-list').addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) fixAction(b.dataset.act, b.dataset.id); });
@@ -215,6 +272,7 @@
             mine('finance_transactions').onSnapshot(s => { tx = list(s); renderAll(); });
             mine('payslips').onSnapshot(s => { pays = list(s); renderAll(); });
             mine('fixed_costs').onSnapshot(s => { fixes = list(s); renderAll(); }, () => {});
+            mine('invoices').onSnapshot(s => { invs = list(s); renderInv(); }, () => { invs = []; renderInv(); });
             db.collection('finance_settings').doc(currentUser.uid).onSnapshot(d => { budgets = d.exists ? (d.data().budgets || {}) : {}; renderAll(); }, () => {});
         }, { perm: 'finanzen' });
 
@@ -222,7 +280,7 @@
         function showTab(t) {
             if (!$('tab-' + t) || Layout.tabHidden(t)) t = Layout.firstTab() || 'ov';          // ausgeblendete Reiter öffnen nicht
             curTab = t;
-            ['ov', 'tx', 'fix', 'pay'].forEach(k => $('tab-' + k).classList.toggle('hidden', k !== t));
+            ['ov', 'tx', 'fix', 'inv', 'pay'].forEach(k => $('tab-' + k).classList.toggle('hidden', k !== t));
             document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
             history.replaceState(null, '', '#' + t);
             if (t === 'ov') Layout.refresh();
@@ -244,6 +302,7 @@
         function monthShift(dir) { const s = $('fm'), i = s.selectedIndex + dir; if (i >= 0 && i < s.options.length) { s.selectedIndex = i; renderAll(false); } }
 
         function renderAll(refreshMonths = true) {
+            queueMicrotask(renderInv);
             if (refreshMonths) {
                 const sel = $('fm'), prev = sel.value, set = new Set([todayStr]);
                 tx.forEach(t => { if (t.date?.length >= 7) set.add(t.date.slice(0, 7)); });
@@ -529,6 +588,151 @@
                 logSystemEvent('data', 'Lohnabrechnung gelöscht', { monat: p?.month });
             });
         }
+
+        // ---------- Rechnungen ----------
+        // Kopfdaten in invoices/{id}, die Datei (PDF/Foto) in Teilen zu je höchstens ca. 525 KB in invoices/{id}/chunks
+        const INV_MAX = 3 * 1024 * 1024, INV_CH = 700000, INV_OK = /^(application\/pdf|image\/(png|jpeg|webp))$/;
+        let invFilter = 'open', invPick = null, invDropFile = false;
+        const dayDiff = d => Math.round((Date.parse(d + 'T00:00:00') - Date.parse(localDate() + 'T00:00:00')) / 864e5);
+        const dShort = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) : '';
+        const dLong = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('de-DE') : '';
+        const invState = v => { if (v.status === 'paid') return 'paid'; const d = dayDiff(v.due); return d < 0 ? 'over' : d <= 7 ? 'week' : 'later'; };
+        const INV_COL = { over: ['#f87171', '248,113,113'], week: ['#fbbf24', '251,191,36'], later: ['#60a5fa', '96,165,250'], paid: ['#4ade80', '74,222,128'] };
+        function dueText(v) {
+            if (v.status === 'paid') return [`bezahlt ${dShort(v.paidAt)}`, v.txId ? 'als Buchung eingetragen' : ''];
+            const d = dayDiff(v.due), t = d < -1 ? `seit ${-d} Tagen überfällig` : d === -1 ? 'seit gestern überfällig' : d === 0 ? 'heute fällig' : d === 1 ? 'morgen fällig' : `in ${d} Tagen`;
+            return [t, `fällig ${dShort(v.due)}`];
+        }
+        const sumAmt = l => l.reduce((a, v) => a + (+v.amount || 0), 0);
+        const nRe = n => n === 1 ? '1 Rechnung' : n + ' Rechnungen';
+        function invRow(v, mini) {
+            const st = invState(v), [c, cr] = INV_COL[st], [t1, t2] = dueText(v), icon = catM(v.category)[2];
+            const sub = mini ? esc(t1) + (st !== 'over' && st !== 'paid' ? ' · ' + dShort(v.due) : '')
+                : [v.number ? 'Nr. ' + esc(v.number) : '', esc(v.category || ''), v.note ? esc(v.note) : ''].filter(Boolean).join(' · ') + (v.fileName ? ` · <span class="att"><i class="fa-solid fa-paperclip"></i> ${/pdf/.test(v.fileMime || '') ? 'PDF' : 'Foto'}</span>` : '');
+            const acts = mini ? '' : `<div class="acts">${st === 'paid' ? `<span class="badge-p">BEZAHLT</span><button class="ux-ib" data-ia="unpaid" data-id="${esc(v.id)}" title="Wieder als offen markieren" aria-label="Wieder offen"><i class="fa-solid fa-rotate-left"></i></button>`
+                : `<button class="ux-btn ok" data-ia="paid" data-id="${esc(v.id)}" style="padding:7px 11px;font-size:12px"><i class="fa-solid fa-check"></i>Bezahlt</button>`}
+                ${v.iban ? `<button class="ux-ib" data-ia="iban" data-id="${esc(v.id)}" title="IBAN kopieren" aria-label="IBAN kopieren"><i class="fa-regular fa-copy"></i></button>` : ''}
+                ${v.fileName ? `<button class="ux-ib" data-ia="view" data-id="${esc(v.id)}" title="Datei ansehen" aria-label="Datei ansehen"><i class="fa-solid fa-eye"></i></button>` : ''}
+                <button class="ux-ib" data-ia="edit" data-id="${esc(v.id)}" title="Bearbeiten" aria-label="Bearbeiten"><i class="fa-solid fa-pen"></i></button></div>`;
+            return `<div class="inv ${st}" style="--c:${c};--cr:${cr}"${mini ? ` data-ia="edit" data-id="${esc(v.id)}" role="button" tabindex="0" style="--c:${c};--cr:${cr};cursor:pointer"` : ''}><div class="ic"><i class="fa-solid ${icon}"></i></div>
+                <div class="n"><b>${esc(v.vendor)}</b><small>${sub}</small></div>${mini ? '' : `<div class="due"><b>${esc(t1)}</b>${esc(t2)}</div>`}<div class="amt">${eur(+v.amount || 0)}</div>${acts}</div>`;
+        }
+        function renderInv() {
+            if (!$('inv-list')) return;
+            const open = invs.filter(v => v.status !== 'paid').sort((a, b) => (a.due || '').localeCompare(b.due || '')), over = open.filter(v => invState(v) === 'over'), week = open.filter(v => invState(v) === 'week');
+            const m = ym(), paidM = invs.filter(v => v.status === 'paid' && (v.paidAt || '').startsWith(m));
+            $('ik-open').textContent = eur(sumAmt(open)); $('ik-open-n').textContent = nRe(open.length);
+            $('ik-over').textContent = eur(sumAmt(over)); $('ik-over-n').textContent = nRe(over.length);
+            $('ik-week').textContent = eur(sumAmt(week)); $('ik-week-n').textContent = nRe(week.length);
+            $('ik-paid-l').textContent = 'Bezahlt im ' + new Date(+m.slice(0, 4), +m.slice(5) - 1, 1).toLocaleString('de-DE', { month: 'long' }); $('ik-paid').textContent = eur(sumAmt(paidM)); $('ik-paid-n').textContent = nRe(paidM.length);
+            document.querySelectorAll('#inv-filter [data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === invFilter));
+            const q = ($('inv-q').value || '').trim().toLowerCase(), hit = v => !q || `${v.vendor} ${v.number || ''} ${v.note || ''} ${v.category || ''} ${v.ref || ''}`.toLowerCase().includes(q);
+            const paid = invs.filter(v => v.status === 'paid').sort((a, b) => (b.paidAt || '').localeCompare(a.paidAt || ''));
+            const grp = (label, col, list) => list.length ? `<div class="rg" style="--c:${col}"><b>● ${label}</b></div>` + list.map(v => invRow(v)).join('') : '';
+            let h = '';
+            if (invFilter === 'paid') h = grp('Bezahlt', '#4ade80', paid.filter(hit));
+            else if (invFilter === 'over') h = grp('Überfällig', '#f87171', over.filter(hit));
+            else {
+                const o = open.filter(hit);
+                h = grp('Überfällig', '#f87171', o.filter(v => invState(v) === 'over')) + grp('Diese Woche', '#fbbf24', o.filter(v => invState(v) === 'week')) + grp('Später', '#94a3b8', o.filter(v => invState(v) === 'later'));
+                h += invFilter === 'all' ? grp('Bezahlt', '#4ade80', paid.filter(hit)) : grp('Zuletzt bezahlt', '#4ade80', paid.filter(hit).filter(v => dayDiff(v.paidAt || '2000-01-01') >= -30).slice(0, 3));
+            }
+            $('inv-list').innerHTML = h || `<div class="ux-empty" style="padding:28px"><i class="fa-solid fa-file-invoice"></i>${q ? 'Keine Rechnung gefunden.' : invFilter === 'over' ? 'Nichts überfällig. 👍' : invFilter === 'paid' ? 'Noch keine bezahlten Rechnungen.' : 'Keine offenen Rechnungen. Leg eine mit „Rechnung“ an.'}</div>`;
+            // Karte auf der Übersicht
+            $('inv-ov-n').textContent = open.length + ' offen';
+            $('inv-ov').innerHTML = open.length ? open.slice(0, 4).map(v => invRow(v, true)).join('') : '<div class="ux-empty" style="padding:18px"><i class="fa-solid fa-circle-check" style="color:#4ade80"></i>Keine offenen Rechnungen.</div>';
+        }
+        function invWire() {
+            $('inv-filter').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (b) { invFilter = b.dataset.f; renderInv(); } });
+            $('inv-q').addEventListener('input', renderInv);
+            const act = e => { const b = e.target.closest('[data-ia]'); if (!b) return; const v = invs.find(x => x.id === b.dataset.id); if (!v) return;
+                ({ paid: () => invPaid(v, true), unpaid: () => invPaid(v, false), edit: () => openInv(v.id), view: () => invView(v), iban: () => invCopy(v) })[b.dataset.ia]?.(); };
+            $('inv-list').addEventListener('click', act); $('inv-ov').addEventListener('click', act);
+            $('inv-ov').addEventListener('keydown', e => { if (e.key === 'Enter') act(e); });
+            document.querySelectorAll('#m-inv [data-q]').forEach(b => b.onclick = () => { const base = $('iv-date').value || localDate(), d = new Date(base + 'T12:00:00'); d.setDate(d.getDate() + +b.dataset.q); $('iv-due').value = localDate(d); });
+            const drop = $('iv-drop');
+            $('iv-file').addEventListener('change', e => { if (e.target.files[0]) invSetFile(e.target.files[0]); });
+            ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('on'); }));
+            ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('on'); }));
+            drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) invSetFile(f); });
+            drop.addEventListener('click', e => { if (e.target.closest('[data-rmf]')) { e.preventDefault(); invPick = 'remove'; invDropUI(); } });
+        }
+        function invDropUI(cur) {
+            const c = $('iv-drop-c'), f = invPick && invPick !== 'remove' ? invPick : null, keep = !invPick && cur;
+            if (f || keep) { const name = f ? f.name : cur.fileName, size = f ? f.size : cur.fileSize;
+                c.innerHTML = `<span class="hasf"><i class="fa-solid ${/pdf/.test(f ? f.type : cur.fileMime || '') ? 'fa-file-pdf' : 'fa-image'}" style="font-size:24px;color:#facc15"></i><span style="flex:1;min-width:0"><b class="ell" style="display:block">${esc(name)}</b><small>${size ? (size / 1048576 < .1 ? Math.round(size / 1024) + ' KB' : (size / 1048576).toFixed(1).replace('.', ',') + ' MB') : ''} · antippen zum Ersetzen</small></span><span class="ux-ib" data-rmf role="button" title="Datei entfernen" aria-label="Datei entfernen"><i class="fa-solid fa-xmark"></i></span></span>`; }
+            else c.innerHTML = '<i class="fa-solid fa-cloud-arrow-up big"></i><b>Rechnung hierher ziehen oder antippen</b><br><small>PDF oder Foto (am Handy auch direkt mit der Kamera) · bis 3 MB · erscheint auch in Dokumente › Rechnungen</small>';
+        }
+        async function shrinkImage(f) {      // Fotos verkleinern (Handykamera-Bilder sind oft 4–8 MB)
+            if (!/^image\/(jpeg|png|webp)$/.test(f.type) || f.size < 900000) return f;
+            try { const url = URL.createObjectURL(f), img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+                const k = Math.min(1, 2200 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+                const b = await new Promise(r => c.toBlob(r, 'image/jpeg', .85)); return b && b.size < f.size ? new File([b], f.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' }) : f;
+            } catch (e) { return f; }
+        }
+        async function invSetFile(f) {
+            if (/heic|heif/i.test(f.type + f.name)) { UX.toast('HEIC-Fotos kann der Browser nicht lesen. Bitte als JPG speichern oder ein PDF wählen.', true); return; }
+            f = await shrinkImage(f);
+            if (!INV_OK.test(f.type)) { UX.toast('Bitte ein PDF oder Foto (JPG, PNG, WebP) wählen.', true); return; }
+            if (f.size > INV_MAX) { UX.toast('Die Datei ist größer als 3 MB.', true); return; }
+            invPick = f; invDropUI();
+        }
+        function openInv(id) {
+            const v = id ? invs.find(x => x.id === id) : null; invPick = null;
+            $('iv-title').textContent = v ? 'Rechnung bearbeiten' : 'Rechnung anlegen'; $('iv-id').value = v ? v.id : '';
+            $('iv-vendor').value = v ? v.vendor || '' : ''; $('iv-amount').value = v ? v.amount : ''; $('iv-date').value = v ? v.date || '' : localDate();
+            const d14 = new Date(); d14.setDate(d14.getDate() + 14); $('iv-due').value = v ? v.due || '' : localDate(d14);
+            $('iv-category').value = v ? v.category || 'Sonstiges' : 'Sonstiges'; $('iv-number').value = v ? v.number || '' : ''; $('iv-iban').value = v ? v.iban || '' : ''; $('iv-ref').value = v ? v.ref || '' : ''; $('iv-note').value = v ? v.note || '' : '';
+            $('iv-book').checked = v ? v.autoBook !== false : true; $('iv-del').classList.toggle('hidden', !v); $('iv-file').value = '';
+            invDropUI(v && v.fileName ? v : null); openModal('m-inv'); setTimeout(() => $('iv-vendor').focus(), 50);
+        }
+        async function invWriteFile(ref, f) {
+            const old = await ref.collection('chunks').get(); for (const d of old.docs) await d.ref.delete();
+            if (!f) return { fileName: firebase.firestore.FieldValue.delete(), fileMime: firebase.firestore.FieldValue.delete(), fileSize: firebase.firestore.FieldValue.delete(), fileChunks: firebase.firestore.FieldValue.delete() };
+            const b = new Uint8Array(await f.arrayBuffer()); let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); const b64 = btoa(s), n = Math.ceil(b64.length / INV_CH);
+            for (let i = 0; i < n; i++) await ref.collection('chunks').doc(String(i).padStart(3, '0')).set({ i, data: b64.slice(i * INV_CH, (i + 1) * INV_CH) });
+            return { fileName: f.name.slice(0, 120), fileMime: f.type, fileSize: f.size, fileChunks: n };
+        }
+        function saveInv(e) {
+            e.preventDefault();
+            const id = $('iv-id').value, amount = Math.abs(parseFloat($('iv-amount').value)); if (isNaN(amount)) return;
+            const data = { vendor: $('iv-vendor').value.trim().slice(0, 80), amount: Math.round(amount * 100) / 100, date: $('iv-date').value || '', due: $('iv-due').value, category: $('iv-category').value,
+                number: $('iv-number').value.trim(), iban: $('iv-iban').value.replace(/\s+/g, ' ').trim().toUpperCase(), ref: $('iv-ref').value.trim(), note: $('iv-note').value.trim(), autoBook: $('iv-book').checked, owner: currentUser.email, updatedAt: TS() };
+            const btn = $('iv-save'); if (btn.disabled) return; const pick = invPick; btn.disabled = true; btn.textContent = pick && pick !== 'remove' ? 'Lädt hoch …' : 'Speichert …';
+            run(async () => {
+                const ref = id ? db.collection('invoices').doc(id) : db.collection('invoices').doc();
+                if (id) await ref.update(data); else await ref.set({ ...data, status: 'open', createdAt: TS() });
+                if (pick) await ref.update(await invWriteFile(ref, pick === 'remove' ? null : pick));
+                closeModal('m-inv'); UX.toast(id ? 'Rechnung gespeichert' : 'Rechnung angelegt'); logSystemEvent('data', id ? 'Rechnung bearbeitet' : 'Rechnung angelegt', { betrag: data.amount });
+            }).finally(() => { btn.disabled = false; btn.textContent = 'Speichern'; if (invPick === pick) invPick = null; });
+        }
+        function delInv() {
+            const id = $('iv-id').value, v = invs.find(x => x.id === id); if (!v) return;
+            if (!confirm(`Rechnung „${v.vendor}“ wirklich löschen?${v.txId ? ' Die Buchung in deinen Finanzen bleibt erhalten.' : ''}`)) return;
+            run(async () => { const ref = db.collection('invoices').doc(id), sn = await ref.collection('chunks').get(); for (const d of sn.docs) await d.ref.delete(); await ref.delete(); closeModal('m-inv'); UX.toast('Rechnung gelöscht'); logSystemEvent('data', 'Rechnung gelöscht', {}); });
+        }
+        function invPaid(v, on) {
+            run(async () => {
+                const ref = db.collection('invoices').doc(v.id);
+                if (on) {
+                    const upd = { status: 'paid', paidAt: localDate(), updatedAt: TS() };
+                    if (v.autoBook !== false) { const t = db.collection('finance_transactions').doc('inv_' + v.id); await t.set({ date: localDate(), partner: v.vendor, purpose: 'Rechnung' + (v.number ? ' ' + v.number : ''), category: v.category || 'Sonstiges', amount: -Math.abs(+v.amount || 0), owner: currentUser.email, source: 'invoice', createdAt: TS() }); upd.txId = t.id; }
+                    await ref.update(upd); UX.toast(upd.txId ? 'Bezahlt und als Ausgabe gebucht' : 'Als bezahlt markiert');
+                } else {
+                    if (v.txId) await db.collection('finance_transactions').doc(v.txId).delete().catch(() => {});
+                    await ref.update({ status: 'open', paidAt: firebase.firestore.FieldValue.delete(), txId: firebase.firestore.FieldValue.delete(), updatedAt: TS() }); UX.toast('Wieder offen' + (v.txId ? ', Buchung entfernt' : ''));
+                }
+            });
+        }
+        async function invView(v) {
+            const w = window.open('', '_blank');
+            try { const sn = await db.collection('invoices').doc(v.id).collection('chunks').orderBy('i').get(); if (!sn.size) throw new Error('Datei fehlt.');
+                const parts = sn.docs.map(d => { const s = atob(d.data().data), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; });
+                const url = URL.createObjectURL(new Blob(parts, { type: v.fileMime || 'application/pdf' }));
+                if (w) w.location = url; else location.href = url; setTimeout(() => URL.revokeObjectURL(url), 60000);
+            } catch (e) { if (w) w.close(); UX.toast('Datei konnte nicht geladen werden: ' + e.message, true); }
+        }
+        function invCopy(v) { navigator.clipboard.writeText(v.iban.replace(/\s/g, '')).then(() => UX.toast('IBAN kopiert' + (v.ref ? ' · Verwendungszweck: ' + v.ref : '')), () => prompt('IBAN', v.iban)); }
     </script>
 </body>
 </html>
