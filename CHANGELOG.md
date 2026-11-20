@@ -11,6 +11,7 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 - „Bezahlt“ abhaken trägt die Rechnung automatisch als Ausgabe in die Buchungen ein (pro Rechnung abschaltbar, rückgängig möglich).
 - Neue Karte „Nächste Rechnungen“ auf der Übersicht (verschieb- und ausblendbar).
 - Dokumente: neuer Bereich „Rechnungen“ mit allen angehängten Dateien.
+- Buchungen: neuer Knopf „Löschen“ – entweder alle angezeigten Buchungen (Monat und Filter) oder alle Buchungen auf einmal löschen.
 - Firestore-Regeln: neue Sammlung `invoices` (mit Unter-Sammlung `chunks`).
 
 ### Sternenkolonie: neue Kolonien, Tag & Nacht, Rover

@@ -42,6 +42,7 @@
     .inv.paid{opacity:.62}
     .inv .att{color:#93c5fd}
     .ux-btn.ok{border-color:rgba(74,222,128,.45);color:#86efac}
+    .ux-btn.bad{border-color:rgba(251,113,133,.45);color:#fda4af}.ux-btn:disabled{opacity:.45;cursor:not-allowed}
     .badge-p{font-size:10.5px;padding:3px 8px;border-radius:6px;background:rgba(74,222,128,.15);color:#86efac;font-weight:700;letter-spacing:.06em}
     .drop2{display:block;border:1.5px dashed rgba(250,204,21,.45);border-radius:14px;padding:14px;text-align:center;color:#cbd5e1;font-size:13px;background:rgba(250,204,21,.04);cursor:pointer}
     .drop2.on{background:rgba(250,204,21,.12)}.drop2 i.big{font-size:22px;color:#facc15;display:block;margin:0 auto 6px}
@@ -116,6 +117,7 @@
                 <div class="ux-sp"></div>
                 <label class="ux-btn" style="cursor:pointer"><i class="fa-solid fa-upload" style="color:#fb7185"></i>Sparkasse-CSV<input type="file" accept=".csv" hidden onchange="handleSparkasseCSV(event)"></label>
                 <button onclick="exportMonthCSV()" class="ux-btn"><i class="fa-solid fa-file-csv" style="color:#4ade80"></i>Export</button>
+                <button onclick="openTxDel()" class="ux-btn" title="Mehrere Buchungen auf einmal löschen"><i class="fa-solid fa-trash-can" style="color:#fb7185"></i>Löschen</button>
                 <button onclick="openTx()" class="ux-btn pri"><i class="fa-solid fa-plus"></i>Buchung</button>
             </div>
             <div id="tx-body"></div>
@@ -185,6 +187,16 @@
     <h3><i class="fa-solid fa-piggy-bank"></i>Monatsbudgets<button class="ux-ib" onclick="closeModal('m-bud')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Lege pro Kategorie ein Limit fest. Leer lassen = kein Budget.</p>
     <form onsubmit="saveBudgets(event)"><div id="bud-fields"></div>
         <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-bud')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div></form></div></div>
+
+<!-- Fenster: Buchungen löschen -->
+<div id="m-txdel" class="ux-modal hidden"><div class="ux-box fin" style="--m:#facc15;--m2:#f59e0b;--mr:250,204,21;max-width:520px">
+    <h3><i class="fa-solid fa-trash-can"></i>Buchungen löschen<button class="ux-ib" onclick="closeModal('m-txdel')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Gelöschte Buchungen lassen sich nicht wiederherstellen. Fixkosten kannst du danach erneut buchen, einen Sparkasse-Export erneut einlesen.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+        <button type="button" class="ux-btn" id="txdel-view" onclick="txDelete('view')" style="justify-content:flex-start;text-align:left;padding:12px 14px"></button>
+        <button type="button" class="ux-btn bad" id="txdel-all" onclick="txDelete('all')" style="justify-content:flex-start;text-align:left;padding:12px 14px"></button>
+    </div>
+    <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-txdel')">Abbrechen</button></div>
+</div></div>
 
 <!-- Fenster: Rechnung -->
 <div id="m-inv" class="ux-modal hidden"><div class="ux-box fin" style="--m:#facc15;--m2:#f59e0b;--mr:250,204,21;max-width:640px">
@@ -376,10 +388,12 @@
             const today = localDate(), y = localDate(new Date(Date.now() - 864e5)); const p = d.split('-');
             return (d === today ? 'Heute · ' : d === y ? 'Gestern · ' : '') + WD[new Date(+p[0], +p[1] - 1, +p[2]).getDay()] + '., ' + p[2] + '.' + p[1] + '.';
         }
-        function renderTx() {
+        function txShown() {
             const q = $('tx-q').value.toLowerCase(), c = $('tx-cat').value, ty = $('tx-type').value;
-            const list = monthTx(ym()).filter(t => (!c || (t.category || 'Sonstiges') === c) && (!ty || (ty === 'in') === (t.amount > 0)) && (!q || `${t.partner} ${t.purpose || ''}`.toLowerCase().includes(q)))
-                .sort((a, b) => b.date.localeCompare(a.date));
+            return monthTx(ym()).filter(t => (!c || (t.category || 'Sonstiges') === c) && (!ty || (ty === 'in') === (t.amount > 0)) && (!q || `${t.partner} ${t.purpose || ''}`.toLowerCase().includes(q)));
+        }
+        function renderTx() {
+            const list = txShown().sort((a, b) => b.date.localeCompare(a.date));
             let last = '', html = '';
             list.forEach((t, i) => {
                 if (t.date !== last) { last = t.date; html += `<div class="day">${esc(dayName(t.date))}</div>`; }
@@ -412,6 +426,25 @@
                 if (id) await db.collection('finance_transactions').doc(id).update({ ...data, updatedAt: TS() });
                 else await db.collection('finance_transactions').add({ ...data, purpose: 'Manuelle Buchung', owner: currentUser.email, createdAt: TS() });
                 closeModal('m-tx'); logSystemEvent('data', id ? 'Buchung bearbeitet' : 'Buchung angelegt', { amount });
+            });
+        }
+        // Mehrere Buchungen auf einmal löschen: die angezeigten (Monat + Filter) oder alle
+        function openTxDel() {
+            const shown = txShown(), filt = $('tx-q').value || $('tx-cat').value || $('tx-type').value;
+            $('txdel-view').innerHTML = `<i class="fa-solid fa-list"></i><span><b>Angezeigte Buchungen löschen (${shown.length})</b><br><small>${esc(monthLabel(ym()))}${filt ? ' · mit deinem aktuellen Filter' : ''}</small></span>`;
+            $('txdel-view').disabled = !shown.length;
+            $('txdel-all').innerHTML = `<i class="fa-solid fa-trash-can"></i><span><b>Alle Buchungen löschen (${tx.length})</b><br><small>aus allen Monaten</small></span>`;
+            $('txdel-all').disabled = !tx.length; openModal('m-txdel');
+        }
+        function txDelete(what) {
+            const list = what === 'all' ? [...tx] : txShown(); if (!list.length) return;
+            if (!confirm(what === 'all' ? `Wirklich ALLE ${list.length} Buchungen aus allen Monaten löschen? Das kann nicht rückgängig gemacht werden.` : `${list.length} Buchung${list.length === 1 ? '' : 'en'} aus ${monthLabel(ym())} wirklich löschen?`)) return;
+            run(async () => {
+                const ids = new Set(list.map(t => t.id));
+                for (let i = 0; i < list.length; i += 400) { const b = db.batch(); list.slice(i, i + 400).forEach(t => b.delete(db.collection('finance_transactions').doc(t.id))); await b.commit(); }
+                // Rechnungen, deren Buchung gelöscht wurde, verlieren den Verweis (bleiben aber bezahlt)
+                for (const v of invs.filter(v => v.txId && ids.has(v.txId))) await db.collection('invoices').doc(v.id).update({ txId: firebase.firestore.FieldValue.delete() }).catch(() => {});
+                closeModal('m-txdel'); UX.toast(`${list.length} Buchung${list.length === 1 ? '' : 'en'} gelöscht`); logSystemEvent('data', 'Buchungen gelöscht', { anzahl: list.length, umfang: what });
             });
         }
         function delTx(id) {
