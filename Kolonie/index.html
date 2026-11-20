@@ -11,7 +11,9 @@
 :root{--pan:linear-gradient(180deg,rgba(14,20,44,.9),rgba(7,10,26,.92));--line:rgba(125,211,252,.22);--txt:#e2e8f0;--mut:#94a3b8;--acc:#67e8f9;--acc2:#a5b4fc;--ok:#4ade80;--bad:#fb7185;--warn:#fbbf24}
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#04051a;color:var(--txt);font:14px/1.4 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 button{font:inherit;color:inherit;cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}
-#cv{position:fixed;inset:0;touch-action:none;cursor:grab}#cv:active{cursor:grabbing}
+#cv{position:fixed;inset:0;touch-action:none;cursor:grab;display:block;background:#04051a}#cv:active{cursor:grabbing}
+.v3ov{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}.v3bar{position:absolute;left:0;top:0;width:48px;height:7px;border-radius:4px;background:rgba(2,6,23,.85);border:1px solid rgba(251,191,36,.5);overflow:hidden}.v3bar i{display:block;height:100%;background:#fbbf24}
+.nogl{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);max-width:420px;padding:20px;border-radius:16px;background:#0f172a;border:1px solid #334155;text-align:center;z-index:50}
 .glass{background:var(--pan);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 34px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06)}
 svg{display:block}
 /* ---------- Kopfzeile ---------- */
@@ -129,7 +131,7 @@ svg{display:block}
 <div id="left"><div class="glass" id="quest"></div><div id="events" style="display:flex;flex-direction:column;gap:8px"></div></div>
 <div id="info" class="glass hidden"></div>
 <div id="buildbar" class="glass hidden"></div>
-<div class="zoom"><button id="zin" aria-label="Hineinzoomen">+</button><button id="zout" aria-label="Herauszoomen">−</button><button id="zhome" aria-label="Zur Zentrale" style="font-size:15px">⌂</button></div>
+<div class="zoom"><button id="zin" aria-label="Hineinzoomen">+</button><button id="zout" aria-label="Herauszoomen">−</button><button id="zrl" aria-label="Nach links drehen" style="font-size:16px">⟲</button><button id="zrr" aria-label="Nach rechts drehen" style="font-size:16px">⟳</button><button id="zhome" aria-label="Zur Zentrale" style="font-size:15px">⌂</button></div>
 <div id="dock" class="glass"><div id="cats"></div><div id="cards"></div></div>
 <div id="toasts" aria-live="polite"></div>
 
@@ -174,7 +176,7 @@ svg{display:block}
     <li><b>Raumfahrt:</b> Landeplätze, Werft und Schiffe. Auf der Sternenkarte schickst du Schiffe auf Missionen.</li>
     <li><b>Piraten:</b> greifen ab Zentrale Stufe 2 regelmäßig an. Abwehrtürme, Jäger und Kreuzer schützen dich.</li>
     <li>Die Kolonie produziert bis zu 8 Stunden weiter, wenn du nicht spielst. Der Spielstand wird im Konto gespeichert.</li>
-    <li>Ziehen zum Verschieben, Mausrad oder zwei Finger zum Zoomen.</li>
+    <li>Linke Maustaste ziehen: Ansicht verschieben. Rechte Maustaste ziehen: drehen und neigen. Mausrad: zoomen. Tastatur: WASD verschieben, Q/E drehen.</li><li>Am Handy: ein Finger verschiebt, zwei Finger zoomen, drehen und (gemeinsam hoch/runter) neigen.</li>
   </ol>
   <div id="mm-ach"></div>
 </div></div>
@@ -183,8 +185,8 @@ svg{display:block}
 
 <script src="/js/gamesave.js"></script>
 <script src="ships.js"></script>
-<script src="art.js"></script>
 <script src="game.js"></script>
+<script type="module" src="view3d.js"></script>
 <script src="ui.js"></script>
 <script>(function(){var t=document.getElementById('top');if(!t)return;function f(){var r=t.getBoundingClientRect();document.documentElement.style.setProperty('--th',Math.round(r.bottom)+'px')}f();if(window.ResizeObserver)new ResizeObserver(f).observe(t);addEventListener('resize',f)})();</script>
 </body>

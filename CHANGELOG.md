@@ -2,6 +2,15 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 20.11.2026
+
+### Sternenkolonie in 3D
+- Die Kolonie wird jetzt in echtem 3D dargestellt (Three.js): schwebender Asteroid, alle 14 Gebäude als 3D-Modelle mit sichtbaren Stufen, Schatten, Leuchten und Animationen (Bohrer, Rauch, Radarschüsseln, Fackeln, Kristalle).
+- Kamera wie in Aufbauspielen: linke Maustaste verschieben, rechte Maustaste drehen und neigen, Mausrad zoomen, WASD und Q/E auf der Tastatur. Am Handy: ein Finger verschiebt, zwei Finger zoomen, drehen und neigen.
+- Bauen, Verschieben und Auswählen mit 3D-Vorschau (grün = frei, rot = geht nicht), Baugerüst und Fortschrittsbalken beim Bauen, Kran beim Ausbauen.
+- Schiffe stehen auf den Landeplätzen, starten und landen in 3D; Piratenangriffe mit anfliegenden Piraten, Laserfeuer der Türme und Jägern.
+- Spielstand, Spiellogik und alle Fenster bleiben gleich. „Effekte: sparsam“ im Menü schaltet Schatten und Animationen für schwächere Geräte ab.
+
 ## 19.11.2026
 
 ### Zeiterfassung
