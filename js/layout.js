@@ -5,6 +5,7 @@
 // überlappende Karten werden nach unten geschoben. Auf schmalen Bildschirmen liegen sie weiterhin untereinander (von oben links nach unten rechts).
 // Optional lassen sich auch die Reiter einer Seite ordnen.
 // Das Layout wird je Person im Profil gespeichert (userPrefs.layouts.<seite>); die Seite übergibt dazu eine save-Funktion.
+// Wer noch kein eigenes Layout hat, bekommt den Standard, den ein Admin mit „Als Standard für alle“ festgelegt hat (layout_defaults/<seite>).
 (function (root) {
     'use strict';
     const WIDTHS = [3, 4, 6, 8, 12], WLABEL = { 3: '¼', 4: '⅓', 6: '½', 8: '⅔', 12: 'Ganz' }, ROW = 8, GAP = 16;
@@ -150,7 +151,7 @@
         S.tr = document.createElement('div'); S.tr.className = 'lay-tray'; S.root.parentNode.insertBefore(S.tr, S.tabsAnchor || S.root);
         S.bar = document.createElement('div'); S.bar.className = 'lay-edit-bar'; S.bar.setAttribute('role', 'toolbar'); S.bar.setAttribute('aria-label', 'Anpassen');
         S.bar.innerHTML = `<span class="lay-ttl"><i class="fa-solid fa-table-columns"></i>Anpassen</span><label class="lay-sel"><span>Anordnung</span><select id="lay-mode"><option value="auto">Automatisch, ohne Lücken</option><option value="free">Frei im Raster</option></select></label><label class="lay-sel"><span>Vorlage</span><select id="lay-preset"><option value="">Vorlage wählen …</option>${Object.keys(S.presets).map(k => `<option value="${esc(k)}">${esc(k)}</option>`).join('')}</select></label>
-            <button type="button" data-b="reset"><i class="fa-solid fa-rotate-left"></i>Zurücksetzen</button><button type="button" data-b="cancel">Abbrechen</button><button type="button" data-b="save" class="pri"><i class="fa-solid fa-check"></i>Speichern</button>`;
+            <button type="button" data-b="std" style="display:none" title="Dieses Layout bekommen alle, die noch kein eigenes haben"><i class="fa-solid fa-users"></i>Als Standard für alle</button><button type="button" data-b="reset"><i class="fa-solid fa-rotate-left"></i>Zurücksetzen</button><button type="button" data-b="cancel">Abbrechen</button><button type="button" data-b="save" class="pri"><i class="fa-solid fa-check"></i>Speichern</button>`;
         document.body.appendChild(S.bar);
         S.root.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (!b || !S.editing) return; const id = b.closest('.lay-item').dataset.mod, a = b.dataset.a; if (a === 'prev') freeOn() ? nudge(id, -1, 0) : move(id, -1); else if (a === 'next') freeOn() ? nudge(id, 1, 0) : move(id, 1); else if (a === 'narrower') setW(id, -1); else if (a === 'wider') setW(id, 1); else if (a === 'hide') hide(id); else if (a === 'autoh') setH(id, 0); });
         S.root.addEventListener('dblclick', e => { const r = e.target.closest('.lay-rs'); if (r && S.editing) setH(r.closest('.lay-item').dataset.mod, 0); });
@@ -159,7 +160,7 @@
             const m = e.target.closest('[data-tm]'); if (m) { const o = S.cur.tabs.order, i = o.indexOf(m.dataset.tm), j = i + +m.dataset.d; if (j >= 0 && j < o.length) { [o[i], o[j]] = [o[j], o[i]]; render(false); } return; }
             const t = e.target.closest('[data-tt]'); if (t) { const h = S.cur.tabs.hidden, id = t.dataset.tt; if (h.includes(id)) S.cur.tabs.hidden = h.filter(x => x !== id); else h.push(id); render(false); }
         });
-        S.bar.addEventListener('click', e => { const b = e.target.closest('[data-b]'); if (!b) return; if (b.dataset.b === 'save') save(); else if (b.dataset.b === 'cancel') cancel(); else if (b.dataset.b === 'reset') { S.cur = defaults(); $p().value = ''; render(true); } });
+        S.bar.addEventListener('click', e => { const b = e.target.closest('[data-b]'); if (!b) return; if (b.dataset.b === 'save') save(); else if (b.dataset.b === 'cancel') cancel(); else if (b.dataset.b === 'std') setStd(b); else if (b.dataset.b === 'reset') { S.cur = S.siteDef ? norm(S.siteDef) : defaults(); $p().value = ''; render(true); } });
         $p().addEventListener('change', e => { const p = S.presets[e.target.value]; if (p) { S.cur = norm(p); render(true); } });
         document.getElementById('lay-mode').addEventListener('change', e => setMode(e.target.value === 'free'));
         S.root.addEventListener('keydown', e => {           // Größe per Tastatur: Pfeile links/rechts = Spalten, hoch/runter = Reihen
@@ -244,8 +245,28 @@
         setTimeout(() => { el.classList.remove('lay-drag'); el.style.transition = ''; }, 300); render(false);
     }
 
+    // ---------- Standard für alle (Admin) ----------
+    const isAdm = () => { try { return typeof isAdmin === 'function' && typeof currentUser !== 'undefined' && isAdmin(currentUser); } catch (e) { return false; } };
+    const stdRef = () => (typeof db !== 'undefined' ? db.collection('layout_defaults').doc(S.key) : null);
+    function siteDefault() {
+        if (S.stdP) return S.stdP; const r = stdRef();
+        S.stdP = r ? r.get().then(d => { S.siteDef = d.exists && d.data().layout ? d.data().layout : null; return S.siteDef; }).catch(() => null) : Promise.resolve(null);
+        return S.stdP;
+    }
+    async function setStd(btn) {
+        if (!confirm('Dieses Layout als Standard für alle festlegen?\n\nEs gilt für alle, die auf dieser Seite noch kein eigenes Layout gespeichert haben, und für „Zurücksetzen“. Eigene Layouts der anderen bleiben unverändert.')) return;
+        btn.disabled = true;
+        try {
+            const l = clone(S.cur); await stdRef().set({ layout: l, updatedBy: currentUser.email, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+            S.siteDef = l; S.stdP = Promise.resolve(l); toast('Als Standard für alle gespeichert');
+            if (typeof logSystemEvent === 'function') logSystemEvent('admin', 'Standard-Layout festgelegt', { seite: S.key });
+        } catch (e) { toast('Speichern fehlgeschlagen: ' + (e.code || e.message), true); } finally { btn.disabled = false; }
+    }
+
     function edit(on) {
-        if (on === S.editing) return; S.editing = on; document.body.classList.toggle('lay-on', on); S.root.classList.toggle('lay-editing', on);
+        if (on === S.editing) return; S.editing = on;
+        const sb = S.bar && S.bar.querySelector('[data-b="std"]'); if (sb) sb.style.display = isAdm() ? '' : 'none';      // nur Admins
+        document.body.classList.toggle('lay-on', on); S.root.classList.toggle('lay-editing', on);
         if (on) { S.snap = clone(S.cur); $p().value = ''; if (S.onEdit) S.onEdit(true); render(false); setTimeout(() => { const g = S.root.querySelector('.lay-item:not(.lay-hide) .lay-grip'); if (g) g.focus({ preventScroll: true }); }, 50); }
         else { if (S.onEdit) S.onEdit(false); }
         const b = document.getElementById('lay-btn'); if (b) b.classList.toggle('on', on);
@@ -269,7 +290,12 @@
         window.addEventListener('resize', () => { if (!!S.wasFree !== freeOn()) render(false); else schedule(); gridVars(); }); requestAnimationFrame(() => S.root.classList.add('lay-ready')); setTimeout(() => S.root.classList.add('lay-ready'), 2500);
     }
     // Gespeichertes Layout nachträglich laden (nach der Anmeldung)
-    function load(prefs) { if (!S) return; S.cur = norm(prefs || null); S.saved = clone(S.cur); if (S.editing) S.snap = clone(S.cur); render(false); }
+    function load(prefs) {
+        if (!S) return;
+        const apply = l => { S.cur = norm(l || null); S.saved = clone(S.cur); if (S.editing) S.snap = clone(S.cur); render(false); };
+        if (prefs) { apply(prefs); siteDefault(); return; }
+        siteDefault().then(d => { if (!S.editing) apply(d); });                     // kein eigenes Layout: Standard vom Admin (sonst eingebauter Standard)
+    }
 
     const tabHidden = id => !!(S && S.cur.tabs && S.cur.tabs.hidden.includes(id));
     const firstTab = () => (S && S.cur.tabs ? S.cur.tabs.order.find(id => !S.cur.tabs.hidden.includes(id)) : null);

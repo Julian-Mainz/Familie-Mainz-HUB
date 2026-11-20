@@ -4,6 +4,12 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
 ## 20.11.2026
 
+### Standard-Layout für alle
+- Start, Zeiterfassung und Finanzen: Admins sehen unter „Anpassen“ den neuen Knopf „Als Standard für alle“. Die aktuelle Anordnung der Karten (Reihenfolge, Größen, ausgeblendete Karten, Reiter) wird damit zum Standard.
+- Den Standard bekommen alle, die auf der Seite noch kein eigenes Layout gespeichert haben, und „Zurücksetzen“ springt jetzt auf diesen Standard. Eigene Layouts bleiben unverändert.
+- Geänderte Dateien: js/layout.js
+- Firestore-Regeln: neue Sammlung `layout_defaults` (lesen alle Angemeldeten, schreiben nur Admins).
+
 ### Wartungsmodus
 - Admin: neuer Reiter „Wartung“. Dort lässt sich jede Seite einzeln in Wartung setzen (Start, Messenger, Wandkalender, Zeiterfassung, Finanzen, Dokumente, Passwort-Safe, Spotify, Changelog, Profil) oder gleich die Anmeldung samt ganzem System.
 - Wer kein Admin ist, sieht statt der Seite eine Wartungsseite mit eigenem Hinweistext und auf Wunsch „Voraussichtlich wieder da“. Ist die Wartung vorbei, lädt die Seite von selbst neu.
