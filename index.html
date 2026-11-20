@@ -170,6 +170,20 @@
             .lg-top, .lg-foot { padding: 16px 18px; } .lg-main { padding: 0 16px 28px; } .lg-card { padding: 22px 18px; } .lg-cols { grid-template-columns: 1fr; }
             .lg-feats { grid-template-columns: 1fr 1fr; gap: 9px; } .lg-feat { padding: 11px; gap: 10px; } .lg-feat small { display: none; } .lg-ft { width: 36px; height: 36px; font-size: 15px; } .lg-lead { font-size: .95rem; }
         }
+        /* ----- Wartungsmodus: Formulare weg, nur Admin-Anmeldung ----- */
+        .lg-maint { display: none; text-align: center; }
+        .lg-card.maint .lg-maint { display: block; }
+        .lg-card.maint .lg-tabs, .lg-card.maint .lg-form { display: none !important; }
+        .lg-card.maint.adm #form-login { display: flex !important; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); text-align: left; }
+        .lg-card.maint.adm .lg-madm { display: none; }
+        .lg-mico { width: 68px; height: 68px; margin: 4px auto 16px; border-radius: 22px; display: grid; place-items: center; font-size: 28px; color: #fff; background: linear-gradient(135deg, #f59e0b, #ef4444); box-shadow: 0 14px 30px -10px rgba(239, 68, 68, .6); animation: lgWob 3.2s ease-in-out infinite; }
+        @keyframes lgWob { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(-12deg); } 86% { transform: rotate(10deg); } 93% { transform: rotate(-4deg); } }
+        .lg-maint h2 { margin: 0 0 8px; font-size: 1.4rem; letter-spacing: -.01em; } .lg-maint p { margin: 0; color: var(--mut); font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+        .lg-muntil { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 8px 13px; border-radius: 13px; font-size: 12.5px; font-weight: 600; color: #c7d2fe; background: rgba(99, 102, 241, .14); }
+        .lg-madm { display: inline-flex; align-items: center; gap: 7px; margin-top: 20px; font-size: 12.5px; }
+        .lg-madm i { font-size: 12px; }
+        html.hell .lg-muntil { color: #4338ca; background: #eef2ff; }
+        @media (prefers-reduced-motion: reduce) { .lg-mico { animation: none !important; } }
         @media (prefers-reduced-motion: reduce) { .lg-orb, .lg-cardwrap, .lg-cardwrap::before, .lg-rot, .lg-feat, .lg-dot.on::after { animation: none !important; } }
     </style>
 </head>
@@ -198,7 +212,14 @@
             <div class="lg-live"><div><span id="lg-greet">Hallo</span><br><small id="lg-date"></small></div><b id="lg-clock">--:--</b></div>
         </section>
 
-        <div class="lg-cardwrap"><div class="lg-card">
+        <div class="lg-cardwrap"><div class="lg-card" id="lg-card">
+            <div id="lg-maint" class="lg-maint">
+                <span class="lg-mico"><i class="fa-solid fa-screwdriver-wrench"></i></span>
+                <h2>Wartungsarbeiten</h2>
+                <p id="lg-maint-msg"></p>
+                <span id="lg-maint-until" class="lg-muntil hidden"><i class="fa-regular fa-clock"></i><span></span></span>
+                <button type="button" class="lg-link lg-madm" onclick="maintAdminLogin(true)"><i class="fa-solid fa-user-shield"></i>Admin-Anmeldung</button>
+            </div>
             <div class="lg-tabs" id="lg-tabs" data-v="login"><i class="lg-tabbar"></i>
                 <button type="button" id="tab-login" onclick="showView('login')">Anmelden</button><button type="button" id="tab-register" onclick="showView('register')">Registrieren</button></div>
 
@@ -274,9 +295,36 @@
         // Meldungen wie "Konto gesperrt" oder "wartet auf Freigabe" nach einer Weiterleitung anzeigen
         showFlash();
 
+        // Wartungsmodus (Admin-Bereich): Anmeldung nur für Admins, Formulare ausgeblendet
+        let loginMaint = false;
+        function renderLoginMaint(m) {
+            loginMaint = maintOn('/', m);
+            $('lg-card').classList.toggle('maint', loginMaint);
+            $('lg-maint-msg').innerText = (m && m.msg) || MAINT_DEFAULT_MSG;
+            const u = maintUntilText(m); $('lg-maint-until').classList.toggle('hidden', !u); $('lg-maint-until').querySelector('span').innerText = u;
+            if (!loginMaint) $('lg-card').classList.remove('adm');
+        }
+        function maintAdminLogin(on) { $('lg-card').classList.toggle('adm', on); $('auth-alert').classList.add('hidden'); if (on) setTimeout(() => $('login-email').focus(), 50); }
+        const maintReady = watchMaint().then(renderLoginMaint);
+        document.addEventListener('maint-change', e => renderLoginMaint(e.detail));
+
         // Eingeloggt: weiter ins Menü. Während der Registrierung nicht, sonst fehlt das Profil noch.
-        auth.onAuthStateChanged(user => {
-            if (user && !window.signingUp) window.location.href = '/menu.html';
+        // In der Wartung kommen nur Admins weiter, alle anderen werden gleich wieder abgemeldet.
+        auth.onAuthStateChanged(async user => {
+            if (!user || window.signingUp) return;
+            await maintReady;
+            if (loginMaint) {
+                let ok = false;
+                try { const d = await db.collection('users').doc(user.uid).get(); ok = d.exists && isAdmin(d.data()) && (d.data().status || 'active') === 'active'; } catch (e) {}
+                if (!ok) {
+                    await auth.signOut();
+                    $('lg-card').classList.add('adm');
+                    showAuthAlert('Wegen Wartungsarbeiten können sich gerade nur Admins anmelden.');
+                    const b = $('btn-login'); b.disabled = false; b.innerText = 'Anmelden';
+                    return;
+                }
+            }
+            window.location.href = '/menu.html';
         });
 
         function setNet() {

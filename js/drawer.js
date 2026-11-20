@@ -63,7 +63,7 @@ function renderDrawer() {
         const head = l.group !== lastGroup ? `<div class="sb-sec">${l.group}</div>` : ''; lastGroup = l.group;
         const on = normPath(l.href) === here;
         parts.push(`${head}<a class="sb-item${on ? ' on' : ''}" href="${l.href}" style="--c:${l.c};--i:${idx++}" data-tip="${l.label}"${on ? ' aria-current="page"' : ''}>
-            <span class="sb-ico"><i class="fa-solid ${l.icon}"></i></span><span class="sb-label">${l.label}</span>${l.badgeId ? `<em class="sb-badge" id="${l.badgeId}"></em>` : l.badge ? '<em class="sb-badge" id="sb-badge"></em>' : ''}</a>`);
+            <span class="sb-ico"><i class="fa-solid ${l.icon}"></i></span><span class="sb-label">${l.label}</span>${typeof maintOn === 'function' && maintOn(normPath(l.href)) ? '<i class="fa-solid fa-screwdriver-wrench sb-mt" title="In Wartung"></i>' : ''}${l.badgeId ? `<em class="sb-badge" id="${l.badgeId}"></em>` : l.badge ? '<em class="sb-badge" id="sb-badge"></em>' : ''}</a>`);
     });
     if (webOk && !webDone) parts.push(webGroup());
     const items = parts.join('');

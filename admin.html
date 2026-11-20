@@ -54,6 +54,16 @@
         .msgc p { margin: 12px 0 0; color: #cbd5e1; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
         .sgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; align-items: start; } .sgrid .ux-card { padding: 20px; } .sgrid .fc b { font-variant-numeric: tabular-nums; color: #c4b5fd; }
         @media (max-width: 700px) { .grp { width: 100%; } }
+        .mtgrid2 { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; align-items: start; } @media (max-width: 960px) { .mtgrid2 { grid-template-columns: 1fr; } }
+        .mtc { padding: 20px; } .mtlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 8px; }
+        .mtrow { --m2: #f59e0b; display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 16px; cursor: pointer; border: 1px solid rgba(148, 163, 184, .14); background: rgba(255, 255, 255, .03); transition: border-color .2s, background-color .2s; }
+        .mtrow:hover { border-color: rgba(148, 163, 184, .3); } .mtrow:has(.swi:checked) { border-color: rgba(245, 158, 11, .55); background: rgba(245, 158, 11, .1); }
+        .mti { flex: none; width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; color: var(--c); background: rgba(148, 163, 184, .1); font-size: 14px; }
+        .mtl { flex: 1; min-width: 0; } .mtl b { display: block; font-size: 13.5px; } .mtl small { display: block; font-size: 11.5px; color: #64748b; } .mtrow:has(.swi:checked) .mtl small { color: #fbbf24; }
+        .mtrow.sys { padding: 14px 16px; } .mtrow.sys .mti { width: 42px; height: 42px; font-size: 17px; color: #f87171; } .mtrow.sys .mtl b { font-size: 14.5px; }
+        .mtrow.sys:has(.swi:checked) { border-color: rgba(248, 113, 113, .6); background: rgba(248, 113, 113, .1); --m2: #ef4444; } .mtrow.sys:has(.swi:checked) .mtl small { color: #fca5a5; }
+        .mtlab { display: block; margin: 0 0 6px; font-size: 12px; font-weight: 600; color: #94a3b8; } textarea + .mtlab { margin-top: 12px; } #mt-msg { resize: vertical; min-height: 80px; }
+        .mtprev { text-align: center; padding: 18px; border-radius: 18px; border: 1px dashed rgba(148, 163, 184, .3); } .mtprev > i { display: block; margin: 0 auto 8px; width: 1.6em; height: 1.6em; color: #f59e0b; } .mtprev b { font-size: 15px; } .mtprev p { margin: 6px 0 0; font-size: 12.5px; color: #94a3b8; white-space: pre-wrap; } .mtprev span { display: inline-block; margin-top: 8px; font-size: 11.5px; color: #a5b4fc; }
     </style>
 </head>
 <body class="ux">
@@ -77,6 +87,7 @@
         <button class="tab on" data-tab="users" onclick="showTab('users')"><i class="fa-solid fa-users"></i>Benutzer &amp; Rechte</button>
         <button class="tab" data-tab="logs" onclick="showTab('logs')"><i class="fa-solid fa-clipboard-list"></i>Logs</button>
         <button class="tab" data-tab="system" onclick="showTab('system')"><i class="fa-solid fa-server"></i>System</button>
+        <button class="tab" data-tab="wartung" onclick="showTab('wartung')"><i class="fa-solid fa-screwdriver-wrench"></i>Wartung<span id="mt-badge" class="chip a hidden"></span></button>
         <button class="tab" data-tab="messages" onclick="showTab('messages')"><i class="fa-solid fa-envelope"></i>Nachrichten<span id="msg-badge" class="chip r hidden"></span></button>
     </div>
 
@@ -118,6 +129,30 @@
     <section id="tab-messages" class="sec hidden">
         <div class="ux-toolbar" style="margin:0"><span id="msg-info" class="ux-note"></span><div class="ux-sp"></div><button onclick="markAllRead()" class="ux-btn"><i class="fa-solid fa-check-double"></i>Alle als gelesen</button></div>
         <div id="msg-list" class="sec"></div>
+    </section>
+
+    <!-- Wartung -->
+    <section id="tab-wartung" class="sec hidden">
+        <div class="mtgrid2">
+            <div class="ux-card mtc">
+                <div class="ux-t"><i class="fa-solid fa-screwdriver-wrench"></i>Wartungsmodus<small id="mt-info"></small></div>
+                <p class="ux-note" style="margin:-6px 0 14px">Seiten in Wartung kannst nur du als Admin öffnen. Alle anderen sehen eine Wartungsseite. Sobald du die Wartung beendest, lädt die Seite bei ihnen von selbst neu.</p>
+                <div id="mt-sys"></div>
+                <div class="grp uppercase" style="margin:16px 0 8px">Einzelne Seiten</div>
+                <div id="mt-list" class="mtlist"></div>
+                <div class="ua"><button onclick="maintAllOff()" id="mt-off" class="ux-btn sm"><i class="fa-solid fa-power-off"></i>Alle Wartungen beenden</button></div>
+            </div>
+            <div class="ux-card mtc">
+                <div class="ux-t"><i class="fa-solid fa-message"></i>Hinweis auf der Wartungsseite</div>
+                <label class="mtlab" for="mt-msg">Text</label>
+                <textarea id="mt-msg" class="ux-in" rows="3" maxlength="300"></textarea>
+                <label class="mtlab" for="mt-until">Voraussichtlich wieder da (optional)</label>
+                <input type="datetime-local" id="mt-until" class="ux-in">
+                <div class="ua"><button onclick="saveMaintText()" id="mt-save" class="ux-btn pri sm"><i class="fa-solid fa-check"></i>Speichern</button></div>
+                <div class="grp uppercase" style="margin:14px 0 8px">Vorschau</div>
+                <div class="mtprev"><i class="fa-solid fa-screwdriver-wrench"></i><b>Wartungsarbeiten</b><p id="mt-prev-msg"></p><span id="mt-prev-until"></span></div>
+            </div>
+        </div>
     </section>
 
     <!-- System -->
@@ -180,7 +215,7 @@
                 const b = e.target.closest('[data-act]'), u = b && userOf(b); if (!u) return;
                 ({ approve: () => setStatus(u, 'active'), block: () => setStatus(u, 'blocked'), delete: () => removeUser(u), reset: () => resetPw(u), allperms: () => setAllPerms(u, true), noperms: () => setAllPerms(u, false) })[b.dataset.act]();
             });
-            loadToday(); initMessages(); initInvites();
+            loadToday(); initMessages(); initInvites(); initMaint();
             showTab(location.hash.slice(1) || 'users');
         }, { admin: true });
 
@@ -188,7 +223,7 @@
 
         function showTab(t) {
             if (!$('tab-' + t)) t = 'users';
-            ['users', 'logs', 'system', 'messages'].forEach(k => $('tab-' + k).classList.toggle('hidden', k !== t));
+            ['users', 'logs', 'system', 'messages', 'wartung'].forEach(k => $('tab-' + k).classList.toggle('hidden', k !== t));
             document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
             history.replaceState(null, '', '#' + t);
             if (t === 'logs' && !logsLoaded) loadLogs(true);
@@ -333,6 +368,54 @@
                         ${!self ? '<button data-act="reset" class="ux-btn sm"><i class="fa-solid fa-key"></i>Passwort-Reset</button>' : ''}
                         ${!self ? '<button data-act="delete" class="ux-btn sm danger">Profil löschen</button>' : ''}</div></div>`;
             }).join('') : '<div class="ux-card ux-empty" style="grid-column:1/-1">Keine Benutzer gefunden.</div>';
+        }
+
+        // ---------- Wartungsmodus (siehe firebase-init.js) ----------
+        let maint = { pages: {} };
+        function initMaint() {
+            maint = window.MAINT || { pages: {} }; renderMaint(); fillMaintText();
+            document.addEventListener('maint-change', e => { maint = e.detail; renderMaint(); });
+            watchMaint().then(m => { maint = m; renderMaint(); fillMaintText(); });
+            $('mt-list').addEventListener('change', e => e.target.dataset.mt && maintToggle(e.target.dataset.mt, e.target.checked, e.target));
+            $('mt-sys').addEventListener('change', e => e.target.dataset.mt && maintToggle(e.target.dataset.mt, e.target.checked, e.target));
+            ['mt-msg', 'mt-until'].forEach(id => $(id).addEventListener('input', maintPreview));
+        }
+        const mtRow = (p, sys) => { const on = maintOn(p.key, maint);
+            return `<label class="mtrow${sys ? ' sys' : ''}" style="--c:${p.c}"><span class="mti"><i class="fa-solid ${p.icon}"></i></span>
+                <span class="mtl"><b>${esc(p.label)}</b><small>${on ? 'In Wartung' : sys ? 'Nur Admins können sich anmelden, alle anderen werden ausgesperrt' : 'Läuft normal'}</small></span>
+                <input type="checkbox" class="swi" data-mt="${p.key}" ${on ? 'checked' : ''} aria-label="${esc(p.label)} in Wartung"></label>`; };
+        function renderMaint() {
+            const n = MAINT_PAGES.filter(p => maintOn(p.key, maint)).length, sys = maintOn('/', maint);
+            $('mt-sys').innerHTML = mtRow(MAINT_PAGES[0], true);
+            $('mt-list').innerHTML = MAINT_PAGES.slice(1).map(p => mtRow(p)).join('');
+            $('mt-list').style.opacity = sys ? .5 : 1;
+            $('mt-badge').classList.toggle('hidden', !n); $('mt-badge').innerText = sys ? 'alles' : n;
+            $('mt-off').disabled = !n;
+            $('mt-info').innerText = sys ? 'Ganzes System in Wartung' : n ? `${n} ${n === 1 ? 'Seite' : 'Seiten'} in Wartung` : 'Alles läuft normal';
+        }
+        function fillMaintText() { $('mt-msg').value = maint.msg || ''; $('mt-msg').placeholder = MAINT_DEFAULT_MSG; $('mt-until').value = maint.until || ''; maintPreview(); }
+        function maintPreview() {
+            $('mt-prev-msg').innerText = $('mt-msg').value.trim() || MAINT_DEFAULT_MSG;
+            $('mt-prev-until').innerText = maintUntilText({ until: $('mt-until').value });
+        }
+        const maintMeta = () => ({ updatedBy: currentUser.email, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        async function maintToggle(key, on, el) {
+            const p = MAINT_PAGES.find(x => x.key === key);
+            if (key === '/' && on && !confirm('Ganzes System in Wartung setzen?\n\nAlle, die keine Admins sind, werden sofort ausgesperrt und können sich nicht mehr anmelden. Du selbst kommst weiter rein.')) { el.checked = false; return; }
+            try {
+                await maintRef().set({ pages: { [key]: on }, ...maintMeta() }, { merge: true });
+                logSystemEvent('admin', on ? 'Wartung eingeschaltet' : 'Wartung beendet', { seite: p ? p.label : key });
+            } catch (err) { el.checked = !on; alert('Fehlgeschlagen: ' + err.message); }
+        }
+        async function maintAllOff() {
+            if (!confirm('Alle Wartungen beenden? Alle Seiten sind danach wieder für alle erreichbar.')) return;
+            try { await maintRef().set({ pages: {}, msg: maint.msg || '', until: maint.until || '', ...maintMeta() }); logSystemEvent('admin', 'Alle Wartungen beendet'); } catch (err) { alert('Fehlgeschlagen: ' + err.message); }
+        }
+        async function saveMaintText() {
+            const b = $('mt-save'); b.disabled = true;
+            try { await maintRef().set({ msg: $('mt-msg').value.trim().slice(0, 300), until: $('mt-until').value || '', ...maintMeta() }, { merge: true }); b.innerHTML = '<i class="fa-solid fa-check"></i>Gespeichert'; setTimeout(() => { b.innerHTML = '<i class="fa-solid fa-check"></i>Speichern'; }, 1600); }
+            catch (err) { alert('Fehlgeschlagen: ' + err.message); }
+            b.disabled = false;
         }
 
         // ---------- Nachrichten (Kontaktformular der Startseite) ----------

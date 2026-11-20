@@ -4,6 +4,14 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
 ## 20.11.2026
 
+### Wartungsmodus
+- Admin: neuer Reiter „Wartung“. Dort lässt sich jede Seite einzeln in Wartung setzen (Start, Messenger, Wandkalender, Zeiterfassung, Finanzen, Dokumente, Passwort-Safe, Spotify, Changelog, Profil) oder gleich die Anmeldung samt ganzem System.
+- Wer kein Admin ist, sieht statt der Seite eine Wartungsseite mit eigenem Hinweistext und auf Wunsch „Voraussichtlich wieder da“. Ist die Wartung vorbei, lädt die Seite von selbst neu.
+- Admins kommen immer rein und sehen oben eine Hinweisleiste. Auf der Anmeldeseite gibt es während der Wartung nur die „Admin-Anmeldung“, alle anderen werden direkt wieder abgemeldet.
+- Im Menü zeigt ein kleines Werkzeug-Symbol, welche Seiten gerade in Wartung sind.
+- Geänderte Dateien: js/firebase-init.js, js/drawer.js, admin.html, index.html, assets/ui.css, assets/icons.css
+- Firestore-Regeln: neue Sammlung `maintenance` (lesen alle, schreiben nur Admins).
+
 ### Design
 - Helles Design: neuer Weltall-Hintergrund in Pastell (Blau, Lila, Rosa) mit funkelnden Sternen; Karten und Menü scheinen leicht durch.
 - Unten im Menü schweben jetzt auch im hellen Design Planeten (weiße Planeten mit Ring).

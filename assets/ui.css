@@ -65,6 +65,7 @@ html.sb-collapsed .sb-nav { overflow: visible; }   /* eingeklappt: die Untermen√
 .sb-ico { flex: none; width: 38px; height: 38px; border-radius: 13px; display: grid; place-items: center; font-size: 17px; color: var(--c); background: rgba(148, 163, 184, .08); transition: transform .3s var(--ui-ease), background-color .25s, box-shadow .25s, color .25s; }
 .sb-item:hover .sb-ico { transform: scale(1.1) rotate(-4deg); }
 .sb-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; transition: opacity .2s; }
+.sb-mt { flex: none; font-size: 11px; color: #f59e0b; }   /* Seite in Wartung */
 .sb-item.on { color: #fff; background: rgba(129, 140, 248, .14); }
 .sb-item.on .sb-ico { color: #fff; background: linear-gradient(135deg, var(--c), rgba(99, 102, 241, .85)); box-shadow: 0 8px 20px -4px var(--c); }
 .sb-item.on::before { content: ""; position: absolute; left: -12px; top: 22%; bottom: 22%; width: 4px; border-radius: 0 4px 4px 0; background: var(--c); box-shadow: 0 0 14px var(--c); animation: uiFade .6s ease backwards; }
@@ -119,7 +120,7 @@ a.sb-user:hover .sb-edit { opacity: 1; transform: none; color: #fff; }
     body.has-sb { padding-left: calc(var(--sbw) + 14px + 18px); transition: padding-left .34s var(--ui-ease); }
     body.has-sb header button[onclick^="toggleSideMenu"], body.has-sb header button[onclick^="handleLogout"] { display: none !important; }
     #tabbar { display: none !important; }
-    html.sb-collapsed .sb-brandtxt, html.sb-collapsed .sb-label, html.sb-collapsed .sb-usertxt, html.sb-collapsed .sb-legal { display: none; }
+    html.sb-collapsed .sb-brandtxt, html.sb-collapsed .sb-label, html.sb-collapsed .sb-mt, html.sb-collapsed .sb-usertxt, html.sb-collapsed .sb-legal { display: none; }
     html.sb-collapsed .sb-brand { flex-direction: column; justify-content: center; gap: 10px; padding-bottom: 10px; }
     html.sb-collapsed .sb-collapse i { transform: rotate(180deg); }
     html.sb-collapsed .sb-sec { height: 1px; margin: 10px 14px; background: rgba(148, 163, 184, .15); color: transparent; overflow: hidden; font-size: 0; }
