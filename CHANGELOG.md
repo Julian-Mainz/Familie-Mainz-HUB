@@ -4,6 +4,11 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
 ## 20.11.2026
 
+### Neue Seite: Changelog
+- Unter „System“ gibt es für alle die Seite „Changelog“: alle Änderungen nach Datum, mit Suche und Filter nach Bereichen (Finanzen, Spiele, Zeiterfassung …).
+- Neues seit deinem letzten Besuch ist mit „Neu für dich“ markiert.
+- Technische Hinweise (geänderte Dateien, Firestore-Regeln) sehen nur Admins.
+
 ### Finanzen: Rechnungen
 - Neuer Reiter „Rechnungen“: Rechnungen mit Anbieter, Betrag, Rechnungsdatum, Fälligkeit, Kategorie, Rechnungsnummer, IBAN, Verwendungszweck und Notiz anlegen.
 - PDF oder Foto anhängen (bis 3 MB, Handyfotos werden automatisch verkleinert); Ansehen mit einem Klick.
