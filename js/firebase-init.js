@@ -28,6 +28,9 @@ const can = (u, key) => !!u && (OPT_IN_PERMS[key] ? ((key === 'dokumente' && u.r
 const isAdmin = u => !!u && (u.role === 'admin' || (u.permissions || {}).admin === true);
 
 // ---------- Hilfen ----------
+// Für alle Seiten: Element per id holen und Server-Zeitstempel
+const $ = id => document.getElementById(id);
+const TS = () => firebase.firestore.FieldValue.serverTimestamp();
 function isRootPage() {
     const p = window.location.pathname.replace(/\/index\.html$/, '').replace(/\/$/, '');
     return p === '';
@@ -199,6 +202,75 @@ function showMaintBar(key) {
     document.body.appendChild(el);
 }
 
+// ---------- Eigene Dialoge statt der grauen Browser-Fenster ----------
+// uiConfirm('Wirklich löschen?', { ok: 'Löschen', danger: true }) -> Promise<true|false>
+// uiAlert('Gespeichert.') -> Promise (alert() zeigt ab jetzt ebenfalls diesen Dialog, blockiert aber nicht mehr)
+(function () {
+    const nativeAlert = window.alert.bind(window);
+    let queue = Promise.resolve();
+    function css() {
+        if (document.getElementById('uidlg-css')) return;
+        const st = document.createElement('style'); st.id = 'uidlg-css';
+        st.textContent = `.uidlg-bg { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 16px; background: rgba(2, 6, 16, .62); animation: dlgFade .16s ease-out; }
+.uidlg { width: 100%; max-width: 420px; padding: 22px; border-radius: 24px; color: #e2e8f0; font: 14px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; background: linear-gradient(180deg, #151d33, #0d1324); border: 1px solid rgba(148, 163, 184, .2); box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .8); animation: dlgPop .22s cubic-bezier(.2, .9, .3, 1.15); }
+.uidlg-h { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; font-size: 16px; font-weight: 700; }
+.uidlg-i { flex: none; width: 38px; height: 38px; border-radius: 13px; display: grid; place-items: center; font-size: 16px; color: #a5b4fc; background: rgba(99, 102, 241, .16); }
+.uidlg.bad .uidlg-i { color: #fda4af; background: rgba(244, 63, 94, .16); }
+.uidlg p { margin: 0; color: #cbd5e1; white-space: pre-wrap; word-break: break-word; }
+.uidlg-a { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.uidlg-a button { min-width: 96px; padding: 10px 16px; border-radius: 13px; font: 600 14px system-ui, sans-serif; cursor: pointer; color: #e2e8f0; border: 1px solid rgba(148, 163, 184, .25); background: rgba(255, 255, 255, .05); }
+.uidlg-a button:hover { background: rgba(255, 255, 255, .1); }
+.uidlg-a .ok { color: #fff; border-color: transparent; background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+.uidlg.bad .uidlg-a .ok { background: linear-gradient(135deg, #e11d48, #f43f5e); }
+.uidlg-a button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@keyframes dlgFade { from { opacity: 0; } } @keyframes dlgPop { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+html.hell .uidlg-bg { background: rgba(15, 23, 42, .35); }
+html.hell .uidlg { color: #0f172a; background: #fff; border-color: #e2e8f0; box-shadow: 0 30px 70px -25px rgba(15, 23, 42, .35); }
+html.hell .uidlg p { color: #475569; } html.hell .uidlg-a button { color: #334155; background: #f8fafc; border-color: #cbd5e1; } html.hell .uidlg-a .ok { color: #fff; border-color: transparent; background: linear-gradient(135deg, #6366f1, #8b5cf6); } html.hell .uidlg.bad .uidlg-a .ok { background: linear-gradient(135deg, #e11d48, #f43f5e); }
+@media (prefers-reduced-motion: reduce) { .uidlg-bg, .uidlg { animation: none; } }`;
+        document.head.appendChild(st);
+    }
+    function open(text, o, confirmMode) {
+        if (!document.body) { nativeAlert(text); return Promise.resolve(true); }
+        css();
+        return new Promise(res => {
+            const last = document.activeElement, bad = !!o.danger;
+            const bg = document.createElement('div'); bg.className = 'uidlg-bg';
+            const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            const title = o.title || (confirmMode ? (bad ? 'Bist du sicher?' : 'Bitte bestätigen') : 'Hinweis');
+            const icon = o.icon || (bad ? 'fa-trash-can' : confirmMode ? 'fa-circle-question' : 'fa-circle-info');
+            bg.innerHTML = `<div class="uidlg${bad ? ' bad' : ''}" role="${confirmMode ? 'alertdialog' : 'dialog'}" aria-modal="true" aria-labelledby="uidlg-t">
+                <div class="uidlg-h"><span class="uidlg-i"><i class="fa-solid ${icon}"></i></span><span id="uidlg-t">${e(title)}</span></div><p>${e(text)}</p>
+                <div class="uidlg-a">${confirmMode ? `<button type="button" data-r="0">${e(o.cancel || 'Abbrechen')}</button>` : ''}<button type="button" class="ok" data-r="1">${e(o.ok || 'OK')}</button></div></div>`;
+            const done = r => { bg.remove(); document.removeEventListener('keydown', key, true); try { last && last.focus && last.focus({ preventScroll: true }); } catch (x) {} res(r); };
+            const key = ev => {
+                if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); done(!confirmMode); }
+                else if (ev.key === 'Tab') { const b = [...bg.querySelectorAll('button')], i = b.indexOf(document.activeElement); ev.preventDefault(); b[(i + (ev.shiftKey ? -1 : 1) + b.length) % b.length].focus(); }
+            };
+            bg.addEventListener('click', ev => { const b = ev.target.closest('[data-r]'); if (b) done(b.dataset.r === '1'); else if (ev.target === bg) done(!confirmMode); });
+            document.addEventListener('keydown', key, true);
+            document.body.appendChild(bg);
+            (bad && confirmMode ? bg.querySelector('[data-r="0"]') : bg.querySelector('.ok')).focus();      // bei Löschen steht der Fokus auf "Abbrechen"
+        });
+    }
+    // Nacheinander anzeigen, falls mehrere gleichzeitig kommen
+    const enqueue = (t, o, c) => { const p = queue.then(() => open(String(t ?? ''), o || {}, c)); queue = p.catch(() => {}); return p; };
+    window.uiConfirm = (text, o) => enqueue(text, o, true);
+    window.uiAlert = (text, o) => enqueue(text, o, false).then(() => {});
+    window.alert = text => { uiAlert(text); };
+})();
+
+// ---------- Service Worker: Zwischenspeicher (und Push, wenn eingeschaltet) ----------
+// Wird erst nach der Anmeldung angemeldet. Die Google-Skripte für Push lädt er nur mit ?push=1, also nur bei eingeschaltetem Push.
+function registerSW(push) {
+    if (!('serviceWorker' in navigator) || location.protocol !== 'https:' && location.hostname !== 'localhost') return;
+    const want = '/firebase-messaging-sw.js' + (push ? '?push=1' : '');
+    navigator.serviceWorker.getRegistration('/').then(reg => {
+        const cur = reg && (reg.active || reg.waiting || reg.installing);
+        if (!cur || new URL(cur.scriptURL).search !== new URL(want, location.href).search) navigator.serviceWorker.register(want).catch(() => {});
+    }).catch(() => {});
+}
+
 // ---------- Auth-Guard ----------
 // opts: { perm: 'zeit' }  oder  { admin: true }
 function initAuthGuard(onReadyCallback, opts = {}) {
@@ -246,7 +318,7 @@ function initAuthGuard(onReadyCallback, opts = {}) {
 
             // Seitenrechte prüfen
             if ((opts.admin && !isAdmin(currentUser)) || (opts.perm && !can(currentUser, opts.perm))) {
-                alert('Dafür hast du keine Berechtigung.');
+                await uiAlert('Dafür hast du keine Berechtigung.', { title: 'Kein Zugriff', icon: 'fa-lock' });
                 window.location.replace('/menu.html');
                 return;
             }
@@ -273,6 +345,7 @@ function initAuthGuard(onReadyCallback, opts = {}) {
                 logSystemEvent('visit', 'Seite geöffnet', { seite: window.location.pathname });
             }
 
+            registerSW(!!currentUser.notificationsEnabled);
             if (onReadyCallback) onReadyCallback(currentUser);
         } catch (e) {
             console.error('Auth-Fehler:', e);
@@ -290,35 +363,8 @@ async function handleLogout() {
 
 
 // ---------- Design: Hell / Dunkel ----------
-// Seiten mit /assets/light.css bekommen ein echtes helles Design (Klasse "hell" an <html>).
-// Seiten ohne light.css nutzen weiter den Farbfilter als Notlösung.
-// Seiten, die immer dunkel bleiben sollen (Wandkalender), setzen <html data-theme-lock="dark">.
-(function () {
-    const css = document.createElement('style');
-    css.textContent = 'html.light:not(.hell){filter:invert(.94) hue-rotate(180deg)}html.light:not(.hell) img,html.light:not(.hell) video,html.light:not(.hell) iframe{filter:invert(1) hue-rotate(180deg)}';
-    document.head.appendChild(css);
-})();
-window.applyTheme = function () {
-    const lock = document.documentElement.dataset.themeLock;
-    const pref = lock || safeStore(() => localStorage.getItem('theme')) || 'dark';
-    const light = pref === 'light' || (pref === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches);
-    const own = !!document.querySelector('link[href*="/assets/light.css"]');       // Seite hat ein echtes helles Design
-    document.documentElement.classList.toggle('light', light);
-    document.documentElement.classList.toggle('hell', light && own);
-    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = light ? (own ? '#eef1f6' : '#f1f5f9') : '#080c14';
-    window.updateThemeButtons();
-};
-window.updateThemeButtons = function () {
-    const light = document.documentElement.classList.contains('light');
-    document.querySelectorAll('[data-theme-icon]').forEach(el => { el.classList.toggle('fa-sun', light); el.classList.toggle('fa-moon', !light); });
-    document.querySelectorAll('[data-theme-text]').forEach(el => { el.textContent = light ? 'Hell' : 'Dunkel'; });
-};
-window.toggleTheme = function () {
-    safeStore(() => localStorage.setItem('theme', document.documentElement.classList.contains('light') ? 'dark' : 'light'));
-    applyTheme();
-};
-applyTheme();
-document.addEventListener('DOMContentLoaded', () => updateThemeButtons());
+// steht in js/theme.js (wird ohne Verzögerung im <head> geladen, damit das richtige Design sofort erscheint)
+
 
 // ---------- Fehlerprotokoll ----------
 // Unbehandelte Browser-Fehler landen als Kategorie "error" im Log (höchstens 5 pro Seitenaufruf, ohne Wiederholungen).
@@ -342,4 +388,4 @@ document.addEventListener('DOMContentLoaded', () => updateThemeButtons());
 })();
 
 // ---------- Hinweis auf neue Versionen (siehe js/update.js) ----------
-(function () { const s = document.createElement('script'); s.src = '/js/update.js'; s.defer = true; document.head.appendChild(s); })();
+(function () { const s = document.createElement('script'); s.src = (window.assetUrl || (p => p))('/js/update.js'); s.defer = true; document.head.appendChild(s); })();

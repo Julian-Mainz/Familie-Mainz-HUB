@@ -254,7 +254,7 @@
         return S.stdP;
     }
     async function setStd(btn) {
-        if (!confirm('Dieses Layout als Standard für alle festlegen?\n\nEs gilt für alle, die auf dieser Seite noch kein eigenes Layout gespeichert haben, und für „Zurücksetzen“. Eigene Layouts der anderen bleiben unverändert.')) return;
+        if (!(await uiConfirm('Dieses Layout als Standard für alle festlegen?\n\nEs gilt für alle, die auf dieser Seite noch kein eigenes Layout gespeichert haben, und für „Zurücksetzen“. Eigene Layouts der anderen bleiben unverändert.'))) return;
         btn.disabled = true;
         try {
             const l = clone(S.cur); await stdRef().set({ layout: l, updatedBy: currentUser.email, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
@@ -278,7 +278,7 @@
         try { await S.save(clone(S.cur)); S.saved = clone(S.cur); S.snap = clone(S.cur); edit(false); toast('Layout gespeichert'); }
         catch (e) { toast('Speichern fehlgeschlagen: ' + (e.code || e.message), true); } finally { btn.disabled = false; }
     }
-    function toggle() { if (!S.editing) return edit(true); if (dirty() && !confirm('Änderungen am Layout verwerfen?')) return; cancel(); }
+    async function toggle() { if (!S.editing) return edit(true); if (dirty() && !(await uiConfirm('Änderungen am Layout verwerfen?', { danger: true, ok: 'Verwerfen' }))) return; cancel(); }
 
     // ---------- Start ----------
     function init(o) {

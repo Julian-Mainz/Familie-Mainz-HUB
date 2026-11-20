@@ -106,6 +106,7 @@
         try {
             if (currentUser.notificationsEnabled) {
                 if (messaging) await messaging.deleteToken().catch(() => {});
+                navigator.serviceWorker.register(SW_PATH).catch(() => {});                   // wieder ohne Push-Teil (nur Zwischenspeicher)
                 currentUser.notificationsEnabled = false;
                 await userRef.update({ notificationsEnabled: false, fcmToken: firebase.firestore.FieldValue.delete() });
             } else {
@@ -113,7 +114,7 @@
                 if (!messaging || !('Notification' in window)) return alert('Push wird von diesem Browser nicht unterstützt.');
                 const permission = await Notification.requestPermission();
                 if (permission !== 'granted') return alert('Benachrichtigungen wurden nicht erlaubt.');
-                const reg = await navigator.serviceWorker.register(SW_PATH);
+                const reg = await navigator.serviceWorker.register(SW_PATH + '?push=1');      // Service Worker mit Push-Teil
                 const token = await messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
                 if (!token) throw new Error('Kein Token erhalten');
                 currentUser.notificationsEnabled = true;
@@ -141,8 +142,7 @@
         }
     };
 
-    // Der Service Worker (Push im Hintergrund) wird nur registriert, wenn Push an ist. Er lädt zwei Skripte von Google nach, das soll nicht bei jedem Seitenaufruf passieren.
-    if ('serviceWorker' in navigator && typeof currentUser !== 'undefined' && currentUser && currentUser.notificationsEnabled) navigator.serviceWorker.register(SW_PATH).catch(() => {});
+    // Den Service Worker meldet js/firebase-init.js an (mit Push-Teil nur, wenn Push an ist).
     window.addEventListener('online', refreshPushUI);
     window.addEventListener('offline', refreshPushUI);
 

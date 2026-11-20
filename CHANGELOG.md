@@ -4,6 +4,16 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
 ## 20.11.2026
 
+### Technik: schneller und ohne Strg+F5
+- Kein Strg+F5 mehr nach Updates: Jede Datei bekommt automatisch eine Versionsnummer. Ändert sie sich, lädt jeder Browser sie von selbst neu, unveränderte Dateien bleiben im Zwischenspeicher.
+- Seiten erscheinen schneller: Die großen Skripte (Firebase, Seiten-Code) blockieren das erste Anzeigen nicht mehr. Hell/Dunkel wird trotzdem sofort richtig angezeigt.
+- Der Code jeder Seite liegt jetzt in einer eigenen Datei (js/pages/…) und wird vom Browser zwischengespeichert.
+- Eigene Dialoge im Dashboard-Design statt der grauen Browser-Fenster (Löschen bestätigen, Hinweise). Bei Löschen steht der Fokus auf „Abbrechen“, Esc bricht ab.
+- App-Modus: Nach der Anmeldung speichert ein Service Worker die Dateien des Dashboards. Es startet dadurch schneller und öffnet bereits besuchte Seiten auch ohne Netz.
+- Aufgeräumt: doppelte Hilfsfunktionen zusammengelegt, altes Hintergrundbild entfernt. Datenschutzerklärung um den Service Worker ergänzt.
+- Geänderte Dateien: alle Seiten (.html), js/pages/* (neu), js/theme.js (neu), stamp.mjs (neu), js/firebase-init.js, js/drawer.js, js/layout.js, js/settings.js, js/emoji-picker.js, firebase-messaging-sw.js, .github/workflows/build-css.yml, assets/icons.css
+- Firestore-Regeln: keine Änderung.
+
 ### Standard-Layout für alle
 - Start, Zeiterfassung und Finanzen: Admins sehen unter „Anpassen“ den neuen Knopf „Als Standard für alle“. Die aktuelle Anordnung der Karten (Reihenfolge, Größen, ausgeblendete Karten, Reiter) wird damit zum Standard.
 - Den Standard bekommen alle, die auf der Seite noch kein eigenes Layout gespeichert haben, und „Zurücksetzen“ springt jetzt auf diesen Standard. Eigene Layouts bleiben unverändert.

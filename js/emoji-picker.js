@@ -15,7 +15,7 @@
     try { tone = Math.max(0, Math.min(5, +ls.get(TONE_KEY) || 0)); } catch (e) {}
     function load() {
         if (DATA) return Promise.resolve(DATA); if (loading) return loading;
-        loading = new Promise((ok, bad) => { if (window.EMOJI_DATA) return ok(); const s = document.createElement('script'); s.src = '/js/emoji-data.js'; s.onload = ok; s.onerror = bad; document.head.appendChild(s); }).then(() => {
+        loading = new Promise((ok, bad) => { if (window.EMOJI_DATA) return ok(); const s = document.createElement('script'); s.src = (window.assetUrl || (p => p))('/js/emoji-data.js'); s.onload = ok; s.onerror = bad; document.head.appendChild(s); }).then(() => {
             try { region = new Intl.DisplayNames(['de'], { type: 'region' }); } catch (e) { region = null; }
             DATA = window.EMOJI_DATA.groups.map(([g, s]) => [g, s.split('\u0001').filter(Boolean).map(x => { const [e, t, n] = x.split('\u0002'); return { e, t: t === '1', n, k: null }; })]);
             return DATA;

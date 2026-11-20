@@ -1,4 +1,4 @@
-name: CSS bauen
+name: CSS bauen und Versionen stempeln
 
 on:
   push:
@@ -12,6 +12,9 @@ on:
       - 'Buero/**'
       - 'Ballon/**'
       - 'Spiele/**'
+      - 'Kolonie/**'
+      - 'assets/img/**'
+      - 'stamp.mjs'
       - 'icons/**'
       - 'manifest.json'
       - 'firebase-messaging-sw.js'
@@ -45,6 +48,9 @@ jobs:
       - name: CSS bauen
         run: node build-css.mjs
 
+      - name: Versionen an JS/CSS hängen (kein Strg+F5 mehr nötig)
+        run: node stamp.mjs
+
       - name: Versionsnummer schreiben
         run: echo "{\"build\":\"$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA::7}\"}" > version.json
 
@@ -53,11 +59,11 @@ jobs:
         run: |
           git config user.name "css-build"
           git config user.email "actions@users.noreply.github.com"
-          git add -A assets/css version.json
+          git add -A assets/css version.json js/theme.js '*.html' '**/*.html'
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            git commit -m "Build: CSS und Versionsnummer"
+            git commit -m "Build: CSS, Versionen und Versionsnummer"
             pushed=false
             for i in 1 2 3; do
               if git pull --rebase origin main && git push; then pushed=true; break; fi

@@ -122,17 +122,17 @@ function renderDrawer() {
     if (!document.getElementById('settings-js')) {
         const s = document.createElement('script');
         s.id = 'settings-js';
-        s.src = '/js/settings.js';
+        s.src = (window.assetUrl || (p => p))('/js/settings.js');
         document.head.appendChild(s);
     }
     if (!window.CAL && !document.getElementById('cal-core-js')) {
         const c = document.createElement('script');
-        c.id = 'cal-core-js'; c.src = '/js/calendar-core.js';
+        c.id = 'cal-core-js'; c.src = (window.assetUrl || (p => p))('/js/calendar-core.js');
         document.head.appendChild(c);
     }
     if (!document.getElementById('search-js')) {
         const q = document.createElement('script');
-        q.id = 'search-js'; q.src = '/js/search.js';
+        q.id = 'search-js'; q.src = (window.assetUrl || (p => p))('/js/search.js');
         document.head.appendChild(q);
     }
     if (typeof updateThemeButtons === 'function') updateThemeButtons();
@@ -146,7 +146,7 @@ function loadMessengerCore() {
     if (window.MSG) return window.MSG.start();
     if (document.getElementById('msg-core-js')) return;
     const c = document.createElement('script');
-    c.id = 'msg-core-js'; c.src = '/js/messenger-core.js'; c.onload = () => window.MSG && window.MSG.start();
+    c.id = 'msg-core-js'; c.src = (window.assetUrl || (p => p))('/js/messenger-core.js'); c.onload = () => window.MSG && window.MSG.start();
     document.head.appendChild(c);
 }
 
