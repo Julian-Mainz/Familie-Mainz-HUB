@@ -4,6 +4,12 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
 ## 20.11.2026
 
+### Design
+- Helles Design: neuer Weltall-Hintergrund in Pastell (Blau, Lila, Rosa) mit funkelnden Sternen; Karten und Menü scheinen leicht durch.
+- Unten im Menü schweben jetzt auch im hellen Design Planeten (weiße Planeten mit Ring).
+- Einstellung „Weltall-Hintergrund“ gilt jetzt für hell und dunkel; ausgeschaltet bleibt alles wie bisher.
+- Geänderte Dateien: assets/space.css, js/space.js, js/settings.js, assets/img/space-bg-hell.webp, assets/img/menu-planet-hell.webp
+
 ### Admin
 - Benutzerkarten: Berechtigungen, die in eine zweite Zeile umbrechen, stehen jetzt bündig neben der Gruppen-Überschrift statt darunter; am Handy steht die Überschrift über den Schaltern.
 

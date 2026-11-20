@@ -1,4 +1,5 @@
-// js/space.js - Weltall-Hintergrund für das dunkle Design: Sterne und Nebel werden einmal auf ein Canvas gezeichnet
+// js/space.js - Weltall-Hintergrund. Helles Design: Pastellbild (assets/img/space-bg-hell.webp) + menu-planet-hell.webp, Rest per CSS.
+// Dunkles Design: Sterne und Nebel werden einmal auf ein Canvas gezeichnet
 // (scharf auf jedem Bildschirm, kein Download), dazu funkelnde Sterne, gelegentlich eine Sternschnuppe
 // und unten in der Seitenleiste das Planetenbild (assets/img/menu-planet.webp).
 // Abschaltbar in den Einstellungen (pro Gerät gespeichert). Wird im <head> geladen, damit nichts aufblitzt.

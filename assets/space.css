@@ -1,4 +1,4 @@
-/* assets/space.css - Weltall-Hintergrund. Nur im dunklen Design, nur mit <html class="space"> (abschaltbar in den Einstellungen).
+/* assets/space.css - Weltall-Hintergrund. Dunkles Design: Canvas-Sternenhimmel. Helles Design: Pastell-Sternenbild. Nur mit <html class="space"> (abschaltbar in den Einstellungen).
    Leistung: Sterne und Nebel werden einmal auf ein Canvas gezeichnet (kein Neuzeichnen beim Scrollen),
    bewegt werden nur wenige kleine Punkte über opacity/transform. */
 
@@ -32,5 +32,23 @@ html.space:not(.hell).sb-collapsed .sb-scene { background-position: 28% bottom; 
 
 /* Login: Sternenhimmel statt Raster */
 html.space:not(.hell) .lg-grid { display: none; }
+
+/* ===== Helles Design: Pastell-Weltall ===== */
+html.space.hell body.ux, html.space.hell body.has-sb { background: #eef0fb !important; }
+html.space.hell body.has-sb::before, html.space.hell body.ux::before { display: none !important; }
+html.space.hell #space-bg { display: block; background: url("/assets/img/space-bg-hell.webp") center / cover no-repeat; }
+html.space.hell #space-bg canvas, html.space.hell #space-bg b { display: none; }
+html.space.hell #space-bg i { box-shadow: 0 0 6px 1px rgba(255, 255, 255, .95); }
+html.space.hell .ux-card { background: rgba(255, 255, 255, .82) !important; }
+html.space.hell #sb { background: linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(250, 250, 255, .94)) !important; overflow: hidden; }
+html.space.hell .sb-scene { display: block; position: absolute !important; left: 0; right: 0; bottom: 0; height: min(360px, 42%); z-index: 0; pointer-events: none;
+    background: url("/assets/img/menu-planet-hell.webp") 30% bottom / cover no-repeat;
+    -webkit-mask-image: linear-gradient(180deg, transparent 4%, #000 46%); mask-image: linear-gradient(180deg, transparent 4%, #000 46%); }
+html.space.hell .sb-foot { position: relative; z-index: 1; }
+html.space.hell .sb-tool { background: rgba(255, 255, 255, .7); }
+html.space.hell .sb-user { background: rgba(255, 255, 255, .78); }
+html.space.hell.sb-collapsed .sb-scene { background-position: 22% bottom; }
+@media (max-width: 1023.98px) { html.space.hell #sb { background: #fff !important; } }
+html.space.hell .lg-grid { display: none; }
 
 @media (prefers-reduced-motion: reduce) { #space-bg i, #space-bg b { animation: none !important; } }
