@@ -22,13 +22,13 @@
 
   // ================= Zustand der Oberfläche =================
   const cv = $('cv'), touchDev = matchMedia('(pointer: coarse)').matches;
-  let mode = null, moveB = null, ghost = null, sel = null, hover = null, cat = 'basis', mapSel = null, mapMis = null, mapPick = {}, dirty = true, sig = '';
+  let mode = null, moveB = null, ghost = null, rot = 0, sel = null, hover = null, cat = 'basis', mapSel = null, mapMis = null, mapPick = {}, dirty = true, sig = '';
   const fx = () => G.S.opt.fx !== 'low';
   const sysAng = id => { const s = G.SBY[id], h = G.SBY.home; return Math.atan2(s.y - h.y, s.x - h.x) * .6 - .5; };
   const flyOut = (f, ang) => V3D.flyOut(f, ang), flyIn = (f, ang) => V3D.flyIn(f, ang);
   const startBattle = res => V3D.battle(res, raidReport);
   // Bauzustand als Kurzform: ändert sich etwas, wird die 3D-Welt neu abgeglichen
-  const bldSig = () => G.hqLvl() + ':' + G.S.bld.map(b => `${b.id}${b.type}${b.i},${b.j}${b.lvl}${b.build && !b.up ? 'B' : ''}${b.up ? 'U' : ''}${b.dmg ? 'D' : ''}`).join(';');
+  const bldSig = () => G.S.cid + ':' + G.hqLvl() + ':' + G.S.bld.map(b => `${b.id}${b.type}${b.i},${b.j}r${b.rot || 0}${b.lvl}${b.build && !b.up ? 'B' : ''}${b.up ? 'U' : ''}${b.dmg ? 'D' : ''}`).join(';');
 
   // ================= Bild für Bild =================
   function frame() {
@@ -36,7 +36,7 @@
     if (document.hidden) return;
     const s2 = bldSig(); if (dirty || s2 !== sig) { sig = s2; dirty = false; V3D.dirty(); }
     const gk = mode || (moveB && moveB.type);
-    const gh = gk && ghost ? { k: gk, i: ghost.i, j: ghost.j, lvl: moveB ? moveB.lvl : 1, ok: G.canPlace(gk, ghost.i, ghost.j, moveB).ok && (!!moveB || G.canPay(G.B[gk].cost)) } : null;
+    const gh = gk && ghost ? { k: gk, i: ghost.i, j: ghost.j, rot: moveB ? (moveB.rot || 0) : rot, lvl: moveB ? moveB.lvl : 1, ok: G.canPlace(gk, ghost.i, ghost.j, moveB).ok && (!!moveB || G.canPay(G.B[gk].cost)) } : null;
     V3D.render(Date.now(), { sel, moveB, ghost: gh, hover: !touchDev && !gk ? hover : null });
   }
 
@@ -68,7 +68,7 @@
     const t = V3D.pick(sx, sy), i = Math.floor(t.fi), j = Math.floor(t.fj);
     if (mode) { const { i: gi, j: gj } = ghostAt(t, mode);
       if (ptype !== 'mouse' && (!ghost || ghost.i !== gi || ghost.j !== gj)) { ghost = { i: gi, j: gj }; buildBar(); return; }      // Handy: erst Vorschau, dann noch mal tippen
-      const r = G.place(mode, gi, gj); if (r.ok) { dirty = true; toast(`🏗️ ${G.B[mode].n} wird gebaut`); if (!G.canPay(G.B[mode].cost)) cancelBuild(); else buildBar(); refresh(); } else toast('⚠ ' + r.why, 'bad'); return; }
+      const r = G.place(mode, gi, gj, rot); if (r.ok) { dirty = true; toast(`🏗️ ${G.B[mode].n} wird gebaut`); if (!G.canPay(G.B[mode].cost)) cancelBuild(); else buildBar(); refresh(); } else toast('⚠ ' + r.why, 'bad'); return; }
     if (moveB) { const { i: gi, j: gj } = ghostAt(t, moveB.type);
       if (ptype !== 'mouse' && (!ghost || ghost.i !== gi || ghost.j !== gj)) { ghost = { i: gi, j: gj }; buildBar(); return; }
       const mb = moveB, r = G.move(mb, gi, gj); if (r.ok) { if (!r.same) toast(`✥ ${G.B[mb.type].n} verschoben`); dirty = true; cancelBuild(); select(mb); refresh(); } else toast('⚠ ' + r.why, 'bad'); return; }
@@ -78,7 +78,7 @@
   addEventListener('keydown', e => {
     if (e.key === 'Escape') { if (document.querySelector('.modal:not(.hidden)')) closeModals(); else if (mode || moveB) cancelBuild(); else select(null); return; }
     if (/input|textarea/i.test((e.target && e.target.tagName) || '') || document.querySelector('.modal:not(.hidden)')) return;
-    const k = e.key.toLowerCase(); if (k === 'q') V3D.orbit(Math.PI / 8, 0); if (k === 'e') V3D.orbit(-Math.PI / 8, 0); if (k === 'r' && (mode || moveB)) { /* Gebäude haben (noch) keine Drehung */ }
+    const k = e.key.toLowerCase(); if (k === 'q') V3D.orbit(Math.PI / 8, 0); if (k === 'e') V3D.orbit(-Math.PI / 8, 0); if (k === 'r' && (mode || moveB)) { if (moveB) G.rotate(moveB); else rot = (rot + 1) & 3; }
     if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) { keys.add(k); e.preventDefault(); }
   });
   addEventListener('keyup', e => keys.delete(e.key.toLowerCase()));
@@ -93,12 +93,13 @@
     $('res').innerHTML = cell('ore', fmt(S.res.ore), fmtR(net('ore')) + '/s', capW('ore')) + cell('crys', fmt(S.res.crys), fmtR(r.crys * 60) + '/min', capW('crys')) + cell('parts', fmt(S.res.parts), fmtR(r.parts * 60) + '/min', capW('parts')) + cell('fuel', fmt(S.res.fuel), fmtR(r.fuel * 60) + '/min', capW('fuel'))
       + cell('cred', fmt(S.res.cred), 'Credits') + `<div class="res ${st.eff < 1 ? 'warn' : ''}" title="Energie: Erzeugung / Verbrauch">${IC.energy}<div><b>${Math.round(st.eP)} / ${Math.round(st.eU)}</b><small>${st.eff < 1 ? 'zu wenig Strom!' : 'Energie'}</small></div></div>`
       + `<div class="res ${st.wf < 1 ? 'warn' : ''}" title="Bewohner / Platz · Arbeiter gebraucht">${IC.pop}<div><b>${S.pop} / ${st.cap}</b><small>${st.wf < 1 ? 'Arbeiter fehlen: ' + Math.ceil(st.work - S.pop) : 'Bewohner'}</small></div></div>`;
-    $('lvl').textContent = st.hq; $('cname').textContent = S.name; $('store').textContent = 'Lager ' + fmt(st.store);
+    $('lvl').textContent = st.hq; $('cname').textContent = S.name; $('t-cols').classList.toggle('hidden', !S.cols.length && !S.fleet.some(f => f.type === 'colony')); $('store').textContent = 'Lager ' + fmt(st.store);
     // Auftrag
     const q = G.Q[S.quest]; $('quest').innerHTML = q ? `<div class="qh"><span>AUFTRAG ${S.quest + 1}/${G.Q.length}</span></div><b>${esc(q.n)}</b><p>${esc(q.d)}</p><div class="qr">Belohnung: ${costHtml(q.r).replace(/ no/g, '')}</div>` : '<div class="qh"><span>AUFTRÄGE</span></div><b>Alle Aufträge erledigt!</b><p>Baue weiter aus und halte die Piraten fern.</p>';
     // Ereignisse
     let ev = ''; const R_ = S.raid;
     if (R_.warn > 0) ev += `<div class="alert bad"><div class="ah"><b>⚠ Piratenangriff</b><span class="tm">${dur(R_.warn)}</span></div><p>Stärke <b>${R_.str}</b> · deine Verteidigung <b class="${st.def >= R_.str ? 'ok' : 'no'}">${st.def}</b></p><small>${st.def >= R_.str ? 'Deine Abwehr hält stand.' : 'Baue Abwehrtürme oder Jäger, sonst verlierst du Rohstoffe.'}</small></div>`;
+    for (const c of S.cols) if (c.raid && c.raid.warn > 0) ev += `<div class="alert bad" data-act="col" data-cid="${c.cid}"><div class="ah"><b>⚠ Piraten greifen ${esc(c.name)} an</b><span class="tm">${dur(c.raid.warn)}</span></div><small>Tippen, um hinzufliegen.</small></div>`;
     if (S.merch.offer) { const o = S.merch.offer; ev += `<div class="alert"><div class="ah"><b>🚀 Händler im Orbit</b><span class="tm">${dur(S.merch.left)}</span></div><p>Gibt ${costHtml(o.get).replace(/ no/g, '')} für ${costHtml(o.give)}</p><div class="row2"><button class="btn sm" data-act="merch-no">Ablehnen</button><button class="btn sm pri" data-act="merch-yes" ${G.canPay(o.give) ? '' : 'disabled'}>Handeln</button></div></div>`; }
     const run = S.missions.length, rq = S.rq;
     if (run) ev += `<div class="alert info" data-act="map"><div class="ah"><b>🛰️ ${run} Mission${run > 1 ? 'en' : ''} unterwegs</b><span class="tm">${dur((Math.min(...S.missions.map(m => m.end)) - Date.now()) / 1000)}</span></div></div>`;
@@ -138,11 +139,11 @@
       <p class="mut">${d.d}${b.type === 'mine' && tl === 'ore' ? ' <b class="ok">Steht auf einer Erzader.</b>' : ''}</p>
       ${st.f < 1 && (d.out || d.conv) && !b.build ? `<p class="warn">Läuft nur mit ${Math.round(st.f * 100)} % (${st.eff < 1 ? 'zu wenig Energie' : 'zu wenig Arbeiter'}).</p>` : ''}
       <div class="kv">${lines.map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>${act}${extra}
-      <button class="btn wide" data-act="move">✥ Verschieben</button>
+      <div class="row2" style="margin:8px 0 0"><button class="btn" data-act="move">✥ Verschieben</button><button class="btn" data-act="rotate">⟳ Drehen</button></div>
       ${b.type !== 'hq' ? `<button class="btn ghost wide" data-act="demolish">Abreißen${b.build && !b.up ? ' (volle Erstattung)' : ' (50 % zurück)'}</button>` : ''}`;
     p.classList.remove('hidden');
   }
-  function buildBar() { const el = $('buildbar'); if (moveB) { const touch = matchMedia('(pointer: coarse)').matches; el.innerHTML = `<b>${G.B[moveB.type].n} verschieben</b><span>${touch ? (ghost ? 'Noch einmal tippen zum Abstellen' : 'Tippe auf den neuen Platz') : 'Klicke auf den neuen Platz'} · kostenlos</span><button class="btn sm" data-act="cancel-build">Abbrechen</button>`; el.classList.remove('hidden'); return; } if (!mode) { el.classList.add('hidden'); return; } const d = G.B[mode]; const touch = matchMedia('(pointer: coarse)').matches; el.innerHTML = `<b>${d.n} platzieren</b><span>${touch ? (ghost ? 'Noch einmal tippen zum Bauen' : 'Tippe auf ein freies Feld') : 'Klicke auf ein freies Feld'}${d.tile ? ' · nur auf Kristallfeldern' : ''}</span><button class="btn sm" data-act="cancel-build">Fertig</button>`; el.classList.remove('hidden'); }
+  function buildBar() { const el = $('buildbar'); if (moveB) { const touch = matchMedia('(pointer: coarse)').matches; el.innerHTML = `<b>${G.B[moveB.type].n} verschieben</b><span>${touch ? (ghost ? 'Noch einmal tippen zum Abstellen' : 'Tippe auf den neuen Platz') : 'Klicke auf den neuen Platz · R dreht'} · kostenlos</span><button class="btn sm" data-act="rot" title="Drehen">⟳</button><button class="btn sm" data-act="cancel-build">Abbrechen</button>`; el.classList.remove('hidden'); return; } if (!mode) { el.classList.add('hidden'); return; } const d = G.B[mode]; const touch = matchMedia('(pointer: coarse)').matches; el.innerHTML = `<b>${d.n} platzieren</b><span>${touch ? (ghost ? 'Noch einmal tippen zum Bauen' : 'Tippe auf ein freies Feld') : 'Klicke auf ein freies Feld'}${d.tile ? ' · nur auf Kristallfeldern' : ''}${touch ? '' : ' · R dreht'}</span><button class="btn sm" data-act="rot" title="Drehen">⟳</button><button class="btn sm" data-act="cancel-build">Fertig</button>`; el.classList.remove('hidden'); }
   function startBuild(k) { if (!G.unlocked(k)) { toast(`🔒 ${G.B[k].n}: ab Kommandozentrale Stufe ${G.B[k].hq}`, 'bad'); return; } mode = k; moveB = null; ghost = null; sel = null; info(); buildBar(); dock(); }
   function cancelBuild() { mode = null; moveB = null; ghost = null; buildBar(); dock(); }
   function refresh() { hud(); dock(); info(); }
@@ -150,7 +151,7 @@
   // ================= Fenster =================
   function openModal(id) { closeModals(); $(id).classList.remove('hidden'); render(id); }
   function closeModals() { document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden')); mapMis = null; }
-  function render(id) { if (id === 'm-fleet') fleetUI(); if (id === 'm-research') researchUI(); if (id === 'm-market') marketUI(); if (id === 'm-map') mapUI(); }
+  function render(id) { if (id === 'm-cols') colsUI(); if (id === 'm-fleet') fleetUI(); if (id === 'm-research') researchUI(); if (id === 'm-market') marketUI(); if (id === 'm-map') mapUI(); }
   // ---- Werft & Flotte ----
   const shipIcons = {};
   function shipIcon(t) { if (shipIcons[t]) return shipIcons[t]; const c = document.createElement('canvas'); c.width = 200; c.height = 120; const g = c.getContext('2d'); const sc = { drone: 2.6, freighter: 1.55, scout: 1.9, fighter: 1.8, cruiser: .88, colony: .9, pirate: 2 }[t]; SHIPS.draw(g, t, t === 'drone' ? 92 : 104, 60, sc, -.12, { thrust: .55 }); return shipIcons[t] = c.toDataURL(); }
@@ -205,12 +206,13 @@
   function mapPanel() {
     const el = $('map-side'), S = G.S; if (!mapSel) { el.innerHTML = `<h4>STERNENKARTE</h4><p class="mut">Tippe auf ein System. Schicke Schiffe auf Missionen: Erz abbauen, handeln, Anomalien scannen, unbekannte Systeme erkunden oder das Piratennest angreifen.</p>${fleetSummary()}`; return; }
     const sy = G.SBY[mapSel], kn = G.known(mapSel);
-    if (sy.id === 'home') { el.innerHTML = `<h4>${esc(sy.n)}</h4><p class="mut">Deine Kolonie.</p>${fleetSummary()}`; return; }
-    if (sy.gate) { el.innerHTML = `<h4>${esc(sy.n)}</h4><p class="mut">Das Sprungtor führt in einen neuen Sektor. Kommt mit dem Kolonieschiff in einem späteren Update.</p>`; return; }
+    if (sy.id === 'home') { el.innerHTML = `<h4>${esc(sy.n)}</h4><p class="mut">Deine Heimatkolonie.${S.cols.length ? ' Weitere Kolonien: ' + G.colList().filter(c => c.cid !== 0).map(c => esc(c.name)).join(', ') + ' (hinter dem Sprungtor).' : ''}</p>${fleetSummary()}`; return; }
+    if (sy.gate && !mapMis) { const free = (sy.m || []).filter(m => !G.founded(m.found) && !S.missions.some(x => x.m === m.id)), has = G.home('colony').length;
+      el.innerHTML = `<h4>${esc(sy.n)}</h4><p class="mut">Das Sprungtor führt nach Sektor 1. Dort kannst du mit einem Kolonieschiff neue Kolonien gründen.</p>${has ? '' : '<p class="warn">Du brauchst ein Kolonieschiff: in der Werft (Stufe 3) bauen, Kommandozentrale Stufe 4.</p>'}${free.length ? free.map(m => `<button class="mis" data-mis="${m.id}"><b>${m.n}</b><small>${esc(m.sub)} · ${dur(m.dur * (S.research.includes('warp') ? .75 : 1))} · ${IC.fuel}${m.fuel}</small></button>`).join('') : '<p class="ok">Alle Kolonieplätze in Sektor 1 sind besiedelt.</p>'}${S.missions.some(x => String(x.m).startsWith('found-')) ? '<p class="mut">🚀 Ein Kolonieschiff ist unterwegs.</p>' : ''}`; return; }
     const ms = kn ? (sy.m || []) : [{ id: 'explore', n: 'Erkunden', ships: ['scout'], dur: 150, fuel: 12 }];
     if (!mapMis) { el.innerHTML = `<h4>${kn ? esc(sy.n) : '???'}</h4><p class="mut">${kn ? esc(sy.sub) : 'Unerforschtes System. Schicke einen Forscher hin.'}</p>${sy.id === 'pir' ? `<p class="${Date.now() < S.nestQuietUntil ? 'ok' : 'bad'}">${Date.now() < S.nestQuietUntil ? 'Zerstört · Ruhe noch ' + dur((S.nestQuietUntil - Date.now()) / 1000) : 'Stärke ' + Math.round(160 * Math.pow(1.7, S.nest))}</p>` : ''}
       ${ms.map(m => `<button class="mis" data-mis="${m.id}"><b>${m.n}</b><small>${m.ships.map(t => G.SH[t].n).join(', ')} · ${dur(m.dur * (S.research.includes('warp') ? .75 : 1))} · ${IC.fuel}${m.fuel}/Schiff</small></button>`).join('')}`; return; }
-    const m = ms.find(x => x.id === mapMis); for (const t of m.ships) if (mapPick[t] == null) mapPick[t] = 0;
+    const m = ms.find(x => x.id === mapMis); for (const t of m.ships) if (mapPick[t] == null) mapPick[t] = m.found ? Math.min(1, G.home(t).length) : 0;
     const inf = G.missionInfo(sy, m, mapPick);
     el.innerHTML = `<h4>${kn ? esc(sy.n) : '???'} · ${m.n}</h4>${m.ships.map(t => { const av = G.home(t).length; return `<div class="pick"><img src="${shipIcon(t)}" alt=""><div><b>${G.SH[t].n}</b><small>${av} bereit</small></div><div class="step"><button data-pick="${t}:-1">−</button><b>${mapPick[t]}</b><button data-pick="${t}:1" ${mapPick[t] >= av ? 'disabled' : ''}>+</button></div></div>`; }).join('')}
       <div class="kv"><div><span>Dauer</span><b>${dur(inf.dur)}</b></div><div><span>Treibstoff</span><b>${inf.fuel}</b></div>${Object.entries(inf.take).map(([k, v]) => `<div><span>Ladung</span><b>${fmt(v)} ${G.RN[k]}</b></div>`).join('')}${m.combat ? `<div><span>Angriffskraft</span><b>${Math.round(Object.entries(mapPick).reduce((a, [t, n]) => a + G.SH[t].atk * n, 0) * (S.research.includes('armor') ? 1.4 : 1))} / ${Math.round(160 * Math.pow(1.7, S.nest))}</b></div>` : ''}</div>
@@ -219,22 +221,38 @@
   }
   function fleetSummary() { const S = G.S, c = {}; S.fleet.filter(f => f.state === 'home').forEach(f => c[f.type] = (c[f.type] || 0) + 1); const e = Object.entries(c); return `<div class="kv">${e.length ? e.map(([t, n]) => `<div><span>${G.SH[t].n}</span><b>${n} bereit</b></div>`).join('') : '<div><span>Keine Schiffe bereit</span><b></b></div>'}</div>`; }
 
+  // ================= Kolonien =================
+  const KIND = { rock: ['Felsasteroid', 'radial-gradient(circle at 35% 30%,#c4b5fd,#6d28d9 55%,#1e1b4b)'], ice: ['Eiswelt', 'radial-gradient(circle at 35% 30%,#f0f9ff,#38bdf8 55%,#0c4a6e)'], lava: ['Lavawelt', 'radial-gradient(circle at 35% 30%,#fed7aa,#f97316 50%,#450a0a)'] };
+  function colsUI() {
+    const L = G.colList(), free = G.SITES.filter(z => !G.founded(z.id));
+    $('cols-list').innerHTML = L.map(c => { const hq = (c.bld.find(b => b.type === 'hq') || { lvl: 1 }).lvl, k = KIND[c.kind] || KIND.rock;
+      return `<div class="colrow ${c.active ? 'on' : ''}"><div class="ci" style="background:${k[1]}"></div><div class="cd"><b>${esc(c.name)}</b><small>${k[0]} · Zentrale Stufe ${hq} · ${c.pop} Bewohner · ${c.bld.length} Gebäude</small></div>${c.active ? '<span class="mut">hier bist du</span>' : `<button class="btn sm pri" data-act="col" data-cid="${c.cid}">Hinfliegen</button>`}</div>`; }).join('')
+      + (free.length ? `<p class="mut" style="margin:10px 0 0">Noch frei in Sektor 1: ${free.map(z => `<b>${z.n}</b> (${z.sub})`).join(', ')}. Baue ein Kolonieschiff in der Werft und schicke es auf der Sternenkarte durchs Sprungtor.</p>` : '');
+  }
+  function switchTo(cid) {
+    if (cid === G.S.cid) { closeModals(); return; }
+    G.S.cam = V3D.getCam(); if (!G.switchCol(cid)) return; G.save();
+    cancelBuild(); select(null); closeModals(); dirty = true; V3D.dirty(); if (!V3D.setCam(G.S.cam)) centerCam();
+    refresh(); toast(`🪐 Willkommen auf ${esc(G.S.name)}`);
+  }
+
   // ================= Meldungen =================
   function toast(t, kind) { const box = $('toasts'); while (box.children.length >= 4) box.firstChild.remove(); const el = document.createElement('div'); el.className = 'toast ' + (kind || ''); el.innerHTML = t; $('toasts').appendChild(el); setTimeout(() => el.classList.add('out'), 3800); setTimeout(() => el.remove(), 4300); }
   function report(title, body, kind) { $('rp-title').textContent = title; $('rp-body').innerHTML = body; $('m-report').dataset.kind = kind || ''; openModal('m-report'); }
   function raidReport(r) { const lossTxt = r.loss && Object.keys(r.loss).length ? `<p>Verloren: ${Object.entries(r.loss).map(([k, v]) => `${IC[k]}${fmt(v)}`).join(' ')}</p>` : '';
-    report(r.won ? '🛡️ Angriff abgewehrt!' : '💥 Die Piraten waren stärker', `<div class="kv"><div><span>Piraten</span><b>${r.str}</b></div><div><span>Deine Verteidigung</span><b>${r.def}</b></div></div>${r.won ? `<p>Beute: ${costHtml(r.gain).replace(/ no/g, '')}</p>` : lossTxt + (r.dmg ? `<p>${G.B[r.dmg.type].n} wurde beschädigt. Tippe es an, um es zu reparieren.</p>` : '') + (r.lostShips ? `<p>${r.lostShips} Jäger zerstört.</p>` : '') + '<p class="mut">Tipp: Abwehrtürme, Jäger, Kreuzer und ein Schildgenerator helfen.</p>'}`, r.won ? 'good' : 'bad'); dirty = true; }
+    report((r.won ? '🛡️ Angriff abgewehrt!' : '💥 Die Piraten waren stärker') + (r.col ? ' (' + r.col + ')' : ''), `<div class="kv"><div><span>Piraten</span><b>${r.str}</b></div><div><span>Deine Verteidigung</span><b>${r.def}</b></div></div>${r.won ? `<p>Beute: ${costHtml(r.gain).replace(/ no/g, '')}</p>` : lossTxt + (r.dmg ? `<p>${G.B[r.dmg.type].n} wurde beschädigt. Tippe es an, um es zu reparieren.</p>` : '') + (r.lostShips ? `<p>${r.lostShips} Jäger zerstört.</p>` : '') + '<p class="mut">Tipp: Abwehrtürme, Jäger, Kreuzer und ein Schildgenerator helfen.</p>'}`, r.won ? 'good' : 'bad'); dirty = true; }
   function handleEvents() {
     const E = G.events.splice(0); for (const e of E) {
-      if (e.type === 'built') { dirty = true; toast(`✅ ${G.B[e.b.type].n} ${e.up ? 'auf Stufe ' + e.b.lvl + ' ausgebaut' : 'fertig'}`); if (sel === e.b) info(); }
-      if (e.type === 'ship') toast(`🚀 ${G.SH[e.f.type].n} „${esc(e.f.name)}“ ist fertig`);
+      if (e.type === 'built') { dirty = true; toast(`✅ ${e.col ? esc(e.col) + ': ' : ''}${G.B[e.b.type].n} ${e.up ? 'auf Stufe ' + e.b.lvl + ' ausgebaut' : 'fertig'}`); if (sel === e.b) info(); }
+      if (e.type === 'ship') toast(`🚀 ${G.SH[e.f.type].n} „${esc(e.f.name)}“ ist fertig${e.f.type === 'colony' ? ' · Sternenkarte → Sprungtor' : ''}`);
       if (e.type === 'research') toast(`🔬 ${G.RS.find(r => r.id === e.id).n} erforscht`);
       if (e.type === 'quest') toast(`🎯 Auftrag erledigt: ${esc(e.q.n)} ${costHtml(e.q.r).replace(/ no/g, '')}`, 'good');
       if (e.type === 'ach') toast(`🏆 Erfolg: ${e.a.e} ${esc(e.a.n)}`, 'good');
-      if (e.type === 'raidWarn') toast(`⚠ Piraten im Anflug! Stärke ${e.str}`, 'bad');
+      if (e.type === 'raidWarn') toast(`⚠ Piraten im Anflug${e.col ? ' auf ' + esc(e.col) : ''}! Stärke ${e.str}`, 'bad');
       if (e.type === 'merch') toast('🚀 Ein Händler bietet etwas an');
-      if (e.type === 'raid') startBattle(e);
+      if (e.type === 'raid') { if (e.col) raidReport(e); else startBattle(e); }
       if (e.type === 'mission') { const ang = sysAng(Object.keys(G.SBY).find(k => G.SBY[k].n === e.sys) || 'belt'); (e.ships || []).slice(0, 4).forEach((tp, q) => { const f = G.S.fleet.filter(x => x.type === tp && x.state === 'home')[q]; if (f) flyIn(f, ang); });
+        if (e.found != null) { report('🪐 ' + e.title, `<p>Dein Kolonieschiff ist durchs Sprungtor geflogen und hat eine neue Kolonie gegründet. Sie startet mit einer Kommandozentrale und 6 Bewohnern. Rohstoffe, Schiffe und Forschung teilst du mit allen Kolonien.</p><button class="btn pri wide" data-act="col" data-cid="${e.found}">Jetzt hinfliegen</button>`, 'good'); continue; }
         toast(`${e.ok ? '✅' : '❌'} ${esc(e.title)} ${Object.keys(e.gain || {}).length ? costHtml(e.gain).replace(/ no/g, '') : ''}${e.lost ? ` · ${e.lost} Schiff${e.lost > 1 ? 'e' : ''} verloren` : ''}`, e.ok ? 'good' : 'bad'); }
     }
   }
@@ -258,6 +276,11 @@
       case 'repair': if (G.repair(sel)) { dirty = true; toast('🔧 Repariert'); } info(); break;
       case 'demolish': if (confirm(`${G.B[sel.type].n} abreißen?`)) { if (G.demolish(sel)) { dirty = true; select(null); } else toast('⚠ Geht gerade nicht', 'bad'); } break;
       case 'cancel-build': cancelBuild(); break;
+      case 'rot': if (moveB) G.rotate(moveB); else rot = (rot + 1) & 3; break;
+      case 'rotate': if (sel && G.rotate(sel)) dirty = true; break;
+      case 'cols': openModal('m-cols'); break;
+      case 'col': switchTo(+d.cid); break;
+      case 'dn': S.opt.dn = S.opt.dn === 0 ? 1 : 0; G.save(); V3D.setDayNight(S.opt.dn !== 0); openMenu(); break;
       case 'move': { const mb = sel; select(null); mode = null; moveB = mb; ghost = null; buildBar(); dock(); break; }
       case 'fleet': openModal('m-fleet'); break; case 'research': openModal('m-research'); break; case 'market': openModal('m-market'); break; case 'map': openModal('m-map'); break;
       case 'menu': openMenu(); break;
@@ -276,7 +299,7 @@
   function openMenu(welcome) {
     const S = G.S; openModal('m-menu');
     $('mm-stats').innerHTML = `<div><b>${S.pop}</b><small>Bewohner</small></div><div><b>${S.bld.length}</b><small>Gebäude</small></div><div><b>${S.fleet.length}</b><small>Schiffe</small></div><div><b>${S.ach.length}/${G.ACH.length}</b><small>Erfolge</small></div>`;
-    $('mm-fx').textContent = S.opt.fx === 'low' ? 'Effekte: sparsam' : 'Effekte: voll';
+    $('mm-fx').textContent = S.opt.fx === 'low' ? 'Effekte: sparsam' : 'Effekte: voll'; $('mm-dn').textContent = S.opt.dn === 0 ? '☀️ Immer Tag' : '🌗 Tag & Nacht';
     $('mm-welcome').innerHTML = welcome || '';
     $('mm-ach').innerHTML = G.ACH.map(a => `<span class="ach ${S.ach.includes(a.id) ? 'got' : ''}" title="${esc(a.d)}">${a.e} ${esc(a.n)}</span>`).join('');
   }
@@ -299,14 +322,14 @@
     const had = G.load(); if (!had) G.newGame();
     const back = had ? G.catchUp() : null;
     try { V3D.init(cv, { low: !fx() }); } catch (err) { console.error(err); document.body.insertAdjacentHTML('beforeend', '<div class="nogl">Dein Browser kann leider keine 3D-Grafik (WebGL) anzeigen. Bitte Hardwarebeschleunigung aktivieren oder einen anderen Browser nutzen.</div>'); return; }
-    if (!V3D.setCam(G.S.cam)) centerCam();
+    V3D.setDayNight(G.S.opt.dn !== 0); if (!V3D.setCam(G.S.cam)) centerCam();
     refresh(); setInterval(loop, 100); requestAnimationFrame(frame); requestAnimationFrame(mapLoop);
     let welcome = ''; if (back) welcome = `<div class="wb"><b>Willkommen zurück!</b> Du warst ${dur(back.away / 1000)} weg.${Object.keys(back.gain).length ? ` Deine Kolonie hat produziert: ${Object.entries(back.gain).filter(([, v]) => v > 0).map(([k, v]) => `${IC[k]}+${fmt(v)}`).join(' ')}` : ''}${back.reports.length ? `<br>${back.reports.length} Mission${back.reports.length > 1 ? 'en' : ''} zurückgekehrt.` : ''}</div>`;
     openMenu(welcome); $('mm-continue').textContent = had ? 'Weiterspielen' : 'Los geht’s';
     addEventListener('resize', resize);
     document.addEventListener('visibilitychange', () => { if (document.hidden) { G.S.cam = V3D.getCam(); G.save(); } });
     addEventListener('pagehide', () => { G.S.cam = V3D.getCam(); G.save(); });
-    window.KOL = { cam: V3D.C, V3D, toTile: (sx, sy) => V3D.pick(sx, sy), select, startBuild, openModal, refresh, G, setDirty: () => dirty = true, centerCam };
+    window.KOL = { cam: V3D.C, V3D, mapSelect: (id, mis) => { mapSel = id; mapMis = mis || null; mapPick = {}; mapPanel(); }, toTile: (sx, sy) => V3D.pick(sx, sy), select, startBuild, openModal, refresh, G, setDirty: () => dirty = true, centerCam };
   }
   const v3dReady = new Promise(r => window.V3D ? r() : addEventListener('v3d-ready', r, { once: true }));
   const saveReady = window.GameSave ? GameSave.ready([G.KEY], { reloadOnRemote: true, badge: true }).catch(() => {}) : Promise.resolve();

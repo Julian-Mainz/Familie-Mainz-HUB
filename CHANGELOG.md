@@ -4,6 +4,15 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
 ## 20.11.2026
 
+### Sternenkolonie: neue Kolonien, Tag & Nacht, Rover
+- Kolonieschiff freigeschaltet (Werft Stufe 3, Kommandozentrale Stufe 4). Über das Sprungtor auf der Sternenkarte gründest du neue Kolonien in Sektor 1: Boreas (Eiswelt, viele Kristallfelder) und Ignis (Lavawelt, viele Erzadern).
+- Jede Kolonie hat eigene Gebäude, Bewohner, Bauland und Kommandozentrale; Rohstoffe, Schiffe und Forschung sind gemeinsam. Lager und Landeplätze aller Kolonien zählen zusammen, Kolonien im Hintergrund produzieren weiter (auch offline) und können angegriffen werden.
+- Neuer Knopf 🪐 Kolonien zum Wechseln; jede Welt hat ihre eigene 3D-Optik (Eis, Lava mit glühenden Rissen, eigener Planet am Himmel).
+- Tag-Nacht-Wechsel (10 Minuten), nachts leuchten Fenster und Gebäude; im Menü abschaltbar.
+- Rover fahren auf den Wegen zwischen den Gebäuden (mit Wegfindung, nachts mit Scheinwerfern).
+- Gebäude lassen sich drehen: beim Bauen mit R oder ⟳, fertige Gebäude im Info-Fenster.
+- 3 neue Aufträge (jetzt 26) und 2 neue Erfolge (jetzt 16), auch im Game Center.
+
 ### Sternenkolonie in 3D
 - Die Kolonie wird jetzt in echtem 3D dargestellt (Three.js): schwebender Asteroid, alle 14 Gebäude als 3D-Modelle mit sichtbaren Stufen, Schatten, Leuchten und Animationen (Bohrer, Rauch, Radarschüsseln, Fackeln, Kristalle).
 - Kamera wie in Aufbauspielen: linke Maustaste verschieben, rechte Maustaste drehen und neigen, Mausrad zoomen, WASD und Q/E auf der Tastatur. Am Handy: ein Finger verschiebt, zwei Finger zoomen, drehen und neigen.

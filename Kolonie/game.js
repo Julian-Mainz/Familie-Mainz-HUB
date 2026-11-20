@@ -37,12 +37,17 @@
     scout: { n: 'Forscher', cost: { parts: 60, crys: 25 }, time: 50, cargo: 0, atk: 0, def: 0, d: 'Erkundet unbekannte Systeme und scannt Anomalien.' },
     fighter: { n: 'Abfangjäger', cost: { parts: 50, crys: 15 }, time: 40, cargo: 0, atk: 10, def: 8, d: 'Verteidigt die Kolonie und greift Piraten an.' },
     cruiser: { n: 'Kreuzer', cost: { parts: 350, crys: 150, cred: 2500 }, time: 180, cargo: 100, atk: 60, def: 45, yard: 2, d: 'Schweres Kampfschiff. Braucht Werft Stufe 2.' },
-    colony: { n: 'Kolonieschiff', cost: {}, time: 0, locked: true, d: 'Gründet eine zweite Kolonie. Kommt in einem späteren Update.' }
+    colony: { n: 'Kolonieschiff', cost: { parts: 1200, crys: 500, fuel: 400, cred: 12000 }, time: 480, cargo: 0, atk: 0, def: 4, yard: 3, hq: 4, d: 'Gründet eine neue Kolonie in Sektor 1. Flieg damit durchs Sprungtor (Sternenkarte). Braucht Werft Stufe 3 und Kommandozentrale Stufe 4.' }
   };
   const NAMES = ['Kolibri', 'Lumen', 'Aurora', 'Nova', 'Falke', 'Komet', 'Polaris', 'Vega', 'Orion', 'Zephyr', 'Atlas', 'Luna', 'Sirius', 'Phoenix', 'Merkur', 'Iris', 'Titan', 'Juno', 'Rigel', 'Halley'];
 
   // ---------- Sternenkarte ----------
   // m: Missionen, ships: erlaubte Schiffe, dur: Sekunden, fuel: je Schiff
+  // Plätze für neue Kolonien hinter dem Sprungtor
+  const SITES = [
+    { id: 'boreas', n: 'Boreas', kind: 'ice', sub: 'Eiswelt · viele Kristallfelder' },
+    { id: 'ignis', n: 'Ignis', kind: 'lava', sub: 'Lavawelt · reich an Erzadern' }
+  ];
   const SYS = [
     { id: 'home', n: 'Nova Prime', sub: 'Deine Kolonie', x: 470, y: 380, col: '#67e8f9', r: 22, known: 1 },
     { id: 'belt', n: 'Ceres-Gürtel', sub: 'Asteroiden · Erz', x: 640, y: 250, col: '#fbbf24', r: 0, known: 1, m: [{ id: 'mine', n: 'Erz abbauen', ships: ['drone', 'freighter'], dur: 120, fuel: 4, give: s => ({ ore: cargo(s) }) }] },
@@ -56,7 +61,7 @@
       { id: 'sell-ore2', n: 'Erz verkaufen', ships: ['freighter'], dur: 300, fuel: 14, take: s => ({ ore: 300 * cnt(s, 'freighter') }), give: s => ({ cred: 1000 * cnt(s, 'freighter') }) },
       { id: 'buy-crys', n: 'Kristalle kaufen', ships: ['freighter'], dur: 300, fuel: 14, take: s => ({ cred: 900 * cnt(s, 'freighter') }), give: s => ({ crys: 70 * cnt(s, 'freighter') }) }] },
     { id: 'pir', n: 'Piratennest', sub: 'Sektor 3', x: 960, y: 300, col: '#ef4444', r: 12, known: 1, m: [{ id: 'attack', n: 'Angreifen', ships: ['fighter', 'cruiser'], dur: 240, fuel: 20, combat: true }] },
-    { id: 'gate', n: 'Sprungtor', sub: 'zu Sektor 1', x: 600, y: 110, col: '#818cf8', r: 14, known: 1, gate: true }
+    { id: 'gate', n: 'Sprungtor', sub: 'zu Sektor 1 · neue Kolonien gründen', x: 600, y: 110, col: '#818cf8', r: 14, known: 1, gate: true, m: SITES.map(z => ({ id: 'found-' + z.id, n: `Kolonie gründen: ${z.n}`, sub: z.sub, ships: ['colony'], dur: 360, fuel: 60, found: z.id })) }
   ];
   const LANES = [['home', 'k3'], ['home', 'belt'], ['home', 'ano'], ['home', 'vega'], ['belt', 'pir'], ['vega', 'wrack'], ['pir', 'titan'], ['belt', 'gate'], ['k3', 'gate'], ['vega', 'pir']];
   const SBY = Object.fromEntries(SYS.map(s => [s.id, s]));
@@ -99,7 +104,10 @@
     { n: 'Zerstöre das Piratennest', d: 'Schicke Jäger und Kreuzer zum Piratennest.', ok: s => s.st.nestWins >= 1, r: { cred: 10000 } },
     { n: 'Kommandozentrale auf Stufe 4', d: 'Mehr Bauland und Gebäudestufen.', ok: s => hqLvl(s) >= 4, r: { crys: 300 } },
     { n: 'Erreiche 150 Bewohner', d: 'Eine richtige Stadt im All.', ok: s => s.pop >= 150, r: { cred: 15000 } },
-    { n: 'Kommandozentrale auf Stufe 5', d: 'Die höchste Stufe.', ok: s => hqLvl(s) >= 5, r: { crys: 1000 } }
+    { n: 'Kommandozentrale auf Stufe 5', d: 'Die höchste Stufe.', ok: s => hqLvl(s) >= 5, r: { crys: 1000 } },
+    { n: 'Baue ein Kolonieschiff', d: 'In der Werft (Stufe 3). Damit gründest du hinter dem Sprungtor eine neue Kolonie.', ok: s => s.st.colShips >= 1, r: { fuel: 400 } },
+    { n: 'Gründe eine zweite Kolonie', d: 'Schicke das Kolonieschiff auf der Sternenkarte durchs Sprungtor.', ok: s => (s.cols || []).length >= 1, r: { cred: 20000 } },
+    { n: 'Gründe beide Kolonien in Sektor 1', d: 'Boreas und Ignis: zusammen ein kleines Sternenreich.', ok: s => (s.cols || []).length >= 2, r: { crys: 2000, cred: 30000 } }
   ];
   const ACH = [
     { id: 'b1', e: '🏗️', n: 'Grundstein', d: 'Baue dein erstes Gebäude.', ok: s => s.st.built >= 1 },
@@ -115,7 +123,9 @@
     { id: 'r10', e: '⚔️', n: 'Festung', d: 'Wehre 10 Piratenangriffe ab.', ok: s => s.st.raidsWon >= 10 },
     { id: 'n1', e: '☠️', n: 'Piratenschreck', d: 'Zerstöre das Piratennest.', ok: s => s.st.nestWins >= 1 },
     { id: 'hq5', e: '🏛️', n: 'Gouverneur', d: 'Kommandozentrale auf Stufe 5.', ok: s => hqLvl(s) >= 5 },
-    { id: 'rs', e: '🔬', n: 'Wissenschaft', d: 'Erforsche alle Technologien.', ok: s => s.research.length >= RS.length }
+    { id: 'rs', e: '🔬', n: 'Wissenschaft', d: 'Erforsche alle Technologien.', ok: s => s.research.length >= RS.length },
+    { id: 'c1', e: '🪐', n: 'Kolonist', d: 'Gründe eine zweite Kolonie.', ok: s => (s.cols || []).length >= 1 },
+    { id: 'c2', e: '🌌', n: 'Sternenreich', d: 'Gründe alle Kolonien in Sektor 1.', ok: s => (s.cols || []).length >= SITES.length }
   ];
 
   // ---------- Zustand ----------
@@ -125,10 +135,12 @@
   const fleetN = (s, t) => s.fleet.filter(f => f.type === t && f.state !== 'lost').length;
   const R = k => S.research.includes(k);
   function rng(seed) { let x = seed % 2147483647; if (x <= 0) x += 2147483646; return () => (x = x * 16807 % 2147483647) / 2147483647; }
-  function terrain(seed) {
+  function terrain(seed, kind) {
     const r = rng(seed), t = []; for (let i = 0; i < N; i++) { t.push([]); for (let j = 0; j < N; j++) t[i].push('rock'); }
     const blob = (type, n, size) => { for (let k = 0; k < n; k++) { let i = 2 + Math.floor(r() * (N - 4)), j = 2 + Math.floor(r() * (N - 4)); if (Math.abs(i - 7.5) < 2.5 && Math.abs(j - 7.5) < 2.5) { k--; continue; } for (let q = 0; q < size; q++) { if (t[i] && t[i][j] === 'rock') t[i][j] = type; i += Math.round(r() * 2 - 1); j += Math.round(r() * 2 - 1); i = Math.max(0, Math.min(N - 1, i)); j = Math.max(0, Math.min(N - 1, j)); } } };
-    blob('ore', 5, 4); blob('crys', 3, 3); blob('crater', 6, 1);
+    if (kind === 'ice') { blob('ore', 3, 3); blob('crys', 6, 4); blob('crater', 4, 1); }
+    else if (kind === 'lava') { blob('ore', 8, 4); blob('crys', 2, 3); blob('crater', 9, 1); }
+    else { blob('ore', 5, 4); blob('crys', 3, 3); blob('crater', 6, 1); }
     t[4][5] = 'ore'; t[5][4] = 'ore'; t[10][11] = 'crys'; t[11][10] = 'crys';          // garantiert in der Nähe des Starts
     return t;
   }
@@ -138,11 +150,33 @@
       res: { ore: 400, crys: 0, parts: 0, fuel: 0, cred: 500 }, pop: 6, popF: 6,
       bld: [{ id: 1, type: 'hq', i: 7, j: 7, lvl: 1 }], nid: 2,
       fleet: [], sid: 1, queue: [], missions: [], mid: 1, known: [], research: [], rq: null,
-      quest: 0, ach: [], st: { built: 0, shipsBuilt: 0, missions: 0, missionsDone: 0, raids: 0, raidsWon: 0, nestWins: 0 },
+      quest: 0, ach: [], st: { built: 0, shipsBuilt: 0, missions: 0, missionsDone: 0, raids: 0, raidsWon: 0, nestWins: 0, colShips: 0 },
+      cid: 0, kind: 'rock', site: null, cols: [], cidN: 1,
       raid: { next: 26 * 60, warn: 0, str: 0 }, merch: { next: 7 * 60, offer: null, left: 0 }, nest: 0, nestQuietUntil: 0,
-      log: [], cam: null, opt: { fx: 'full' } };
+      log: [], cam: null, opt: { fx: 'full', dn: 1 } };
   }
   let T = null;                                     // Gelände (aus seed)
+  // ---------- Mehrere Kolonien ----------
+  // Die gerade angezeigte Kolonie liegt oben in S (bld, pop, seed …), die anderen in S.cols. Rohstoffe, Flotte und Forschung gehören allen.
+  const COLF = ['cid', 'seed', 'name', 'kind', 'site', 'bld', 'pop', 'popF', 'raid', 'cam'];
+  const TC = {}; const terr = (seed, kind) => TC[seed + kind] || (TC[seed + kind] = terrain(seed, kind));
+  let inCol = 0, aggO = { store: 0, docks: 0 };
+  function withCol(c, fn) { const keep = {}; for (const k of COLF) { keep[k] = S[k]; S[k] = c[k]; } const kT = T; T = terr(c.seed, c.kind); inCol++;
+    try { return fn(); } finally { inCol--; for (const k of COLF) { c[k] = S[k]; S[k] = keep[k]; } T = kT; } }
+  function calcAgg() { let st = 0, dk = 0; for (const c of S.cols) withCol(c, () => { const o = stats(); st += o.store; dk += o.docks; }); aggO = { store: st, docks: dk }; }
+  const colList = () => [{ cid: S.cid, name: S.name, kind: S.kind, site: S.site, bld: S.bld, pop: S.pop, active: true }].concat(S.cols.map(c => ({ cid: c.cid, name: c.name, kind: c.kind, site: c.site, bld: c.bld, pop: c.pop, active: false }))).sort((a, b) => a.cid - b.cid);
+  function switchCol(cid) {
+    if (cid === S.cid) return true; const c = S.cols.find(x => x.cid === cid); if (!c) return false;
+    const pack = {}; for (const k of COLF) { pack[k] = S[k]; S[k] = c[k]; } S.cols = S.cols.filter(x => x !== c).concat([pack]).sort((a, b) => a.cid - b.cid);
+    T = terr(S.seed, S.kind); calcAgg(); return true;
+  }
+  const mainDo = fn => { if (S.cid === 0) return fn(); const m = S.cols.find(c => c.cid === 0); return m ? withCol(m, fn) : fn(); };
+  const founded = id => S.site === id || S.cols.some(c => c.site === id);
+  function foundColony(siteId) {
+    const z = SITES.find(x => x.id === siteId); if (!z || founded(siteId)) return null;
+    const c = { cid: S.cidN++, seed: 1 + Math.floor(Math.random() * 2e9), name: z.n, kind: z.kind, site: z.id, bld: [{ id: S.nid++, type: 'hq', i: 7, j: 7, lvl: 1 }], pop: 6, popF: 6, raid: { next: 40 * 60, warn: 0, str: 0 }, cam: null };
+    S.cols.push(c); calcAgg(); return c;
+  }
   const tileAt = (i, j) => (T[i] && T[i][j]) || 'void';
   const area = s => { const l = hqLvl(s), r = [5, 5, 6, 7, 8, 8][l] || 8; return { lo: 8 - r, hi: 8 + r - 1 }; };
   const inArea = (i, j) => { const a = area(S); return i >= a.lo && i <= a.hi && j >= a.lo && j <= a.hi; };
@@ -170,6 +204,7 @@
     if (R('solar2')) eP *= 1.3; if (R('hydro')) food *= 1.5; if (R('logi')) store *= 1.5;
     const eff = eU <= 0 ? 1 : Math.min(1, eP / eU), wf = work <= 0 ? 1 : Math.min(1, S.pop / work);
     let fdef = 0, fatk = 0; for (const f of S.fleet) if (f.state === 'home') { fdef += SH[f.type].def; } if (R('armor')) { def *= 1.4; fdef *= 1.4; }
+    if (!inCol) { store += aggO.store; docks += aggO.docks; }
     return { eP, eU, eff, house, food, cap: Math.floor(Math.min(house, food + 6)), work, wf, f: eff * wf, store: Math.round(store), def: Math.round(def + fdef), towerDef: Math.round(def), prot, docks, labLvl, yards, hq };
   }
   function rates(st) {
@@ -209,7 +244,18 @@
     S.missions = S.missions.filter(m => !m.done);
     // Ereignisse nur beim Spielen
     if (!quiet) events_(dt, st);
-    checkQuest(quiet); checkAch(quiet);
+    // andere Kolonien laufen im Hintergrund mit (Produktion in den gemeinsamen Vorrat)
+    if (S.cols.length) { const cap = st.store; for (const c of S.cols) withCol(c, () => colTick(dt, quiet, cap)); calcAgg(); }
+    mainDo(() => { checkQuest(quiet); checkAch(quiet); });
+  }
+  function colTick(dt, quiet, cap) {
+    const t = now();
+    for (const b of S.bld) if (b.build && t >= b.build) { const wasUp = b.up; b.build = 0; if (b.up) { b.lvl = b.up; b.up = 0; } S.st.built += wasUp ? 0 : 1; if (!quiet) emit({ type: 'built', b, up: !!wasUp, col: S.name }); }
+    const st = stats(), { r, use } = rates(st);
+    if (use.ore > 0) { const need = use.ore * dt, avail = S.res.ore + r.ore * dt, k = need > 0 ? Math.min(1, avail / need) : 1; r.parts *= k; r.fuel *= k; S.res.ore -= Math.min(need, avail); }
+    for (const k of ['ore', 'crys', 'parts', 'fuel']) S.res[k] = Math.max(0, Math.min(Math.max(cap, S.res[k]), S.res[k] + r[k] * dt));
+    const c2 = st.cap; if (S.popF < c2) S.popF = Math.min(c2, S.popF + dt * (.25 + c2 * .004)); else S.popF = Math.max(c2, S.popF - dt); S.pop = Math.floor(S.popF);
+    if (!quiet && st.hq >= 2 && now() > S.nestQuietUntil) { const R_ = S.raid; if (R_.warn > 0) { R_.warn -= dt; if (R_.warn <= 0) { R_.warn = 0; fightRaid(st, S.name); } } else { R_.next -= dt; if (R_.next <= 0) { R_.warn = 120; R_.str = Math.round(40 + S.st.raids * 18 + st.hq * 25); emit({ type: 'raidWarn', str: R_.str, col: S.name }); } } }
   }
   function events_(dt, st) {
     // Piraten
@@ -233,9 +279,9 @@
     return L[Math.floor(Math.random() * L.length)];
   }
   function acceptOffer() { const o = S.merch.offer; if (!o || !canPay(o.give)) return false; pay(o.give); give(o.get); S.merch.offer = null; S.merch.next = 360 + Math.random() * 360; save(); return true; }
-  function fightRaid(st) {
+  function fightRaid(st, col) {
     const str = S.raid.str, def = st.def; S.st.raids++;
-    const res = { type: 'raid', str, def, won: def >= str, loss: {}, dmg: null };
+    const res = { type: 'raid', str, def, won: def >= str, loss: {}, dmg: null, col: col || null };
     if (res.won) { const c = Math.round(300 + 60 * S.st.raidsWon); give({ cred: c }); res.loss = null; res.gain = { cred: c }; S.st.raidsWon++; }
     else { const k = .14 * (1 - st.prot); for (const r of ['ore', 'parts', 'fuel', 'crys']) { const v = Math.floor(S.res[r] * k); if (v > 0) { S.res[r] -= v; res.loss[r] = v; } }
       const cand = S.bld.filter(b => b.type !== 'hq' && !b.build && !b.dmg); if (cand.length && Math.random() > st.prot) { const b = cand[Math.floor(Math.random() * cand.length)]; b.dmg = 1; res.dmg = b; }
@@ -243,7 +289,7 @@
       const home = S.fleet.filter(f => f.state === 'home' && (f.type === 'fighter')); const lose = Math.floor(home.length * .3); for (let q = 0; q < lose; q++) home[q].state = 'lost'; res.lostShips = lose; }
     S.fleet = S.fleet.filter(f => f.state !== 'lost');
     S.raid.next = (18 + Math.random() * 12) * 60; S.raid.str = 0;
-    log((res.won ? '🛡️ Piratenangriff abgewehrt' : '💥 Piratenangriff verloren'), res.won ? 'good' : 'bad');
+    log((res.won ? '🛡️ Piratenangriff abgewehrt' : '💥 Piratenangriff verloren') + (col ? ' (' + col + ')' : ''), res.won ? 'good' : 'bad');
     emit(res); save();
   }
   const repairCost = b => { const c = upCost(b.type, Math.max(1, b.lvl)), o = {}; for (const k in c) o[k] = Math.ceil(c[k] * .3); return o; };
@@ -257,15 +303,16 @@
     return { ok: true };
   }
   function unlocked(k) { return hqLvl(S) >= B[k].hq; }
-  function place(k, i, j) {
+  function place(k, i, j, rot) {
     const d = B[k]; if (!unlocked(k)) return { ok: false, why: `ab Kommandozentrale Stufe ${d.hq}` };
     const p = canPlace(k, i, j); if (!p.ok) return p; if (!canPay(d.cost)) return { ok: false, why: 'nicht genug Rohstoffe' };
-    pay(d.cost); const b = { id: S.nid++, type: k, i, j, lvl: 1, build: now() + d.time * 1000, t0: now() }; S.bld.push(b); save(); return { ok: true, b };
+    pay(d.cost); const b = { id: S.nid++, type: k, i, j, lvl: 1, build: now() + d.time * 1000, t0: now() }; if (rot) b.rot = rot & 3; S.bld.push(b); save(); return { ok: true, b };
   }
   function move(b, i, j) {
     if (!S.bld.includes(b)) return { ok: false, why: '' }; if (b.i === i && b.j === j) return { ok: true, same: true };
     const p = canPlace(b.type, i, j, b); if (!p.ok) return p; b.i = i; b.j = j; save(); return { ok: true };
   }
+  function rotate(b) { if (!S.bld.includes(b)) return false; b.rot = ((b.rot || 0) + 1) & 3; save(); return true; }
   function maxLvl(k) { const hq = hqLvl(S); return k === 'hq' ? 5 : Math.min(B[k].max, hq >= 4 ? 3 : hq >= 3 ? 2 : hq >= 2 ? 2 : 1); }
   function upgrade(b) {
     const nl = b.lvl + 1; if (b.build || b.dmg) return { ok: false, why: 'gerade beschäftigt' };
@@ -287,6 +334,8 @@
     const st = stats(), d = SH[t]; if (d.locked) return { ok: false, why: 'kommt später' };
     if (!st.yards.length) return { ok: false, why: 'Werft nötig' };
     if (d.yard && !st.yards.some(y => y.lvl >= d.yard)) return { ok: false, why: `Werft Stufe ${d.yard} nötig` };
+    if (d.hq && mainDo(() => hqLvl(S)) < d.hq) return { ok: false, why: `Kommandozentrale (Nova Prime) Stufe ${d.hq} nötig` };
+    if (t === 'colony' && fleetN(S, 'colony') + SITES.filter(z => founded(z.id)).length >= SITES.length) return { ok: false, why: 'Alle Kolonieplätze vergeben' };
     if (S.fleet.length + 0 >= st.docks) return { ok: false, why: 'Landeplätze voll' };
     const free = st.yards.find(y => !busyYards().has(y.id)); if (!free) return { ok: false, why: 'Werft beschäftigt' };
     if (!canPay(shipCost(t))) return { ok: false, why: 'nicht genug Rohstoffe' };
@@ -295,7 +344,7 @@
   function buildShip(t) {
     const c = canBuild(t); if (!c.ok) return c; pay(shipCost(t));
     const f = { id: S.sid++, type: t, name: NAMES[(S.sid - 2) % NAMES.length] + (S.sid > NAMES.length + 1 ? ' ' + Math.ceil((S.sid - 1) / NAMES.length) : ''), state: 'building' };
-    const speed = [1, 1, 1.5, 2][c.yard.lvl] || 1; S.fleet.push(f); S.queue.push({ ship: f.id, yard: c.yard.id, t0: now(), end: now() + SH[t].time * 1000 / speed });
+    const speed = [1, 1, 1.5, 2][c.yard.lvl] || 1; if (t === 'colony') S.st.colShips = (S.st.colShips || 0) + 1; S.fleet.push(f); S.queue.push({ ship: f.id, yard: c.yard.id, t0: now(), end: now() + SH[t].time * 1000 / speed });
     save(); return { ok: true, f };
   }
   function scrapShip(f) { if (f.state !== 'home') return false; const c = shipCost(f.type); give(Object.fromEntries(Object.entries(c).map(([k, v]) => [k, Math.floor(v * .4)]))); S.fleet = S.fleet.filter(x => x !== f); save(); return true; }
@@ -314,6 +363,7 @@
     const mm = isExplore ? { id: 'explore', n: 'Erkunden', ships: ['scout'], dur: 150, fuel: 12 } : m; if (!mm) return { ok: false, why: '' };
     for (const t in sel) if (sel[t] > home(t).length || !mm.ships.includes(t)) return { ok: false, why: 'Schiffe nicht verfügbar' };
     const info = missionInfo(sys, mm, sel); if (info.n < 1) return { ok: false, why: 'Wähle mindestens ein Schiff' };
+    if (mm.found) { if (founded(mm.found) || S.missions.some(x => x.m === mm.id)) return { ok: false, why: 'Dort gibt es schon eine Kolonie' }; if ((sel.colony || 0) !== 1) return { ok: false, why: 'Schicke genau ein Kolonieschiff' }; }
     if (!canPay(info.need)) return { ok: false, why: 'nicht genug ' + (S.res.fuel < info.need.fuel ? 'Treibstoff' : 'Rohstoffe') };
     pay(info.need); const ids = []; for (const t in sel) home(t).slice(0, sel[t]).forEach(f => { f.state = 'away'; ids.push(f.id); });
     const ms = { id: S.mid++, sys: sysId, m: mm.id, ships: ids, sel: Object.assign({}, sel), t0: now(), end: now() + info.dur * 1000 };
@@ -328,6 +378,7 @@
         rep.combat = { atk: Math.round(atk), str };
         if (atk >= str) { const lose = Math.floor(ships.length * Math.min(.5, .25 * str / atk)); ships.slice(0, lose).forEach(f => f.state = 'lost'); rep.lost = lose; rep.gain = { crys: 150 + 80 * S.nest, cred: 2000 + 1500 * S.nest }; rep.title = 'Piratennest zerstört!'; S.nest++; S.st.nestWins++; S.nestQuietUntil = now() + 90 * 60e3; S.raid.warn = 0; }
         else { const lose = Math.ceil(ships.length * .6); ships.slice(0, lose).forEach(f => f.state = 'lost'); rep.lost = lose; rep.ok = false; rep.title = 'Angriff gescheitert'; rep.gain = {}; } }
+      else if (m && m.found) { const c = foundColony(m.found); ships.forEach(f => f.state = 'lost'); S.fleet = S.fleet.filter(f => f.state !== 'lost'); if (c) { rep.title = `Kolonie ${c.name} gegründet!`; rep.found = c.cid; rep.gain = {}; } else { rep.title = 'Kolonie war schon gegründet'; rep.ok = false; } }
       else if (m) { rep.gain = m.give ? m.give(ms.sel) : {}; rep.title = m.n + ' erfolgreich'; } }
     give(rep.gain); ships.forEach(f => { if (f.state !== 'lost') f.state = 'home'; }); S.fleet = S.fleet.filter(f => f.state !== 'lost');
     S.st.missionsDone++; rep.ships = ships.filter(f => f.state === 'home').map(f => f.type); log((rep.ok ? '✅ ' : '❌ ') + rep.title, rep.ok ? 'good' : 'bad');
@@ -359,11 +410,15 @@
     if (!valid(o)) return false;
     const f = fresh(); S = Object.assign(f, o); S.st = Object.assign(fresh().st, o.st || {}); S.raid = Object.assign(f.raid, o.raid || {}); S.merch = Object.assign(f.merch, o.merch || {}); S.opt = Object.assign(f.opt, o.opt || {});
     for (const k of RES) S.res[k] = Math.max(0, +S.res[k] || 0);
-    T = terrain(S.seed); return true;
+    S.cols = Array.isArray(o.cols) ? o.cols : []; if (S.cid == null) S.cid = 0; if (!S.kind) S.kind = 'rock'; if (!S.cidN) S.cidN = 1 + S.cols.reduce((a, c) => Math.max(a, c.cid), 0);
+    T = terr(S.seed, S.kind); calcAgg(); if (o.view && S.cols.some(c => c.cid === o.view)) switchCol(o.view); delete S.view; return true;
   }
-  function newGame() { S = fresh(); T = terrain(S.seed); save(); }
+  function newGame() { S = fresh(); T = terr(S.seed, S.kind); aggO = { store: 0, docks: 0 }; save(); }
   let lastWrite = 0;
-  function save() { if (!S) return; S.lastSave = now(); try { localStorage.setItem(KEY, JSON.stringify(S)); lastWrite = now(); } catch (e) { } }
+  function save() { if (!S || inCol) return; S.lastSave = now();
+    // gespeichert wird immer mit der Hauptkolonie oben (Game Center und ältere Stände lesen das so); die angezeigte merkt sich view
+    let o = S; if (S.cid !== 0) { const m = S.cols.find(c => c.cid === 0); if (m) { o = Object.assign({}, S); const pack = {}; for (const k of COLF) { pack[k] = S[k]; o[k] = m[k]; } o.cols = S.cols.map(c => c === m ? pack : c); o.view = S.cid; } }
+    try { localStorage.setItem(KEY, JSON.stringify(o)); lastWrite = now(); } catch (e) { } }
   // Offline weiterrechnen (max. 8 Std, nur Produktion, fertige Bauten, Schiffe, Forschung, Missionen)
   function catchUp() {
     const away = Math.min(OFFLINE_MAX, Math.max(0, now() - (S.lastSave || now())));
@@ -377,9 +432,9 @@
   }
 
   window.G = {
-    KEY, N, B, SH, SYS, SBY, LANES, RS, Q, ACH, CATS, RN, RES, MARKET, LVF,
+    KEY, N, B, SH, SYS, SBY, LANES, RS, Q, ACH, CATS, RN, RES, MARKET, LVF, SITES,
     get S() { return S; }, get T() { return T; }, tileAt, inArea, area, bAt, stats, rates, upCost, upTime, maxLvl, unlocked, canPlace, place, move, upgrade, demolish, repair, repairCost,
     canBuild, buildShip, scrapShip, shipCost, home, known, missionInfo, launch, startResearch, trade, acceptOffer, canPay, hqLvl: () => hqLvl(S), fleetN: t => fleetN(S, t),
-    tick, events, load, newGame, save, catchUp, valid, log, cargo
+    tick, events, load, newGame, save, catchUp, valid, log, cargo, rotate, colList, switchCol, founded, mainHq: () => mainDo(() => hqLvl(S))
   };
 })();

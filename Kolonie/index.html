@@ -11,6 +11,7 @@
 :root{--pan:linear-gradient(180deg,rgba(14,20,44,.9),rgba(7,10,26,.92));--line:rgba(125,211,252,.22);--txt:#e2e8f0;--mut:#94a3b8;--acc:#67e8f9;--acc2:#a5b4fc;--ok:#4ade80;--bad:#fb7185;--warn:#fbbf24}
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#04051a;color:var(--txt);font:14px/1.4 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 button{font:inherit;color:inherit;cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}
+.colrow{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);margin-bottom:8px}.colrow.on{border-color:var(--acc);background:rgba(103,232,249,.08)}.colrow .ci{width:44px;height:44px;border-radius:50%;flex:none}.colrow .cd{flex:1;min-width:0}.colrow .cd b{display:block}.colrow .cd small{color:var(--mut)}.tool.hidden{display:none}
 #cv{position:fixed;inset:0;touch-action:none;cursor:grab;display:block;background:#04051a}#cv:active{cursor:grabbing}
 .v3ov{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}.v3bar{position:absolute;left:0;top:0;width:48px;height:7px;border-radius:4px;background:rgba(2,6,23,.85);border:1px solid rgba(251,191,36,.5);overflow:hidden}.v3bar i{display:block;height:100%;background:#fbbf24}
 .nogl{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);max-width:420px;padding:20px;border-radius:16px;background:#0f172a;border:1px solid #334155;text-align:center;z-index:50}
@@ -120,6 +121,7 @@ svg{display:block}
   <div id="res"></div>
   <div class="sp"></div>
   <div class="tools">
+    <button class="tool hidden" id="t-cols" data-act="cols" title="Deine Kolonien">🪐<span>Kolonien</span></button>
     <button class="tool" data-act="map" title="Sternenkarte">🗺️<span>Karte</span></button>
     <button class="tool" data-act="fleet" title="Werft & Flotte">🛠️<span>Werft</span></button>
     <button class="tool" data-act="research" title="Forschung">🔬<span>Forschung</span></button>
@@ -165,7 +167,8 @@ svg{display:block}
   <div class="mbtns">
     <button class="btn pri" data-act="continue" id="mm-continue">Weiterspielen</button>
     <div class="row2" style="margin:0"><button class="btn" data-act="help">❓ So geht’s</button><button class="btn" data-act="rename">✏️ Kolonie benennen</button></div>
-    <div class="row2" style="margin:0"><button class="btn" data-act="fx" id="mm-fx">Effekte</button><button class="btn" data-act="new">🔄 Neu anfangen</button></div>
+    <div class="row2" style="margin:0"><button class="btn" data-act="fx" id="mm-fx">Effekte</button><button class="btn" data-act="dn" id="mm-dn">Tag &amp; Nacht</button></div>
+    <button class="btn" data-act="new">🔄 Neu anfangen</button>
     <a class="btn ghost" href="/Spiele/" style="text-decoration:none">← Zurück zum Game Center</a>
   </div>
   <ol id="menu-help" class="hidden">
@@ -174,12 +177,14 @@ svg{display:block}
     <li><b>Kommandozentrale ausbauen:</b> schaltet neue Gebäude, höhere Stufen und mehr Bauland frei.</li>
     <li><b>Fabrik & Raffinerie:</b> machen aus Erz Bauteile und Treibstoff.</li>
     <li><b>Raumfahrt:</b> Landeplätze, Werft und Schiffe. Auf der Sternenkarte schickst du Schiffe auf Missionen.</li>
-    <li><b>Piraten:</b> greifen ab Zentrale Stufe 2 regelmäßig an. Abwehrtürme, Jäger und Kreuzer schützen dich.</li>
+    <li><b>Neue Kolonien:</b> Mit Werft Stufe 3 und Zentrale Stufe 4 baust du ein Kolonieschiff. Schicke es auf der Sternenkarte durchs Sprungtor und gründe Boreas (Eiswelt) oder Ignis (Lavawelt). Über 🪐 wechselst du zwischen den Kolonien.</li><li><b>Drehen:</b> Beim Bauen dreht R (oder ⟳) das Gebäude; fertige Gebäude drehst du im Info-Fenster.</li><li><b>Piraten:</b> greifen ab Zentrale Stufe 2 regelmäßig an. Abwehrtürme, Jäger und Kreuzer schützen dich.</li>
     <li>Die Kolonie produziert bis zu 8 Stunden weiter, wenn du nicht spielst. Der Spielstand wird im Konto gespeichert.</li>
     <li>Linke Maustaste ziehen: Ansicht verschieben. Rechte Maustaste ziehen: drehen und neigen. Mausrad: zoomen. Tastatur: WASD verschieben, Q/E drehen.</li><li>Am Handy: ein Finger verschiebt, zwei Finger zoomen, drehen und (gemeinsam hoch/runter) neigen.</li>
   </ol>
   <div id="mm-ach"></div>
 </div></div>
+<!-- Kolonien -->
+<div class="modal hidden" id="m-cols"><div class="box glass" style="width:min(620px,100%)"><div class="mh"><h2>🪐 Deine Kolonien</h2><span class="sp"></span><button class="x" data-act="close" aria-label="Schließen">✕</button></div><p class="mut" style="margin:0 0 12px">Rohstoffe, Schiffe und Forschung gehören allen Kolonien gemeinsam. Jede Kolonie hat eigene Gebäude, Bewohner und Bauland. Neue Kolonien gründest du mit einem Kolonieschiff durchs Sprungtor.</p><div id="cols-list"></div></div></div>
 <!-- Bericht -->
 <div class="modal hidden" id="m-report"><div class="box glass"><div class="mh"><h2 id="rp-title"></h2><span class="sp"></span><button class="x" data-act="close" aria-label="Schließen">✕</button></div><div id="rp-body"></div><button class="btn pri wide" data-act="close">OK</button></div></div>
 
