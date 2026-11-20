@@ -4,6 +4,9 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
 ## 20.11.2026
 
+### Admin
+- Benutzerkarten: Berechtigungen, die in eine zweite Zeile umbrechen, stehen jetzt bündig neben der Gruppen-Überschrift statt darunter; am Handy steht die Überschrift über den Schaltern.
+
 ### Neue Seite: Changelog
 - Unter „System“ gibt es für alle die Seite „Changelog“: alle Änderungen nach Datum, mit Suche und Filter nach Bereichen (Finanzen, Spiele, Zeiterfassung …).
 - Neues seit deinem letzten Besuch ist mit „Neu für dich“ markiert.
