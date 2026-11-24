@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="de" class="os-boot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#060a14">
+    <title>J.Mainz OS</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366f1'/%3E%3Cstop offset='1' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='56' height='56' rx='16' fill='url(%23g)'/%3E%3Crect x='16' y='16' width='14' height='14' rx='3' fill='%23fff'/%3E%3Crect x='34' y='16' width='14' height='14' rx='3' fill='%23fff' opacity='.7'/%3E%3Crect x='16' y='34' width='14' height='14' rx='3' fill='%23fff' opacity='.7'/%3E%3Crect x='34' y='34' width='14' height='14' rx='3' fill='%23fff' opacity='.45'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="/assets/icons.css?v=f9ee3f01">
+    <link rel="stylesheet" href="os-icons.css?v=ba97c6e0">
+    <link rel="stylesheet" href="os.css?v=dbc8e0d5">
+    <!-- Anmeldung und Rechte kommen aus dem Dashboard (nur gelesen, nichts daran geändert) -->
+    <script src="/js/vendor/firebase-app-compat.js?v=c066068f" defer></script>
+    <script src="/js/vendor/firebase-auth-compat.js?v=4d9f6e50" defer></script>
+    <script src="/js/vendor/firebase-firestore-compat.js?v=53cdabb9" defer></script>
+    <script src="/js/firebase-init.js?v=938af1f4" defer></script>
+    <script src="/js/drawer.js?v=03a079fe" defer></script>
+    <script src="os.js?v=42fa29f6" defer></script>
+</head>
+<body>
+    <!-- Hintergrund -->
+    <div id="wall" aria-hidden="true"><canvas id="stars"></canvas><div class="wall-img"></div></div>
+
+    <!-- Startbildschirm beim Laden -->
+    <div id="boot" role="status" aria-live="polite">
+        <div class="boot-logo"><span></span><span></span><span></span><span></span></div>
+        <div class="boot-name">J.Mainz <b>OS</b></div>
+        <div class="boot-bar"><i></i></div>
+        <div class="boot-msg" id="boot-msg">Wird gestartet …</div>
+    </div>
+
+    <!-- Desktop mit Symbolen -->
+    <main id="desk" aria-label="Desktop">
+        <div id="icons" role="listbox" aria-label="Desktop-Symbole"></div>
+        <div id="select-box" hidden></div>
+    </main>
+
+    <!-- Fenster -->
+    <div id="wins"></div>
+    <div id="snap" hidden></div>
+
+    <!-- Startmenü -->
+    <section id="start" class="pop" hidden aria-label="Startmenü">
+        <div class="st-search"><i class="fa-solid fa-magnifying-glass"></i><input id="st-q" type="search" placeholder="Apps durchsuchen …" autocomplete="off" aria-label="Apps durchsuchen"></div>
+        <div class="st-body">
+            <div class="st-head"><span>Angeheftet</span><small id="st-count"></small></div>
+            <div id="st-apps" class="st-grid"></div>
+            <div class="st-head"><span>Spiele &amp; Web-Apps</span></div>
+            <div id="st-web" class="st-grid"></div>
+            <div id="st-empty" class="st-empty" hidden><i class="fa-solid fa-magnifying-glass"></i>Keine App gefunden</div>
+        </div>
+        <div class="st-foot">
+            <div class="st-user"><span class="st-av" id="st-av"></span><span><b id="st-name">…</b><small id="st-role"></small></span></div>
+            <button type="button" class="st-btn" data-act="settings" title="Einstellungen"><i class="fa-solid fa-gear"></i></button>
+            <a class="st-btn" href="/menu.html" title="Zum normalen Dashboard"><i class="fa-solid fa-border-all"></i></a>
+            <button type="button" class="st-btn" data-act="logout" title="Abmelden"><i class="fa-solid fa-power-off"></i></button>
+        </div>
+    </section>
+
+    <!-- Kalender-Flyout an der Uhr -->
+    <section id="cal" class="pop" hidden aria-label="Kalender">
+        <div class="cal-now"><b id="cal-time"></b><span id="cal-date"></span></div>
+        <div class="cal-nav"><button type="button" data-m="-1" aria-label="Vorheriger Monat"><i class="fa-solid fa-chevron-left"></i></button><b id="cal-title"></b><button type="button" data-m="1" aria-label="Nächster Monat"><i class="fa-solid fa-chevron-right"></i></button></div>
+        <div id="cal-grid" class="cal-grid"></div>
+    </section>
+
+    <!-- Kontextmenü -->
+    <div id="ctx" class="pop" hidden role="menu"></div>
+
+    <!-- Taskleiste -->
+    <footer id="bar" aria-label="Taskleiste">
+        <button type="button" id="start-btn" aria-label="Start" aria-expanded="false" aria-controls="start"><span class="logo"><span></span><span></span><span></span><span></span></span></button>
+        <button type="button" id="bar-search" aria-label="Suchen"><i class="fa-solid fa-magnifying-glass"></i><span>Suchen</span></button>
+        <div id="tasks" role="toolbar" aria-label="Geöffnete Apps"></div>
+        <div id="tray">
+            <span class="tray-i" id="net" title="Verbunden"><i class="fa-solid fa-wifi"></i></span>
+            <button type="button" id="clock" aria-label="Uhr und Kalender" aria-expanded="false" aria-controls="cal"><b id="clk-t">--:--</b><small id="clk-d"></small></button>
+            <button type="button" id="show-desk" title="Desktop anzeigen" aria-label="Desktop anzeigen"></button>
+        </div>
+    </footer>
+</body>
+</html>

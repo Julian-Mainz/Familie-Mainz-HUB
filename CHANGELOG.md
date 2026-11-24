@@ -2,6 +2,18 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 24.11.2026
+
+### Neue Web-App: J.Mainz OS (Testversion)
+- Das Dashboard als Desktop wie bei Windows, im dunklen Weltall-Stil: Desktop-Symbole, Taskleiste unten mit Startknopf links, Suche, geöffneten Apps, Uhr mit Kalender und „Desktop anzeigen“.
+- Apps öffnen sich in Fenstern: verschieben, Größe ändern, minimieren, maximieren, schließen. An den oberen Rand ziehen = Vollbild, links/rechts = halber Bildschirm. Doppelklick auf die Titelleiste = Vollbild.
+- Alle Bereiche des Dashboards laufen als Fenster (je nach Berechtigung), dazu Spiele-Ordner, Uhr, Game Center und eigene kleine Apps: Notizblock, Rechner, Einstellungen (Hintergrund wählen).
+- Startmenü mit Suche, Rechtsklick-Menüs, Symbole frei verschiebbar. Offene Fenster und Positionen werden gemerkt.
+- Am Handy öffnen sich die Apps im Vollbild.
+- Erreichbar unter julian-mainz.de/OS/. Das bestehende Dashboard wurde dafür nicht verändert.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/os-icons.css (alle neu)
+- Firestore-Regeln: keine Änderung.
+
 ## 20.11.2026
 
 ### Technik: schneller und ohne Strg+F5
