@@ -2,6 +2,14 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (14)
+
+### Heller Modus: mehr Kontrast, lesbare Pinnwand
+- Graue Schrift ist im hellen Modus deutlich dunkler (dunkelgrau bis fast schwarz), Umrandungen von Karten, Feldern und Listen sind kräftiger. Das gilt für alle Seiten mit hellem Design, auch für Texte, die bisher noch die hellen Farben des dunklen Designs hatten (z. B. Zeiten in „Tage im Monat“, Kalenderzeiten, Hinweise).
+- Pinnwand: Zettel in kräftigem Gelb mit dunkelbrauner Schrift statt Gelb auf Gelb.
+- Geänderte Dateien: assets/light.css
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (13)
 
 ### J.Mainz OS: Einstellungen wie bei Windows 11
