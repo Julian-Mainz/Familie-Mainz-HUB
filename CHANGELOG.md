@@ -2,6 +2,14 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (8)
+
+### J.Mainz OS: Musik in der Taskleiste immer sichtbar
+- Die Musik-Anzeige in der Taskleiste ist jetzt immer da: „Spotify – Verbinden“, wenn Spotify in diesem Browser noch nicht verbunden ist (Klick öffnet die Spotify-App zum Verbinden), „Nichts läuft“, wenn gerade nichts spielt, sonst Titel, Interpret, Pause und Weiter. Vorher blieb sie in beiden ersten Fällen unsichtbar.
+- Die Spotify-Anmeldung wird jetzt auch gefunden, wenn sie ohne „angemeldet bleiben“ in einem anderen Fenster erfolgt ist, sofern sie im Browser noch vorhanden ist. Podcasts werden ebenfalls angezeigt.
+- Geänderte Dateien: OS/social.js, OS/apps.js, OS/os.css
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (7)
 
 ### J.Mainz OS: lebendiger Desktop, Animationen, Bildschirmschoner, Astro, als App installieren

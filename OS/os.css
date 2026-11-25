@@ -669,3 +669,4 @@ html.os-bye #bar { transition: transform .5s var(--ease); transform: translateY(
 @keyframes ptBlink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
 @media (prefers-reduced-motion: reduce) { #pet .pt-body, #pet .pt-flame, #pet .pt-arm { animation: none; } }
 @media (max-width: 760px) { #pet { display: none; } }
+#mp.idle { background: rgba(148, 163, 184, .08); border-color: var(--line); padding-right: 12px; } #mp.idle > i { color: #4ade80; font-size: 14px; }

@@ -12,7 +12,7 @@
     // ---------- Spotify (nutzt die Anmeldung der Seite „Spotify“ in diesem Browser) ----------
     const SP = 'https://api.spotify.com/v1';
     const spStore = () => { try { return localStorage.getItem('sp_persist') === '1' ? localStorage : sessionStorage; } catch (x) { return sessionStorage; } };
-    const spTok = () => { try { return JSON.parse(spStore().getItem('sp_tok') || 'null'); } catch (x) { return null; } };
+    const spTok = () => { try { return JSON.parse(spStore().getItem('sp_tok') || localStorage.getItem('sp_tok') || sessionStorage.getItem('sp_tok') || 'null'); } catch (x) { return null; } };
     const spCid = () => (U.userPrefs && U.userPrefs.spotify && U.userPrefs.spotify.clientId) || (() => { try { return localStorage.getItem('sp_client_id') || ''; } catch (x) { return ''; } })();
     async function spAccess() {
         let t = spTok(); if (!t || !t.access) return null;

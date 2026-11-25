@@ -73,16 +73,26 @@
     }
 
     // ---------- Musik in der Taskleiste ----------
-    let mpState = null, mpBusy = false;
+    let mpState = null, mpBusy = false, mpMode = 'off';       // off = nicht verbunden, idle = verbunden, aber nichts läuft, play = Lied läuft
     async function mpLoad() {
-        if (document.hidden || !window.JMOS_SP || !JMOS_SP_TOK()) { mpState = null; return mpPaint(); }
-        try { mpState = await JMOS_SP('/me/player'); } catch (x) { mpState = null; }
+        if (document.hidden) return;
+        if (!window.JMOS_SP || !JMOS_SP_TOK()) { mpState = null; mpMode = 'off'; return mpPaint(); }
+        try { mpState = await JMOS_SP('/me/player?additional_types=episode'); mpMode = mpState && mpState.item ? 'play' : 'idle'; }
+        catch (x) { mpState = null; mpMode = x.auth ? 'off' : 'idle'; }
         mpPaint();
     }
     function mpPaint() {
-        const el = $('mp'), it = mpState && mpState.item; el.hidden = !it || S.musicBar === false; if (!it) return;
-        const art = (it.album && it.album.images && (it.album.images[2] || it.album.images[0]) || {}).url || '';
-        el.innerHTML = `${art ? `<img src="${e(art)}" alt="">` : '<i class="fa-solid fa-music"></i>'}<span class="mp-t" title="${e(it.name)} – ${e((it.artists || []).map(a => a.name).join(', '))}"><b>${e(it.name)}</b><small>${e((it.artists || []).map(a => a.name).join(', '))}</small></span>
+        const el = $('mp'), it = mpState && mpState.item; el.hidden = S.musicBar === false;
+        el.classList.toggle('idle', !it);
+        if (!it) {
+            el.title = mpMode === 'off' ? 'Spotify ist in diesem Browser nicht verbunden. Klicken zum Verbinden.' : 'Gerade läuft nichts auf Spotify. Klicken zum Öffnen.';
+            el.innerHTML = `<i class="fa-solid fa-headphones"></i><span class="mp-t"><b>Spotify</b><small>${mpMode === 'off' ? 'Verbinden' : 'Nichts läuft'}</small></span>`;
+            return;
+        }
+        el.title = '';
+        const art = (it.album && it.album.images && (it.album.images[2] || it.album.images[0]) || {}).url || (it.images && it.images[0] && it.images[0].url) || '';
+        const who = (it.artists || []).map(a => a.name).join(', ') || (it.show && it.show.name) || '';
+        el.innerHTML = `${art ? `<img src="${e(art)}" alt="">` : '<i class="fa-solid fa-music"></i>'}<span class="mp-t" title="${e(it.name)} – ${e(who)}"><b>${e(it.name)}</b><small>${e(who)}</small></span>
             <button type="button" data-mp="pp" aria-label="${mpState.is_playing ? 'Pause' : 'Abspielen'}"><i class="fa-solid ${mpState.is_playing ? 'fa-pause' : 'fa-play'}"></i></button><button type="button" data-mp="next" aria-label="Weiter"><i class="fa-solid fa-forward-step"></i></button>`;
     }
     function wireMp() {
@@ -100,7 +110,7 @@
         const box = body.querySelector('.app-set'), sec = document.createElement('section');
         sec.innerHTML = `<h3>Chat &amp; Musik</h3>
             ${can(U, 'messenger') ? `<label class="set-row"><div><b>Chat-Blasen</b><small>Neue Nachrichten erscheinen als Blase am rechten Rand. Ein Klick öffnet ein kleines Chatfenster zum direkten Antworten.</small></div><input type="checkbox" class="tgl" data-s="bubbles" ${S.bubbles !== false ? 'checked' : ''}></label>` : ''}
-            ${can(U, 'spotify') ? `<label class="set-row"><div><b>Musik in der Taskleiste</b><small>Zeigt das aktuelle Spotify-Lied mit Pause und Weiter, wenn Spotify in diesem Browser verbunden ist.</small></div><input type="checkbox" class="tgl" data-s="musicBar" ${S.musicBar !== false ? 'checked' : ''}></label>` : ''}`;
+            ${can(U, 'spotify') ? `<label class="set-row"><div><b>Musik in der Taskleiste</b><small>Zeigt das aktuelle Spotify-Lied mit Pause und Weiter. Ist Spotify in diesem Browser noch nicht verbunden, führt ein Klick zum Verbinden.</small></div><input type="checkbox" class="tgl" data-s="musicBar" ${S.musicBar !== false ? 'checked' : ''}></label>` : ''}`;
         if (sec.querySelector('.set-row')) box.insertBefore(sec, box.children[3] || null);
         sec.addEventListener('change', ev => { const k = ev.target.dataset.s; if (!k) return; S[k] = ev.target.checked; API.save(); if (k === 'bubbles') { if (!S.bubbles) closeChat(); paintBubbles(); } else mpPaint(); });
     }
