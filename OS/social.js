@@ -22,7 +22,7 @@
         } };
 
     // ---------- Chat-Blasen ----------
-    const base = {}; let ready = false, openId = null, unsubMsgs = null;
+    const base = {}; let ready = false, openId = null, unsubMsgs = null, dragging = false;
     const bubblesOn = () => S.bubbles !== false;
     function chatOf(id) { return MSG.state.chats.find(c => c.id === id); }
     const nameOf = uid => (MSG.state.dir[uid] && MSG.state.dir[uid].name) || 'Jemand';
@@ -32,10 +32,71 @@
         return m.chats.filter(c => c.last && c.last.from !== U.uid && !MSG.isMuted(c, m.meta) && MSG.unreadCount(c, m.meta) > 0 && (c.seq || 0) > (base[c.id] ?? 0) && !(S.bubbleGone || []).includes(c.id + ':' + c.seq));
     }
     function paintBubbles() {
-        const box = $('bubbles'); if (!bubblesOn()) { box.innerHTML = ''; return; }
-        const list = bubbleList(), keep = openId && chatOf(openId) ? [chatOf(openId)] : [], all = [...new Map([...list, ...keep].map(c => [c.id, c])).values()].slice(0, 5);
+        const box = $('bubbles'); if (!bubblesOn() && !dragging) { box.innerHTML = ''; return; }
+        box.classList.toggle('dragmode', dragging);
+        const list = dragging ? recentChats() : bubbleList(), keep = openId && chatOf(openId) ? [chatOf(openId)] : [], all = [...new Map([...list, ...keep].map(c => [c.id, c])).values()].slice(0, 5);
         box.innerHTML = all.map(c => { const t = MSG.chatTitle(c, MSG.state.dir, U.uid), other = c.type === 'group' ? null : (c.members || []).find(u => u !== U.uid), th = other ? thumbOf(other) : '', n = MSG.unreadCount(c, MSG.state.meta);
             return `<div class="bb${openId === c.id ? ' on' : ''}" data-chat="${e(c.id)}" role="button" tabindex="0" title="${e(t)}: ${e(MSG.previewLine(c, MSG.state.dir, U.uid))}">${th ? `<img src="${th}" alt="">` : `<span>${e((t || '?').slice(0, 1))}</span>`}${n ? `<b>${n > 9 ? '9+' : n}</b>` : ''}<button type="button" class="bx" data-bx="${e(c.id)}" aria-label="Blase schließen"><i class="fa-solid fa-xmark"></i></button><em>${e(t)}</em></div>`; }).join('');
+    }
+    const recentChats = () => MSG.state.chats.filter(c => c.last).sort((a, b) => (b.lastMs || 0) - (a.lastMs || 0)).slice(0, 5);
+    // ---------- Dateien verschicken: auf eine Blase ziehen, oder „Per Chat senden“ ----------
+    async function sendFile(c, src) {
+        let blob, name;
+        if (src.key) { const r = await JMOS_FILES.blobOf(src.key); blob = r.blob; name = r.name; } else { blob = src.blob; name = src.name; }
+        const t = MSG.chatTitle(c, MSG.state.dir, U.uid);
+        if (/^image\/(jpeg|png|webp|gif)$/.test(blob.type) || /\.(jpe?g|png|webp|gif)$/i.test(name)) {
+            const img = await MSG.compressImage(new File([blob], name, { type: blob.type || 'image/jpeg' }));
+            await MSG.send(c, { text: '', image: img });
+        } else await MSG.send(c, { text: '', file: await MSG.fileToAttachment(blob, name) });
+        info('fa-paper-plane', '#f472b6', 'Gesendet an ' + t, name);
+    }
+    function info(icon, c, title, text) {
+        const box = $('toasts'), el = document.createElement('div'); el.className = 'tst';
+        el.innerHTML = `<div class="tst-i"><span class="ic" style="--c:${c}"><i class="fa-solid ${icon}"></i></span><span class="tx"><b>${e(title)}</b><span>${e(text)}</span></span></div>`;
+        box.appendChild(el); setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 250); }, 3500);
+    }
+    // Chat auswählen (für „Per Chat senden“ und das Bildschirmfoto)
+    function pickChat(title) {
+        return new Promise(res => {
+            const list = MSG.state.chats.filter(c => c.last || c.type === 'group').sort((a, b) => (b.lastMs || 0) - (a.lastMs || 0)).slice(0, 30);
+            const bg = document.createElement('div'); bg.className = 'uidlg-bg cp-bg';
+            bg.innerHTML = `<div class="uidlg cp" role="dialog" aria-label="${e(title)}"><h3>${e(title)}</h3><div class="cp-l">${list.length ? list.map(c => { const t = MSG.chatTitle(c, MSG.state.dir, U.uid), o = c.type === 'group' ? null : (c.members || []).find(u => u !== U.uid), th = o ? thumbOf(o) : '';
+                return `<button type="button" data-pc="${e(c.id)}"><span class="av">${th ? `<img src="${th}" alt="">` : e((t || '?')[0])}</span><span><b>${e(t)}</b><small>${e(MSG.previewLine(c, MSG.state.dir, U.uid))}</small></span></button>`; }).join('') : '<p style="color:var(--mut)">Noch keine Chats.</p>'}</div><div class="uidlg-a"><button type="button" data-pc="">Abbrechen</button></div></div>`;
+            const done = v => { bg.remove(); res(v); };
+            bg.addEventListener('click', ev => { const b = ev.target.closest('[data-pc]'); if (b) done(b.dataset.pc ? chatOf(b.dataset.pc) : null); else if (ev.target === bg) done(null); });
+            bg.addEventListener('keydown', ev => { if (ev.key === 'Escape') { ev.stopPropagation(); done(null); } });
+            document.body.appendChild(bg); (bg.querySelector('[data-pc]') || bg).focus();
+        });
+    }
+    async function sendVia(src) {
+        const c = await pickChat('Per Chat senden'); if (!c) return;
+        try { await sendFile(c, src); } catch (x) { uiAlert(x.message, { title: 'Nicht gesendet' }); }
+    }
+    function wireFileDrop() {
+        const isFile = dt => dt && [...dt.types].some(t => t === 'text/x-jmos-file' || t === 'Files');
+        let leaveT = 0;
+        const on = () => { clearTimeout(leaveT); if (!dragging) { dragging = true; paintBubbles(); } };
+        const off = () => { clearTimeout(leaveT); leaveT = setTimeout(() => { if (dragging) { dragging = false; $('bubbles').querySelectorAll('.drop').forEach(x => x.classList.remove('drop')); paintBubbles(); } }, 120); };
+        document.addEventListener('dragenter', ev => { if (isFile(ev.dataTransfer)) on(); }, true);
+        document.addEventListener('dragover', ev => { if (isFile(ev.dataTransfer)) on(); }, true);
+        document.addEventListener('dragleave', ev => { if (!ev.relatedTarget) off(); }, true);
+        document.addEventListener('drop', () => off(), true);
+        document.addEventListener('dragend', () => off(), true);
+        const box = $('bubbles');
+        box.addEventListener('dragover', ev => { const b = ev.target.closest('.bb'); if (!b) return; ev.preventDefault(); ev.dataTransfer.dropEffect = 'copy'; box.querySelectorAll('.drop').forEach(x => x.classList.toggle('drop', x === b)); b.classList.add('drop'); });
+        box.addEventListener('drop', async ev => {
+            const b = ev.target.closest('.bb'); if (!b) return; ev.preventDefault(); ev.stopPropagation();
+            const c = chatOf(b.dataset.chat), key = ev.dataTransfer.getData('text/x-jmos-file'), files = [...ev.dataTransfer.files]; if (!c) return;
+            try { if (key) await sendFile(c, { key }); else for (const f of files.slice(0, 5)) await sendFile(c, { blob: f, name: f.name }); } catch (x) { uiAlert(x.message, { title: 'Nicht gesendet' }); }
+        });
+        const cb = $('chatbox');
+        cb.addEventListener('dragover', ev => { if (isFile(ev.dataTransfer) && openId) { ev.preventDefault(); cb.classList.add('drop'); } });
+        cb.addEventListener('dragleave', ev => { if (!cb.contains(ev.relatedTarget)) cb.classList.remove('drop'); });
+        cb.addEventListener('drop', async ev => {
+            cb.classList.remove('drop'); const c = chatOf(openId); if (!c) return; ev.preventDefault(); ev.stopPropagation();
+            const key = ev.dataTransfer.getData('text/x-jmos-file'), files = [...ev.dataTransfer.files];
+            try { if (key) await sendFile(c, { key }); else for (const f of files.slice(0, 5)) await sendFile(c, { blob: f, name: f.name }); } catch (x) { uiAlert(x.message, { title: 'Nicht gesendet' }); }
+        });
     }
     function openChat(id) {
         const c = chatOf(id); if (!c) return;
@@ -49,7 +110,7 @@
             const msgs = s.docs.map(d => ({ id: d.id, ...d.data() })).reverse(); let last = '';
             list.innerHTML = msgs.length ? msgs.map(m => { const mine = m.from === U.uid, who = !mine && c.type === 'group' && m.from !== last ? `<small>${e(nameOf(m.from).split(' ')[0])}</small>` : ''; last = m.from;
                 const ts = m.createdAt && m.createdAt.toDate ? m.createdAt.toDate() : null;
-                return `<div class="cm${mine ? ' me' : ''}">${who}<p>${m.deleted ? '<i>Nachricht gelöscht</i>' : m.image ? '<i class="fa-solid fa-image"></i> Bild' + (m.text ? ' · ' + e(m.text) : '') : e(m.text)}</p><time>${ts ? ts.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : ''}</time></div>`; }).join('') : '<div class="nc-empty"><span>Noch keine Nachrichten</span></div>';
+                return `<div class="cm${mine ? ' me' : ''}">${who}<p>${m.deleted ? '<i>Nachricht gelöscht</i>' : m.image ? '<i class="fa-solid fa-image"></i> Bild' + (m.text ? ' · ' + e(m.text) : '') : m.file ? '<i class="fa-solid fa-file-arrow-down"></i> ' + e(m.file.name || 'Datei') : e(m.text)}</p><time>${ts ? ts.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : ''}</time></div>`; }).join('') : '<div class="nc-empty"><span>Noch keine Nachrichten</span></div>';
             list.scrollTop = list.scrollHeight;
             const cc = chatOf(id); if (cc) MSG.markRead(cc);
         }, () => { list.innerHTML = '<div class="nc-empty"><span>Nachrichten konnten nicht geladen werden</span></div>'; });
@@ -119,7 +180,7 @@
         init(api, user) {
             API = api; U = user; e = api.esc; S = api.state();
             JMOS_WIDGETS.TYPES.family = FAMILY;
-            if (can(U, 'messenger') && window.MSG) { MSG.start(); wireBubbles(); }
+            if (can(U, 'messenger') && window.MSG) { MSG.start(); wireBubbles(); wireFileDrop(); window.JMOS_CHAT = { pick: pickChat, send: sendFile, sendVia }; }
             if (can(U, 'spotify')) wireMp();
             const base0 = window.JMOS_NATIVE_UI.set; window.JMOS_NATIVE_UI.set = (b, w) => { base0(b, w); settings(b); };
             JMOS_WIDGETS.render();

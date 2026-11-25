@@ -231,7 +231,7 @@
             const it = cur(), dir = sel && sel.startsWith('f:');
             if (i && dir) return API.ctx(ev.clientX, ev.clientY, [['fa-folder-open', 'Öffnen', openSel], ['fa-pen', 'Umbenennen', rename], null, ['fa-trash-can', 'Ordner löschen', del]]);
             if (i && it && it.trash) return API.ctx(ev.clientX, ev.clientY, [['fa-rotate-left', 'Wiederherstellen', () => restore(it).catch(x => uiAlert(x.message))], null, ['fa-trash-can', 'Endgültig löschen', del]]);
-            if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], ['fa-download', 'Herunterladen', () => download(it)], ['fa-display', onDesk(it.key) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => (onDesk(it.key) ? unDesk(it.key) : toDesk(it.key))],
+            if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], ['fa-download', 'Herunterladen', () => download(it)], window.JMOS_CHAT && ['fa-paper-plane', 'Per Chat senden …', () => JMOS_CHAT.sendVia({ key: it.key })], ['fa-display', onDesk(it.key) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => (onDesk(it.key) ? unDesk(it.key) : toDesk(it.key))],
                 it.own && ['fa-pen', 'Umbenennen', rename], ...(it.own ? [null, ...[['', 'Eigene Dateien'], ...folders.map(f => [f.id, f.name])].filter(([id]) => id !== it.folder).map(([id, n]) => ['fa-folder', 'Verschieben nach „' + n + '“', () => move(it.key, id)])] : []),
                 it.own && null, it.own && ['fa-trash-can', 'In den Papierkorb', del]]);
             API.ctx(ev.clientX, ev.clientY, [canUpload() && ['fa-upload', 'Dateien hochladen', () => $q('.xp-file').click()], view === 'root' && ['fa-folder-plus', 'Neuer Ordner', newFolder], null,
@@ -342,9 +342,16 @@
         dk().forEach(key => { const it = map[key]; if (!it) return;
             API.registerApp({ id: 'file:' + key, name: it.name, icon: KIND[it.k][0], c: KIND[it.k][1], thumb: it.thumb || '', file: true, hidden: true,
                 run: () => openViewer(it, its),
-                ctx: () => [['fa-up-right-from-square', 'Öffnen', () => openViewer(it, items())], ['fa-folder-open', 'Im Explorer zeigen', () => API.openApp('explorer', { params: { view: it.src === 'up' ? (it.folder || 'root') : it.src, select: it.key } })], ['fa-download', 'Herunterladen', () => download(it)], null, ['fa-display', 'Vom Desktop entfernen', () => unDesk(key)], it.own && ['fa-trash-can', 'In den Papierkorb', () => toTrash(it).then(() => unDesk(key)).catch(x => uiAlert(x.message))]] }); });
+                ctx: () => [['fa-up-right-from-square', 'Öffnen', () => openViewer(it, items())], ['fa-folder-open', 'Im Explorer zeigen', () => API.openApp('explorer', { params: { view: it.src === 'up' ? (it.folder || 'root') : it.src, select: it.key } })], ['fa-download', 'Herunterladen', () => download(it)], window.JMOS_CHAT && ['fa-paper-plane', 'Per Chat senden …', () => JMOS_CHAT.sendVia({ key })], null, ['fa-display', 'Vom Desktop entfernen', () => unDesk(key)], it.own && ['fa-trash-can', 'In den Papierkorb', () => toTrash(it).then(() => unDesk(key)).catch(x => uiAlert(x.message))]] }); });
         const sig = dk().filter(k => map[k]).map(k => k + map[k].name).join('|'); if (sig !== deskSig) { deskSig = sig; API.renderIcons(); }
     }
+    // für andere Module (Chat-Blasen, Bildschirmfoto): Datei lesen, Dateien hochladen, auf den Desktop legen
+    window.JMOS_FILES = {
+        async blobOf(key) { const it = items().find(x => x.key === key); if (!it) throw new Error('Datei nicht gefunden.'); const blob = await getBlob(it); return { blob: it.mime && !blob.type ? new Blob([blob], { type: it.mime }) : blob, name: it.name, k: it.k }; },
+        upload: (files, folder) => upload(files, folder || ''),
+        toDesk: key => toDesk(key),
+        latestKey: name => { const it = items().filter(x => x.src === 'up' && x.name === name).sort((a, b) => (b.date || 0) - (a.date || 0))[0]; return it && it.key; },
+    };
     window.JMOS_DESK_EXTRA = () => (API ? dk().map(k => 'file:' + k) : []);      // vor init() gibt es noch keine API
     function wireDeskDrop() {
         const desk = document.getElementById('desk'); let depth = 0;

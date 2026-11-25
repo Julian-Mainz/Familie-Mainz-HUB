@@ -30,6 +30,7 @@
         return (out + esc(text.slice(last))).replace(/\n/g, '<br>');
     }
     function preview(m) {
+        if (m && m.file && !(m.text || '').trim()) return '📎 ' + String(m.file.name || 'Datei').slice(0, 90);
         if (m && m.image && !(m.text || '').trim()) return 'Bild';
         const t = String((m && m.text) || '').replace(/\s+/g, ' ').trim();
         return (m && m.image ? 'Bild: ' : '') + (t.length > 80 ? t.slice(0, 79) + '…' : t);
@@ -182,9 +183,9 @@
 
     // ---------- Schreibvorgänge ----------
     async function send(chat, o) {
-        const text = String(o.text || '').trim().slice(0, MAX_TEXT); if (!text && !o.image) return null;
-        const cref = chatRef(chat.id), mref = cref.collection('messages').doc(), last = { text: preview({ text, image: o.image }), from: S.me, kind: o.image ? 'image' : 'text' };
-        const msg = { from: S.me, text, createdAt: TS() }; if (o.image) msg.image = o.image; if (o.replyTo) msg.replyTo = o.replyTo;
+        const text = String(o.text || '').trim().slice(0, MAX_TEXT); if (!text && !o.image && !o.file) return null;
+        const cref = chatRef(chat.id), mref = cref.collection('messages').doc(), last = { text: preview({ text, image: o.image, file: o.file }).slice(0, 100), from: S.me, kind: o.image ? 'image' : 'text' };
+        const msg = { from: S.me, text, createdAt: TS() }; if (o.image) msg.image = o.image; if (o.file) msg.file = o.file; if (o.replyTo) msg.replyTo = o.replyTo;
         const b = db.batch();
         if (chat.isNew) b.set(cref, { type: 'dm', members: dmMembers(chat.members[0], chat.members[1]), createdBy: S.me, createdAt: TS(), last, lastAt: TS(), seq: 1, reads: {} });
         else b.update(cref, { last, lastAt: TS(), seq: FV().increment(1) });
@@ -192,7 +193,7 @@
         await b.commit(); chat.isNew = false; return mref.id;
     }
     const edit = (chat, id, text) => chatRef(chat.id).collection('messages').doc(id).update({ text: String(text).trim().slice(0, MAX_TEXT), editedAt: TS() });
-    const remove = (chat, id) => chatRef(chat.id).collection('messages').doc(id).update({ deleted: true, text: '', image: FV().delete(), editedAt: TS() });
+    const remove = (chat, id) => chatRef(chat.id).collection('messages').doc(id).update({ deleted: true, text: '', image: FV().delete(), file: FV().delete(), editedAt: TS() });
     function react(chat, m, emoji) { const cur = (m.reactions || {})[S.me]; return chatRef(chat.id).collection('messages').doc(m.id).update({ ['reactions.' + S.me]: cur === emoji ? FV().delete() : emoji }); }
     async function createGroup(title, ids) {
         const members = Array.from(new Set([S.me, ...ids])), ref = db.collection('chats').doc();
@@ -232,7 +233,16 @@
         });
     }
 
-    root.MSG = { MAX_TEXT, RETENTION_DAYS, esc, ms, dmMembers, dmId, linkify, preview, dayKey, hhmm, dayLabel, listTime, lastSeenLabel, isOnline, unreadCount, isMuted, totalUnread, chatTitle, previewLine,
+    // Datei als Anhang (bis ca. 500 KB), wird als data-URL in der Nachricht gespeichert
+    const MAX_FILE = 500 * 1024;
+    function fileToAttachment(blob, name) {
+        return new Promise((res, rej) => {
+            if (blob.size > MAX_FILE) return rej(new Error(`Die Datei ist zu groß (${Math.round(blob.size / 1024)} KB). Im Chat gehen Dateien bis 500 KB.`));
+            if (/^(image\/svg|text\/html|application\/xhtml|application\/javascript|text\/javascript)/i.test(blob.type || '')) return rej(new Error('Dieser Dateityp kann nicht verschickt werden.'));
+            const r = new FileReader(); r.onload = () => res({ name: String(name || 'Datei').slice(0, 200), mime: (blob.type || 'application/octet-stream').slice(0, 100), size: blob.size, data: r.result }); r.onerror = () => rej(new Error('Datei konnte nicht gelesen werden.')); r.readAsDataURL(blob);
+        });
+    }
+    root.MSG = { MAX_FILE, fileToAttachment, MAX_TEXT, RETENTION_DAYS, esc, ms, dmMembers, dmId, linkify, preview, dayKey, hhmm, dayLabel, listTime, lastSeenLabel, isOnline, unreadCount, isMuted, totalUnread, chatTitle, previewLine,
         layout, ticks, matches, reactionSummary, state: S, prefs, setPrefs, start, stop, subscribe: f => { S.subs.add(f); return () => S.subs.delete(f); }, loadDirectory, ensureSelf, setSelfPref, heartbeat, watchPresence,
         send, edit, remove, react, createGroup, updateGroup, leaveGroup, setMute, acceptRules, markRead, purgeExpired, compressImage, makeThumb, nameOf, beep, updateBadges };
     if (typeof module !== 'undefined' && module.exports) module.exports = root.MSG;

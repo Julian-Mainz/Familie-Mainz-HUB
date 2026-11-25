@@ -158,7 +158,7 @@ function tickHtml(m) {
 function msgHtml(it) {
     const m = it.m, rs = M.reactionSummary(m, S.me), grp = cur.type === 'group', imgOk = m.image && PHOTO_OK.test(m.image);
     const quote = m.replyTo ? `<div class="ms-quote" data-goto="${esc(m.replyTo.id)}"><b>${esc(nameOf(m.replyTo.from))}</b><span>${esc(m.replyTo.text || (m.replyTo.image ? 'Bild' : ''))}</span></div>` : '';
-    const body = m.deleted ? '<span class="ms-del"><i class="fa-solid fa-ban"></i> Nachricht gelöscht</span>' : (imgOk ? `<img class="ms-img" src="${m.image}" data-zoom="1" alt="Bild">` : '') + (m.text ? `<div class="ms-t">${M.linkify(m.text)}</div>` : '');
+    const body = m.deleted ? '<span class="ms-del"><i class="fa-solid fa-ban"></i> Nachricht gelöscht</span>' : (imgOk ? `<img class="ms-img" src="${m.image}" data-zoom="1" alt="Bild">` : '') + (m.file && m.file.name ? `<button type="button" class="ms-file" data-file="${esc(m.id)}"><i class="fa-solid fa-file-arrow-down"></i><span><b>${esc(m.file.name)}</b><small>${m.file.size < 1048576 ? Math.max(1, Math.round(m.file.size / 1024)) + ' KB' : (m.file.size / 1048576).toFixed(1).replace('.', ',') + ' MB'} · Herunterladen</small></span></button>` : '') + (m.text ? `<div class="ms-t">${M.linkify(m.text)}</div>` : '');
     const av = !it.mine && grp ? (it.last ? avatarOf(m.from, 'sm') : '<span class="sp"></span>') : '';
     const tools = m.deleted || m.pending ? '' : `<div class="ms-tools"><button data-a="react" title="Reagieren" aria-label="Reagieren"><i class="fa-regular fa-face-smile"></i></button><button data-a="reply" title="Antworten" aria-label="Antworten"><i class="fa-solid fa-reply"></i></button><button data-a="more" title="Mehr" aria-label="Mehr"><i class="fa-solid fa-ellipsis"></i></button></div>`;
     return `<div class="ms-m${it.mine ? ' mine' : ''}${it.first ? ' first' : ''}" data-id="${esc(m.id)}">${av}<div class="ms-b">${tools}${it.showName ? `<span class="ms-nm">${esc(nameOf(m.from))}</span>` : ''}${quote}${body}
@@ -187,6 +187,7 @@ $('ms-scroll').addEventListener('scroll', e => { const sc = e.target; if (sc.scr
 // ---------- Aktionen an Nachrichten ----------
 $('ms-scroll').addEventListener('click', e => {
     const z = e.target.closest('[data-zoom]'); if (z) return zoom(z.src);
+    const fb = e.target.closest('[data-file]'); if (fb) { const it = msgs.get(fb.dataset.file), f = it && (it.m || it).file; if (f && /^data:/.test(f.data || '')) { const a = document.createElement('a'); a.href = f.data; a.download = f.name || 'Datei'; document.body.appendChild(a); a.click(); a.remove(); } return; }
     const g = e.target.closest('[data-goto]'); if (g) return gotoMsg(g.dataset.goto);
     const rx = e.target.closest('[data-react]'); const row = e.target.closest('.ms-m');
     if (rx && row) return doReact(row.dataset.id, rx.dataset.react);

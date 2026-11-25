@@ -2,6 +2,17 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (11)
+
+### J.Mainz OS: Mein Tag, Dateien per Chat, Bildschirmfoto, Admin-Konsole
+- Widget „Mein Tag“: Begrüßung, heute gearbeitete Stunden (mit „läuft“, wenn eingestempelt), Termine heute mit dem nächsten, fällige und überfällige Rechnungen der Woche mit Summe, offene Aufgaben und Einkäufe. In groß zusätzlich die Termine des Tages. Klick auf eine Zeile öffnet den Bereich.
+- Dateien per Chat: Eine Datei aus dem Explorer ziehen, dann erscheinen rechts die letzten Chats als Blasen; auf eine Person fallen lassen, und die Datei wird gesendet. Auch auf das offene Chatfenster oder vom Computer. Alternativ per Rechtsklick „Per Chat senden …“ (Explorer und Desktop). Bilder werden wie gewohnt verkleinert, andere Dateien gehen bis 500 KB.
+- Messenger: zeigt Dateianhänge als Karte zum Herunterladen (auch auf dem Handy). Beim Löschen einer Nachricht wird der Anhang mit entfernt.
+- Bildschirmfoto (Alt+Umschalt+S, Startmenü oder Suche): Der Browser fragt einmal nach dem Tab, dann einen Bereich aufziehen oder „Ganzer Bildschirm“. Danach: in Dokumente speichern, kopieren, per Chat senden oder herunterladen.
+- Admin-Konsole (nur Admins, im Startmenü): Befehle wie `wartung an finanzen`, `wartung aus alle`, `nutzer`, `nutzer <name>`, `online`, `öffne <app>`, `cache leeren`, `version`. Mit Verlauf (Pfeil hoch/runter) und Tab-Vervollständigung. Wartungs-Änderungen landen wie im Admin-Menü im Protokoll.
+- Geänderte Dateien: OS/index.html, OS/os.css, OS/os-icons.css, OS/explorer.js, OS/social.js, OS/tools.js (neu), js/messenger-core.js, js/pages/messenger.js, messenger.html, assets/icons.css
+- Firestore-Regeln: geändert – Nachrichten dürfen einen Dateianhang `file` enthalten (Block `match /messages/{mid}`).
+
 ## 25.11.2026 (10)
 
 ### J.Mainz OS: Snap-Layouts, Fenster mit Tabs, Schnellvorschau, Tastenkürzel, Offline-Anzeige
