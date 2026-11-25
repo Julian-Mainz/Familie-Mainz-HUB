@@ -155,8 +155,22 @@
     async function saveFolders(arr) {
         folders = arr; U.userPrefs = { ...(U.userPrefs || {}), docFolders: arr };
         await db.collection('users').doc(U.uid).update({ 'userPrefs.docFolders': arr });
-        VIEWS.forEach(v => v.render());
+        VIEWS.forEach(v => v.render()); syncDesk();
     }
+    async function deleteFolder(f) {
+        const inside = D.docs.filter(d => d.folder === f.id);
+        if (!(await uiConfirm(`Ordner „${f.name}“ löschen?${inside.length ? `\n\nDie ${inside.length} Datei(en) darin bleiben erhalten und landen in „Eigene Dateien“.` : ''}`, { danger: true, ok: 'Löschen' }))) return false;
+        try { for (const d of inside) await db.collection('documents').doc(d.id).update({ folder: '' }); unDesk('dir:' + f.id); await saveFolders(folders.filter(x => x.id !== f.id)); } catch (x) { uiAlert(x.message); }
+        return true;
+    }
+    async function renameFolder(f) { const v = await ask('Ordner umbenennen', f.name, 'Umbenennen'); if (v) await saveFolders(folders.map(x => x.id === f.id ? { ...x, name: v.slice(0, 40) } : x)).catch(x => uiAlert(x.message)); }
+    async function newFolderNamed(onDesk) {
+        let base = 'Neuer Ordner', n = base, k = 1; while (folders.some(f => f.name.toLowerCase() === n.toLowerCase())) n = `${base} (${++k})`;
+        const v = await ask('Neuer Ordner', n, 'Anlegen'); if (!v) return null;
+        const id = 'f' + Date.now().toString(36); await saveFolders([...folders, { id, name: v.slice(0, 40) }]).catch(x => uiAlert(x.message));
+        if (onDesk) toDesk('dir:' + id); return id;
+    }
+    const moveDocs = (keys, folder) => Promise.all(keys.map(k => { const it = items().find(x => x.key === k); return it && it.own && it.folder !== folder ? db.collection('documents').doc(it.id).update({ folder }) : null; }));
     // Eigenes kleines Eingabefeld im Dashboard-Stil (statt prompt)
     function ask(title, value, okLabel) {
         return new Promise(res => {
@@ -281,12 +295,7 @@
                 else { for (const it of L) { await toTrash(it).catch(() => {}); unDesk(it.key); } }
                 sel = null; return selUI();
             }
-            if (sel && sel.startsWith('f:')) {
-                const f = folders.find(x => x.id === sel.slice(2)), inside = D.docs.filter(d => d.folder === f.id);
-                if (!(await uiConfirm(`Ordner „${f.name}“ löschen?${inside.length ? `\n\nDie ${inside.length} Datei(en) darin bleiben erhalten und landen in „Eigene Dateien“.` : ''}`, { danger: true, ok: 'Löschen' }))) return;
-                try { for (const d of inside) await db.collection('documents').doc(d.id).update({ folder: '' }); await saveFolders(folders.filter(x => x.id !== f.id)); } catch (x) { uiAlert(x.message); }
-                return;
-            }
+            if (sel && sel.startsWith('f:')) { const f = folders.find(x => x.id === sel.slice(2)); if (f) await deleteFolder(f); return; }
             const it = cur(); if (!it || !it.own) return;
             if (!it.trash) { try { await toTrash(it); sel = null; unDesk(it.key); } catch (x) { uiAlert('Löschen fehlgeschlagen: ' + x.message); } return; }
             if (!(await uiConfirm(`„${it.name}“ endgültig löschen? Das lässt sich nicht rückgängig machen.`, { danger: true, ok: 'Endgültig löschen' }))) return;
@@ -331,7 +340,7 @@
                 if (view === 'trash') return API.ctx(ev.clientX, ev.clientY, [['fa-rotate-left', `${pk.length} wiederherstellen`, () => pk.forEach(x => restore(x).catch(() => {}))], null, ['fa-trash-can', `${pk.length} endgültig löschen`, del]]);
                 return API.ctx(ev.clientX, ev.clientY, [['fa-file-zipper', `Als ZIP herunterladen (${picks.size})`, () => doZip(false)], canUpload() && ['fa-file-zipper', 'ZIP-Datei hier erstellen', () => doZip(true)],
                     ...(own.length ? [null, ...[['', 'Eigene Dateien'], ...folders.map(f => [f.id, f.name])].map(([id, n]) => ['fa-folder', 'Verschieben nach „' + n + '“', () => move(own[0].key, id)]), null, ['fa-trash-can', `In den Papierkorb (${own.length})`, del]] : [])]); }
-            if (i && dir) return API.ctx(ev.clientX, ev.clientY, [['fa-folder-open', 'Öffnen', openSel], ['fa-file-zipper', 'Als ZIP herunterladen', () => doZip(false)], ['fa-pen', 'Umbenennen', rename], null, ['fa-trash-can', 'Ordner löschen', del]]);
+            if (i && dir) return API.ctx(ev.clientX, ev.clientY, [['fa-folder-open', 'Öffnen', openSel], ['fa-display', onDesk('dir:' + sel.slice(2)) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => { const k = 'dir:' + sel.slice(2); onDesk(k) ? unDesk(k) : toDesk(k); }], ['fa-file-zipper', 'Als ZIP herunterladen', () => doZip(false)], ['fa-pen', 'Umbenennen', rename], null, ['fa-trash-can', 'Ordner löschen', del]]);
             if (i && it && it.trash) return API.ctx(ev.clientX, ev.clientY, [['fa-rotate-left', 'Wiederherstellen', () => restore(it).catch(x => uiAlert(x.message))], null, ['fa-trash-can', 'Endgültig löschen', del]]);
             if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], it.k === 'txt' && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Im Texteditor bearbeiten', () => JMOS_EDITOR.open(it.key)], it.k !== 'txt' && /\.csv$/i.test(it.name) && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Als Text bearbeiten', () => JMOS_EDITOR.open(it.key)],
                 it.k === 'zip' && can(U, 'dokumente') && ['fa-box-open', 'Entpacken …', () => unzipTo(it)], ['fa-download', 'Herunterladen', () => download(it)], it.k !== 'zip' && ['fa-file-zipper', 'Als ZIP herunterladen', () => doZip(false)], window.JMOS_CHAT && ['fa-paper-plane', 'Per Chat senden …', () => JMOS_CHAT.sendVia({ key: it.key })], ['fa-display', onDesk(it.key) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => (onDesk(it.key) ? unDesk(it.key) : toDesk(it.key))],
@@ -449,13 +458,21 @@
             API.registerApp({ id: 'file:' + key, name: it.name, icon: KIND[it.k][0], c: KIND[it.k][1], thumb: it.thumb || '', file: true, hidden: true,
                 run: () => openViewer(it, its),
                 ctx: () => [['fa-up-right-from-square', 'Öffnen', () => openViewer(it, items())], ['fa-folder-open', 'Im Explorer zeigen', () => API.openApp('explorer', { params: { view: it.src === 'up' ? (it.folder || 'root') : it.src, select: it.key } })], ['fa-download', 'Herunterladen', () => download(it)], window.JMOS_CHAT && ['fa-paper-plane', 'Per Chat senden …', () => JMOS_CHAT.sendVia({ key })], null, ['fa-display', 'Vom Desktop entfernen', () => unDesk(key)], it.own && ['fa-trash-can', 'In den Papierkorb', () => toTrash(it).then(() => unDesk(key)).catch(x => uiAlert(x.message))]] }); });
-        const sig = dk().filter(k => map[k]).map(k => k + map[k].name).join('|'); if (sig !== deskSig) { deskSig = sig; API.renderIcons(); }
+        dk().filter(k => k.startsWith('dir:')).forEach(key => { const f = folders.find(x => x.id === key.slice(4)); if (!f) return;
+            const n = D.docs.filter(d => d.folder === f.id && d.status === 'ready' && !d.deletedAt).length;
+            API.registerApp({ id: 'file:' + key, name: f.name, folder: true, file: true, hidden: true, c: '#f59e0b', icon: 'fa-folder', run: () => API.openApp('explorer', { params: { view: f.id } }),
+                ctx: () => [['fa-folder-open', 'Öffnen', () => API.openApp('explorer', { params: { view: f.id } })], ['fa-upload', 'Dateien hineinladen …', () => pickInto(f.id)], ['fa-pen', 'Umbenennen', () => renameFolder(f)], null,
+                    ['fa-eye-slash', 'Vom Desktop entfernen', () => unDesk(key)], ['fa-trash-can', `Ordner löschen${n ? ` (${n} Dateien bleiben erhalten)` : ''}`, () => deleteFolder(f)]] }); });
+        const nm = k => k.startsWith('dir:') ? ((folders.find(x => x.id === k.slice(4)) || {}).name || '') : (map[k] || {}).name || '';
+        const sig = dk().filter(k => nm(k)).map(k => k + nm(k)).join('|'); if (sig !== deskSig) { deskSig = sig; API.renderIcons(); }
     }
     // für andere Module (Chat-Blasen, Bildschirmfoto): Datei lesen, Dateien hochladen, auf den Desktop legen
     window.JMOS_FILES = {
         async blobOf(key) { const it = items().find(x => x.key === key); if (!it) throw new Error('Datei nicht gefunden.'); const blob = await getBlob(it); return { blob: it.mime && !blob.type ? new Blob([blob], { type: it.mime }) : blob, name: it.name, k: it.k }; },
         upload: (files, folder) => upload(files, folder || ''),
         toDesk: key => toDesk(key),
+        unDesk: key => unDesk(key),
+        newDeskFolder: () => newFolderNamed(true),
         saveText, createText, newText,
         all: () => items(),
         textFiles: () => items().filter(x => x.own && (x.k === 'txt' || /\.csv$/i.test(x.name))),
@@ -465,15 +482,31 @@
         latestKey: name => { const it = items().filter(x => x.src === 'up' && x.name === name).sort((a, b) => (b.date || 0) - (a.date || 0))[0]; return it && it.key; },
     };
     window.JMOS_DESK_EXTRA = () => (API ? dk().map(k => 'file:' + k) : []);      // vor init() gibt es noch keine API
+    // Dateien vom Computer in einen Ordner laden (Rechtsklick auf Ordner auf dem Desktop)
+    function pickInto(fid) { const i = Object.assign(document.createElement('input'), { type: 'file', multiple: true }); i.accept = '.pdf,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.json,.log,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.zip';
+        i.onchange = () => { if (i.files.length) upload(i.files, fid, null); }; i.click(); }
+    // Desktop-Symbole auf einen Ordner auf dem Desktop ziehen: Dateien wandern in den Ordner (und verschwinden vom Desktop)
+    window.JMOS_DESK_DROP = (ids, target) => {
+        if (!target || !target.startsWith('file:dir:')) return false;
+        const fid = target.slice(9), keys = ids.filter(id => /^file:up:/.test(id)).map(id => id.slice(5)); if (!keys.length) return false;
+        moveDocs(keys, fid).then(() => keys.forEach(unDesk)).catch(x => uiAlert('Verschieben fehlgeschlagen: ' + x.message));
+        return true;
+    };
     function wireDeskDrop() {
         const desk = document.getElementById('desk'); let depth = 0;
         const hint = document.createElement('div'); hint.className = 'desk-drop'; hint.innerHTML = '<i class="fa-solid fa-upload"></i><b>Auf den Desktop legen</b><span>Dateien werden in „Eigene Dateien“ hochgeladen</span>'; document.body.appendChild(hint);
-        desk.addEventListener('dragover', ev => { if (ev.target.closest('.wg')) return; ev.preventDefault(); });
+        desk.addEventListener('dragover', ev => { if (ev.target.closest('.wg')) return; ev.preventDefault(); const fo = ev.target.closest('.ico[data-id^="file:dir:"]');
+            desk.querySelectorAll('.ico.drop-on').forEach(x => x !== fo && x.classList.remove('drop-on')); if (fo) fo.classList.add('drop-on');
+            hint.querySelector('b').textContent = fo ? `In „${fo.querySelector('.ico-l').textContent}“ ablegen` : 'Auf den Desktop legen'; });
         desk.addEventListener('dragenter', ev => { if ([...ev.dataTransfer.types].includes('Files')) { depth++; hint.classList.add('on'); } });
         desk.addEventListener('dragleave', ev => { if ([...ev.dataTransfer.types].includes('Files') && --depth <= 0) { depth = 0; hint.classList.remove('on'); } });
         desk.addEventListener('drop', async ev => {
-            if (ev.target.closest('.wg')) return; ev.preventDefault(); depth = 0; hint.classList.remove('on');
-            const key = ev.dataTransfer.getData('text/x-jmos-file'); if (key) return toDesk(key);
+            if (ev.target.closest('.wg')) return; ev.preventDefault(); depth = 0; hint.classList.remove('on'); desk.querySelectorAll('.ico.drop-on').forEach(x => x.classList.remove('drop-on'));
+            const fo = ev.target.closest && ev.target.closest('.ico[data-id^="file:dir:"]'), fid = fo ? fo.dataset.id.slice(9) : '';
+            const key = ev.dataTransfer.getData('text/x-jmos-file');
+            if (key && fid) return moveDocs([key], fid).then(() => unDesk(key)).catch(x => uiAlert(x.message));
+            if (key) return toDesk(key);
+            if (fid && ev.dataTransfer.files.length && can(U, 'dokumente')) return upload(ev.dataTransfer.files, fid, null);
             if (!ev.dataTransfer.files.length || !can(U, 'dokumente')) return;
             const before = new Set(D.docs.map(d => d.id)), n = await upload(ev.dataTransfer.files, '', null);
             if (n) setTimeout(() => { D.docs.filter(d => !before.has(d.id) && d.status === 'ready').forEach(d => toDesk('up:' + d.id)); }, 800);

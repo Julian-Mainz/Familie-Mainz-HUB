@@ -52,9 +52,10 @@ html:not(.os-boot) #boot { opacity: 0; visibility: hidden; }
 #desk { position: fixed; inset: 0 0 var(--bar-h) 0; z-index: 1; user-select: none; -webkit-user-select: none; }
 #icons { position: absolute; inset: 0; }
 .ico { position: absolute; width: 100px; padding: 8px 4px 6px; display: flex; flex-direction: column; align-items: center; gap: 7px; border-radius: 14px; border: 1px solid transparent; color: #f1f5f9; text-align: center; background: none; cursor: default; transition: background-color .15s, border-color .15s, left .25s var(--ease), top .25s var(--ease); touch-action: none; }
-.ico.dragging { transition: none; z-index: 5; opacity: .85; }
+.ico.dragging { transition: none; z-index: 5; opacity: .6; pointer-events: none; }
 .ico:hover { background: rgba(148, 163, 184, .1); }
 .ico.sel { background: rgba(99, 102, 241, .22); border-color: rgba(var(--acc-rgb), .5); }
+.ico.drop-on { background: rgba(245, 158, 11, .2); border-color: rgba(245, 158, 11, .7); }
 .ico:focus-visible { outline: 2px solid var(--acc-l); outline-offset: 1px; }
 .ico-t { --c: #818cf8; position: relative; width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 22px; color: #fff;
     background: linear-gradient(145deg, color-mix(in srgb, var(--c) 92%, #fff 8%), color-mix(in srgb, var(--c) 55%, #1e1b4b 45%));

@@ -7,7 +7,7 @@
 
     const PAGES = [
         { id: 'home', name: 'Startseite', icon: 'fa-house', c: '#60a5fa' },
-        { id: 'system', name: 'System', icon: 'fa-display', c: '#38bdf8', groups: [['Benachrichtigungen', ['Chat-Blasen']], ['Bildschirm', ['Bildschirmschoner', 'Leistungsmodus']], ['Fenster', ['Links als neues Fenster öffnen']], ['Desktop', ['Symbole neu anordnen', 'Alle Fenster schließen']]] },
+        { id: 'system', name: 'System', icon: 'fa-display', c: '#38bdf8', groups: [['Benachrichtigungen', ['Chat-Blasen']], ['Bildschirm', ['Bildschirmschoner', 'Leistungsmodus']], ['Fenster', ['Links als neues Fenster öffnen']], ['Desktop', ['Symbole neu anordnen', 'Ausgeblendete Desktop-Symbole', 'Alle Fenster schließen']]] },
         { id: 'pers', name: 'Personalisierung', icon: 'fa-paintbrush', c: '#f472b6', hero: 'pers', groups: [['Hintergrund', ['walls', 'Eigenes Hintergrundbild']], ['Farben', ['Akzentfarbe']], ['Lebendiger Hintergrund', ['Sternschnuppen', 'Tageszeit', 'Wetter']], ['Jahreszeiten', ['Jahreszeiten-Themen']], ['Desktop-Symbole', ['Symbolgröße']]] },
         { id: 'task', name: 'Taskleiste & Start', icon: 'fa-border-all', c: '#818cf8', groups: [['Taskleiste', ['Taskleiste', 'Musik in der Taskleiste']], ['Start', ['Desktop-Modus als Start']], ['Widgets', ['Widgets']]] },
         { id: 'astro', name: 'Astro', icon: 'fa-user-astronaut', c: '#a78bfa', hero: 'astro', groups: [['Astro', ['Astro, der kleine Astronaut', 'Outfit für Astro', 'Astro sagt Bescheid']], ['Spielen', ['Minispiel „Sterne sammeln“']]] },
@@ -22,7 +22,7 @@
         'Bildschirmschoner': ['fa-moon', '#818cf8'], 'Leistungsmodus': ['fa-gauge-high', '#4ade80'], 'Als App installieren': ['fa-download', '#34d399'], 'Jahreszeiten-Themen': ['fa-snowflake', '#7dd3fc'], 'Outfit für Astro': ['fa-shirt', '#f472b6'],
         'Astro sagt Bescheid': ['fa-comment', '#a78bfa'], 'Minispiel „Sterne sammeln“': ['fa-star', '#facc15'], 'Desktop-Modus als Start': ['fa-desktop', '#38bdf8'], 'Widgets': ['fa-table-cells-large', '#34d399'],
         'Chat-Blasen': ['fa-comments', '#f472b6'], 'Musik in der Taskleiste': ['fa-music', '#4ade80'], 'Automatisch sperren': ['fa-clock', '#94a3b8'], 'PIN zum Entsperren': ['fa-lock', '#fbbf24'],
-        'Jetzt sperren': ['fa-lock', '#94a3b8'], 'Links als neues Fenster öffnen': ['fa-window-restore', '#60a5fa'], 'Symbole neu anordnen': ['fa-table-cells-large', '#94a3b8'], 'Alle Fenster schließen': ['fa-xmark', '#f87171'],
+        'Jetzt sperren': ['fa-lock', '#94a3b8'], 'Links als neues Fenster öffnen': ['fa-window-restore', '#60a5fa'], 'Symbole neu anordnen': ['fa-table-cells-large', '#94a3b8'], 'Ausgeblendete Desktop-Symbole': ['fa-eye-slash', '#94a3b8'], 'Alle Fenster schließen': ['fa-xmark', '#f87171'],
         'Normales Dashboard': ['fa-border-all', '#818cf8'], 'Profil bearbeiten': ['fa-user-pen', '#34d399'], 'Abmelden': ['fa-arrow-right-from-bracket', '#f87171'], 'Zwischenablage-Verlauf': ['fa-clipboard', '#fbbf24'],
         'Zwischenablage leeren': ['fa-broom', '#fbbf24'], 'Zuletzt geöffnet leeren': ['fa-clock-rotate-left', '#94a3b8'], 'Geplante Erinnerungen': ['fa-bell', '#f472b6'], 'Tastenkürzel anzeigen': ['fa-keyboard', '#a5b4fc'],
         'Was ist neu?': ['fa-wand-magic-sparkles', '#f472b6'], 'Neu laden': ['fa-arrows-rotate', '#94a3b8'],

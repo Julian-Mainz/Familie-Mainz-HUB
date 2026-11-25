@@ -107,7 +107,8 @@
     let CW = 104, CH = 108;
     const rows = () => Math.max(1, Math.floor((deskH() - PAD) / CH));
     const cols = () => Math.max(1, Math.floor((innerWidth - PAD) / CW));
-    const deskApps = () => [...ORDER.filter(id => !APPS[id].hidden && !APPS[id].noDesk), ...(APPS.spiele ? ['spiele'] : []), ...(() => { try { return window.JMOS_DESK_EXTRA ? JMOS_DESK_EXTRA() : []; } catch (x) { return []; } })().filter(id => APPS[id])];
+    const deskHidden = () => (S.deskHide = Array.isArray(S.deskHide) ? S.deskHide : []);
+    const deskApps = () => [...[...ORDER.filter(id => !APPS[id].hidden && !APPS[id].noDesk), ...(APPS.spiele ? ['spiele'] : [])].filter(id => !deskHidden().includes(id)), ...(() => { try { return window.JMOS_DESK_EXTRA ? JMOS_DESK_EXTRA() : []; } catch (x) { return []; } })().filter(id => APPS[id])];
     function placeIcons() {
         const taken = new Set(), R = rows(), C = cols(), ids = deskApps();
         ids.forEach(id => { const p = S.icons[id]; if (p && p.c < C && p.r < R && !taken.has(p.c + ',' + p.r)) taken.add(p.c + ',' + p.r); else delete S.icons[id]; });
@@ -120,9 +121,16 @@
             return `<button type="button" class="ico" role="option" data-id="${id}" style="left:${PAD + p.c * CW}px;top:${PAD + p.r * CH}px" title="${e(a.name)}${a.url ? ' – ' + e(a.url) : ''}">${tile(a)}<span class="ico-l">${e(a.name)}</span></button>`; }).join('');
     }
     function arrangeIcons() { S.icons = {}; renderIcons(); save(); }
+    // Symbole vom Desktop entfernen: Apps werden ausgeblendet (im Startmenü bleiben sie), Dateien und Ordner nur vom Desktop genommen
+    function removeIcons(ids) {
+        ids.forEach(id => { if (id.startsWith('file:')) { if (window.JMOS_FILES && JMOS_FILES.unDesk) JMOS_FILES.unDesk(id.slice(5)); } else if (!deskHidden().includes(id)) deskHidden().push(id); delete S.icons[id]; });
+        renderIcons(); save();
+    }
+    const onDeskIcon = id => !deskHidden().includes(id);
+    function toggleDeskIcon(id) { if (onDeskIcon(id)) removeIcons([id]); else { S.deskHide = deskHidden().filter(x => x !== id); renderIcons(); save(); } }
     function wireIcons() {
         const box = $('icons'); let drag = null;
-        const sel = (ids, add) => box.querySelectorAll('.ico').forEach(el => el.classList.toggle('sel', ids.includes(el.dataset.id) || (add && el.classList.contains('sel'))));
+        const sel = (ids, add) => box.querySelectorAll('.ico').forEach(el => el.classList.toggle('sel', !!(ids.includes(el.dataset.id) || (add && el.classList.contains('sel')))));
         box.addEventListener('pointerdown', ev => {
             const el = ev.target.closest('.ico'); if (!el || ev.button > 0) return;
             closePops();
@@ -135,17 +143,23 @@
             if (!drag.moved && Math.hypot(dx, dy) < 5) return;
             drag.moved = true; drag.el.classList.add('dragging');
             drag.el.style.left = drag.ox + dx + 'px'; drag.el.style.top = drag.oy + dy + 'px';
+            const rc = drag.el.getBoundingClientRect(), fo = document.elementsFromPoint(rc.left + rc.width / 2, rc.top + rc.height / 2).map(n => n.closest && n.closest('.ico')).find(n => n && n !== drag.el && /^file:dir:/.test(n.dataset.id));
+            box.querySelectorAll('.ico.drop-on').forEach(x => x !== fo && x.classList.remove('drop-on')); if (fo) fo.classList.add('drop-on');
         });
         box.addEventListener('pointerup', () => {
-            if (!drag) return; const d = drag; drag = null; d.el.classList.remove('dragging');
+            if (!drag) return; const d = drag; drag = null; d.el.classList.remove('dragging'); box.querySelectorAll('.ico.drop-on').forEach(x => x.classList.remove('drop-on'));
             if (!d.moved) { if (d.type === 'touch') openApp(d.id); return; }
+            const rc = d.el.getBoundingClientRect(), tgt = document.elementsFromPoint(rc.left + rc.width / 2, rc.top + rc.height / 2).map(n => n.closest && n.closest('.ico')).find(n => n && n !== d.el);
+            if (tgt && window.JMOS_DESK_DROP) { const ids = d.el.classList.contains('sel') ? [...box.querySelectorAll('.ico.sel')].map(x => x.dataset.id) : [d.id];
+                if (JMOS_DESK_DROP(ids, tgt.dataset.id)) { renderIcons(); return; } }
             const c = Math.max(0, Math.min(cols() - 1, Math.round((d.el.offsetLeft - PAD) / CW))), r = Math.max(0, Math.min(rows() - 1, Math.round((d.el.offsetTop - PAD) / CH)));
             const other = Object.keys(S.icons).find(k => k !== d.id && S.icons[k].c === c && S.icons[k].r === r);
             if (other) S.icons[other] = { ...S.icons[d.id] };              // Platz besetzt: tauschen
             S.icons[d.id] = { c, r }; renderIcons(); sel([d.id]); save();
         });
         box.addEventListener('dblclick', ev => { const el = ev.target.closest('.ico'); if (el) openApp(el.dataset.id); });
-        box.addEventListener('keydown', ev => { const el = ev.target.closest('.ico'); if (el && ev.key === 'Enter') { ev.preventDefault(); openApp(el.dataset.id); } });
+        box.addEventListener('keydown', ev => { const el = ev.target.closest('.ico'); if (el && ev.key === 'Enter') { ev.preventDefault(); openApp(el.dataset.id); }
+            if (el && ev.key === 'Delete') { ev.preventDefault(); const ids = [...box.querySelectorAll('.ico.sel')].map(x => x.dataset.id); removeIcons(ids.length ? ids : [el.dataset.id]); } });
         // Rahmen aufziehen zum Markieren
         const desk = $('desk'), sb = $('select-box'); let m = null;
         desk.addEventListener('pointerdown', ev => {
@@ -164,12 +178,15 @@
             ev.preventDefault(); const el = ev.target.closest('.ico');
             if (el) { const a = APPS[el.dataset.id]; sel([a.id]);
                 if (a.ctx) return ctx(ev.clientX, ev.clientY, a.ctx());
-                return ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', () => openApp(a.id)], !a.folder && ['fa-thumbtack', isPinned(a.id) ? 'Von Taskleiste lösen' : 'An Taskleiste anheften', () => togglePin(a.id)], a.url && ['fa-arrow-up-right-from-square', 'In neuem Browser-Tab öffnen', () => window.open(a.url, '_blank', 'noopener')]]); }
+                const selIds = [...box.querySelectorAll('.ico.sel')].map(x => x.dataset.id);
+                return ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', () => openApp(a.id)], !a.folder && ['fa-thumbtack', isPinned(a.id) ? 'Von Taskleiste lösen' : 'An Taskleiste anheften', () => togglePin(a.id)], a.url && ['fa-arrow-up-right-from-square', 'In neuem Browser-Tab öffnen', () => window.open(a.url, '_blank', 'noopener')], null,
+                    selIds.length > 1 ? ['fa-eye-slash', `${selIds.length} Symbole vom Desktop entfernen`, () => removeIcons(selIds)] : ['fa-eye-slash', 'Vom Desktop entfernen', () => removeIcons([a.id])]]); }
             ctx(ev.clientX, ev.clientY, [
                 ['fa-plus', 'Widgets hinzufügen', () => JMOS_WIDGETS.picker()],
                 ['fa-table-cells-large', 'Symbole automatisch anordnen', arrangeIcons],
                 ['fa-rotate-right', 'Aktualisieren', () => { renderIcons(); }], null,
                 ['fa-image', 'Hintergrund ändern', () => openApp('einstellungen')],
+                window.JMOS_FILES && JMOS_FILES.newDeskFolder && can(USER, 'dokumente') && ['fa-folder-plus', 'Neuer Ordner', () => JMOS_FILES.newDeskFolder()],
                 ['fa-note-sticky', 'Neue Notiz', () => openApp('notizen')], window.JMOS_EDITOR && JMOS_EDITOR.ok() && ['fa-file-lines', 'Neues Textdokument', () => JMOS_EDITOR.newOnDesk()], null,
                 ['fa-circle-info', 'Über J.Mainz OS', () => openApp('info')],
             ]);
@@ -567,6 +584,7 @@
                 </section>
                 <section><h3>Desktop</h3>
                     <div class="set-row"><div><b>Symbole neu anordnen</b><small>Stellt die ursprüngliche Reihenfolge der Desktop-Symbole wieder her.</small></div><button type="button" class="btn" data-b="arr"><i class="fa-solid fa-table-cells-large"></i>Anordnen</button></div>
+                    <div class="set-row"><div><b>Ausgeblendete Desktop-Symbole</b><small class="set-dh"></small></div><button type="button" class="btn" data-b="unhide"><i class="fa-solid fa-eye"></i>Alle wieder anzeigen</button></div>
                     <div class="set-row"><div><b>Alle Fenster schließen</b><small>Beim nächsten Start ist der Desktop dann leer.</small></div><button type="button" class="btn" data-b="closeall"><i class="fa-solid fa-xmark"></i>Schließen</button></div>
                     <div class="set-row"><div><b>Normales Dashboard</b><small>Zurück zur gewohnten Ansicht mit Seitenleiste.</small></div><a class="btn pri" href="/menu.html"><i class="fa-solid fa-border-all"></i>Öffnen</a></div>
                 </section></div>`;
@@ -574,9 +592,12 @@
                 const w = ev.target.closest('[data-w]'); if (w) { setWall(w.dataset.w); body.querySelectorAll('.wall-o').forEach(x => x.classList.toggle('on', x === w)); }
                 const b = ev.target.closest('[data-b]'); if (!b) return;
                 if (b.dataset.b === 'arr') arrangeIcons();
+                if (b.dataset.b === 'unhide') { S.deskHide = []; renderIcons(); save(); paintDh(); }
                 if (b.dataset.b === 'wg') JMOS_WIDGETS.picker();
                 if (b.dataset.b === 'closeall') WINS.filter(x => x.app.id !== 'einstellungen').forEach(closeWin);
             });
+            const paintDh = () => { const h = deskHidden().filter(id => APPS[id]), el = body.querySelector('.set-dh'); if (el) el.textContent = h.length ? h.map(id => APPS[id].name).join(', ') : 'Keine – alle Apps sind auf dem Desktop. Rechtsklick auf ein Symbol → „Vom Desktop entfernen“.'; const bt = body.querySelector('[data-b="unhide"]'); if (bt) bt.disabled = !h.length; };
+            paintDh();
             body.querySelector('#set-lw').addEventListener('change', ev => { S.linkWin = ev.target.checked; save(); });
             body.querySelector('#set-sv').addEventListener('change', async ev => {
                 const v = ev.target.checked ? 'os' : 'dash'; USER.userPrefs = USER.userPrefs || {}; USER.userPrefs.startView = v;
@@ -602,7 +623,7 @@
         $('st-role').textContent = isAdmin(user) ? 'Administrator' : 'Mitglied';
         $('st-av').innerHTML = typeof avatarInner === 'function' ? avatarInner({ ...user, name }) : e((name || '?')[0]);
         renderIcons(); wireIcons(); wireBar(); wireStart();
-        Object.assign(API, { state: () => S, save, openApp, closeWin, focus, ctx, closePops, toggleStart, renderStart, topWin, toggleMin, toggleMax, place, animate, area, showSnap, renderTasks, renderIcons, keys: KEYS, registerApp: a => { APPS[a.id] = a; }, unregisterApp: id => { delete APPS[id]; }, switchDesk, moveToDesk, desks, curDesk, onDesk, snapTo, snapRect, popOut, togglePin, isPinned, deskH, user: () => USER, apps: () => APPS, order: () => ORDER, webset: () => WEBSET, wins: WINS, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '', tile, esc: e });
+        Object.assign(API, { state: () => S, save, openApp, closeWin, focus, ctx, closePops, toggleStart, renderStart, topWin, toggleMin, toggleMax, place, animate, area, showSnap, renderTasks, renderIcons, keys: KEYS, registerApp: a => { APPS[a.id] = a; }, removeIcons, onDeskIcon, toggleDeskIcon, unregisterApp: id => { delete APPS[id]; }, switchDesk, moveToDesk, desks, curDesk, onDesk, snapTo, snapRect, popOut, togglePin, isPinned, deskH, user: () => USER, apps: () => APPS, order: () => ORDER, webset: () => WEBSET, wins: WINS, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '', tile, esc: e });
         if (window.JMOS_WIDGETS) JMOS_WIDGETS.init(API, user);
         (window.JMOS_EXT || []).forEach(x => { if (x.ui) Object.assign(NATIVE_UI, x.ui); try { x.init && x.init(API, user); } catch (err) { console.error('J.Mainz OS Erweiterung:', err); } });
         if (!desks().some(d => d.id === curDesk())) S.desk = desks()[0].id;

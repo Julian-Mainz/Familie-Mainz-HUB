@@ -2,6 +2,16 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (21)
+
+### Desktop-Modus: Symbole entfernen, Ordner auf dem Desktop
+- Apps lassen sich vom Desktop entfernen: Rechtsklick → „Vom Desktop entfernen“ oder Symbol markieren und Entf drücken (auch mehrere markierte auf einmal). Die App bleibt im Startmenü; dort per Rechtsklick „Auf dem Desktop anzeigen“ holt sie zurück. Unter Einstellungen → System → Desktop stehen alle ausgeblendeten Symbole mit „Alle wieder anzeigen“.
+- Ordner auf dem Desktop: Rechtsklick auf den Desktop → „Neuer Ordner“. Der Ordner ist ein normaler Ordner in „Eigene Dateien“ und öffnet sich per Doppelklick im Explorer. Dateien vom Desktop auf den Ordner ziehen verschiebt sie hinein; Dateien vom Computer oder aus dem Explorer auf den Ordner ziehen lädt bzw. verschiebt sie direkt dorthin. Rechtsklick auf den Ordner: Öffnen, Dateien hineinladen, Umbenennen, Vom Desktop entfernen, Löschen.
+- Im Explorer kann jeder Ordner per Rechtsklick „Auf den Desktop gelegt“ werden.
+- Fehler behoben: Ein Rechtsklick auf ein Desktop-Symbol hat alle anderen Symbole mit markiert.
+- Geänderte Dateien: OS/os.js, OS/os.css, OS/os-icons.css, OS/explorer.js, OS/shell.js, OS/setwin.js
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (20)
 
 ### Desktop-Modus: ZIP im Explorer, Texteditor, Task-Manager

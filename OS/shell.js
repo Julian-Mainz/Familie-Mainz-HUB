@@ -186,7 +186,7 @@
             window.JMOS_NATIVE_UI.set = (body, win) => { base(body, win); settings(body); };
             // Startmenü-Apps: Rechtsklick zum Anheften
             $('start').addEventListener('contextmenu', ev => { const a = ev.target.closest('.st-app'); if (!a) return; ev.preventDefault(); const id = a.dataset.id;
-                API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', () => API.openApp(id)], !API.apps()[id].folder && ['fa-thumbtack', API.isPinned(id) ? 'Von Taskleiste lösen' : 'An Taskleiste anheften', () => API.togglePin(id)]]); });
+                API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', () => API.openApp(id)], !API.apps()[id].folder && ['fa-thumbtack', API.isPinned(id) ? 'Von Taskleiste lösen' : 'An Taskleiste anheften', () => API.togglePin(id)], !API.apps()[id].hidden && ['fa-display', API.onDeskIcon(id) ? 'Vom Desktop entfernen' : 'Auf dem Desktop anzeigen', () => API.toggleDeskIcon(id)]]); });
         },
     });
 })();
