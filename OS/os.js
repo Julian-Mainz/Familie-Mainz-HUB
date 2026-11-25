@@ -39,6 +39,7 @@
             add({ ...FOLDER, items: FOLDER.items.filter(i => APPS[i]) });
         }
         NATIVE.forEach(n => add(n, n.hidden ? null : ORDER));
+        (window.JMOS_EXT || []).forEach(x => (x.apps || []).forEach(a => { if ((!a.perm || can(user, a.perm)) && (!a.admin || isAdmin(user))) add(a, a.hidden ? null : (a.web ? WEBSET : ORDER)); }));
     }
     const appByPath = path => {
         const p = path.replace(/index\.html$/, '');
@@ -55,7 +56,7 @@
         if (S.notes === undefined) { try { const n = localStorage.getItem(KEY + '-notes'); if (n) S.notes = n; } catch (e) {} }   // alte Notizen übernehmen
     }
     let saveT = 0, cloudT = 0, dirty = false;
-    const snapshot = () => { S.wins = WINS.filter(w => !w.closing).map(w => ({ app: w.app.id, x: w.x, y: w.y, w: w.w, h: w.h, max: w.max, min: w.min, url: w.url })); return JSON.parse(JSON.stringify(S)); };
+    const snapshot = () => { S.wins = WINS.filter(w => !w.closing && !w.params && !w.app.noRestore).map(w => ({ app: w.app.id, x: w.x, y: w.y, w: w.w, h: w.h, max: w.max, min: w.min, url: w.url })); return JSON.parse(JSON.stringify(S)); };
     function cloud() {
         clearTimeout(cloudT); if (!dirty || !USER) return; dirty = false;
         db.collection('users').doc(USER.uid).update({ 'userPrefs.os': snapshot() }).catch(() => { dirty = true; });
@@ -160,7 +161,7 @@
     }
 
     // ---------- Fenster ----------
-    const WINS = []; let zTop = 20, seq = 0;
+    const WINS = [], API = {}; let zTop = 20, seq = 0;
     const EMBED_CSS = `#sb, #sb-backdrop, #tabbar { display: none !important; }
         body.has-sb { padding-left: 18px !important; padding-bottom: 18px !important; }
         header button[onclick^="toggleSideMenu"], header button[onclick^="handleLogout"] { display: none !important; }`;
@@ -169,14 +170,20 @@
     function openApp(id, o = {}) {
         const a = APPS[id]; if (!a) return;
         closePops();
-        const ex = WINS.find(w => w.app.id === id && !w.closing);
-        if (ex && !o.restore) { if (ex.min) toggleMin(ex, false); focus(ex); return ex; }
+        const key = o.key || '';
+        const ex = WINS.find(w => w.app.id === id && (w.key || '') === key && !w.closing);
+        if (ex && !o.restore) {
+            if (ex.min) toggleMin(ex, false); focus(ex);
+            if (o.url && ex.frame && ex.url !== o.url) { ex.url = o.url; ex.frame.src = o.url; }          // z. B. Finanzen direkt auf "Rechnungen"
+            if (o.params && ex.onParams) ex.onParams(o.params);
+            return ex;
+        }
         const ar = area(), n = WINS.length % 8;
         const w = Math.min(a.w || 1180, ar.w - 120), h = Math.min(a.h || 760, ar.h - 70);
-        const win = { id: 'w' + (++seq), app: a, url: o.url || a.url, x: o.x ?? Math.max(10, Math.round((ar.w - w) / 2) - 120 + n * 34), y: o.y ?? Math.max(8, Math.round((ar.h - h) / 2) - 50 + n * 30), w: o.w || w, h: o.h || h, max: !!o.max, min: false };
+        const win = { id: 'w' + (++seq), app: a, key, params: o.params, url: o.url || a.url, x: o.x ?? Math.max(10, Math.round((ar.w - w) / 2) - 120 + n * 34), y: o.y ?? Math.max(8, Math.round((ar.h - h) / 2) - 50 + n * 30), w: o.w || w, h: o.h || h, max: !!o.max, min: false };
         win.x = Math.min(Math.max(-win.w + 120, win.x), ar.w - 120); win.y = Math.min(Math.max(0, win.y), ar.h - 40);
         const el = document.createElement('div'); el.className = 'win'; el.id = win.id; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', a.name);
-        el.innerHTML = `<div class="wt"><span class="wt-ico${a.folder ? ' folder' : ''}" style="--c:${a.c || '#818cf8'}"><i class="fa-solid ${a.folder ? 'fa-folder' : a.icon}"></i></span><span class="wt-title">${e(a.name)}</span>
+        el.innerHTML = `<div class="wt"><span class="wt-ico${a.folder ? ' folder' : ''}" style="--c:${a.c || '#818cf8'}"><i class="fa-solid ${a.folder ? 'fa-folder' : a.icon}"></i></span><span class="wt-title">${e(o.title || a.name)}</span>
             <div class="wt-btns">${a.url ? '<button type="button" class="wt-b" data-a="tab" title="In neuem Browser-Tab öffnen" aria-label="In neuem Tab öffnen"><i class="fa-solid fa-up-right-from-square"></i></button>' : ''}<button type="button" class="wt-b" data-a="min" title="Minimieren" aria-label="Minimieren"><i class="fa-regular fa-window-minimize"></i></button>${a.noMax ? '' : '<button type="button" class="wt-b" data-a="max" title="Maximieren" aria-label="Maximieren"><i class="fa-regular fa-window-maximize"></i></button>'}<button type="button" class="wt-b x" data-a="close" title="Schließen" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></div></div>
             <div class="wb"></div>${['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'].map(d => `<div class="rz ${d}" data-d="${d}"></div>`).join('')}`;
         win.el = el; $('wins').appendChild(el); WINS.push(win);
@@ -210,6 +217,7 @@
         const t = (doc.title || win.app.name).replace(/\s*[–-]\s*J\.Mainz.*$/i, '').trim();
         win.el.querySelector('.wt-title').textContent = t || win.app.name; renderTasks(); save();
         doc.addEventListener('pointerdown', () => focus(win), true);
+        doc.addEventListener('keydown', ev => { if ((ev.ctrlKey && (ev.code === 'Space' || ev.key === ' ')) || ev.altKey) { if (onKeys(ev)) { ev.stopPropagation(); window.focus(); } } }, true);
         doc.addEventListener('click', ev => {
             if (!S.linkWin || ev.defaultPrevented || ev.ctrlKey || ev.metaKey || ev.shiftKey) return;
             const ln = ev.target.closest && ev.target.closest('a[href]'); if (!ln || (ln.target && ln.target !== '_self')) return;
@@ -238,7 +246,7 @@
     function toggleMin(win, on = !win.min) { win.min = on; place(win); if (on) { win.el.classList.remove('focus'); const t = topWin(); if (t) focus(t); else document.title = 'J.Mainz OS'; } else focus(win); renderTasks(); save(); }
     function toggleMax(win, on = !win.max) { if (win.app.noMax) return; animate(win, () => { win.max = on; place(win); }); save(); }
     function closeWin(win) {
-        win.closing = true; win.el.classList.add('closing');
+        win.closing = true; win.el.classList.add('closing'); try { win.onClose && win.onClose(); } catch (x) {}
         setTimeout(() => { win.el.remove(); WINS.splice(WINS.indexOf(win), 1); const t = topWin(); if (t) focus(t); else document.title = 'J.Mainz OS'; renderTasks(); save(); }, 170);
         renderTasks();
     }
@@ -336,23 +344,34 @@
         closePops('start'); $('start').hidden = !on; $('start-btn').setAttribute('aria-expanded', on);
         if (on) { $('st-q').value = ''; renderStart(); setTimeout(() => $('st-q').focus(), 30); }
     }
+    let RES = [];
     function renderStart() {
         const q = $('st-q').value.trim().toLowerCase(), hit = id => !q || APPS[id].name.toLowerCase().includes(q);
         const pinned = ORDER.filter(hit), web = WEBSET.filter(hit), btn = id => `<button type="button" class="st-app" data-id="${id}">${tile(APPS[id])}<span>${e(APPS[id].name)}</span></button>`;
         $('st-apps').innerHTML = pinned.map(btn).join(''); $('st-web').innerHTML = web.map(btn).join('');
         $('st-apps').previousElementSibling.hidden = !pinned.length; $('st-web').previousElementSibling.hidden = !web.length;
-        $('st-empty').hidden = !!(pinned.length + web.length);
+        // Suche über alles (Termine, Aufgaben, Dateien … aus OS/extras.js)
+        RES = q.length >= 2 && window.JMOS_SEARCH ? JMOS_SEARCH(q) : [];
+        $('st-res').innerHTML = RES.length ? `<div class="st-head"><span>Gefunden</span><small>${RES.length > 30 ? '30+' : RES.length} Treffer</small></div>` + RES.slice(0, 30).map((r, i) => `<button type="button" class="st-r" data-r="${i}"><span class="ic" style="--c:${r.c || '#818cf8'}"><i class="fa-solid ${r.icon}"></i></span><span class="tx"><b>${e(r.title)}</b><small>${e(r.sub || '')}</small></span><em>${e(r.kind || '')}</em></button>`).join('') : '';
+        if (window.JMOS_RECENT && !q) $('st-res').innerHTML = JMOS_RECENT();
+        $('st-empty').hidden = !!(pinned.length + web.length + RES.length);
         $('st-count').textContent = q ? '' : `${ORDER.length + WEBSET.length} Apps`;
-        const first = $('start').querySelector('.st-app'); if (first && q) first.classList.add('hl');
+        const first = $('start').querySelector('.st-app, .st-r'); if (first && q) first.classList.add('hl');
     }
     function wireStart() {
         $('st-q').addEventListener('input', renderStart);
-        $('st-q').addEventListener('keydown', ev => { if (ev.key === 'Enter') { const f = $('start').querySelector('.st-app'); if (f) openApp(f.dataset.id); } });
+        $('st-q').addEventListener('keydown', ev => {
+            const all = [...$('start').querySelectorAll('.st-app, .st-r')], i = all.findIndex(x => x.classList.contains('hl'));
+            if (ev.key === 'Enter') { (all[i] || all[0])?.click(); }
+            else if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); if (!all.length) return; const n = all[(i + (ev.key === 'ArrowDown' ? 1 : -1) + all.length) % all.length]; all.forEach(x => x.classList.toggle('hl', x === n)); n.scrollIntoView({ block: 'nearest' }); }
+        });
         $('start').addEventListener('click', ev => {
             const a = ev.target.closest('.st-app'); if (a) return openApp(a.dataset.id);
+            const r = ev.target.closest('.st-r'); if (r) { closePops(); const x = r.dataset.recent !== undefined ? (window.JMOS_RECENT_LIST || [])[+r.dataset.recent] : RES[+r.dataset.r]; if (x) x.run(); return; }
             const b = ev.target.closest('[data-act]'); if (!b) return;
             if (b.dataset.act === 'settings') openApp('einstellungen');
             if (b.dataset.act === 'logout') { closePops(); handleLogout(); }
+            if (b.dataset.act === 'lock' && window.JMOS_LOCK) { closePops(); JMOS_LOCK(); }
         });
     }
 
@@ -381,20 +400,23 @@
         m.style.top = (above ? Math.max(6, y - r.height) : Math.min(y, innerHeight - r.height - 6)) + 'px';
         m.querySelector('.cx')?.focus();
     }
+    // Alle Aufklapp-Fenster (.pop) schließen, außer dem mit der id "keep"; zugehörige Knöpfe zurücksetzen
     function closePops(keep) {
-        if (keep !== 'start') { $('start').hidden = true; $('start-btn').setAttribute('aria-expanded', false); }
-        if (keep !== 'cal') { $('cal').hidden = true; $('clock').setAttribute('aria-expanded', false); }
-        if (keep !== 'ctx') $('ctx').hidden = true;
-        if (keep !== 'wg') $('wg-pick').hidden = true;
+        document.querySelectorAll('.pop').forEach(p => { if (p.id !== keep && !p.hidden) p.hidden = true; });
+        document.querySelectorAll('[aria-controls][aria-expanded="true"]').forEach(b => { if (b.getAttribute('aria-controls') !== keep) b.setAttribute('aria-expanded', false); });
     }
-    document.addEventListener('pointerdown', ev => { if (!ev.target.closest('.pop, #start-btn, #bar-search, #bar-wg, #clock, .wg-b')) closePops(); });
-    document.addEventListener('keydown', ev => {
+    document.addEventListener('pointerdown', ev => { if (!ev.target.closest('.pop, [aria-controls], #bar-search, #bar-wg, .wg-b, #toasts, .uidlg-bg')) closePops(); });
+    const KEYS = [];          // weitere Tastenkürzel aus Erweiterungen: fn(ev) -> true, wenn erledigt
+    function onKeys(ev) {
         if (ev.key === 'Escape') closePops();
-        if (ev.altKey && (ev.key === 'w' || ev.key === 'W' || ev.key === 'F4')) { const t = topWin(); if (t) { ev.preventDefault(); closeWin(t); } }
-    });
+        if (ev.ctrlKey && (ev.code === 'Space' || ev.key === ' ')) { ev.preventDefault(); toggleStart(true); return true; }
+        if (ev.altKey && (ev.key === 'w' || ev.key === 'W' || ev.key === 'F4')) { const t = topWin(); if (t) { ev.preventDefault(); closeWin(t); } return true; }
+        for (const f of KEYS) if (f(ev)) { ev.preventDefault(); return true; }
+    }
+    document.addEventListener('keydown', onKeys);
 
     // ---------- Eingebaute Apps ----------
-    const NATIVE_UI = {
+    const NATIVE_UI = window.JMOS_NATIVE_UI = {
         pad(body) {
             body.innerHTML = `<div class="app-pad"><textarea spellcheck="true" maxlength="20000" aria-label="Notiz" placeholder="Hier kannst du schreiben … wird automatisch in deinem Profil gespeichert."></textarea><div class="bar"><i class="fa-solid fa-floppy-disk"></i><span class="st">Gespeichert</span><span style="margin-left:auto" class="cnt"></span></div></div>`;
             const ta = body.querySelector('textarea'), st = body.querySelector('.st'), cnt = body.querySelector('.cnt'); let t = 0;
@@ -478,7 +500,9 @@
         $('st-role').textContent = isAdmin(user) ? 'Administrator' : 'Mitglied';
         $('st-av').innerHTML = typeof avatarInner === 'function' ? avatarInner({ ...user, name }) : e((name || '?')[0]);
         renderIcons(); wireIcons(); wireBar(); wireStart();
-        if (window.JMOS_WIDGETS) JMOS_WIDGETS.init({ state: () => S, save, openApp, ctx, closePops, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '' }, user);
+        Object.assign(API, { state: () => S, save, openApp, closeWin, focus, ctx, closePops, toggleStart, renderStart, topWin, toggleMin, toggleMax, place, animate, area, showSnap, renderTasks, renderIcons, keys: KEYS, user: () => USER, apps: () => APPS, order: () => ORDER, webset: () => WEBSET, wins: WINS, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '', tile, esc: e });
+        if (window.JMOS_WIDGETS) JMOS_WIDGETS.init(API, user);
+        (window.JMOS_EXT || []).forEach(x => { if (x.ui) Object.assign(NATIVE_UI, x.ui); try { x.init && x.init(API, user); } catch (err) { console.error('J.Mainz OS Erweiterung:', err); } });
         (S.wins || []).forEach(w => { if (APPS[w.app]) { const win = openApp(w.app, { ...w, restore: true }); if (win && w.min) toggleMin(win, true); } });
         $('boot-msg').textContent = `Willkommen, ${name}`;
         setTimeout(() => document.documentElement.classList.remove('os-boot'), 450);
@@ -486,5 +510,5 @@
     stars();
     if (typeof initAuthGuard === 'function') initAuthGuard(boot);
     else $('boot-msg').textContent = 'Anmeldung konnte nicht geladen werden.';
-    window.JMOS = { openApp, WINS, APPS: () => APPS };          // für Tests in der Konsole
+    window.JMOS = API;          // für Erweiterungen und Tests in der Konsole
 })();

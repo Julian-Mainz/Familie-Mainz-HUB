@@ -35,6 +35,8 @@
             db.collection('finance_transactions').where('owner', '==', U.email).onSnapshot(s => { tx = docs(s); set({ tx, inv }); }, () => set({ tx, inv }));
             db.collection('invoices').where('owner', '==', U.email).onSnapshot(s => { inv = docs(s); set({ tx, inv }); }, () => set({ tx, inv }));
         },
+        docs(set) { db.collection('documents').where('owner', '==', U.email).onSnapshot(s => set(docs(s)), () => set([])); },
+        pays(set) { db.collection('payslips').where('owner', '==', U.email).onSnapshot(s => set(docs(s)), () => set([])); },
         wx(set) {
             const DEF = { name: 'Düren', lat: 50.8021, lon: 6.4836 }, l0 = (U.userPrefs?.home || {}).weather, l = l0 && isFinite(l0.lat) && isFinite(l0.lon) ? l0 : DEF;
             const load = async () => {
@@ -310,7 +312,7 @@
     function picker() {
         const pk = document.getElementById('wg-pick');
         if (!pk.hidden) { pk.hidden = true; return; }
-        API.closePops();
+        API.closePops('wg-pick');
         const types = Object.keys(TYPES).filter(allowed), S = API.state();
         pk.innerHTML = `<div class="pk-h"><b>Widgets</b><small>Zum Hinzufügen anklicken. Danach kannst du sie frei verschieben.</small><button type="button" class="pk-x" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></div>
             <div class="pk-g">${types.map(t => { const T = TYPES[t], n = (S.widgets || []).filter(w => w.type === t).length;
@@ -327,6 +329,6 @@
 
     window.JMOS_WIDGETS = {
         init(api, user) { API = api; U = user; const S = API.state(); if (!Array.isArray(S.widgets)) defaults(); render(); addEventListener('resize', () => { clearTimeout(this.t); this.t = setTimeout(() => { API.state().widgets.forEach(w => { const el = box().querySelector(`[data-id="${w.id}"]`); clampPos(w); if (el) { el.style.left = w.x + 'px'; el.style.top = w.y + 'px'; } }); }, 200); }); },
-        picker, render, TYPES,
+        picker, render, TYPES, use, zeitKpis: d => zeitKpis(d),
     };
 })();

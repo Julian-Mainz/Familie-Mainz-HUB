@@ -2,6 +2,16 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (2)
+
+### J.Mainz OS: Mitteilungen, Explorer, Suche
+- Mitteilungen: Glocke in der Taskleiste mit Zähler und Mitteilungsleiste. Meldet neue Messenger-Nachrichten, heute fällige und überfällige Rechnungen, Termine in den nächsten 15 Minuten und wenn man seit 9 bzw. 10 Stunden eingestempelt ist. Neue Meldungen erscheinen kurz unten rechts, ein Klick öffnet die passende App. „Nicht stören“ schaltet die Hinweise ab.
+- Explorer: eigenes Datei-Fenster mit Ordnern (Eigene Dateien, eigene Ordner, Rechnungen, Lohnabrechnungen), Symbol- und Listenansicht, Sortieren, Suchen. Hochladen per Knopf oder Drag & Drop, Ordner anlegen/umbenennen/löschen, Dateien umbenennen, verschieben (auch per Ziehen auf einen Ordner), herunterladen, löschen. Tastatur: Enter, Entf, F2, Pfeiltasten.
+- Vorschau: Bilder mit Zoom und Blättern, PDFs und Textdateien in einem eigenen Fenster.
+- Suche über alles im Startmenü (auch mit Strg+Leertaste): Termine, Aufgaben, Pinnwand, Dateien, Rechnungen, Buchungen, Chats und Aktionen. Mit Pfeiltasten auswählen, Enter öffnet.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/os-icons.css, OS/widgets.js, OS/explorer.js (neu), OS/extras.js (neu)
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026
 
 ### J.Mainz OS: Widgets und Desktop-Modus
