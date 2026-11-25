@@ -390,19 +390,38 @@
         if (on) { $('st-q').value = ''; renderStart(); $('st-q').focus(); setTimeout(() => { if (document.activeElement !== $('st-q')) $('st-q').focus(); }, 30); }
     }
     let RES = [];
+    // Startmenü: oben zuletzt geöffnet, darunter alle Apps alphabetisch als Liste (mit Buchstaben wie bei Windows) oder als Raster
+    const startView = () => (S.startView === 'grid' ? 'grid' : 'list');
     function renderStart() {
-        const q = $('st-q').value.trim().toLowerCase(), hit = id => !q || APPS[id].name.toLowerCase().includes(q);
-        const pinned = ORDER.filter(hit), web = WEBSET.filter(hit), btn = id => `<button type="button" class="st-app" data-id="${id}">${tile(APPS[id])}<span>${e(APPS[id].name)}</span></button>`;
-        $('st-apps').innerHTML = pinned.map(btn).join(''); $('st-web').innerHTML = web.map(btn).join('');
-        $('st-apps').previousElementSibling.hidden = !pinned.length; $('st-web').previousElementSibling.hidden = !web.length;
+        const raw = $('st-q').value.trim(), q = raw.toLowerCase(), hit = id => !q || APPS[id].name.toLowerCase().includes(q);
+        const ids = [...new Set([...ORDER, ...WEBSET])].filter(id => APPS[id] && hit(id)).sort((a, b) => APPS[a].name.localeCompare(APPS[b].name, 'de'));
+        const web = new Set(WEBSET), view = startView();
+        const row = id => `<button type="button" class="st-app" data-id="${id}">${tile(APPS[id])}<span>${e(APPS[id].name)}</span>${view === 'list' && web.has(id) ? '<em>Web</em>' : ''}</button>`;
+        let html = '';
+        if (view === 'list' && !q) {
+            const groups = {}; ids.forEach(id => { const ch = APPS[id].name[0].toUpperCase(), k = /[A-ZÄÖÜ]/.test(ch) ? ch.replace('Ä', 'A').replace('Ö', 'O').replace('Ü', 'U') : '#'; (groups[k] = groups[k] || []).push(id); });
+            html = Object.keys(groups).sort().map(k => `<div class="st-grp" data-l="${k}"><button type="button" class="st-l" data-az title="Zum Buchstaben springen">${k}</button>${groups[k].map(row).join('')}</div>`).join('');
+        } else html = ids.map(row).join('');
+        const all = $('st-all'); all.className = view === 'list' ? 'st-list' : 'st-grid'; all.innerHTML = html;
+        $('start').querySelectorAll('[data-sv]').forEach(b => b.classList.toggle('on', b.dataset.sv === view));
+        $('st-all').previousElementSibling.hidden = !ids.length;
         // Suche über alles (Termine, Aufgaben, Dateien … aus OS/extras.js)
-        RES = q.length >= 2 && window.JMOS_SEARCH ? JMOS_SEARCH($('st-q').value.trim()) : [];
+        RES = q.length >= 2 && window.JMOS_SEARCH ? JMOS_SEARCH(raw) : [];
         $('st-res').innerHTML = RES.length ? `<div class="st-head"><span>Gefunden</span><small>${RES.length > 30 ? '30+' : RES.length} Treffer</small></div>` + RES.slice(0, 30).map((r, i) => `<button type="button" class="st-r" data-r="${i}"><span class="ic" style="--c:${r.c || '#818cf8'}"><i class="fa-solid ${r.icon}"></i></span><span class="tx"><b>${e(r.title)}</b><small>${e(r.sub || '')}</small></span><em>${e(r.kind || '')}</em></button>`).join('') : '';
         if (window.JMOS_RECENT && !q) $('st-res').innerHTML = JMOS_RECENT();
-        $('st-empty').hidden = !!(pinned.length + web.length + RES.length);
-        $('st-count').textContent = q ? '' : `${ORDER.length + WEBSET.length} Apps`;
+        $('st-empty').hidden = !!(ids.length + RES.length);
+        $('st-count').textContent = q ? `${ids.length} gefunden` : `${ids.length}`;
+        closeAz();
         const first = $('start').querySelector('.st-app, .st-r'); if (first && q) first.classList.add('hl');
     }
+    // Buchstaben-Übersicht: Klick auf einen Buchstaben zeigt A–Z, Klick darauf springt hin
+    function openAz() {
+        const have = new Set([...$('st-all').querySelectorAll('.st-grp')].map(g => g.dataset.l)), box = document.createElement('div');
+        box.className = 'st-az'; box.innerHTML = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].map(l => `<button type="button" data-azl="${l}" ${have.has(l) ? '' : 'disabled'}>${l}</button>`).join('');
+        $('start').querySelector('.st-body').appendChild(box); $('start').classList.add('az');
+        const f = box.querySelector('button:not([disabled])'); if (f) f.focus();
+    }
+    function closeAz() { const b = $('start').querySelector('.st-az'); if (b) b.remove(); $('start').classList.remove('az'); }
     function wireStart() {
         $('st-q').addEventListener('input', renderStart);
         $('st-q').addEventListener('keydown', ev => {
@@ -411,6 +430,9 @@
             else if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); if (!all.length) return; const n = all[(i + (ev.key === 'ArrowDown' ? 1 : -1) + all.length) % all.length]; all.forEach(x => x.classList.toggle('hl', x === n)); n.scrollIntoView({ block: 'nearest' }); }
         });
         $('start').addEventListener('click', ev => {
+            const sv = ev.target.closest('[data-sv]'); if (sv) { S.startView = sv.dataset.sv; save(); renderStart(); return; }
+            if (ev.target.closest('[data-az]')) return openAz();
+            const az = ev.target.closest('[data-azl]'); if (az) { const g = $('st-all').querySelector(`.st-grp[data-l="${az.dataset.azl}"]`); closeAz(); if (g) { const body = $('start').querySelector('.st-body'); body.scrollTo({ top: g.offsetTop - 4, behavior: 'smooth' }); } return; }
             const a = ev.target.closest('.st-app'); if (a) return openApp(a.dataset.id);
             const r = ev.target.closest('.st-r'); if (r) { closePops(); const x = r.dataset.recent !== undefined ? (window.JMOS_RECENT_LIST || [])[+r.dataset.recent] : RES[+r.dataset.r]; if (x) x.run(); return; }
             const b = ev.target.closest('[data-act]'); if (!b) return;

@@ -670,3 +670,24 @@ html.os-bye #bar { transition: transform .5s var(--ease); transform: translateY(
 @media (prefers-reduced-motion: reduce) { #pet .pt-body, #pet .pt-flame, #pet .pt-arm { animation: none; } }
 @media (max-width: 760px) { #pet { display: none; } }
 #mp.idle { background: rgba(148, 163, 184, .08); border-color: var(--line); padding-right: 12px; } #mp.idle > i { color: #4ade80; font-size: 14px; }
+
+/* ---------- Startmenü: Liste wie bei Windows ---------- */
+#start { width: min(460px, calc(100vw - 16px)); }
+.st-body { position: relative; }
+.st-allh { align-items: center; gap: 8px; } .st-allh > span { flex: 1; } .st-allh small { margin-right: 4px; }
+.st-view button { height: 26px; padding: 0 9px; font-size: 12px; }
+.st-list { display: flex; flex-direction: column; }
+.st-list .st-grp { display: flex; flex-direction: column; margin-bottom: 4px; }
+.st-list .st-l { align-self: flex-start; min-width: 30px; height: 28px; margin: 4px 0 2px 4px; padding: 0 8px; border: 0; border-radius: 8px; background: none; color: var(--acc-l); font-size: 13px; font-weight: 700; text-align: left; }
+.st-list .st-l:hover { background: rgba(148, 163, 184, .12); }
+.st-list .st-app { flex-direction: row; justify-content: flex-start; gap: 12px; padding: 6px 10px; border-radius: 10px; font-size: 13.5px; text-align: left; }
+.st-list .st-app .ico-t { width: 30px; height: 30px; border-radius: 9px; font-size: 14px; box-shadow: none; flex: none; }
+.st-list .st-app span:not(.ico-t) { flex: 1; }
+.st-list .st-app em { flex: none; font-style: normal; font-size: 10.5px; color: var(--mut); padding: 2px 7px; border-radius: 99px; background: rgba(148, 163, 184, .1); }
+#st-all.st-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
+#st-all.st-grid .st-app .ico-t { width: 40px; height: 40px; font-size: 17px; }
+#start.az #st-all, #start.az #st-res, #start.az .st-allh { opacity: .15; pointer-events: none; }
+.st-az { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); z-index: 2; display: grid; grid-template-columns: repeat(6, 46px); gap: 6px; padding: 14px; border-radius: 16px; background: rgba(16, 22, 42, .97); border: 1px solid var(--line-2); box-shadow: 0 24px 60px -12px rgba(0, 0, 0, .8); animation: popIn .18s var(--ease); }
+.st-az button { height: 42px; border: 0; border-radius: 10px; background: rgba(148, 163, 184, .1); color: var(--txt); font-size: 15px; font-weight: 700; }
+.st-az button:hover:not([disabled]), .st-az button:focus-visible { background: var(--grad); color: #fff; outline: 0; }
+.st-az button[disabled] { opacity: .25; }

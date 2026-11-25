@@ -2,6 +2,16 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (9)
+
+### J.Mainz OS: Startmenü als Liste wie bei Windows
+- Das Startmenü zeigt unter „Zuletzt geöffnet“ jetzt alle Apps alphabetisch als Liste mit Buchstaben (A, B, C …), kleinen Symbolen und Namen, wie die Listenansicht bei Windows 11. Spiele und Web-Apps stehen mit kleinem „Web“-Hinweis mit in der Liste.
+- Klick auf einen Buchstaben öffnet die Übersicht A–Z zum schnellen Springen.
+- Oben rechts lässt sich zwischen Liste und Raster umschalten; die Wahl wird gespeichert.
+- Das Startmenü ist schmaler und dadurch aufgeräumter.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (8)
 
 ### J.Mainz OS: Musik in der Taskleiste immer sichtbar
