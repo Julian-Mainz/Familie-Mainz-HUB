@@ -2,6 +2,18 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (3)
+
+### J.Mainz OS: Fenster, Taskleiste, Sperrbildschirm, Personalisierung
+- Fensterübersicht: neuer Knopf in der Taskleiste zeigt alle offenen Fenster als Karten. Alt+Q gedrückt halten und wiederholt drücken wechselt zwischen den Fenstern.
+- Andocken in die Ecken (Viertel des Bildschirms). Nach dem Andocken an eine Hälfte schlägt das OS vor, welches Fenster die andere Hälfte füllen soll.
+- Tastenkürzel: Alt+Umschalt+Pfeile andocken/Vollbild, Alt+M minimieren, Alt+Umschalt+D Desktop anzeigen, Alt+1…9 angeheftete Apps, Alt+L sperren.
+- Apps an die Taskleiste anheften (Rechtsklick auf Symbol, Startmenü oder Fenster). Im Startmenü gibt es „Zuletzt geöffnet“ mit Apps und Dateien.
+- Sperrbildschirm mit Uhr, Datum und deinem Hintergrund: per Knopf im Startmenü, Alt+L oder automatisch nach einstellbarer Zeit. Optional mit PIN.
+- Personalisierung: eigenes Hintergrundbild hochladen, Akzentfarbe wählen (8 Farben), Symbolgröße, Taskleiste links oder in der Mitte.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/os-icons.css, OS/explorer.js, OS/shell.js (neu)
+- Firestore-Regeln: users/{uid}/meta/os für das eigene Hintergrundbild.
+
 ## 25.11.2026 (2)
 
 ### J.Mainz OS: Mitteilungen, Explorer, Suche

@@ -241,6 +241,7 @@
     // ---------- Vorschau / Bildbetrachter ----------
     function openViewer(it, list) {
         const imgs = (list || []).filter(x => x.k === 'img');
+        const S = API.state(); S.recentFiles = [{ key: it.key, name: it.name }, ...(S.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save();
         API.openApp('vorschau', { key: it.key, title: it.name, params: { it, imgs }, w: it.k === 'img' ? 900 : 860, h: 680 });
     }
     function viewer(body, win) {

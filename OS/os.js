@@ -89,7 +89,8 @@
     const setWall = w => { S.wall = w; document.documentElement.dataset.wall = w; save(); };
 
     // ---------- Desktop-Symbole ----------
-    const CW = 104, CH = 108, PAD = 12;
+    const ICS = { s: [88, 92], m: [104, 108], l: [124, 130] }, PAD = 12;
+    let CW = 104, CH = 108;
     const rows = () => Math.max(1, Math.floor((deskH() - PAD) / CH));
     const cols = () => Math.max(1, Math.floor((innerWidth - PAD) / CW));
     const deskApps = () => [...ORDER.filter(id => !APPS[id].hidden), ...(APPS.spiele ? ['spiele'] : [])];
@@ -99,6 +100,7 @@
         ids.forEach(id => { if (S.icons[id]) return; for (let i = 0; ; i++) { const c = Math.floor(i / R), r = i % R; if (!taken.has(c + ',' + r) || i > 400) { S.icons[id] = { c, r }; taken.add(c + ',' + r); break; } } });
     }
     function renderIcons() {
+        [CW, CH] = ICS[S.iconSize] || ICS.m; document.documentElement.dataset.icons = S.iconSize || 'm';
         placeIcons();
         $('icons').innerHTML = deskApps().map(id => { const a = APPS[id], p = S.icons[id];
             return `<button type="button" class="ico" role="option" data-id="${id}" style="left:${PAD + p.c * CW}px;top:${PAD + p.r * CH}px" title="${e(a.name)}${a.url ? ' – ' + e(a.url) : ''}">${tile(a)}<span class="ico-l">${e(a.name)}</span></button>`; }).join('');
@@ -147,7 +149,7 @@
             if (ev.target.closest('.wg')) { if (!ev.target.closest('input, textarea')) ev.preventDefault(); return; }
             ev.preventDefault(); const el = ev.target.closest('.ico');
             if (el) { const a = APPS[el.dataset.id]; sel([a.id]);
-                return ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', () => openApp(a.id)], a.url && ['fa-arrow-up-right-from-square', 'In neuem Browser-Tab öffnen', () => window.open(a.url, '_blank', 'noopener')]]); }
+                return ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', () => openApp(a.id)], !a.folder && ['fa-thumbtack', isPinned(a.id) ? 'Von Taskleiste lösen' : 'An Taskleiste anheften', () => togglePin(a.id)], a.url && ['fa-arrow-up-right-from-square', 'In neuem Browser-Tab öffnen', () => window.open(a.url, '_blank', 'noopener')]]); }
             ctx(ev.clientX, ev.clientY, [
                 ['fa-plus', 'Widgets hinzufügen', () => JMOS_WIDGETS.picker()],
                 ['fa-table-cells-large', 'Symbole automatisch anordnen', arrangeIcons],
@@ -187,6 +189,7 @@
             <div class="wt-btns">${a.url ? '<button type="button" class="wt-b" data-a="tab" title="In neuem Browser-Tab öffnen" aria-label="In neuem Tab öffnen"><i class="fa-solid fa-up-right-from-square"></i></button>' : ''}<button type="button" class="wt-b" data-a="min" title="Minimieren" aria-label="Minimieren"><i class="fa-regular fa-window-minimize"></i></button>${a.noMax ? '' : '<button type="button" class="wt-b" data-a="max" title="Maximieren" aria-label="Maximieren"><i class="fa-regular fa-window-maximize"></i></button>'}<button type="button" class="wt-b x" data-a="close" title="Schließen" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></div></div>
             <div class="wb"></div>${['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'].map(d => `<div class="rz ${d}" data-d="${d}"></div>`).join('')}`;
         win.el = el; $('wins').appendChild(el); WINS.push(win);
+        if (!a.hidden && !o.restore) S.recent = [id, ...(S.recent || []).filter(x => x !== id)].slice(0, 8);
         fill(win); place(win); focus(win); wireWin(win); renderTasks(); save();
         return win;
     }
@@ -217,6 +220,7 @@
         const t = (doc.title || win.app.name).replace(/\s*[–-]\s*J\.Mainz.*$/i, '').trim();
         win.el.querySelector('.wt-title').textContent = t || win.app.name; renderTasks(); save();
         doc.addEventListener('pointerdown', () => focus(win), true);
+        (window.JMOS_EMBED_HOOKS || []).forEach(f => { try { f(doc, win); } catch (x) {} });
         doc.addEventListener('keydown', ev => { if ((ev.ctrlKey && (ev.code === 'Space' || ev.key === ' ')) || ev.altKey) { if (onKeys(ev)) { ev.stopPropagation(); window.focus(); } } }, true);
         doc.addEventListener('click', ev => {
             if (!S.linkWin || ev.defaultPrevented || ev.ctrlKey || ev.metaKey || ev.shiftKey) return;
@@ -270,14 +274,15 @@
                     if (win.max) { const rel = (m.clientX) / ar.w; win.max = false; win.x = Math.round(m.clientX - win.w * rel); win.y = 0; ox = win.x; oy = win.y; sx = m.clientX; sy = m.clientY; place(win); } }
                 win.x = ox + (m.clientX - sx); win.y = Math.max(0, Math.min(ar.h - 40, oy + (m.clientY - sy)));
                 el.style.left = win.x + 'px'; el.style.top = win.y + 'px';
-                snap = m.clientY <= 2 ? 'max' : m.clientX <= 2 ? 'l' : m.clientX >= innerWidth - 3 ? 'r' : null;
+                const L = m.clientX <= 2, R = m.clientX >= innerWidth - 3, T = m.clientY <= 2, C = 80, ah = deskH();
+                snap = (L || m.clientX < C) && T ? 'tl' : (R || m.clientX > innerWidth - C) && T ? 'tr' : L && m.clientY < C ? 'tl' : R && m.clientY < C ? 'tr' : L && m.clientY > ah - C ? 'bl' : R && m.clientY > ah - C ? 'br' : T ? 'max' : L ? 'l' : R ? 'r' : null;
                 showSnap(snap);
             };
             const up = () => {
                 bar.removeEventListener('pointermove', mv); bar.removeEventListener('pointerup', up); bar.removeEventListener('pointercancel', up);
                 document.body.classList.remove('dragging'); showSnap(null);
                 if (snap === 'max') toggleMax(win, true);
-                else if (snap) animate(win, () => { Object.assign(win, { x: snap === 'l' ? 0 : Math.round(ar.w / 2), y: 0, w: Math.round(ar.w / 2), h: ar.h }); place(win); });
+                else if (snap) { snapTo(win, snap); if (window.JMOS_SNAPPED) JMOS_SNAPPED(win, snap); }
                 if (moved) save();
             };
             bar.addEventListener('pointermove', mv); bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
@@ -298,10 +303,20 @@
             h.addEventListener('pointermove', mv); h.addEventListener('pointerup', up);
         }));
     }
+    // Bereiche zum Andocken: Hälften und Viertel
+    function snapRect(s) {
+        const ar = area(), hw = Math.round(ar.w / 2), hh = Math.round(ar.h / 2);
+        return { l: [0, 0, hw, ar.h], r: [hw, 0, ar.w - hw, ar.h], tl: [0, 0, hw, hh], tr: [hw, 0, ar.w - hw, hh], bl: [0, hh, hw, ar.h - hh], br: [hw, hh, ar.w - hw, ar.h - hh] }[s];
+    }
+    function snapTo(win, s) {
+        if (s === 'max') return toggleMax(win, true);
+        const r = snapRect(s); if (!r) return;
+        animate(win, () => { win.max = false; Object.assign(win, { x: r[0], y: r[1], w: r[2], h: r[3], snap: s }); place(win); }); save();
+    }
     function showSnap(s) {
         const sn = $('snap'), ar = area();
         if (!s) { sn.hidden = true; return; }
-        const r = s === 'max' ? [8, 8, ar.w - 16, ar.h - 16] : s === 'l' ? [8, 8, ar.w / 2 - 12, ar.h - 16] : [ar.w / 2 + 4, 8, ar.w / 2 - 12, ar.h - 16];
+        const q = s === 'max' ? [0, 0, ar.w, ar.h] : snapRect(s), r = [q[0] + 8, q[1] + 8, q[2] - 16, q[3] - 16];
         Object.assign(sn.style, { left: r[0] + 'px', top: r[1] + 'px', width: r[2] + 'px', height: r[3] + 'px' }); sn.hidden = false;
     }
     // Klick in eine Seite im Fenster: das Fenster kommt nach vorne
@@ -309,18 +324,30 @@
     addEventListener('resize', () => WINS.forEach(w => { if (w.max) place(w); }));
 
     // ---------- Taskleiste ----------
+    // Taskleiste: zuerst angeheftete Apps (mit ihren Fenstern), danach alle anderen offenen Fenster
+    const pins = () => (S.pinned || []).filter(id => APPS[id]);
+    const isPinned = id => pins().includes(id);
+    function togglePin(id) { S.pinned = isPinned(id) ? pins().filter(x => x !== id) : [...pins(), id]; renderTasks(); save(); }
     function renderTasks() {
-        const t = topWin();
-        $('tasks').innerHTML = WINS.filter(w => !w.closing).map(w => `<button type="button" class="task${w === t && !w.min && w.el.classList.contains('focus') ? ' on' : ''}${w.min ? ' mini' : ''}" data-w="${w.id}" title="${e(w.el.querySelector('.wt-title').textContent)}"><span class="wt-ico${w.app.folder ? ' folder' : ''}" style="--c:${w.app.c || '#818cf8'}"><i class="fa-solid ${w.app.folder ? 'fa-folder' : w.app.icon}"></i></span><span>${e(w.el.querySelector('.wt-title').textContent)}</span></button>`).join('');
+        const t = topWin(), open = WINS.filter(w => !w.closing), used = new Set();
+        const winBtn = w => { used.add(w); const ttl = w.el.querySelector('.wt-title').textContent;
+            return `<button type="button" class="task${w === t && !w.min && w.el.classList.contains('focus') ? ' on' : ''}${w.min ? ' mini' : ''}${isPinned(w.app.id) ? ' pinned' : ''}" data-w="${w.id}" title="${e(ttl)}"><span class="wt-ico${w.app.folder ? ' folder' : ''}" style="--c:${w.app.c || '#818cf8'}"><i class="fa-solid ${w.app.folder ? 'fa-folder' : w.app.icon}"></i></span><span>${e(ttl)}</span></button>`; };
+        const pinBtn = id => { const a = APPS[id]; return `<button type="button" class="task pin" data-pin="${id}" title="${e(a.name)} öffnen"><span class="wt-ico${a.folder ? ' folder' : ''}" style="--c:${a.c || '#818cf8'}"><i class="fa-solid ${a.folder ? 'fa-folder' : a.icon}"></i></span><span>${e(a.name)}</span></button>`; };
+        const html = pins().map(id => { const ws = open.filter(w => w.app.id === id); return ws.length ? ws.map(winBtn).join('') : pinBtn(id); }).join('') + open.filter(w => !used.has(w)).map(winBtn).join('');
+        $('tasks').innerHTML = html;
     }
     function wireBar() {
         $('tasks').addEventListener('click', ev => {
-            const b = ev.target.closest('.task'); if (!b) return; const w = WINS.find(x => x.id === b.dataset.w); closePops();
+            const b = ev.target.closest('.task'); if (!b) return; closePops();
+            if (b.dataset.pin) return openApp(b.dataset.pin);
+            const w = WINS.find(x => x.id === b.dataset.w);
             if (w.min) toggleMin(w, false); else if (b.classList.contains('on')) toggleMin(w, true); else focus(w);
         });
         $('tasks').addEventListener('contextmenu', ev => {
-            const b = ev.target.closest('.task'); if (!b) return; ev.preventDefault(); const w = WINS.find(x => x.id === b.dataset.w);
-            ctx(ev.clientX, ev.clientY - 10, [[w.min ? 'fa-window-restore' : 'fa-window-minimize', w.min ? 'Wiederherstellen' : 'Minimieren', () => toggleMin(w)], !w.app.noMax && ['fa-window-maximize', w.max ? 'Verkleinern' : 'Maximieren', () => { if (w.min) toggleMin(w, false); toggleMax(w); }], w.app.url && ['fa-up-right-from-square', 'In neuem Browser-Tab öffnen', () => window.open(w.url || w.app.url, '_blank', 'noopener')], null, ['fa-xmark', 'Fenster schließen', () => closeWin(w)]], true);
+            const b = ev.target.closest('.task'); if (!b) return; ev.preventDefault();
+            if (b.dataset.pin) return ctx(ev.clientX, ev.clientY - 10, [['fa-up-right-from-square', 'Öffnen', () => openApp(b.dataset.pin)], ['fa-thumbtack', 'Von Taskleiste lösen', () => togglePin(b.dataset.pin)]], true);
+            const w = WINS.find(x => x.id === b.dataset.w);
+            ctx(ev.clientX, ev.clientY - 10, [!w.params && !w.app.hidden && ['fa-thumbtack', isPinned(w.app.id) ? 'Von Taskleiste lösen' : 'An Taskleiste anheften', () => togglePin(w.app.id)], null, [w.min ? 'fa-window-restore' : 'fa-window-minimize', w.min ? 'Wiederherstellen' : 'Minimieren', () => toggleMin(w)], !w.app.noMax && ['fa-window-maximize', w.max ? 'Verkleinern' : 'Maximieren', () => { if (w.min) toggleMin(w, false); toggleMax(w); }], w.app.url && ['fa-up-right-from-square', 'In neuem Browser-Tab öffnen', () => window.open(w.url || w.app.url, '_blank', 'noopener')], null, ['fa-xmark', 'Fenster schließen', () => closeWin(w)]], true);
         });
         let shown = null;
         $('show-desk').addEventListener('click', () => {
@@ -468,7 +495,7 @@
                     <div class="set-row"><div><b>Alle Fenster schließen</b><small>Beim nächsten Start ist der Desktop dann leer.</small></div><button type="button" class="btn" data-b="closeall"><i class="fa-solid fa-xmark"></i>Schließen</button></div>
                     <div class="set-row"><div><b>Normales Dashboard</b><small>Zurück zur gewohnten Ansicht mit Seitenleiste.</small></div><a class="btn pri" href="/menu.html"><i class="fa-solid fa-border-all"></i>Öffnen</a></div>
                 </section></div>`;
-            body.addEventListener('click', ev => {
+            body.querySelector('.app-set').addEventListener('click', ev => {
                 const w = ev.target.closest('[data-w]'); if (w) { setWall(w.dataset.w); body.querySelectorAll('.wall-o').forEach(x => x.classList.toggle('on', x === w)); }
                 const b = ev.target.closest('[data-b]'); if (!b) return;
                 if (b.dataset.b === 'arr') arrangeIcons();
@@ -500,7 +527,7 @@
         $('st-role').textContent = isAdmin(user) ? 'Administrator' : 'Mitglied';
         $('st-av').innerHTML = typeof avatarInner === 'function' ? avatarInner({ ...user, name }) : e((name || '?')[0]);
         renderIcons(); wireIcons(); wireBar(); wireStart();
-        Object.assign(API, { state: () => S, save, openApp, closeWin, focus, ctx, closePops, toggleStart, renderStart, topWin, toggleMin, toggleMax, place, animate, area, showSnap, renderTasks, renderIcons, keys: KEYS, user: () => USER, apps: () => APPS, order: () => ORDER, webset: () => WEBSET, wins: WINS, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '', tile, esc: e });
+        Object.assign(API, { state: () => S, save, openApp, closeWin, focus, ctx, closePops, toggleStart, renderStart, topWin, toggleMin, toggleMax, place, animate, area, showSnap, renderTasks, renderIcons, keys: KEYS, snapTo, snapRect, togglePin, isPinned, deskH, user: () => USER, apps: () => APPS, order: () => ORDER, webset: () => WEBSET, wins: WINS, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '', tile, esc: e });
         if (window.JMOS_WIDGETS) JMOS_WIDGETS.init(API, user);
         (window.JMOS_EXT || []).forEach(x => { if (x.ui) Object.assign(NATIVE_UI, x.ui); try { x.init && x.init(API, user); } catch (err) { console.error('J.Mainz OS Erweiterung:', err); } });
         (S.wins || []).forEach(w => { if (APPS[w.app]) { const win = openApp(w.app, { ...w, restore: true }); if (win && w.min) toggleMin(win, true); } });
