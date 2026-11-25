@@ -5,6 +5,7 @@ Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 ## 25.11.2026 (4)
 
 ### J.Mainz OS: neue Widgets und Apps
+- Fehler behoben: „PIN festlegen“ und die Eingabefelder im Explorer (Umbenennen, Neuer Ordner) erschienen nur als kleines Schloss bzw. Stift am Rand, statt als Dialog.
 - Widget Messenger: die letzten Chats mit ungelesenen Nachrichten, ein Klick öffnet den Chat.
 - Widget Spotify: was gerade läuft, mit Zurück, Pause/Abspielen und Weiter (nutzt die Spotify-Verbindung aus der App „Spotify“).
 - Widget Budgets: Fortschrittsbalken je Budget-Kategorie im aktuellen Monat.

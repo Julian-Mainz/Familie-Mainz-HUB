@@ -533,3 +533,23 @@ html[data-icons="l"] .ico { width: 120px; } html[data-icons="l"] .ico-t { width:
 .ck-pre { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; } .ck-pre button { height: 30px; padding: 0 11px; border-radius: 99px; border: 1px solid var(--line-2); background: rgba(255, 255, 255, .04); color: #cbd5e1; font-size: 12px; } .ck-pre button:hover { background: rgba(var(--acc-rgb), .2); color: #fff; }
 .ck-in { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--mut); } .ck-in input { width: 64px; height: 36px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--line-2); background: rgba(0, 0, 0, .25); color: var(--txt); text-align: center; }
 @media (max-width: 760px) { .kb-c { grid-template-columns: 1fr; overflow: auto; } }
+
+/* Dialog-Stil (wie js/firebase-init.js), damit eigene Eingabe-Dialoge des OS (PIN, Umbenennen) auch ohne vorherigen Hinweis gestaltet sind */
+.uidlg-bg { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 16px; background: rgba(2, 6, 16, .62); animation: osFade .16s ease-out; }
+.uidlg { width: 100%; max-width: 420px; padding: 22px; border-radius: 24px; color: #e2e8f0; font: 14px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; background: linear-gradient(180deg, #151d33, #0d1324); border: 1px solid rgba(148, 163, 184, .2); box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .8); animation: osPop .22s cubic-bezier(.2, .9, .3, 1.15); }
+.uidlg-h { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; font-size: 16px; font-weight: 700; }
+.uidlg-i { flex: none; width: 38px; height: 38px; border-radius: 13px; display: grid; place-items: center; font-size: 16px; color: #a5b4fc; background: rgba(99, 102, 241, .16); }
+.uidlg.bad .uidlg-i { color: #fda4af; background: rgba(244, 63, 94, .16); }
+.uidlg p { margin: 0; color: #cbd5e1; white-space: pre-wrap; word-break: break-word; }
+.uidlg-a { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.uidlg-a button { min-width: 96px; padding: 10px 16px; border-radius: 13px; font: 600 14px system-ui, sans-serif; cursor: pointer; color: #e2e8f0; border: 1px solid rgba(148, 163, 184, .25); background: rgba(255, 255, 255, .05); }
+.uidlg-a button:hover { background: rgba(255, 255, 255, .1); }
+.uidlg-a .ok { color: #fff; border-color: transparent; background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+.uidlg.bad .uidlg-a .ok { background: linear-gradient(135deg, #e11d48, #f43f5e); }
+.uidlg-a button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@keyframes osFade { from { opacity: 0; } } @keyframes osPop { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+html.hell .uidlg-bg { background: rgba(15, 23, 42, .35); }
+html.hell .uidlg { color: #0f172a; background: #fff; border-color: #e2e8f0; box-shadow: 0 30px 70px -25px rgba(15, 23, 42, .35); }
+html.hell .uidlg p { color: #475569; } html.hell .uidlg-a button { color: #334155; background: #f8fafc; border-color: #cbd5e1; } html.hell .uidlg-a .ok { color: #fff; border-color: transparent; background: linear-gradient(135deg, #6366f1, #8b5cf6); } html.hell .uidlg.bad .uidlg-a .ok { background: linear-gradient(135deg, #e11d48, #f43f5e); }
+@media (prefers-reduced-motion: reduce) { .uidlg-bg, .uidlg { animation: none; } }
+@keyframes osPop { from { opacity: 0; transform: translateY(10px) scale(.97); } }
