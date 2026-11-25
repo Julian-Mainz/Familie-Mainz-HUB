@@ -95,6 +95,13 @@ html:not(.os-boot) #boot { opacity: 0; visibility: hidden; }
 body.dragging .shield { display: block; }
 .win.mv { transition: none; will-change: transform; }
 html.ff body.dragging * { backdrop-filter: none !important; }  /* Firefox: Unschärfe beim Ziehen aus, sonst ruckelt es */
+/* Leistungsmodus: keine Glas-Unschärfe (dafür dichtere Flächen), keine weichen Schatten an bewegten Figuren */
+html.perf *, html.perf *::before, html.perf *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+html.perf .wg:not(.bare) { background: linear-gradient(160deg, rgba(30, 38, 70, .93), rgba(12, 17, 34, .95)); }
+html.perf .pop, html.perf #chatbox, html.perf .tst, html.perf .sl-pop { background-color: rgba(14, 19, 36, .97); }
+html.perf #pet .pt-body, html.perf .ws-astro-a { filter: none; }
+html.perf #pet .pt-flame { animation-duration: .4s; }
+html.perf[data-wx="fog"] #tod::after { animation: none; }
 body.dragging, body.dragging * { user-select: none !important; }
 .rz { position: absolute; z-index: 4; }
 .rz.n, .rz.s { left: 8px; right: 8px; height: 7px; cursor: ns-resize; } .rz.n { top: -3px; } .rz.s { bottom: -3px; }

@@ -69,7 +69,15 @@
     const tile = (a, cls = '') => a.folder ? `<span class="ico-t folder ${cls}"><i class="fa-solid fa-folder"></i></span>` : a.thumb ? `<span class="ico-t thumb ${cls}"><img src="${a.thumb}" alt=""></span>` : `<span class="ico-t ${cls}${a.file ? ' file' : ''}" style="--c:${a.c}"><i class="fa-solid ${a.icon}"></i></span>`;
     const deskH = () => window.innerHeight - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--bar-h'));
 
-    if (/firefox/i.test(navigator.userAgent)) document.documentElement.classList.add('ff');
+    // Leistungsmodus: ohne Glas-Unschärfe und mit ruhigerem Hintergrund. „Automatisch“ = an in Firefox (dort ist die Unschärfe sehr teuer). Pro Gerät gespeichert.
+    const FF = /firefox/i.test(navigator.userAgent); if (FF) document.documentElement.classList.add('ff');
+    window.JMOS_PERF = {
+        get() { try { return localStorage.getItem('jmos-perf') || 'auto'; } catch (x) { return 'auto'; } },
+        on() { const v = this.get(); return v === 'on' || (v === 'auto' && FF); },
+        set(v) { try { localStorage.setItem('jmos-perf', v); } catch (x) {} this.apply(); },
+        apply() { const on = this.on(); document.documentElement.classList.toggle('perf', on); WINS.forEach(w => { try { w.frame && w.frame.contentDocument.documentElement.classList.toggle('jmos-perf', on); } catch (x) {} }); document.dispatchEvent(new Event('jmos-perf')); },
+    };
+    document.documentElement.classList.toggle('perf', JMOS_PERF.on());
     // ---------- Sternenhimmel ----------
     function stars() {
         const cv = $('stars'), cx = cv.getContext('2d'); let pts = [], raf = 0;
@@ -80,15 +88,17 @@
         const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
         let lastD = -1e9;
         const draw = t => {
-            if (t && (t - lastD < 66 || document.body.classList.contains('dragging'))) { if (!calm && !document.hidden) raf = requestAnimationFrame(draw); return; }   // Funkeln ist langsam: ~15 Bilder/s reichen, beim Ziehen Pause
+            const still = calm || JMOS_PERF.on();          // Leistungsmodus: Sterne einmal zeichnen, kein Funkeln
+            if (t && (t - lastD < 66 || document.body.classList.contains('dragging'))) { if (!still && !document.hidden) raf = requestAnimationFrame(draw); return; }   // Funkeln ist langsam: ~15 Bilder/s reichen, beim Ziehen Pause
             lastD = t;
             cx.clearRect(0, 0, innerWidth, innerHeight);
             for (const p of pts) { const a = calm ? p.a : .35 + .65 * Math.abs(Math.sin(p.p + t * p.s * .06)); cx.globalAlpha = a; cx.fillStyle = p.r > 1.1 ? '#c7d2fe' : '#fff'; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.283); cx.fill(); }
-            if (!calm && !document.hidden) raf = requestAnimationFrame(draw);
+            if (!still && !document.hidden) raf = requestAnimationFrame(draw);
         };
         size(); draw(0);
         addEventListener('resize', () => { cancelAnimationFrame(raf); size(); draw(performance.now()); });
         document.addEventListener('visibilitychange', () => { cancelAnimationFrame(raf); if (!document.hidden) draw(performance.now()); });
+        document.addEventListener('jmos-perf', () => { cancelAnimationFrame(raf); lastD = -1e9; draw(performance.now()); });
     }
     const setWall = w => { S.wall = w; document.documentElement.dataset.wall = w; save(); };
 
@@ -218,7 +228,8 @@
     function embed(win) {
         let doc; try { doc = win.frame.contentDocument; } catch (x) { return; }
         if (!doc || !doc.head) return;
-        if (!doc.getElementById('jmos-embed')) { const st = doc.createElement('style'); st.id = 'jmos-embed'; st.textContent = EMBED_CSS; doc.head.appendChild(st); }
+        if (!doc.getElementById('jmos-embed')) { const st = doc.createElement('style'); st.id = 'jmos-embed'; st.textContent = EMBED_CSS + ' html.jmos-perf #space-bg i, html.jmos-perf #space-bg b { animation: none !important; display: none; } html.jmos-perf * { backdrop-filter: none !important; }'; doc.head.appendChild(st); }
+        doc.documentElement.classList.toggle('jmos-perf', JMOS_PERF.on());
         const path = win.frame.contentWindow.location.pathname, now = appByPath(path);
         win.url = path + win.frame.contentWindow.location.search + win.frame.contentWindow.location.hash;
         if (now && now.id !== win.app.id && !WINS.some(w => w !== win && w.app.id === now.id)) {    // Seite hat innerhalb des Fensters gewechselt

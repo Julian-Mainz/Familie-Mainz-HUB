@@ -9,7 +9,7 @@
     const on = k => L()[k] !== false;              // alles standardmäßig an
 
     // ================= Lebendiger Hintergrund =================
-    let fx, fcx, raf = 0, shoot = [], drops = [], wxKind = '', flash = 0, nextShoot = 0, lastT = 0;
+    let fx, fcx, raf = 0, shoot = [], drops = [], wxKind = '', flash = 0, nextShoot = 0, lastT = 0, fxDirty = true;
     function sizeFx() { const d = Math.min(2, devicePixelRatio || 1); fx.width = innerWidth * d; fx.height = innerHeight * d; fcx.setTransform(d, 0, 0, d, 0, 0); makeDrops(); }
     function makeDrops() {
         const n = wxKind === 'rain' || wxKind === 'storm' ? Math.round(innerWidth / 9) : wxKind === 'snow' ? Math.round(innerWidth / 14) : 0;
@@ -24,8 +24,11 @@
         shoot.push({ x: fromLeft ? Math.random() * innerWidth * .6 : innerWidth * (.4 + Math.random() * .6), y: Math.random() * innerHeight * .45, vx: Math.sin(a) * 14 * (fromLeft ? 1 : 1), vy: Math.cos(Math.abs(a)) * 6, life: 0, max: 50 + Math.random() * 30 });
     }
     function frame(t) {
-        if (document.body.classList.contains('dragging')) { lastT = t; raf = requestAnimationFrame(frame); return; }   // beim Ziehen eines Fensters Pause
+        if (document.body.classList.contains('dragging') || (window.JMOS_PERF && JMOS_PERF.on() && t - lastT < 32)) { if (document.body.classList.contains('dragging')) lastT = t; raf = requestAnimationFrame(frame); return; }   // beim Ziehen Pause, im Leistungsmodus 30 Bilder/s
         const dt = Math.min(3, (t - lastT) / 16.7 || 1); lastT = t;
+        const busy = shoot.length || (on('wx') && drops.length);
+        if (!busy && !fxDirty) { if (on('shoot') && t > nextShoot) { spawnShoot(); nextShoot = t + 5000 + Math.random() * 12000; } raf = requestAnimationFrame(frame); return; }   // leerer Himmel: nichts neu zeichnen
+        fxDirty = !!busy;
         fcx.clearRect(0, 0, innerWidth, innerHeight);
         // Sternschnuppen
         if (on('shoot') && t > nextShoot) { spawnShoot(); if (Math.random() < .15) setTimeout(spawnShoot, 300); nextShoot = t + 5000 + Math.random() * 12000; }
@@ -248,6 +251,7 @@
     // ================= Einstellungen =================
     function settings(body) {
         const box = body.querySelector('.app-set'), sec = document.createElement('section');
+        const pv = window.JMOS_PERF ? JMOS_PERF.get() : 'auto';
         const tg = (k, t, d) => `<label class="set-row"><div><b>${t}</b><small>${d}</small></div><input type="checkbox" class="tgl" data-lv="${k}" ${on(k) ? 'checked' : ''}></label>`;
         sec.innerHTML = `<h3>Lebendiger Desktop</h3>
             ${tg('shoot', 'Sternschnuppen', 'Ab und zu zieht eine Sternschnuppe über den Himmel.')}
@@ -255,6 +259,7 @@
             ${tg('wx', 'Wetter', 'Regen, Schnee, Gewitter oder Nebel wie draußen bei dir (Ort aus dem Wetter-Widget).')}
             <label class="set-row"><div><b>Astro, der kleine Astronaut</b><small>Schwebt über den Desktop. Anklicken, ziehen oder per Rechtsklick ausblenden.</small></div><input type="checkbox" class="tgl" data-pet ${S.pet !== false ? 'checked' : ''}></label>
             <div class="set-row"><div><b>Bildschirmschoner</b><small>Flug durch die Sterne mit Uhr, nach so vielen Minuten ohne Maus und Tastatur.</small></div><div style="display:flex;gap:8px;align-items:center"><button type="button" class="btn lv-prev">Vorschau</button><select class="sh-sel lv-saver">${[[0, 'Nie'], [3, '3 Min.'], [5, '5 Min.'], [10, '10 Min.'], [15, '15 Min.'], [30, '30 Min.']].map(([v, n]) => `<option value="${v}" ${saverMin() === v ? 'selected' : ''}>${n}</option>`).join('')}</select></div></div>
+            <div class="set-row"><div><b>Leistungsmodus</b><small>Ohne Glas-Unschärfe und mit ruhigerem Sternenhimmel, damit alles flüssig läuft. „Automatisch“ schaltet ihn in Firefox ein. Gilt nur für dieses Gerät.</small></div><select class="sh-sel lv-perf">${[['auto', 'Automatisch'], ['on', 'An'], ['off', 'Aus']].map(([v, n]) => `<option value="${v}" ${pv === v ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
             <div class="set-row lv-inst"><div><b>Als App installieren</b><small></small></div><button type="button" class="btn">Installieren</button></div>`;
         box.insertBefore(sec, box.children[2] || null); paintInstall(sec.querySelector('.lv-inst'));
         box.addEventListener('change', ev => {          // an .app-set, damit die Zeilen in den Einstellungen frei verschoben werden können
@@ -262,6 +267,7 @@
             if (t.dataset.lv) { L()[t.dataset.lv] = t.checked; API.save(); if (t.dataset.lv === 'tod') tod(); else if (t.dataset.lv === 'wx') { if (t.checked) weather(); else setWx(''); } else runFx(); }
             else if ('pet' in t.dataset) { S.pet = t.checked; API.save(); t.checked ? petOn() : petOff(); }
             else if (t.classList.contains('lv-saver')) { S[SAVER_KEY] = +t.value; API.save(); }
+            else if (t.classList.contains('lv-perf') && window.JMOS_PERF) JMOS_PERF.set(t.value);
         });
         box.addEventListener('click', ev => {
             if (ev.target.closest('.lv-prev')) { ev.stopPropagation(); setTimeout(saverOn, 50); }

@@ -56,7 +56,8 @@
         for (let i = 0; i < n; i++) { const a = Math.random() * 6.283, sp = 2 + Math.random() * 5.5; born.push({ k: 's', x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0, max: 50 + Math.random() * 40, c: i % 3 ? c : two }); }
     }
     function frame(t) {
-        if (document.body.classList.contains('dragging')) { lastT = t; raf = requestAnimationFrame(frame); return; }   // beim Ziehen eines Fensters Pause
+        if (document.body.classList.contains('dragging')) { lastT = t; raf = requestAnimationFrame(frame); return; }
+        if (window.JMOS_PERF && JMOS_PERF.on() && t - lastT < 32) { raf = requestAnimationFrame(frame); return; }   // Leistungsmodus: 30 Bilder/s   // beim Ziehen eines Fensters Pause
         const dt = Math.min(3, (t - lastT) / 16.7 || 1); lastT = t;
         cx.clearRect(0, 0, innerWidth, innerHeight);
         if (cur === 'xmas') {

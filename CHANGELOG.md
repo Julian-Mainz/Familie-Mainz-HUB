@@ -2,6 +2,15 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (19)
+
+### Desktop-Modus: Leistungsmodus (automatisch in Firefox)
+- Neuer Leistungsmodus unter Einstellungen → System → Bildschirm: Automatisch, An oder Aus (gilt nur für das jeweilige Gerät). „Automatisch“ schaltet ihn in Firefox ein, weil Firefox die Glas-Unschärfe über dem bewegten Sternenhimmel bei jedem Bild neu berechnen muss.
+- Im Leistungsmodus: keine Glas-Unschärfe (Taskleiste, Widgets, Menüs bekommen dafür dichtere Flächen), Sternenhimmel ohne Funkeln, Sternschnuppen, Wetter und Schnee mit 30 statt 60 Bildern pro Sekunde, keine funkelnden Sterne in den App-Fenstern, Astro ohne weichen Schatten.
+- Allgemein: Ist gerade keine Sternschnuppe und kein Wetter zu sehen, wird der Himmel gar nicht mehr neu gezeichnet.
+- Geänderte Dateien: OS/os.js, OS/os.css, OS/live.js, OS/season.js, OS/setwin.js
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (18)
 
 ### Desktop-Modus: Fenster verschieben ohne Ruckeln (vor allem in Firefox)
