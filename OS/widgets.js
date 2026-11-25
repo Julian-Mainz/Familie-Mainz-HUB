@@ -255,9 +255,9 @@
     function clampPos(w) { const [ww, wh] = TYPES[w.type].sizes[w.size], a = area(); w.x = Math.max(4, Math.min(a.w - ww - 4, w.x)); w.y = Math.max(4, Math.min(a.h - wh - 4, w.y)); }
     function render() {
         LIVE.forEach(off => { try { off && off(); } catch (x) {} }); LIVE.clear();
-        const S = API.state(); S.widgets = (S.widgets || []).filter(w => TYPES[w.type] && allowed(w.type));
+        const S = API.state(); S.widgets = S.widgets || [];
         box().innerHTML = '';
-        S.widgets.forEach(mount);
+        S.widgets.filter(w => TYPES[w.type] && allowed(w.type)).forEach(mount);       // unbekannte Arten bleiben gespeichert (kommen evtl. aus einer Erweiterung)
     }
     function mount(w) {
         const T = TYPES[w.type]; if (!T.sizes[w.size]) w.size = 'm'; clampPos(w);
@@ -291,14 +291,14 @@
     function bringFront(w) { const S = API.state(); S.widgets.splice(S.widgets.indexOf(w), 1); S.widgets.push(w); const el = box().querySelector(`[data-id="${w.id}"]`); if (el) box().appendChild(el); }
     function resize(w, size) {
         w.size = size; const S = API.state(), [ww, wh] = TYPES[w.type].sizes[size];
-        const overlap = S.widgets.some(o => { if (o === w) return false; const [ow, oh] = TYPES[o.type].sizes[o.size]; return w.x < o.x + ow && w.x + ww > o.x && w.y < o.y + oh && w.y + wh > o.y; });
+        const overlap = S.widgets.some(o => { if (o === w || !TYPES[o.type]) return false; const [ow, oh] = TYPES[o.type].sizes[o.size]; return w.x < o.x + ow && w.x + ww > o.x && w.y < o.y + oh && w.y + wh > o.y; });
         if (overlap) { const rest = S.widgets; S.widgets = rest.filter(o => o !== w); Object.assign(w, freeSpot(w.type, size)); S.widgets = rest; }   // größer geworden und verdeckt etwas: freien Platz suchen
         const old = box().querySelector(`[data-id="${w.id}"]`); const off = LIVE.get(w.id); try { off && off(); } catch (x) {} LIVE.delete(w.id); old && old.remove(); mount(w); API.save(); }
     function remove(w) { const S = API.state(), el = box().querySelector(`[data-id="${w.id}"]`); const off = LIVE.get(w.id); try { off && off(); } catch (x) {} LIVE.delete(w.id); S.widgets = S.widgets.filter(x => x !== w); if (el) { el.classList.add('bye'); setTimeout(() => el.remove(), 180); } API.save(); }
     // Freien Platz suchen: von rechts oben nach unten, dann weiter links
     function freeSpot(type, size) {
         const [ww, wh] = TYPES[type].sizes[size], a = area(), S = API.state(), G = 16;
-        const hit = (x, y) => S.widgets.some(o => { const [ow, oh] = TYPES[o.type].sizes[o.size]; return x < o.x + ow + 8 && x + ww + 8 > o.x && y < o.y + oh + 8 && y + wh + 8 > o.y; });
+        const hit = (x, y) => S.widgets.some(o => { if (!TYPES[o.type]) return false; const [ow, oh] = TYPES[o.type].sizes[o.size]; return x < o.x + ow + 8 && x + ww + 8 > o.x && y < o.y + oh + 8 && y + wh + 8 > o.y; });
         for (let x = a.w - ww - G; x > 240; x -= 40) for (let y = G; y + wh < a.h - 8; y += 24) if (!hit(x, y)) return { x, y };
         return { x: Math.max(240, a.w - ww - G), y: G };
     }
@@ -328,7 +328,7 @@
     }
 
     window.JMOS_WIDGETS = {
-        init(api, user) { API = api; U = user; const S = API.state(); if (!Array.isArray(S.widgets)) defaults(); render(); addEventListener('resize', () => { clearTimeout(this.t); this.t = setTimeout(() => { API.state().widgets.forEach(w => { const el = box().querySelector(`[data-id="${w.id}"]`); clampPos(w); if (el) { el.style.left = w.x + 'px'; el.style.top = w.y + 'px'; } }); }, 200); }); },
-        picker, render, TYPES, use, zeitKpis: d => zeitKpis(d),
+        init(api, user) { API = api; U = user; const S = API.state(); if (!Array.isArray(S.widgets)) defaults(); render(); addEventListener('resize', () => { clearTimeout(this.t); this.t = setTimeout(() => { API.state().widgets.filter(w => TYPES[w.type]).forEach(w => { const el = box().querySelector(`[data-id="${w.id}"]`); clampPos(w); if (el) { el.style.left = w.x + 'px'; el.style.top = w.y + 'px'; } }); }, 200); }); },
+        picker, render, TYPES, use, zeitKpis: d => zeitKpis(d), sollMin: (a, b) => sollMin(a, b), addSource: (n, f) => { START[n] = f; },
     };
 })();

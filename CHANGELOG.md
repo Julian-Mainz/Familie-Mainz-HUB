@@ -2,6 +2,19 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (4)
+
+### J.Mainz OS: neue Widgets und Apps
+- Widget Messenger: die letzten Chats mit ungelesenen Nachrichten, ein Klick öffnet den Chat.
+- Widget Spotify: was gerade läuft, mit Zurück, Pause/Abspielen und Weiter (nutzt die Spotify-Verbindung aus der App „Spotify“).
+- Widget Budgets: Fortschrittsbalken je Budget-Kategorie im aktuellen Monat.
+- Widget Überstunden-Verlauf: Mehr- und Minderstunden der letzten Monate als Balken.
+- App Fotos: alle Bilder aus deinen Dokumenten nach Monat, mit Bildbetrachter zum Blättern.
+- App Aufgaben-Board: Aufgaben und Einkäufe als Karten in „Offen“, „In Arbeit“, „Erledigt“, per Ziehen verschieben.
+- App Stoppuhr & Timer: Stoppuhr mit Runden, Timer mit Schnellwahl und Ton am Ende.
+- Geänderte Dateien: OS/index.html, OS/os.css, OS/os-icons.css, OS/widgets.js, OS/apps.js (neu)
+- Firestore-Regeln: todos dürfen zusätzlich das Feld „stage“ (Board-Spalte) ändern.
+
 ## 25.11.2026 (3)
 
 ### J.Mainz OS: Fenster, Taskleiste, Sperrbildschirm, Personalisierung
