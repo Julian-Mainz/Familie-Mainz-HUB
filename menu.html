@@ -13,19 +13,19 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="J.Mainz">
-    <link rel="stylesheet" href="/assets/icons.css?v=eb1a2453">
+    <link rel="stylesheet" href="/assets/icons.css?v=ee8f7468">
     <link rel="stylesheet" href="/assets/ui.css?v=5c4d9c4c">
     <link rel="stylesheet" href="/assets/light.css?v=00672ed2">
     <link rel="stylesheet" href="/assets/space.css?v=6a03cf86">
     <script src="/js/space.js?v=6b19e834"></script>
     <link rel="stylesheet" href="/assets/ux.css?v=5dadaea8">
     <link rel="stylesheet" href="/assets/layout.css?v=af1abb40">
-    <script src="/js/theme.js?v=396d0387"></script>
+    <script src="/js/theme.js?v=8d442107"></script>
     <script src="/js/vendor/firebase-app-compat.js?v=c066068f" defer></script>
     <script src="/js/vendor/firebase-auth-compat.js?v=4d9f6e50" defer></script>
     <script src="/js/vendor/firebase-firestore-compat.js?v=53cdabb9" defer></script>
-    <script src="/js/firebase-init.js?v=938af1f4" defer></script>
-    <script src="/js/calendar-core.js?v=8477983d" defer></script>
+    <script src="/js/firebase-init.js?v=77ec4fd2" defer></script>
+    <script src="/js/calendar-core.js?v=6336fed1" defer></script>
     <script src="/js/ux.js?v=34deac13" defer></script>
     <script src="/js/layout.js?v=65577de7" defer></script>
     <script src="/js/drawer.js?v=f6f08069" defer></script>
@@ -140,6 +140,44 @@
         .ev-cols .sw i { display: none; } .ev-cols input:checked + .sw i { display: block; } .ev-cols .sw.auto i { display: block; }
         .evb { width: 100%; justify-content: flex-start; margin-bottom: 8px; text-align: left; } .evb.bad { color: #fecdd3; border-color: rgba(244, 63, 94, .4); background: rgba(244, 63, 94, .12); }
         @media (max-width: 600px) { .clk .dt { font-size: 34px; } .wk span { padding: 0 6px; min-width: 0; } }
+        /* Feiertage, Ferien, Einladungen, Termin-Dialog (Ort, Teilen, Anhänge) */
+        .spd { display: flex; align-items: center; gap: 5px; font-size: 10.5px; padding: 2px 6px; border-radius: 7px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .spd.hol { color: #fecaca; background: rgba(248, 113, 113, .16); } .spd.fer { color: #a7f3d0; background: rgba(52, 211, 153, .13); } .spd i { font-size: 9px; }
+        .cal-d.hol { background: rgba(248, 113, 113, .07); } .cal-d.fer { box-shadow: inset 0 -3px 0 rgba(52, 211, 153, .45); } .cal-d.hol .cal-n b { color: #fca5a5; }
+        .cal-sp { font-size: 10.5px; padding: 1px 6px; border-radius: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .cal-sp.hol { color: #fecaca; background: rgba(248, 113, 113, .16); } .cal-sp.fer { color: #a7f3d0; background: rgba(52, 211, 153, .12); }
+        .ne.spr { cursor: default; } .ne.spr .ei { background: rgba(248, 113, 113, .15); color: #fca5a5; } .ne.spr.fer .ei { background: rgba(52, 211, 153, .14); color: #6ee7b7; } .ne.spr:hover b { color: inherit; text-decoration: none; }
+        .pend { outline: 1.5px dashed rgba(251, 191, 36, .8); outline-offset: -1.5px; opacity: .85; } .ne.pend { outline: 0; } .pend-t { color: #fbbf24; font-weight: 600; }
+        .inv { margin: 0 0 12px; padding: 10px 12px; border-radius: 14px; background: rgba(251, 191, 36, .1); border: 1px solid rgba(251, 191, 36, .35); }
+        .inv > b { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #fde68a; margin-bottom: 6px; } .inv-r { display: flex; align-items: center; gap: 6px; padding: 4px 0; }
+        .inv-t { flex: 1; min-width: 0; display: flex; flex-direction: column; text-align: left; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; padding: 0; } .inv-t span { font-weight: 600; font-size: 13.5px; } .inv-t small { color: #94a3b8; font-size: 11.5px; }
+        .inv-r .ux-btn { padding: 7px 10px; }
+        .ev-days { display: flex; gap: 6px; flex-wrap: wrap; } .ev-days label { cursor: pointer; } .ev-days input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+        .ev-days span { display: grid; place-items: center; width: 40px; height: 34px; border-radius: 10px; border: 1px solid rgba(148, 163, 184, .25); font-size: 12.5px; font-weight: 600; color: #cbd5e1; transition: .15s; }
+        .ev-days input:checked + span { background: var(--m); border-color: var(--m); color: #fff; } .ev-days input:focus-visible + span { outline: 2px solid var(--m); outline-offset: 2px; }
+        .ev-share { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; } .ev-share label { cursor: pointer; } .ev-share input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+        .ev-share span { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 4px; border-radius: 12px; border: 1px solid rgba(148, 163, 184, .22); font-size: 12px; color: #cbd5e1; text-align: center; transition: .15s; } .ev-share span i { font-size: 15px; }
+        .ev-share input:checked + span { background: rgba(var(--mr), .18); border-color: var(--m); color: #fff; } .ev-share input:focus-visible + span { outline: 2px solid var(--m); outline-offset: 2px; }
+        .ev-people { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; margin: 0 0 14px; max-height: 190px; overflow: auto; }
+        .ev-people label { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; border: 1px solid rgba(148, 163, 184, .18); cursor: pointer; font-size: 13px; }
+        .ev-people label:has(input:checked) { border-color: var(--m); background: rgba(var(--mr), .14); } .ev-people input { accent-color: var(--m); }
+        .pav { width: 24px; height: 24px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--m), var(--m2)); }
+        .ev-part, .ev-rsvp { margin: 0 0 14px; padding: 10px 12px; border-radius: 12px; background: rgba(148, 163, 184, .08); font-size: 13px; }
+        .ev-part > b { display: block; margin-bottom: 6px; font-size: 12.5px; color: #cbd5e1; } .ev-part > b i { color: var(--m); margin-right: 4px; }
+        .ev-part > div { display: flex; flex-wrap: wrap; gap: 6px 14px; } .ev-part span { display: inline-flex; align-items: center; gap: 6px; } .ev-part small { color: #94a3b8; }
+        .ev-rsvp { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: rgba(251, 191, 36, .1); border: 1px solid rgba(251, 191, 36, .3); } .ev-rsvp > span { flex: 1 1 200px; }
+        .ev-files { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; } .evf { display: flex; align-items: center; gap: 10px; padding: 7px 8px 7px 12px; border-radius: 10px; background: rgba(148, 163, 184, .08); }
+        .evf > i { color: var(--m); font-size: 16px; } .evf > span { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .evf small { display: block; color: #94a3b8; font-size: 11px; }
+        .ev-addf { cursor: pointer; align-self: flex-start; display: inline-flex; }
+        #modal-event textarea.ux-in { resize: vertical; min-height: 60px; font: inherit; }
+        .cs-cal { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: rgba(148, 163, 184, .08); margin-bottom: 6px; } .cs-cal .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+        .cs-cal > span:nth-child(2) { flex: 1; min-width: 0; display: flex; flex-direction: column; } .cs-cal b { font-size: 13.5px; } .cs-cal small { color: #94a3b8; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cs-calform { margin: 6px 0 10px; padding: 12px; border-radius: 14px; border: 1px solid rgba(var(--mr), .4); background: rgba(var(--mr), .06); }
+        /* heller Modus */
+        html.hell .spd.hol, html.hell .cal-sp.hol { color: #991b1b; background: #fee2e2; } html.hell .spd.fer, html.hell .cal-sp.fer { color: #065f46; background: #d1fae5; } html.hell .cal-d.hol .cal-n b { color: #b91c1c; }
+        html.hell .cal-d.hol { background: #fef2f2; } html.hell .ne.spr .ei { background: #fee2e2; color: #b91c1c; } html.hell .ne.spr.fer .ei { background: #d1fae5; color: #047857; }
+        html.hell .inv { background: #fffbeb; border-color: #f59e0b; } html.hell .inv > b, html.hell .pend-t { color: #92400e; } html.hell .inv-t small, html.hell .ev-part small, html.hell .evf small, html.hell .cs-cal small { color: #475569; }
+        html.hell .ev-days span, html.hell .ev-share span { color: #334155; border-color: rgba(15, 23, 42, .2); } html.hell .ev-share input:checked + span { color: #0f172a; } html.hell .ev-days input:checked + span { color: #fff; }
+        html.hell .ev-people label { border-color: rgba(15, 23, 42, .16); } html.hell .ev-part, html.hell .evf, html.hell .cs-cal { background: #f1f5f9; } html.hell .ev-part > b { color: #334155; } html.hell .ev-rsvp { background: #fffbeb; border-color: #f59e0b; }
     </style>
 </head>
 <body class="ux">
@@ -217,7 +255,9 @@
         <section data-w="calendar" class="ux-card cq lay-flex" style="--m:#818cf8;--m2:#6366f1;--mr:129,140,248">
             <div class="mh"><span class="ic"><i class="fa-regular fa-calendar-days"></i></span><h2>Kalender</h2><span class="sp"></span>
                 <span class="tabs3" id="cal-tabs" role="tablist"><button type="button" role="tab" data-v="week"><i class="fa-solid fa-calendar-week"></i>Woche</button><button type="button" role="tab" data-v="month"><i class="fa-regular fa-calendar"></i>Monat</button><button type="button" role="tab" data-v="list"><i class="fa-solid fa-list"></i>Liste</button></span>
+                <button class="gear" onclick="openCalSettings()" title="Kalender-Einstellungen: Feiertage, Ferien, Erinnerungen, gemeinsame Kalender" aria-label="Kalender-Einstellungen"><i class="fa-solid fa-gear"></i></button>
                 <button class="ux-btn pri" onclick="openEventModal()" style="padding:9px 14px"><i class="fa-solid fa-plus"></i>Termin</button></div>
+            <div id="inv-box" class="inv hidden" aria-live="polite"></div>
             <div class="kal fill">
                 <div class="nx"><h3><i class="fa-regular fa-calendar-check"></i>Nächste Termine</h3><div id="nx-list"></div>
                     <button type="button" class="allb" onclick="setCalView('list')">Alle Termine <i class="fa-solid fa-arrow-right"></i></button></div>
@@ -292,8 +332,25 @@
                 <label class="ux-f" id="ev-int-wrap"><span>Alle</span><span class="ux-flex" style="display:flex"><input type="number" id="ev-interval" min="1" max="99" value="1" class="ux-in"><span id="ev-unit" class="ux-note" style="white-space:nowrap;margin:0">Tag(e)</span></span></label>
                 <label class="ux-f"><span>Bis (optional)</span><input type="date" id="ev-until" class="ux-in"></label>
             </div>
+            <div id="ev-days-wrap" class="ux-f hidden"><span id="ev-days-l">An diesen Tagen</span><div class="ev-days" id="ev-days" role="group" aria-labelledby="ev-days-l"></div></div>
         </div>
-        <label class="ux-ck"><input type="checkbox" id="ev-public"> Öffentlich für alle sichtbar</label>
+        <label class="ux-f"><span>Ort (optional)</span><input type="text" id="ev-loc" maxlength="200" class="ux-in" placeholder="z. B. Praxis Dr. Müller, Hauptstraße 5"></label>
+        <label class="ux-f"><span>Notizen (optional)</span><textarea id="ev-notes" maxlength="2000" rows="2" class="ux-in" placeholder="z. B. Versichertenkarte mitnehmen"></textarea></label>
+        <label class="ux-f"><span>Erinnerung</span><select id="ev-remind" class="ux-in"></select></label>
+        <div class="ux-f"><span id="ev-share-l">Sichtbar für</span>
+            <div class="ev-share" id="ev-share" role="radiogroup" aria-labelledby="ev-share-l">
+                <label><input type="radio" name="evshare" value="private"><span><i class="fa-solid fa-lock"></i>Nur ich</span></label>
+                <label><input type="radio" name="evshare" value="public"><span><i class="fa-solid fa-earth-europe"></i>Alle</span></label>
+                <label><input type="radio" name="evshare" value="people"><span><i class="fa-solid fa-user-group"></i>Personen</span></label>
+                <label><input type="radio" name="evshare" value="calendar"><span><i class="fa-solid fa-calendar-days"></i>Kalender</span></label>
+            </div></div>
+        <div id="ev-people" class="ev-people hidden"></div>
+        <div id="ev-calwrap" class="ux-f hidden"><span>Gemeinsamer Kalender</span><span style="display:flex;gap:8px"><select id="ev-cal" class="ux-in"></select><button type="button" class="ux-btn" onclick="openCalSettings('cals')" title="Gemeinsame Kalender verwalten"><i class="fa-solid fa-gear"></i></button></span></div>
+        <div id="ev-part" class="ev-part hidden"></div>
+        <div id="ev-rsvp" class="ev-rsvp hidden"></div>
+        <div class="ux-f" id="ev-files-box"><span>Anhänge (Tickets, PDFs, Fotos · je bis 3 MB)</span>
+            <div id="ev-files" class="ev-files"></div>
+            <label class="ux-btn ev-addf" id="ev-addf"><i class="fa-solid fa-paperclip"></i>Datei anhängen<input type="file" id="ev-file" multiple hidden accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt,.pkpass"></label></div>
         <div id="ev-ro" class="hidden ux-note" style="margin-bottom:12px">Dieser Termin gehört einer anderen Person und ist nur lesbar.</div>
         <div class="ux-acts" style="align-items:center">
             <button type="button" id="ev-del" onclick="askDeleteEvent()" class="hidden ux-btn" style="color:#fecdd3;border-color:rgba(244,63,94,.4);background:rgba(244,63,94,.12)"><i class="fa-solid fa-trash-can"></i>Löschen</button>
@@ -302,6 +359,30 @@
             <button id="ev-save" class="ux-btn pri">Speichern</button>
         </div>
     </form></div></div>
+
+<div id="modal-calset" class="ux-modal hidden"><div class="ux-box" style="--m:#818cf8;--m2:#6366f1;--mr:129,140,248;width:min(100%,520px)">
+    <h3><i class="fa-solid fa-gear"></i>Kalender-Einstellungen<button class="ux-ib" onclick="closeModal('modal-calset')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3>
+    <div style="margin-top:14px">
+        <label class="ux-f"><span>Bundesland (für Feiertage, Ferien und die Zeiterfassung)</span><select id="cs-region" class="ux-in"></select></label>
+        <label class="ux-ck"><input type="checkbox" id="cs-hol"> Feiertage im Kalender anzeigen</label>
+        <label class="ux-ck"><input type="checkbox" id="cs-fer"> Schulferien im Kalender anzeigen</label>
+        <div id="cs-fer-info" class="ux-note" style="margin:-4px 0 12px"></div>
+        <label class="ux-f"><span>Standard-Erinnerung für neue Termine</span><select id="cs-remind" class="ux-in"></select></label>
+        <div class="ux-note" style="margin:-4px 0 6px">Gilt für Termine mit Uhrzeit; ganztägige Termine erinnern nur, wenn du es im Termin einstellst. Erinnerungen erscheinen, solange eine Seite des Dashboards offen ist (auch im Desktop-Modus). Für einzelne Termine kannst du sie im Termin abschalten.</div>
+        <button type="button" id="cs-notif" class="ux-btn" style="margin-bottom:16px"><i class="fa-solid fa-bell"></i>Mitteilungen des Browsers erlauben</button>
+        <h4 id="cs-cals-h" style="margin:8px 0 8px;font-size:14px"><i class="fa-solid fa-calendar-days" style="color:#818cf8;margin-right:8px"></i>Gemeinsame Kalender</h4>
+        <div class="ux-note" style="margin:0 0 10px">z. B. „Familie“, „Partner“ oder „WG“: Termine in diesem Kalender sehen alle Mitglieder automatisch.</div>
+        <div id="cs-cals"></div>
+        <form id="cs-calform" class="cs-calform hidden">
+            <input type="hidden" id="cs-cid">
+            <div class="ux-row2"><label class="ux-f"><span>Name</span><input type="text" id="cs-cname" maxlength="40" required class="ux-in" placeholder="z. B. Familie"></label>
+                <div class="ux-f"><span>Farbe</span><div class="ev-cols" id="cs-ccols"></div></div></div>
+            <div class="ux-f"><span>Mitglieder</span><div id="cs-cmem" class="ev-people"></div></div>
+            <div class="ux-acts"><button type="button" class="ux-btn" onclick="$('cs-calform').classList.add('hidden')">Abbrechen</button><button class="ux-btn pri">Kalender speichern</button></div>
+        </form>
+        <button type="button" id="cs-newcal" class="ux-btn" style="width:100%"><i class="fa-solid fa-plus"></i>Neuer gemeinsamer Kalender</button>
+        <div class="ux-acts" style="margin-top:16px"><div style="flex:1"></div><button type="button" class="ux-btn" onclick="closeModal('modal-calset')">Abbrechen</button><button type="button" id="cs-save" class="ux-btn pri">Speichern</button></div>
+    </div></div></div>
 
 <div id="modal-evdel" class="ux-modal hidden"><div class="ux-box" style="--m:#fb7185;--m2:#e11d48;--mr:251,113,133;width:min(100%,400px)">
     <h3><i class="fa-solid fa-trash-can"></i>Termin löschen</h3>
@@ -314,6 +395,6 @@
     <button onclick="closeModal('modal-evdel')" class="ux-btn" style="width:100%;margin-top:4px">Abbrechen</button>
 </div></div>
 
-<script src="/js/pages/menu.js?v=c90cc308" defer></script>
+<script src="/js/pages/menu.js?v=c348368c" defer></script>
 </body>
 </html>

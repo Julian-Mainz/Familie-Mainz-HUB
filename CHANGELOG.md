@@ -2,6 +2,21 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (15)
+
+### Kalender: Feiertage & Ferien, mehrere Wochentage, Ort & Notizen, Erinnerungen, Teilen mit Personen, gemeinsame Kalender, Einladungen, Anhänge
+- Feiertage und Schulferien je Bundesland im Kalender (Woche, Monat, Liste, Wandkalender), einzeln ein- und ausschaltbar über das Zahnrad im Kalender. Feiertage werden für alle 16 Bundesländer berechnet, Schulferien kommen von der OpenHolidays-API und werden im Browser zwischengespeichert.
+- Wiederholung „wöchentlich an mehreren Tagen“, z. B. Mo, Di und Sa in einer einzigen Serie (auch alle 2 Wochen).
+- Ort und Notizen zum Termin; der Ort steht auch in der Terminliste.
+- Erinnerungen: Standard-Erinnerung in den Kalender-Einstellungen (z. B. 1 Stunde vorher), pro Termin änderbar oder abschaltbar. Erinnerungen erscheinen auf jeder Seite des Dashboards und im Desktop-Modus (dort auch von Astro angesagt), auf Wunsch zusätzlich als Mitteilung des Browsers. Ganztägige Termine erinnern nur, wenn es im Termin eingestellt ist.
+- Sichtbar für: Nur ich, Alle, ausgewählte Personen oder einen gemeinsamen Kalender.
+- Einladungen: Eingeladene sehen oben im Kalender „Neue Einladung“ und können zu- oder absagen; abgesagte Termine werden ausgeblendet. Der Besitzer sieht im Termin, wer zugesagt hat.
+- Gemeinsame Kalender (z. B. Familie, Partner, WG) mit Name, Farbe und Mitgliedern; Termine darin sehen alle Mitglieder automatisch. Mitglieder können austreten, der Besitzer kann Mitglieder ändern (die Termine werden angepasst).
+- Anhänge an Terminen (Tickets, PDFs, Fotos, je bis 3 MB); sehen und herunterladen kann sie jeder, der den Termin sieht.
+- Die Suche, der Wandkalender und der Desktop-Modus zeigen geteilte Termine ebenfalls.
+- Geänderte Dateien: js/calendar-core.js, js/cal-remind.js (neu), js/firebase-init.js, js/pages/menu.js, menu.html, js/pages/wand.js, js/search.js, OS/widgets.js, OS/tools.js, assets/icons.css
+- Firestore-Regeln: geändert – Block `events` (Teilen, Zusagen, Anhänge) und neuer Block `calendars`.
+
 ## 25.11.2026 (14)
 
 ### Heller Modus: mehr Kontrast, lesbare Pinnwand

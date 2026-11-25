@@ -225,6 +225,8 @@
             API.keys.push(keys);
             (window.JMOS_SEARCH_EXTRA = window.JMOS_SEARCH_EXTRA || []).push(searchExtra);
             window.JMOS_SHOT = screenshot;
+            // Termin-Erinnerungen (js/cal-remind.js) erscheinen im OS als eigene Mitteilung; Astro sagt sie zusätzlich an
+            addEventListener('jm-cal-remind', ev => { const d = ev.detail || {}; toast('fa-bell', '#818cf8', '⏰ ' + d.title, d.text, 12000); if (window.JMOS_ASTRO && S.astroTalk !== false) JMOS_ASTRO.say('⏰ ' + d.title + ' – ' + d.text, 9000); });
             W().render();
         },
     });

@@ -346,12 +346,20 @@ function initAuthGuard(onReadyCallback, opts = {}) {
             }
 
             registerSW(!!currentUser.notificationsEnabled);
+            loadCalRemind();
             if (onReadyCallback) onReadyCallback(currentUser);
         } catch (e) {
             console.error('Auth-Fehler:', e);
             denyAccess('Fehler beim Laden der Benutzerdaten: ' + e.message);
         }
     });
+}
+
+// Termin-Erinnerungen auf jeder Seite: Termin-Logik (falls die Seite sie nicht schon hat) und das Erinnerungs-Modul nachladen
+function loadCalRemind() {
+    if (!currentUser || !can(currentUser, 'termine') || window.__calRemind) return;
+    const add = p => new Promise(res => { const s = document.createElement('script'); s.src = (window.assetUrl || (x => x))(p); s.onload = res; s.onerror = res; document.head.appendChild(s); });
+    (window.CAL ? Promise.resolve() : add('/js/calendar-core.js')).then(() => add('/js/cal-remind.js'));
 }
 
 async function handleLogout() {

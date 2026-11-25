@@ -66,12 +66,13 @@
         if (loading) return loading;
         const me = currentUser.email, get = async q => { try { return (await q.get()).docs.map(d => ({ id: d.id, ...d.data() })); } catch (e) { return []; } };
         loading = (async () => {
-            const [pub, mine, notes, todos, tx, work] = await Promise.all([
+            const [pub, mine, notes, todos, tx, work, shared] = await Promise.all([
                 can(currentUser, 'termine') ? get(db.collection('events').where('isPublic', '==', true)) : [], can(currentUser, 'termine') ? get(db.collection('events').where('owner', '==', me)) : [],
                 can(currentUser, 'pinnwand') ? get(db.collection('notes').orderBy('createdAt', 'desc').limit(100)) : [], can(currentUser, 'aufgaben') ? get(db.collection('todos').orderBy('createdAt', 'desc').limit(200)) : [],
                 can(currentUser, 'finanzen') ? get(db.collection('finance_transactions').where('owner', '==', me).limit(1500)) : [],
-                can(currentUser, 'zeit') ? get(db.collection('worktime').where('owner', '==', me).limit(1500)) : []]);
-            const ev = new Map(); [...pub, ...mine].forEach(e => ev.set(e.id, e));
+                can(currentUser, 'zeit') ? get(db.collection('worktime').where('owner', '==', me).limit(1500)) : [],
+                can(currentUser, 'termine') ? get(db.collection('events').where('members', 'array-contains', currentUser.uid)) : []]);
+            const ev = new Map(); [...pub, ...mine, ...shared].filter(e => !window.CAL || !CAL.visible || CAL.visible(e, currentUser)).forEach(e => ev.set(e.id, e));
             cache = [
                 ...[...ev.values()].map(e => {
                     const C = window.CAL, rec = !!(C && C.isRecurring(e)), nx = C ? C.nextOccurrences([e], localDate(), 1, 400)[0] : null, d = nx ? nx.date : e.date;

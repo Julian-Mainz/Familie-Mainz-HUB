@@ -23,10 +23,7 @@
             db.collection('worktime').where('owner', '==', U.email).onSnapshot(s => { entries = s.docs.map(d => d.data()); set({ active, entries }); }, () => set({ active, entries }));
         },
         events(set) {
-            let pub = [], mine = [];
-            const merge = () => { const m = new Map(); [...pub, ...mine].forEach(ev => m.set(ev.id, ev)); set([...m.values()]); };
-            db.collection('events').where('isPublic', '==', true).onSnapshot(s => { pub = docs(s); merge(); }, () => merge());
-            db.collection('events').where('owner', '==', U.email).onSnapshot(s => { mine = docs(s); merge(); }, () => merge());
+            CAL.subscribe(db, U, vis => set(vis), () => {});          // öffentliche, eigene und geteilte Termine (ohne abgelehnte Einladungen)
         },
         todos(set) { db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(s => set(docs(s)), () => set([])); },
         notes(set) { db.collection('notes').orderBy('createdAt', 'desc').limit(30).onSnapshot(s => set(docs(s)), () => set([])); },
