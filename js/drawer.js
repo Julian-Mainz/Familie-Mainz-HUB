@@ -10,6 +10,7 @@ const DRAWER_LINKS = [
     { href: '/dokumente.html',      label: 'Dokumente',      icon: 'fa-folder-open',   c: '#38bdf8', group: 'Bereiche',  perm: 'dokumente' },
     { href: '/passwort.html',       label: 'Passwort-Safe',  icon: 'fa-shield-halved', c: '#fb923c', group: 'Bereiche',  perm: 'tresor' },
     { href: '/spotify.html',        label: 'Spotify',        icon: 'fa-headphones',    c: '#4ade80', group: 'Bereiche',  perm: 'spotify' },
+    { href: '/OS/',                 label: 'Desktop-Modus',  icon: 'fa-desktop',       c: '#8b5cf6', group: 'System' },
     { href: '/changelog.html',      label: 'Changelog',      icon: 'fa-clock-rotate-left', c: '#a78bfa', group: 'System' },
     { href: '/admin.html',          label: 'Admin',          icon: 'fa-user-shield',   c: '#c084fc', group: 'System',    admin: true, badge: true },
 ];

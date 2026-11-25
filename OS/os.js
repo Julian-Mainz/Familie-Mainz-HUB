@@ -27,6 +27,7 @@
         APPS = {}; ORDER = []; WEBSET = [];
         const add = (a, list) => { APPS[a.id] = a; if (list) list.push(a.id); };
         (typeof DRAWER_LINKS !== 'undefined' ? DRAWER_LINKS : []).forEach(l => {
+            if (l.href.startsWith('/OS')) return;
             if (l.perm && !can(user, l.perm)) return;
             if (l.admin && !isAdmin(user)) return;
             add({ id: slug(l.href), name: l.label, icon: l.icon, c: l.c, url: l.href }, ORDER);
@@ -44,11 +45,23 @@
         return Object.values(APPS).find(a => a.url && (a.url === p || a.url === path || (a.url.endsWith('/') && p.startsWith(a.url))));
     };
 
-    // ---------- Gespeicherter Zustand (je Person, nur in diesem Browser) ----------
+    // ---------- Gespeicherter Zustand: im Profil (users/{uid}.userPrefs.os), damit er auf allen Geräten gleich ist ----------
+    // Zusätzlich im Browser als Zwischenstand. Ins Profil wird gebündelt geschrieben (höchstens alle paar Sekunden).
     let KEY = 'jmos-v1', S = { icons: {}, wins: [], wall: 'weltall', linkWin: true };
-    const load = () => { try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {} };
-    let saveT = 0;
-    const save = () => { clearTimeout(saveT); saveT = setTimeout(() => { try { S.wins = WINS.filter(w => !w.closing).map(w => ({ app: w.app.id, x: w.x, y: w.y, w: w.w, h: w.h, max: w.max, min: w.min, url: w.url })); localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }, 250); };
+    function load(user) {
+        let local = null; try { local = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+        const prof = user.userPrefs && user.userPrefs.os;
+        Object.assign(S, prof && typeof prof === 'object' ? prof : (local || {}));
+        if (S.notes === undefined) { try { const n = localStorage.getItem(KEY + '-notes'); if (n) S.notes = n; } catch (e) {} }   // alte Notizen übernehmen
+    }
+    let saveT = 0, cloudT = 0, dirty = false;
+    const snapshot = () => { S.wins = WINS.filter(w => !w.closing).map(w => ({ app: w.app.id, x: w.x, y: w.y, w: w.w, h: w.h, max: w.max, min: w.min, url: w.url })); return JSON.parse(JSON.stringify(S)); };
+    function cloud() {
+        clearTimeout(cloudT); if (!dirty || !USER) return; dirty = false;
+        db.collection('users').doc(USER.uid).update({ 'userPrefs.os': snapshot() }).catch(() => { dirty = true; });
+    }
+    const save = () => { clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) {} dirty = true; clearTimeout(cloudT); cloudT = setTimeout(cloud, 2500); }, 250); };
+    document.addEventListener('visibilitychange', () => { if (document.hidden) { clearTimeout(saveT); if (USER) { try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) {} dirty = true; cloud(); } } });
 
     const $ = id => document.getElementById(id);
     const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -119,7 +132,7 @@
         // Rahmen aufziehen zum Markieren
         const desk = $('desk'), sb = $('select-box'); let m = null;
         desk.addEventListener('pointerdown', ev => {
-            if (ev.target.closest('.ico') || ev.button > 0) return; closePops(); sel([]);
+            if (ev.target.closest('.ico, .wg') || ev.button > 0) return; closePops(); sel([]);
             m = { x: ev.clientX, y: ev.clientY }; desk.setPointerCapture(ev.pointerId);
         });
         desk.addEventListener('pointermove', ev => {
@@ -130,10 +143,12 @@
         });
         desk.addEventListener('pointerup', () => { m = null; sb.hidden = true; });
         desk.addEventListener('contextmenu', ev => {
+            if (ev.target.closest('.wg')) { if (!ev.target.closest('input, textarea')) ev.preventDefault(); return; }
             ev.preventDefault(); const el = ev.target.closest('.ico');
             if (el) { const a = APPS[el.dataset.id]; sel([a.id]);
                 return ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', () => openApp(a.id)], a.url && ['fa-arrow-up-right-from-square', 'In neuem Browser-Tab öffnen', () => window.open(a.url, '_blank', 'noopener')]]); }
             ctx(ev.clientX, ev.clientY, [
+                ['fa-plus', 'Widgets hinzufügen', () => JMOS_WIDGETS.picker()],
                 ['fa-table-cells-large', 'Symbole automatisch anordnen', arrangeIcons],
                 ['fa-rotate-right', 'Aktualisieren', () => { renderIcons(); }], null,
                 ['fa-image', 'Hintergrund ändern', () => openApp('einstellungen')],
@@ -307,6 +322,7 @@
         });
         $('start-btn').addEventListener('click', () => toggleStart());
         $('bar-search').addEventListener('click', () => toggleStart(true));
+        $('bar-wg').addEventListener('click', () => JMOS_WIDGETS.picker());
         $('clock').addEventListener('click', () => toggleCal());
         const net = () => { $('net').classList.toggle('off', !navigator.onLine); $('net').title = navigator.onLine ? 'Verbunden' : 'Keine Verbindung'; };
         addEventListener('online', net); addEventListener('offline', net); net();
@@ -369,8 +385,9 @@
         if (keep !== 'start') { $('start').hidden = true; $('start-btn').setAttribute('aria-expanded', false); }
         if (keep !== 'cal') { $('cal').hidden = true; $('clock').setAttribute('aria-expanded', false); }
         if (keep !== 'ctx') $('ctx').hidden = true;
+        if (keep !== 'wg') $('wg-pick').hidden = true;
     }
-    document.addEventListener('pointerdown', ev => { if (!ev.target.closest('.pop, #start-btn, #bar-search, #clock')) closePops(); });
+    document.addEventListener('pointerdown', ev => { if (!ev.target.closest('.pop, #start-btn, #bar-search, #bar-wg, #clock, .wg-b')) closePops(); });
     document.addEventListener('keydown', ev => {
         if (ev.key === 'Escape') closePops();
         if (ev.altKey && (ev.key === 'w' || ev.key === 'W' || ev.key === 'F4')) { const t = topWin(); if (t) { ev.preventDefault(); closeWin(t); } }
@@ -379,12 +396,11 @@
     // ---------- Eingebaute Apps ----------
     const NATIVE_UI = {
         pad(body) {
-            const k = KEY + '-notes';
-            body.innerHTML = `<div class="app-pad"><textarea spellcheck="true" aria-label="Notiz" placeholder="Hier kannst du schreiben … wird automatisch gespeichert (nur in diesem Browser)."></textarea><div class="bar"><i class="fa-solid fa-floppy-disk"></i><span class="st">Gespeichert</span><span style="margin-left:auto" class="cnt"></span></div></div>`;
+            body.innerHTML = `<div class="app-pad"><textarea spellcheck="true" maxlength="20000" aria-label="Notiz" placeholder="Hier kannst du schreiben … wird automatisch in deinem Profil gespeichert."></textarea><div class="bar"><i class="fa-solid fa-floppy-disk"></i><span class="st">Gespeichert</span><span style="margin-left:auto" class="cnt"></span></div></div>`;
             const ta = body.querySelector('textarea'), st = body.querySelector('.st'), cnt = body.querySelector('.cnt'); let t = 0;
-            try { ta.value = localStorage.getItem(k) || ''; } catch (x) {}
+            ta.value = S.notes || '';
             const count = () => { cnt.textContent = `${ta.value.length} Zeichen`; }; count();
-            ta.addEventListener('input', () => { st.textContent = 'Wird gespeichert …'; count(); clearTimeout(t); t = setTimeout(() => { try { localStorage.setItem(k, ta.value); st.textContent = 'Gespeichert'; } catch (x) { st.textContent = 'Speichern nicht möglich'; } }, 400); });
+            ta.addEventListener('input', () => { st.textContent = 'Wird gespeichert …'; count(); clearTimeout(t); t = setTimeout(() => { S.notes = ta.value; save(); st.textContent = 'Gespeichert'; }, 400); });
             setTimeout(() => ta.focus(), 50);
         },
         calc(body) {
@@ -418,6 +434,10 @@
                 ['pastell', 'Pastell (abgedunkelt)', 'linear-gradient(rgba(10,8,30,.45), rgba(10,8,30,.45)), url(/assets/img/space-bg-hell.webp) center / cover']];
             body.innerHTML = `<div class="app-set">
                 <section><h3>Hintergrund</h3><div class="walls">${walls.map(w => `<button type="button" class="wall-o${S.wall === w[0] ? ' on' : ''}" data-w="${w[0]}"><i class="prev" style="background:${w[2]}"></i><span>${w[1]}</span></button>`).join('')}</div></section>
+                <section><h3>Start &amp; Widgets</h3>
+                    <label class="set-row"><div><b>Desktop-Modus als Start</b><small>Nach der Anmeldung am PC direkt hier starten statt im normalen Dashboard. Am Handy startet immer das Dashboard.</small></div><input type="checkbox" class="tgl" id="set-sv" ${USER.userPrefs?.startView === 'os' ? 'checked' : ''}></label>
+                    <div class="set-row"><div><b>Widgets</b><small>Uhr, Wetter, Stempeluhr, Termine, Aufgaben, Finanzen, Pinnwand, Notiz und Kalender auf dem Desktop.</small></div><button type="button" class="btn" data-b="wg"><i class="fa-solid fa-plus"></i>Hinzufügen</button></div>
+                </section>
                 <section><h3>Fenster</h3>
                     <label class="set-row"><div><b>Links als neues Fenster öffnen</b><small>Klickst du in einer App auf einen Link zu einer anderen App (z. B. „Zur Zeiterfassung“), öffnet sie sich in einem eigenen Fenster.</small></div><input type="checkbox" class="tgl" id="set-lw" ${S.linkWin ? 'checked' : ''}></label>
                 </section>
@@ -430,13 +450,18 @@
                 const w = ev.target.closest('[data-w]'); if (w) { setWall(w.dataset.w); body.querySelectorAll('.wall-o').forEach(x => x.classList.toggle('on', x === w)); }
                 const b = ev.target.closest('[data-b]'); if (!b) return;
                 if (b.dataset.b === 'arr') arrangeIcons();
+                if (b.dataset.b === 'wg') JMOS_WIDGETS.picker();
                 if (b.dataset.b === 'closeall') WINS.filter(x => x.app.id !== 'einstellungen').forEach(closeWin);
             });
             body.querySelector('#set-lw').addEventListener('change', ev => { S.linkWin = ev.target.checked; save(); });
+            body.querySelector('#set-sv').addEventListener('change', async ev => {
+                const v = ev.target.checked ? 'os' : 'dash'; USER.userPrefs = USER.userPrefs || {}; USER.userPrefs.startView = v;
+                try { await db.collection('users').doc(USER.uid).update({ 'userPrefs.startView': v }); } catch (x) { ev.target.checked = !ev.target.checked; uiAlert('Speichern fehlgeschlagen: ' + x.message); }
+            });
         },
         about(body) {
             body.innerHTML = `<div class="app-about"><div class="boot-logo"><span></span><span></span><span></span><span></span></div><h2 style="margin:6px 0 0">J.Mainz <span style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">OS</span></h2>
-                <p>Version 0.1 · Testversion</p><p>Dein Dashboard als Desktop: Apps öffnen sich in Fenstern, die du verschieben, an den Rand andocken, maximieren und minimieren kannst.</p>
+                <p>Version 0.2 · Testversion</p><p>Dein Dashboard als Desktop: Apps öffnen sich in Fenstern, die du verschieben, an den Rand andocken, maximieren und minimieren kannst.</p>
                 <p style="font-size:12px">Tipps: Doppelklick auf die Titelleiste = Vollbild · Fenster an den oberen Rand ziehen = Vollbild, an links/rechts = halber Bildschirm · Alt+W schließt das aktive Fenster.</p></div>`;
         },
     };
@@ -445,8 +470,7 @@
     function boot(user) {
         USER = user;
         if (!user) return;
-        KEY = 'jmos-v1-' + (user.uid || user.email || 'x'); load();
-        if (typeof can === 'function' && !can(user, 'webapps')) { $('boot-msg').innerHTML = 'Für J.Mainz OS brauchst du die Berechtigung „Web-Apps“.<br><a href="/menu.html" style="color:#c4b5fd">Zum Dashboard</a>'; document.querySelector('.boot-bar').hidden = true; return; }
+        KEY = 'jmos-v1-' + (user.uid || user.email || 'x'); load(user);
         buildApps(user);
         document.documentElement.dataset.wall = S.wall || 'weltall';
         const name = user.firstName || user.name || (user.email || '').split('@')[0];
@@ -454,6 +478,7 @@
         $('st-role').textContent = isAdmin(user) ? 'Administrator' : 'Mitglied';
         $('st-av').innerHTML = typeof avatarInner === 'function' ? avatarInner({ ...user, name }) : e((name || '?')[0]);
         renderIcons(); wireIcons(); wireBar(); wireStart();
+        if (window.JMOS_WIDGETS) JMOS_WIDGETS.init({ state: () => S, save, openApp, ctx, closePops, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '' }, user);
         (S.wins || []).forEach(w => { if (APPS[w.app]) { const win = openApp(w.app, { ...w, restore: true }); if (win && w.min) toggleMin(win, true); } });
         $('boot-msg').textContent = `Willkommen, ${name}`;
         setTimeout(() => document.documentElement.classList.remove('os-boot'), 450);

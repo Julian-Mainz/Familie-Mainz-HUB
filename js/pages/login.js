@@ -33,8 +33,14 @@ auth.onAuthStateChanged(async user => {
             return;
         }
     }
-    window.location.href = '/menu.html';
+    window.location.href = await startPage(user);
 });
+// Startansicht aus den Einstellungen: Desktop-Modus (J.Mainz OS) nur auf großen Bildschirmen mit Maus
+async function startPage(user) {
+    if (window.innerWidth < 1024 || !matchMedia('(pointer: fine)').matches) return '/menu.html';
+    try { const d = await db.collection('users').doc(user.uid).get(); if (d.exists && (d.data().userPrefs || {}).startView === 'os') return '/OS/'; } catch (e) {}
+    return '/menu.html';
+}
 
 function setNet() {
     $('net-dot').className = 'lg-dot ' + (navigator.onLine ? 'on' : 'off');

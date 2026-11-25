@@ -2,6 +2,17 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026
+
+### J.Mainz OS: Widgets und Desktop-Modus
+- Widgets auf dem Desktop: Uhr & Datum, Wetter, Stempeluhr (ein- und ausstempeln direkt vom Desktop), Nächste Termine, Aufgaben & Einkauf, Finanzen, Pinnwand, Notiz-Zettel und Kalender. Alle zeigen echte Daten.
+- Hinzufügen über den neuen Knopf in der Taskleiste oder per Rechtsklick auf den Desktop. Verschieben per Ziehen, Größe klein/mittel/groß und Entfernen über das ⋯-Menü.
+- Jeder sieht nur die Widgets, für die er die Berechtigung hat. J.Mainz OS braucht keine Web-Apps-Berechtigung mehr.
+- Desktop, Widgets, Hintergrund, offene Fenster und Notizen werden jetzt im Profil gespeichert und sind auf allen Geräten gleich.
+- Neu im Dashboard: Eintrag „Desktop-Modus“ unter System und in den Einstellungen „Desktop-Modus als Start“. Damit startet man nach der Anmeldung am PC direkt im Desktop. Am Handy startet immer das normale Dashboard.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/widgets.js (neu), js/drawer.js, js/settings.js, js/pages/login.js, assets/icons.css
+- Firestore-Regeln: keine Änderung.
+
 ## 24.11.2026
 
 ### Neue Web-App: J.Mainz OS (Testversion)
