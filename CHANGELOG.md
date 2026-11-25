@@ -2,6 +2,17 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (13)
+
+### J.Mainz OS: Einstellungen wie bei Windows 11
+- Die Einstellungen sind komplett neu aufgebaut: links Konto, Suchfeld und Kategorien (Startseite, System, Personalisierung, Taskleiste & Start, Astro, Konto, Datenschutz & Sicherheit, Info), rechts die jeweilige Seite mit Überschrift, gruppierten Einträgen und Symbolen.
+- Startseite mit Vorschau des Desktops und empfohlenen Einstellungen; ein Klick springt direkt zur passenden Stelle.
+- Personalisierung mit Live-Vorschau (Hintergrund, Akzentfarbe, Taskleiste), Konto mit Profilkarte, Info mit Stand des letzten Updates.
+- Neu: Profil bearbeiten und Abmelden unter „Konto“; Zwischenablage-Verlauf an/aus, Zwischenablage leeren, „Zuletzt geöffnet“ leeren und geplante Erinnerungen löschen unter „Datenschutz & Sicherheit“; Tastenkürzel, Changelog und Neu laden unter „Info“.
+- Suche über alle Einstellungen. Das Fenster ist größer; schmal (z. B. halbe Bildschirmbreite) wandert die Navigation nach oben.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/os-icons.css, OS/live.js, OS/social.js, OS/season.js, OS/setwin.js (neu)
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (12)
 
 ### J.Mainz OS: Jahreszeiten-Themen und Astro ausgebaut

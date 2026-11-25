@@ -260,13 +260,13 @@
             <div class="set-row"><div><b>Minispiel „Sterne sammeln“</b><small>30 Sekunden Sterne einsammeln. Bestwert: ${+S.astroBest || 0} Punkte. Auch per Rechtsklick auf Astro.</small></div><button type="button" class="btn ss-play"><i class="fa-solid fa-star"></i>Spielen</button></div>`;
         const after = [...box.querySelectorAll('section h3')].find(h => /Lebendiger/.test(h.textContent));
         box.insertBefore(sec, after ? after.parentElement.nextSibling : null);
-        sec.addEventListener('change', ev => {
+        box.addEventListener('change', ev => {
             const t = ev.target;
             if (t.classList.contains('ss-season')) { S.season = t.value; API.save(); apply(); }
             else if (t.classList.contains('ss-outfit')) { S.astroOutfit = t.value; API.save(); dress(); }
             else if (t.classList.contains('ss-talk')) { S.astroTalk = t.checked; API.save(); }
         });
-        sec.addEventListener('click', ev => { if (ev.target.closest('.ss-play')) playGame(); });
+        box.addEventListener('click', ev => { if (ev.target.closest('.ss-play')) playGame(); });
     }
 
     (window.JMOS_EXT = window.JMOS_EXT || []).push({

@@ -173,7 +173,7 @@
             ${can(U, 'messenger') ? `<label class="set-row"><div><b>Chat-Blasen</b><small>Neue Nachrichten erscheinen als Blase am rechten Rand. Ein Klick öffnet ein kleines Chatfenster zum direkten Antworten.</small></div><input type="checkbox" class="tgl" data-s="bubbles" ${S.bubbles !== false ? 'checked' : ''}></label>` : ''}
             ${can(U, 'spotify') ? `<label class="set-row"><div><b>Musik in der Taskleiste</b><small>Zeigt das aktuelle Spotify-Lied mit Pause und Weiter. Ist Spotify in diesem Browser noch nicht verbunden, führt ein Klick zum Verbinden.</small></div><input type="checkbox" class="tgl" data-s="musicBar" ${S.musicBar !== false ? 'checked' : ''}></label>` : ''}`;
         if (sec.querySelector('.set-row')) box.insertBefore(sec, box.children[3] || null);
-        sec.addEventListener('change', ev => { const k = ev.target.dataset.s; if (!k) return; S[k] = ev.target.checked; API.save(); if (k === 'bubbles') { if (!S.bubbles) closeChat(); paintBubbles(); } else mpPaint(); });
+        box.addEventListener('change', ev => { const k = ev.target.dataset.s; if (!k) return; S[k] = ev.target.checked; API.save(); if (k === 'bubbles') { if (!S.bubbles) closeChat(); paintBubbles(); } else mpPaint(); });
     }
 
     (window.JMOS_EXT = window.JMOS_EXT || []).push({

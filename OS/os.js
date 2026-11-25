@@ -15,7 +15,7 @@
     const NATIVE = [
         { id: 'notizen', name: 'Notizblock', icon: 'fa-note-sticky', c: '#facc15', native: 'pad', w: 620, h: 480 },
         { id: 'rechner', name: 'Rechner', icon: 'fa-calculator', c: '#64748b', native: 'calc', w: 340, h: 500, noMax: true },
-        { id: 'einstellungen', name: 'Einstellungen', icon: 'fa-gear', c: '#6366f1', native: 'set', w: 720, h: 560 },
+        { id: 'einstellungen', name: 'Einstellungen', icon: 'fa-gear', c: '#6366f1', native: 'set', w: 1060, h: 720 },
         { id: 'info', name: 'Über J.Mainz OS', icon: 'fa-circle-info', c: '#8b5cf6', native: 'about', w: 460, h: 380, hidden: true },
     ];
     const FOLDER = { id: 'spiele', name: 'Spiele', icon: 'fa-gamepad', folder: true, items: ['gamecenter', 'kolonie', 'ballon', 'keks', 'buero'], w: 560, h: 380 };

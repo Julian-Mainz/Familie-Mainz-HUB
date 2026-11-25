@@ -818,3 +818,56 @@ html.os-bye #garland { opacity: 0; transition: opacity .4s; }
 .sg-intro { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 4; width: min(400px, 90vw); display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 26px; border-radius: 22px; background: rgba(16, 22, 42, .96); border: 1px solid var(--line-2); text-align: center; cursor: default; box-shadow: 0 30px 80px -15px rgba(0, 0, 0, .9); }
 .sg-intro b { font-size: 22px; } .sg-intro span { color: #cbd5e1; font-size: 13.5px; line-height: 1.5; } .sg-intro strong { font-size: 18px; color: #facc15; }
 .sg-intro div { display: flex; gap: 8px; } .sg-go, .sg-q { height: 40px; padding: 0 22px; border: 0; border-radius: 12px; background: var(--grad); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; } .sg-q { background: rgba(148, 163, 184, .16); }
+
+/* ---------- Einstellungen wie bei Windows 11 ---------- */
+.ws { height: 100%; display: grid; grid-template-columns: 280px 1fr; container-type: inline-size; background: #0a0f1c; }
+.ws-nav { min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 10px; padding: 16px 10px 16px 14px; background: rgba(15, 21, 38, .7); border-right: 1px solid var(--line); }
+.ws-me { display: flex; align-items: center; gap: 12px; padding: 8px; border: 0; border-radius: 12px; background: none; color: var(--txt); text-align: left; }
+.ws-me:hover { background: rgba(148, 163, 184, .08); } .ws-me > span:last-child { min-width: 0; display: flex; flex-direction: column; }
+.ws-me b { font-size: 14px; } .ws-me small { font-size: 11.5px; color: var(--mut); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-av { flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: var(--grad); color: #fff; font-weight: 700; font-size: 20px; } .ws-av img { width: 100%; height: 100%; object-fit: cover; }
+.ws-av.big { width: 76px; height: 76px; font-size: 28px; }
+.ws-q { position: relative; display: block; } .ws-q input { width: 100%; height: 36px; padding: 0 34px 0 12px; border-radius: 9px; border: 1px solid var(--line-2); border-bottom-color: rgba(148, 163, 184, .45); background: rgba(0, 0, 0, .25); color: var(--txt); font-size: 13px; outline: 0; }
+.ws-q input:focus { border-bottom: 2px solid var(--acc-l); } .ws-q i { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); color: var(--mut); font-size: 12px; pointer-events: none; }
+.ws-list { display: flex; flex-direction: column; gap: 2px; }
+.ws-nb { position: relative; display: flex; align-items: center; gap: 12px; height: 38px; padding: 0 10px; border: 0; border-radius: 8px; background: none; color: #cbd5e1; font-size: 13.5px; text-align: left; transition: background-color .12s; }
+.ws-nb:hover { background: rgba(148, 163, 184, .08); } .ws-nb.on { background: rgba(148, 163, 184, .13); color: #fff; font-weight: 600; }
+.ws-nb.on::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; background: var(--acc-l); }
+.ws-ni { width: 20px; display: grid; place-items: center; color: var(--c); font-size: 15px; }
+.ws-main { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.ws-head { flex: none; padding: 22px 32px 8px; } .ws-head h2 { margin: 0; display: flex; align-items: center; gap: 12px; font-size: 26px; font-weight: 600; letter-spacing: -.01em; }
+.ws-head h2 > i { font-size: 13px; color: var(--mut); } .ws-crumb { color: var(--mut); font-weight: 500; }
+.ws .app-set { flex: 1; min-height: 0; padding: 8px 32px 32px; }
+.ws .app-set section + section { margin-top: 0; } .ws .app-set .ws-g { margin-top: 26px; }
+.ws-g { margin-top: 20px; } .ws-gt, .ws .app-set h3.ws-gt { margin: 0 0 8px 2px; font-size: 14px; font-weight: 600; text-transform: none; letter-spacing: 0; color: #e2e8f0; }
+.ws .set-row { gap: 14px; padding: 14px 16px; border-radius: 6px; border: 0; background: rgba(148, 163, 184, .07); }
+.ws .set-row + .set-row { margin-top: 3px; } .ws .set-row { border-radius: 8px; }
+.ws .set-row:hover { background: rgba(148, 163, 184, .1); }
+.ws .set-row b { font-weight: 500; font-size: 14px; } .ws .set-row small { font-size: 12px; margin-top: 1px; }
+.ws-ri { flex: none; width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); font-size: 15px; }
+.ws .walls { padding: 14px; border-radius: 10px; background: rgba(148, 163, 184, .07); margin-bottom: 3px; }
+.ws .set-row.ws-hl { animation: wsHl 1.8s ease; } @keyframes wsHl { 0%, 60% { box-shadow: inset 0 0 0 2px var(--acc-l); background: rgba(var(--acc-rgb), .14); } }
+.ws-hero { display: flex; align-items: center; gap: 22px; margin-top: 6px; padding: 18px; border-radius: 12px; background: rgba(148, 163, 184, .07); }
+.ws-hero-t { display: flex; flex-direction: column; gap: 3px; } .ws-hero-t b { font-size: 20px; font-weight: 600; } .ws-hero-t small { color: var(--mut); font-size: 13px; } .ws-hero-t em { font-style: normal; font-size: 12px; color: #a5b4fc; }
+.ws-grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ws-logo { width: 64px; height: 64px; padding: 14px; border-radius: 20px; animation: none; }
+.pv-scr { position: relative; flex: none; width: 220px; height: 130px; border-radius: 10px; overflow: hidden; border: 4px solid #111827; box-shadow: 0 0 0 1px rgba(255, 255, 255, .12), 0 16px 34px -12px rgba(0, 0, 0, .8); }
+.pv-wall { position: absolute; inset: 0; background: #060a14; }
+.pv-win { position: absolute; left: 28%; top: 18%; width: 46%; height: 50%; border-radius: 5px; background: rgba(16, 22, 42, .92); border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 0 0 1px rgba(var(--acc-rgb), .7); }
+.pv-win i { display: block; height: 4px; margin: 8px 8px 0; border-radius: 3px; background: rgba(148, 163, 184, .3); } .pv-win i:first-child { width: 40%; background: rgba(var(--acc-rgb), .9); }
+.pv-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 16px; display: flex; align-items: center; gap: 4px; padding: 0 6px; background: rgba(10, 14, 26, .9); }
+.pv-bar span { width: 9px; height: 9px; border-radius: 3px; background: var(--grad); } .pv-bar i { width: 18px; height: 6px; border-radius: 3px; background: rgba(148, 163, 184, .35); }
+html.bar-c .pv-bar { justify-content: center; }
+.ws-astro-a { flex: none; width: 80px; height: 92px; animation: ptBob 3.2s ease-in-out infinite; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .55)); } .ws-astro-a svg { width: 100%; height: 100%; overflow: visible; }
+.ws-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.ws-tile { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 0; border-radius: 10px; background: rgba(148, 163, 184, .07); color: var(--txt); text-align: left; transition: background-color .12s; }
+.ws-tile:hover { background: rgba(148, 163, 184, .12); } .ws-tile > span:nth-child(2) { flex: 1; min-width: 0; display: flex; flex-direction: column; } .ws-tile b { font-weight: 500; font-size: 14px; } .ws-tile small { color: var(--mut); font-size: 12px; } .ws-tile > i { color: var(--mut); font-size: 11px; }
+.ws-page .ws-gt { margin-top: 22px; }
+.ws-none { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 60px 20px; color: var(--mut); text-align: center; } .ws-none i { font-size: 28px; } .ws-none b { color: var(--txt); font-size: 15px; }
+@container (max-width: 720px) {
+    .ws { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    .ws-nav { flex-direction: row; flex-wrap: wrap; align-items: center; padding: 10px; border-right: 0; border-bottom: 1px solid var(--line); }
+    .ws-me { display: none; } .ws-q { flex: 1 1 100%; } .ws-list { flex-direction: row; overflow-x: auto; width: 100%; } .ws-nb { flex: none; } .ws-nb span:last-child { white-space: nowrap; }
+    .ws-head { padding: 14px 16px 4px; } .ws-head h2 { font-size: 20px; } .ws .app-set { padding: 6px 16px 20px; } .pv-scr { width: 150px; height: 90px; }
+}
+.ws a.btn { text-decoration: none; }

@@ -256,13 +256,13 @@
             <div class="set-row"><div><b>Bildschirmschoner</b><small>Flug durch die Sterne mit Uhr, nach so vielen Minuten ohne Maus und Tastatur.</small></div><div style="display:flex;gap:8px;align-items:center"><button type="button" class="btn lv-prev">Vorschau</button><select class="sh-sel lv-saver">${[[0, 'Nie'], [3, '3 Min.'], [5, '5 Min.'], [10, '10 Min.'], [15, '15 Min.'], [30, '30 Min.']].map(([v, n]) => `<option value="${v}" ${saverMin() === v ? 'selected' : ''}>${n}</option>`).join('')}</select></div></div>
             <div class="set-row lv-inst"><div><b>Als App installieren</b><small></small></div><button type="button" class="btn">Installieren</button></div>`;
         box.insertBefore(sec, box.children[2] || null); paintInstall(sec.querySelector('.lv-inst'));
-        sec.addEventListener('change', ev => {
+        box.addEventListener('change', ev => {          // an .app-set, damit die Zeilen in den Einstellungen frei verschoben werden können
             const t = ev.target;
             if (t.dataset.lv) { L()[t.dataset.lv] = t.checked; API.save(); if (t.dataset.lv === 'tod') tod(); else if (t.dataset.lv === 'wx') { if (t.checked) weather(); else setWx(''); } else runFx(); }
             else if ('pet' in t.dataset) { S.pet = t.checked; API.save(); t.checked ? petOn() : petOff(); }
             else if (t.classList.contains('lv-saver')) { S[SAVER_KEY] = +t.value; API.save(); }
         });
-        sec.addEventListener('click', ev => {
+        box.addEventListener('click', ev => {
             if (ev.target.closest('.lv-prev')) { ev.stopPropagation(); setTimeout(saverOn, 50); }
             if (ev.target.closest('.lv-inst button')) install();
         });
