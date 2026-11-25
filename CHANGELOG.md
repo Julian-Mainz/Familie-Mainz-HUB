@@ -2,6 +2,20 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (12)
+
+### J.Mainz OS: Jahreszeiten-Themen und Astro ausgebaut
+- Jahreszeiten-Themen (automatisch, in den Einstellungen unter „Jahreszeiten & Astro“ abschaltbar oder als Vorschau wählbar):
+  - Weihnachten (1.–26.12.): leiser Schneefall, Lichterkette über der Taskleiste, leicht roter Schimmer.
+  - Silvester (31.12. ab mittags und 1.1.): Feuerwerk, ab 23 Uhr dichter, Countdown der letzten 10 Sekunden und „Frohes neues Jahr“ um Mitternacht.
+  - Ostern (Gründonnerstag bis Ostermontag): fünf versteckte Ostereier auf dem Desktop zum Finden, mit Konfetti.
+  - Halloween (24.–31.10.): Fledermäuse flattern über den Bildschirm, orange-violetter Schimmer.
+- Astro bekommt Outfits: passend zur Jahreszeit (Weihnachtsmütze, Partyhut, Hasenohren, Hexenhut) oder fest gewählt (Krone, Cap, Sonnenbrille, Kopfhörer …) – per Rechtsklick auf Astro „Outfit wählen …“ oder in den Einstellungen.
+- Astro sagt fällige Erinnerungen und neue Nachrichten in seiner Sprechblase an (abschaltbar).
+- Minispiel „Sterne sammeln“: Astro mit der Maus steuern und in 30 Sekunden Sterne einsammeln (goldene +5, Meteore −3), mit Bestwert. Start per Rechtsklick auf Astro, in den Einstellungen oder über die Suche.
+- Geänderte Dateien: OS/index.html, OS/os.css, OS/os-icons.css, OS/live.js, OS/season.js (neu)
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (11)
 
 ### J.Mainz OS: Mein Tag, Dateien per Chat, Bildschirmfoto, Admin-Konsole

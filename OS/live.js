@@ -169,7 +169,7 @@
         <g class="pt-eyes"><circle cx="27" cy="23" r="2" fill="#e0e7ff"/><circle cx="37" cy="23" r="2" fill="#e0e7ff"/></g>
         <line x1="32" y1="4" x2="32" y2="0" stroke="#cbd5e1" stroke-width="2"/><circle cx="32" cy="0" r="2.4" fill="#f472b6"/></svg>`;
     const FACTS = ['Ein Tag auf der Venus dauert länger als ein Jahr dort.', 'Auf dem Mond wiegst du nur ein Sechstel.', 'Das Licht der Sonne braucht gut 8 Minuten bis zur Erde.', 'Im Weltall ist es völlig still.', 'Saturn würde in einer riesigen Badewanne schwimmen.', 'Auf dem Mars ist der Sonnenuntergang blau.', 'Die ISS umrundet die Erde in etwa 90 Minuten.', 'Es gibt mehr Sterne im Universum als Sandkörner an allen Stränden der Erde.'];
-    let pet = null, petT = 0, petPos = { x: 0, y: 0 };
+    let pet = null, petT = 0, petPos = { x: 0, y: 0 }, petHold = false;
     function petLine() {
         const h = new Date().getHours(), n = U.firstName || '';
         const greet = h < 5 ? `Noch wach, ${n}? Die Sterne leisten dir Gesellschaft.` : h < 11 ? `Guten Morgen, ${n}! Kaffee schon getankt?` : h < 14 ? `Mahlzeit, ${n}!` : h < 18 ? `Schönen Nachmittag, ${n}!` : h < 22 ? `Guten Abend, ${n}. Feierabend in Sicht?` : `Gute Nacht bald, ${n}!`;
@@ -193,7 +193,7 @@
     }
     function petWander() {
         clearTimeout(petT); if (!pet) return;
-        if (!pet.classList.contains('drag') && !calm()) { const b = petBounds(); petGo(Math.random() * b.w, Math.random() * b.h); }
+        if (!pet.classList.contains('drag') && !calm() && !petHold) { const b = petBounds(); petGo(Math.random() * b.w, Math.random() * b.h); }
         petT = setTimeout(petWander, 9000 + Math.random() * 9000);
     }
     function petOn() {
@@ -202,6 +202,7 @@
         pet.innerHTML = `<div class="pt-body">${PET_SVG}</div>`;
         $('desk').appendChild(pet);
         const b = petBounds(); petPos = { x: b.w * .55, y: b.h * .6 }; petGo(petPos.x, petPos.y, 0);
+        if (window.JMOS_ASTRO_DRESS) JMOS_ASTRO_DRESS(pet);
         setTimeout(() => say(petLine(), 4500), 2200);
         petT = setTimeout(petWander, 6000);
         let sx, sy, ox, oy, moved = false;
@@ -218,10 +219,12 @@
             pet.addEventListener('pointermove', mv); pet.addEventListener('pointerup', up); pet.addEventListener('pointercancel', up);
         });
         pet.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); say(petLine()); } });
-        pet.addEventListener('contextmenu', ev => { ev.preventDefault(); ev.stopPropagation(); API.ctx(ev.clientX, ev.clientY, [['fa-comment', 'Etwas sagen', () => say(petLine())], ['fa-house', 'Komm her', () => { const b2 = petBounds(); petGo(b2.w / 2, b2.h / 2); }], null, ['fa-eye-slash', 'Astro ausblenden', () => { S.pet = false; API.save(); petOff(); }]]); });
+        pet.addEventListener('contextmenu', ev => { ev.preventDefault(); ev.stopPropagation(); API.ctx(ev.clientX, ev.clientY, [['fa-comment', 'Etwas sagen', () => say(petLine())], ['fa-house', 'Komm her', () => { const b2 = petBounds(); petGo(b2.w / 2, b2.h / 2); }], ...(window.JMOS_ASTRO_CTX ? JMOS_ASTRO_CTX(ev) : []), null, ['fa-eye-slash', 'Astro ausblenden', () => { S.pet = false; API.save(); petOff(); }]]); });
         new ResizeObserver(() => { if (pet) petGo(petPos.x, petPos.y, 0); }).observe($('desk'));
     }
     function petOff() { clearTimeout(petT); if (pet) { pet.remove(); pet = null; } }
+    // für OS/season.js: Astro sprechen lassen, bewegen, anhalten
+    window.JMOS_ASTRO = { say: (t, ms) => { if (pet) say(t, ms); }, go: (x, y, slow) => { if (pet) petGo(x, y, slow); }, el: () => pet, bounds: () => petBounds(), pos: () => petPos, hold: v => { petHold = !!v; if (!v) petWander(); }, line: () => petLine(), svg: PET_SVG };
 
     // ================= Als App installieren =================
     let installEv = null;
