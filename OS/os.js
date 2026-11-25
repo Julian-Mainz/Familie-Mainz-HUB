@@ -189,7 +189,7 @@
         win.x = Math.min(Math.max(-win.w + 120, win.x), ar.w - 120); win.y = Math.min(Math.max(0, win.y), ar.h - 40);
         const el = document.createElement('div'); el.className = 'win'; el.id = win.id; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', a.name);
         el.innerHTML = `<div class="wt"><span class="wt-ico${a.folder ? ' folder' : ''}" style="--c:${a.c || '#818cf8'}"><i class="fa-solid ${a.folder ? 'fa-folder' : a.icon}"></i></span><span class="wt-title">${e(o.title || a.name)}</span>
-            <div class="wt-btns">${a.url ? '<button type="button" class="wt-b" data-a="tab" title="In neuem Browser-Tab öffnen" aria-label="In neuem Tab öffnen"><i class="fa-solid fa-up-right-from-square"></i></button>' : ''}<button type="button" class="wt-b" data-a="min" title="Minimieren" aria-label="Minimieren"><i class="fa-regular fa-window-minimize"></i></button>${a.noMax ? '' : '<button type="button" class="wt-b" data-a="max" title="Maximieren" aria-label="Maximieren"><i class="fa-regular fa-window-maximize"></i></button>'}<button type="button" class="wt-b x" data-a="close" title="Schließen" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></div></div>
+            <div class="wt-btns">${a.url ? '<button type="button" class="wt-b" data-a="pop" title="Als eigenes Fenster herauslösen" aria-label="Als eigenes Fenster herauslösen"><i class="fa-solid fa-window-restore"></i></button>' : ''}${a.url ? '<button type="button" class="wt-b" data-a="tab" title="In neuem Browser-Tab öffnen" aria-label="In neuem Tab öffnen"><i class="fa-solid fa-up-right-from-square"></i></button>' : ''}<button type="button" class="wt-b" data-a="min" title="Minimieren" aria-label="Minimieren"><i class="fa-regular fa-window-minimize"></i></button>${a.noMax ? '' : '<button type="button" class="wt-b" data-a="max" title="Maximieren" aria-label="Maximieren"><i class="fa-regular fa-window-maximize"></i></button>'}<button type="button" class="wt-b x" data-a="close" title="Schließen" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></div></div>
             <div class="wb"></div>${['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'].map(d => `<div class="rz ${d}" data-d="${d}"></div>`).join('')}`;
         win.el = el; $('wins').appendChild(el); WINS.push(win);
         if (!a.hidden && !o.restore) S.recent = [id, ...(S.recent || []).filter(x => x !== id)].slice(0, 8);
@@ -277,7 +277,7 @@
         el.addEventListener('pointerdown', () => focus(win), true);
         el.querySelector('.wt-btns').addEventListener('click', ev => {
             const b = ev.target.closest('[data-a]'); if (!b) return;
-            ({ min: () => toggleMin(win, true), max: () => toggleMax(win), close: () => closeWin(win), tab: () => window.open(win.url || win.app.url, '_blank', 'noopener') })[b.dataset.a]();
+            ({ min: () => toggleMin(win, true), max: () => toggleMax(win), close: () => closeWin(win), tab: () => window.open(win.url || win.app.url, '_blank', 'noopener'), pop: () => popOut(win) })[b.dataset.a]();
         });
         bar.addEventListener('dblclick', ev => { if (!ev.target.closest('.wt-btns')) toggleMax(win); });
         // Verschieben (mit Andocken: oben = Vollbild, links/rechts = halber Bildschirm)
@@ -365,7 +365,7 @@
             const b = ev.target.closest('.task'); if (!b) return; ev.preventDefault();
             if (b.dataset.pin) return ctx(ev.clientX, ev.clientY - 10, [['fa-up-right-from-square', 'Öffnen', () => openApp(b.dataset.pin)], ['fa-thumbtack', 'Von Taskleiste lösen', () => togglePin(b.dataset.pin)]], true);
             const w = WINS.find(x => x.id === b.dataset.w);
-            ctx(ev.clientX, ev.clientY - 10, [...desks().filter(d => d.id !== w.desk).map(d => ['fa-clone', 'Verschieben nach „' + d.name + '“', () => moveToDesk(w, d.id)]), desks().length > 1 && null, !w.params && !w.app.hidden && ['fa-thumbtack', isPinned(w.app.id) ? 'Von Taskleiste lösen' : 'An Taskleiste anheften', () => togglePin(w.app.id)], null, [w.min ? 'fa-window-restore' : 'fa-window-minimize', w.min ? 'Wiederherstellen' : 'Minimieren', () => toggleMin(w)], !w.app.noMax && ['fa-window-maximize', w.max ? 'Verkleinern' : 'Maximieren', () => { if (w.min) toggleMin(w, false); toggleMax(w); }], w.app.url && ['fa-up-right-from-square', 'In neuem Browser-Tab öffnen', () => window.open(w.url || w.app.url, '_blank', 'noopener')], null, ['fa-xmark', 'Fenster schließen', () => closeWin(w)]], true);
+            ctx(ev.clientX, ev.clientY - 10, [...desks().filter(d => d.id !== w.desk).map(d => ['fa-clone', 'Verschieben nach „' + d.name + '“', () => moveToDesk(w, d.id)]), desks().length > 1 && null, !w.params && !w.app.hidden && ['fa-thumbtack', isPinned(w.app.id) ? 'Von Taskleiste lösen' : 'An Taskleiste anheften', () => togglePin(w.app.id)], null, [w.min ? 'fa-window-restore' : 'fa-window-minimize', w.min ? 'Wiederherstellen' : 'Minimieren', () => toggleMin(w)], !w.app.noMax && ['fa-window-maximize', w.max ? 'Verkleinern' : 'Maximieren', () => { if (w.min) toggleMin(w, false); toggleMax(w); }], w.app.url && ['fa-window-restore', 'Als eigenes Fenster herauslösen', () => popOut(w)], w.app.url && ['fa-up-right-from-square', 'In neuem Browser-Tab öffnen', () => window.open(w.url || w.app.url, '_blank', 'noopener')], null, ['fa-xmark', 'Fenster schließen', () => closeWin(w)]], true);
         });
         let shown = null;
         $('show-desk').addEventListener('click', () => {
@@ -435,6 +435,14 @@
     $('cal').addEventListener('click', ev => { const b = ev.target.closest('[data-m]'); if (b) { calM.setMonth(calM.getMonth() + +b.dataset.m); renderCal(); } });
 
     // ---------- Kontextmenü und Aufklapper ----------
+    // Fenster herauslösen: öffnet die Seite als eigenes Browserfenster an gleicher Stelle und schließt das OS-Fenster
+    function popOut(win) {
+        const url = win.url || win.app.url; if (!url) return false;
+        const r = win.el.getBoundingClientRect(), top = (window.screenY || 0) + (outerHeight - innerHeight) + r.top, left = (window.screenX || 0) + r.left;
+        const w = window.open(url, 'jmos_' + win.app.id + '_' + Date.now(), `popup=yes,width=${Math.round(r.width)},height=${Math.round(r.height)},left=${Math.round(left)},top=${Math.round(top)}`);
+        if (!w) { if (typeof uiAlert === 'function') uiAlert('Der Browser hat das Fenster blockiert. Bitte Pop-ups für diese Seite erlauben.'); return false; }
+        closeWin(win); return true;
+    }
     function ctx(x, y, items, above) {
         const m = $('ctx');
         m.innerHTML = items.filter(i => i !== false && i !== undefined && i !== '').map(i => i === null ? '<div class="cx-sep"></div>' : `<button type="button" class="cx" role="menuitem"><i class="${/window-/.test(i[0]) ? 'fa-regular' : 'fa-solid'} ${i[0]}"></i>${e(i[1])}</button>`).join('');
@@ -545,7 +553,7 @@
         $('st-role').textContent = isAdmin(user) ? 'Administrator' : 'Mitglied';
         $('st-av').innerHTML = typeof avatarInner === 'function' ? avatarInner({ ...user, name }) : e((name || '?')[0]);
         renderIcons(); wireIcons(); wireBar(); wireStart();
-        Object.assign(API, { state: () => S, save, openApp, closeWin, focus, ctx, closePops, toggleStart, renderStart, topWin, toggleMin, toggleMax, place, animate, area, showSnap, renderTasks, renderIcons, keys: KEYS, registerApp: a => { APPS[a.id] = a; }, unregisterApp: id => { delete APPS[id]; }, switchDesk, moveToDesk, desks, curDesk, onDesk, snapTo, snapRect, togglePin, isPinned, deskH, user: () => USER, apps: () => APPS, order: () => ORDER, webset: () => WEBSET, wins: WINS, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '', tile, esc: e });
+        Object.assign(API, { state: () => S, save, openApp, closeWin, focus, ctx, closePops, toggleStart, renderStart, topWin, toggleMin, toggleMax, place, animate, area, showSnap, renderTasks, renderIcons, keys: KEYS, registerApp: a => { APPS[a.id] = a; }, unregisterApp: id => { delete APPS[id]; }, switchDesk, moveToDesk, desks, curDesk, onDesk, snapTo, snapRect, popOut, togglePin, isPinned, deskH, user: () => USER, apps: () => APPS, order: () => ORDER, webset: () => WEBSET, wins: WINS, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '', tile, esc: e });
         if (window.JMOS_WIDGETS) JMOS_WIDGETS.init(API, user);
         (window.JMOS_EXT || []).forEach(x => { if (x.ui) Object.assign(NATIVE_UI, x.ui); try { x.init && x.init(API, user); } catch (err) { console.error('J.Mainz OS Erweiterung:', err); } });
         if (!desks().some(d => d.id === curDesk())) S.desk = desks()[0].id;

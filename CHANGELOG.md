@@ -2,6 +2,18 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (7)
+
+### J.Mainz OS: lebendiger Desktop, Animationen, Bildschirmschoner, Astro, als App installieren
+- Lebendiger Hintergrund: ab und zu ziehen Sternschnuppen über den Himmel, der Himmel färbt sich je nach Tageszeit (Morgen, Tag, Abend, Nacht) und zeigt das Wetter von draußen (Regen, Schnee, Gewitter mit Blitzen, Nebel; Ort wie beim Wetter-Widget). Alles einzeln abschaltbar unter Einstellungen → „Lebendiger Desktop“.
+- Start-Animation: Symbole, Taskleiste und Widgets fliegen beim Start nacheinander herein. Abmelde-Animation: Fenster blenden aus, „Auf Wiedersehen“ erscheint.
+- Bildschirmschoner: Flug durch die Sterne mit großer Uhr, standardmäßig nach 10 Minuten ohne Maus und Tastatur (einstellbar, mit Vorschau). Eine Bewegung oder Taste beendet ihn.
+- Astro, der kleine Astronaut: schwebt über den Desktop, sagt beim Anklicken etwas (Begrüßung, Weltraum-Fakten, nächste Erinnerung), lässt sich herumziehen und per Rechtsklick ausblenden.
+- Als App installieren: Das OS hat ein eigenes App-Manifest. In Chrome und Edge lässt es sich als eigenes Programm installieren (Einstellungen → „Als App installieren“ oder Symbol in der Adressleiste).
+- Fenster herauslösen: Seiten-Apps (z. B. Zeiterfassung, Finanzen) haben in der Titelleiste einen neuen Knopf, der sie als eigenes Browserfenster an gleicher Stelle öffnet, z. B. für einen zweiten Bildschirm.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/os-icons.css, OS/live.js (neu), OS/manifest.webmanifest (neu)
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (6)
 
 ### J.Mainz OS: Familien-Zettel, Chat-Blasen, Papierkorb, Dateien auf dem Desktop, Musik

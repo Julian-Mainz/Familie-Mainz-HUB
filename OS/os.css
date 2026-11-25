@@ -618,3 +618,54 @@ html.hell .uidlg p { color: #475569; } html.hell .uidlg-a button { color: #33415
 #mp .mp-t { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; } #mp .mp-t b { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; } #mp .mp-t small { font-size: 10.5px; color: var(--mut); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
 #mp button { flex: none; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .08); color: #fff; font-size: 11px; } #mp button[data-mp="pp"] { background: #1ed760; color: #052e16; }
 @media (max-width: 760px) { #mp { display: none !important; } #bubbles { bottom: calc(var(--bar-h) + 20px); } #chatbox { right: 8px; width: calc(100vw - 16px); bottom: calc(var(--bar-h) + 84px); } }
+
+/* ---------- Paket C: lebendiger Desktop, Animationen, Bildschirmschoner, Astro ---------- */
+#fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+#tod { position: absolute; inset: 0; pointer-events: none; z-index: 1; opacity: 0; transition: opacity 3s, background 3s; }
+#tod[data-k="dawn"] { opacity: 1; background: linear-gradient(to top, rgba(251, 146, 60, .22), rgba(244, 114, 182, .1) 35%, transparent 70%); }
+#tod[data-k="day"] { opacity: 1; background: linear-gradient(to bottom, rgba(56, 189, 248, .12), rgba(99, 102, 241, .06) 60%, transparent); }
+#tod[data-k="dusk"] { opacity: 1; background: linear-gradient(to top, rgba(249, 115, 22, .2), rgba(219, 39, 119, .14) 30%, rgba(124, 58, 237, .08) 60%, transparent); }
+#tod[data-k="night"] { opacity: 1; background: radial-gradient(1200px 700px at 50% -10%, rgba(30, 27, 75, .35), transparent 70%); }
+html[data-wx="fog"] #tod::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(203, 213, 225, .18), rgba(203, 213, 225, .06) 45%, transparent 75%); animation: fogDrift 30s ease-in-out infinite alternate; }
+@keyframes fogDrift { to { transform: translateX(-4%); opacity: .7; } }
+/* Start-Animation */
+#boot { transition: opacity .6s, visibility .6s, transform .7s var(--ease); } html:not(.os-boot) #boot { transform: scale(1.12); }
+html.os-enter #icons .ico { animation: icoIn .55s var(--ease) both; animation-delay: calc(var(--i, 0) * 28ms + 80ms); }
+html.os-enter #bar { animation: barIn .6s var(--ease) both; }
+html.os-enter #widgets > * { animation: wgIn .7s var(--ease) both; animation-delay: .35s; }
+html.os-enter .win { animation: wgIn .5s var(--ease) both; animation-delay: .25s; }
+@keyframes icoIn { from { opacity: 0; transform: translateY(14px) scale(.85); } }
+@keyframes barIn { from { transform: translateY(100%); } }
+@keyframes wgIn { from { opacity: 0; transform: translateY(-10px) scale(.96); } }
+/* Abmelde-Animation */
+html.os-bye .win, html.os-bye #widgets, html.os-bye #icons, html.os-bye #pet { transition: opacity .5s, transform .6s var(--ease); opacity: 0; transform: scale(.92); }
+html.os-bye #bar { transition: transform .5s var(--ease); transform: translateY(100%); }
+#bye { position: fixed; inset: 0; z-index: 9998; display: grid; place-content: center; justify-items: center; gap: 16px; background: radial-gradient(700px 500px at 50% 40%, rgba(99, 102, 241, .22), transparent 70%), rgba(6, 10, 20, .92); animation: osFade .5s .2s both; }
+#bye b { font-size: 22px; font-weight: 600; } #bye small { color: var(--mut); }
+/* Bildschirmschoner */
+#saver { position: fixed; inset: 0; z-index: 9990; background: #03050c; opacity: 0; transition: opacity .8s; cursor: none; }
+#saver.on { opacity: 1; } #saver canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sv-c { position: absolute; transform: translate(-50%, -50%); text-align: center; transition: left 6s ease-in-out, top 6s ease-in-out; text-shadow: 0 4px 30px rgba(0, 0, 0, .8); }
+.sv-c b { display: block; font-size: clamp(64px, 9vw, 130px); font-weight: 200; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.sv-c span { display: block; margin-top: 8px; font-size: 20px; color: #c7d2fe; } .sv-c small { display: block; margin-top: 22px; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: rgba(199, 210, 254, .5); } .sv-c small i { font-style: normal; color: var(--acc-l); }
+/* Astro */
+#pet { position: absolute; z-index: 6; width: 64px; height: 72px; cursor: grab; transition-property: left, top; transition-timing-function: ease-in-out; touch-action: none; outline: 0; }
+#pet.drag { cursor: grabbing; }
+#pet .pt-body { width: 100%; height: 100%; animation: ptBob 3.2s ease-in-out infinite; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .55)); }
+#pet svg { width: 100%; height: 100%; display: block; transition: transform .4s; } #pet.flip svg { transform: scaleX(-1); }
+#pet.spin .pt-body { animation: ptSpin .8s var(--ease), ptBob 3.2s ease-in-out .8s infinite; }
+#pet:focus-visible .pt-body { filter: drop-shadow(0 0 0 2px var(--acc-l)) drop-shadow(0 10px 18px rgba(0, 0, 0, .55)); }
+#pet .pt-flame { transform-origin: 32px 60px; animation: ptFlame .18s ease-in-out infinite alternate; }
+#pet .pt-arm { transform-origin: 16px 40px; animation: ptWave 2.6s ease-in-out infinite; }
+#pet .pt-eyes { animation: ptBlink 5s infinite; transform-origin: 32px 23px; }
+.pt-say { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); width: max-content; max-width: 230px; padding: 8px 12px; border-radius: 14px; background: #f8fafc; color: #1e1b4b; font-size: 12.5px; line-height: 1.35; box-shadow: 0 12px 30px -8px rgba(0, 0, 0, .7); animation: ptSay .25s var(--ease); pointer-events: none; }
+@keyframes ptSay { from { opacity: 0; transform: translate(-50%, 8px); } }
+.pt-say::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px; border: 6px solid transparent; border-top-color: #f8fafc; }
+.pt-say.out { opacity: 0; transition: opacity .4s; }
+@keyframes ptBob { 50% { transform: translateY(-8px) rotate(-4deg); } }
+@keyframes ptSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+@keyframes ptFlame { to { transform: scaleY(.6); opacity: .8; } }
+@keyframes ptWave { 0%, 70%, 100% { transform: rotate(0); } 80% { transform: rotate(-35deg); } 90% { transform: rotate(10deg); } }
+@keyframes ptBlink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+@media (prefers-reduced-motion: reduce) { #pet .pt-body, #pet .pt-flame, #pet .pt-arm { animation: none; } }
+@media (max-width: 760px) { #pet { display: none; } }
