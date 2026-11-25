@@ -2,6 +2,16 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (5)
+
+### J.Mainz OS: Schnellstart, mehrere Desktops, Zwischenablage, Erinnerungen
+- Schnellstart-Leiste (Klick auf das WLAN-Symbol oder Alt+A): Kacheln für Nicht stören, Ein-/Ausstempeln, Sperren, Desktop anzeigen, Zwischenablage, Fensterübersicht, Widgets und Einstellungen, Lautstärke der Hinweistöne, nächster Termin mit Countdown und schnelle Erinnerung.
+- Mehrere Desktops: in der Fensterübersicht neue Desktops anlegen (z. B. „Arbeit“, „Privat“), umbenennen per Doppelklick, wechseln per Klick oder Alt+Bild auf/ab. Jeder Desktop hat eigene Fenster, Widgets und Hintergrund. Fenster lassen sich per Rechtsklick in der Taskleiste auf einen anderen Desktop verschieben.
+- Zwischenablage-Verlauf (Alt+V): Was im OS kopiert wird, landet in einer Liste und lässt sich mit einem Klick erneut kopieren. Nur in diesem Browser, nie aus dem Passwort-Safe, abschaltbar.
+- Erinnerungen: in der Schnellstart-Leiste oder in der Suche („erinnere mich in 20 min an …“, „… um 17:30 an …“). Zur Zeit kommen Ton und Mitteilung.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/os-icons.css, OS/extras.js, OS/shell.js, OS/plus.js (neu)
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (4)
 
 ### J.Mainz OS: neue Widgets und Apps

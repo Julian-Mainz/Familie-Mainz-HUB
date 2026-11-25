@@ -50,7 +50,7 @@
             <div class="set-row"><div><b>Automatisch sperren</b><small>Nach so vielen Minuten ohne Maus und Tastatur.</small></div><select class="sh-sel sh-lockmin">${[[0, 'Nie'], [5, '5 Min.'], [10, '10 Min.'], [15, '15 Min.'], [30, '30 Min.'], [60, '1 Std.']].map(([v, n]) => `<option value="${v}" ${(+S.lockMin || 0) === v ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
             <div class="set-row"><div><b>PIN zum Entsperren</b><small>${S.lockPin ? 'Eine PIN ist festgelegt.' : 'Ohne PIN entsperrt ein Klick.'} Die PIN gilt nur für den Sperrbildschirm des OS.</small></div><button type="button" class="btn" data-b="pin"><i class="fa-solid fa-lock"></i>${S.lockPin ? 'Ändern' : 'Festlegen'}</button>${S.lockPin ? '<button type="button" class="btn" data-b="nopin">Entfernen</button>' : ''}</div>
             <div class="set-row"><div><b>Jetzt sperren</b><small>Tastenkürzel: Alt+L</small></div><button type="button" class="btn" data-b="lock"><i class="fa-solid fa-lock"></i>Sperren</button></div>
-            <div class="set-row"><div><b>Tastenkürzel</b><small>Strg+Leertaste Suche · Alt+Q Fenster wechseln · Alt+Umschalt+Pfeile andocken · Alt+M minimieren · Alt+Umschalt+D Desktop · Alt+1…9 angeheftete Apps · Alt+W schließen · Alt+L sperren</small></div></div>`;
+            <div class="set-row"><div><b>Tastenkürzel</b><small>Strg+Leertaste Suche · Alt+Q Fenster wechseln · Alt+Umschalt+Pfeile andocken · Alt+M minimieren · Alt+Umschalt+D Desktop · Alt+1…9 angeheftete Apps · Alt+W schließen · Alt+L sperren · Alt+A Schnellstart · Alt+V Zwischenablage · Alt+Bild auf/ab Desktop wechseln</small></div></div>`;
         const box = body.querySelector('.app-set'); box.insertBefore(lock, box.children[2] || null); box.insertBefore(sec, box.children[1] || null);
         // Hintergrund-Auswahl um "Eigenes Bild" ergänzen
         const walls = body.querySelector('.walls');
@@ -115,18 +115,18 @@
 
     // ---------- Fensterübersicht und Umschalter (Alt+Q) ----------
     let tv = null, tvSel = 0;
-    const list = () => API.wins.filter(w => !w.closing).sort((a, b) => b.el.style.zIndex - a.el.style.zIndex);
+    const list = () => API.wins.filter(w => !w.closing && API.onDesk(w)).sort((a, b) => b.el.style.zIndex - a.el.style.zIndex);
     function card(w, i) { const a = w.app, t = w.el.querySelector('.wt-title').textContent;
         return `<div class="tv-c${i === tvSel ? ' on' : ''}${w.min ? ' mini' : ''}" data-i="${i}" role="button" tabindex="0" style="--c:${a.c || '#818cf8'}"><div class="tv-h"><span class="wt-ico${a.folder ? ' folder' : ''}" style="--c:${a.c || '#818cf8'}"><i class="fa-solid ${a.folder ? 'fa-folder' : a.icon}"></i></span><span>${e(t)}</span><button type="button" class="tv-x" data-x="${i}" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></div>
             <div class="tv-b">${API.tile(a)}<small>${w.min ? 'minimiert' : w.max ? 'Vollbild' : ''}</small></div></div>`; }
     function openTv(cycle) {
         const L = list(); if (!L.length && cycle) return;
         if (!tv) { tv = document.createElement('div'); tv.id = 'tv'; document.body.appendChild(tv); tvSel = cycle && L.length > 1 ? 1 : 0;
-            tv.addEventListener('click', ev => { const x = ev.target.closest('[data-x]'); if (x) { API.closeWin(list()[+x.dataset.x]); setTimeout(() => tv && paintTv(), 200); return; } const c = ev.target.closest('[data-i]'); if (c) { tvSel = +c.dataset.i; pickTv(); } else if (ev.target === tv || ev.target.closest('.tv-g') === null) closeTv(); }); }
+            tv.addEventListener('click', ev => { const x = ev.target.closest('[data-x]'); if (x) { API.closeWin(list()[+x.dataset.x]); setTimeout(() => tv && paintTv(), 200); return; } const c = ev.target.closest('[data-i]'); if (c) { tvSel = +c.dataset.i; pickTv(); } else if (ev.target.closest('.dk-bar')) return; else if (ev.target === tv || ev.target.closest('.tv-g') === null) closeTv(); }); }
         else if (cycle) tvSel = (tvSel + 1) % Math.max(1, L.length);
         paintTv();
     }
-    function paintTv() { const L = list(); if (!tv) return; tv.innerHTML = `<div class="tv-t">${L.length ? 'Fenster wählen' : 'Keine offenen Fenster'}<small>${L.length ? 'Klicken · Alt+Q gedrückt halten und wiederholt drücken' : ''}</small></div><div class="tv-g">${L.map(card).join('')}</div>`; }
+    function paintTv() { const L = list(); if (!tv) return; tv.innerHTML = `${window.JMOS_DESKBAR ? JMOS_DESKBAR() : ''}<div class="tv-t">${L.length ? 'Fenster wählen' : 'Keine offenen Fenster'}<small>${L.length ? 'Klicken · Alt+Q gedrückt halten und wiederholt drücken' : ''}</small></div><div class="tv-g">${L.map(card).join('')}</div>`; }
     function pickTv() { const w = list()[tvSel]; closeTv(); if (w) { if (w.min) API.toggleMin(w, false); API.focus(w); } }
     function closeTv() { if (tv) { tv.remove(); tv = null; } }
 
@@ -179,7 +179,7 @@
             applyLook(); loadWall(); watchIdle(); API.renderTasks();
             API.keys.push(keys);
             document.addEventListener('keyup', ev => { if (tv && ev.key === 'Alt') pickTv(); });
-            window.JMOS_SNAPPED = assist; window.JMOS_LOCK = lockNow; window.JMOS_RECENT = recent;
+            window.JMOS_SNAPPED = assist; window.JMOS_LOCK = lockNow; window.JMOS_TV_REPAINT = () => tv && paintTv(); window.JMOS_RECENT = recent;
             $('bar-tv').addEventListener('click', () => (tv ? closeTv() : openTv(false)));
             // Einstellungen erweitern
             const base = window.JMOS_NATIVE_UI.set;

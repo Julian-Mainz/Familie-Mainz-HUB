@@ -25,7 +25,7 @@
         const N = nc(), fresh = list.filter(n => !N.gone.includes(n.id) && !N.toasted.includes(n.id));
         if (fresh.length) {
             N.toasted = keep([...N.toasted, ...fresh.map(n => n.id)]);
-            if (toastOK && !N.dnd) fresh.slice(0, 3).forEach(toast);
+            if (toastOK && !N.dnd) { fresh.slice(0, 3).forEach(toast); if (window.JMOS_SOUND) JMOS_SOUND('note'); }
             API.save();
         }
         paint();
@@ -140,6 +140,7 @@
         // Chats (Name und letzte Nachricht)
         if (window.MSG && can(U, 'messenger')) MSG.state.chats.map(c => ({ c, t: MSG.chatTitle(c, MSG.state.dir, U.uid), l: c.last ? c.last.text : '' })).filter(x => hit(x.t, x.l)).slice(0, 5)
             .forEach(x => out.push({ kind: 'Chat', title: x.t, sub: MSG.previewLine(x.c, MSG.state.dir, U.uid), icon: 'fa-comments', c: '#f472b6', run: () => API.openApp('messenger', { url: '/messenger.html#chat=' + x.c.id }), s: 1 }));
+        (window.JMOS_SEARCH_EXTRA || []).forEach(f => { try { out.push(...f(q)); } catch (x) {} });
         return out.sort((a, b) => b.s - a.s);
     }
     function cacheSearch() {
@@ -155,6 +156,8 @@
             API = api; U = user; e = api.esc; S = api.state();
             wireNc(); sources(); cacheSearch(); booted = true;
             window.JMOS_SEARCH = search;
+            window.JMOS_NOTIFY = setSrc;                 // weitere Quellen (z. B. Erinnerungen aus OS/plus.js)
+            window.JMOS_DISMISS = gone;
             void booted;
         },
     });

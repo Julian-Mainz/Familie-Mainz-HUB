@@ -56,7 +56,7 @@
         if (S.notes === undefined) { try { const n = localStorage.getItem(KEY + '-notes'); if (n) S.notes = n; } catch (e) {} }   // alte Notizen übernehmen
     }
     let saveT = 0, cloudT = 0, dirty = false;
-    const snapshot = () => { S.wins = WINS.filter(w => !w.closing && !w.params && !w.app.noRestore).map(w => ({ app: w.app.id, x: w.x, y: w.y, w: w.w, h: w.h, max: w.max, min: w.min, url: w.url })); return JSON.parse(JSON.stringify(S)); };
+    const snapshot = () => { S.wins = WINS.filter(w => !w.closing && !w.params && !w.app.noRestore).map(w => ({ app: w.app.id, x: w.x, y: w.y, w: w.w, h: w.h, max: w.max, min: w.min, url: w.url, desk: w.desk })); return JSON.parse(JSON.stringify(S)); };
     function cloud() {
         clearTimeout(cloudT); if (!dirty || !USER) return; dirty = false;
         db.collection('users').doc(USER.uid).update({ 'userPrefs.os': snapshot() }).catch(() => { dirty = true; });
@@ -175,6 +175,7 @@
         const key = o.key || '';
         const ex = WINS.find(w => w.app.id === id && (w.key || '') === key && !w.closing);
         if (ex && !o.restore) {
+            if (!onDesk(ex)) switchDesk(ex.desk);
             if (ex.min) toggleMin(ex, false); focus(ex);
             if (o.url && ex.frame && ex.url !== o.url) { ex.url = o.url; ex.frame.src = o.url; }          // z. B. Finanzen direkt auf "Rechnungen"
             if (o.params && ex.onParams) ex.onParams(o.params);
@@ -182,7 +183,7 @@
         }
         const ar = area(), n = WINS.length % 8;
         const w = Math.min(a.w || 1180, ar.w - 120), h = Math.min(a.h || 760, ar.h - 70);
-        const win = { id: 'w' + (++seq), app: a, key, params: o.params, url: o.url || a.url, x: o.x ?? Math.max(10, Math.round((ar.w - w) / 2) - 120 + n * 34), y: o.y ?? Math.max(8, Math.round((ar.h - h) / 2) - 50 + n * 30), w: o.w || w, h: o.h || h, max: !!o.max, min: false };
+        const win = { id: 'w' + (++seq), app: a, key, desk: o.desk || curDesk(), params: o.params, url: o.url || a.url, x: o.x ?? Math.max(10, Math.round((ar.w - w) / 2) - 120 + n * 34), y: o.y ?? Math.max(8, Math.round((ar.h - h) / 2) - 50 + n * 30), w: o.w || w, h: o.h || h, max: !!o.max, min: false };
         win.x = Math.min(Math.max(-win.w + 120, win.x), ar.w - 120); win.y = Math.min(Math.max(0, win.y), ar.h - 40);
         const el = document.createElement('div'); el.className = 'win'; el.id = win.id; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', a.name);
         el.innerHTML = `<div class="wt"><span class="wt-ico${a.folder ? ' folder' : ''}" style="--c:${a.c || '#818cf8'}"><i class="fa-solid ${a.folder ? 'fa-folder' : a.icon}"></i></span><span class="wt-title">${e(o.title || a.name)}</span>
@@ -246,7 +247,22 @@
         document.title = win.el.querySelector('.wt-title').textContent + ' – J.Mainz OS';
         renderTasks();
     }
-    const topWin = () => WINS.filter(w => !w.min && !w.closing).sort((a, b) => b.el.style.zIndex - a.el.style.zIndex)[0];
+    const topWin = () => WINS.filter(w => !w.min && !w.closing && onDesk(w)).sort((a, b) => b.el.style.zIndex - a.el.style.zIndex)[0];
+    // ---------- Mehrere Desktops: Fenster, Widgets und Hintergrund je Desktop, Symbole gemeinsam ----------
+    const curDesk = () => S.desk || 'd1';
+    const onDesk = w => (w.desk || 'd1') === curDesk();
+    const desks = () => (Array.isArray(S.desks) && S.desks.length ? S.desks : (S.desks = [{ id: 'd1', name: 'Desktop 1' }]));
+    function switchDesk(id) {
+        if (!desks().some(d => d.id === id) || id === curDesk()) return;
+        S.deskData = S.deskData || {}; S.deskData[curDesk()] = { widgets: S.widgets || [], wall: S.wall };
+        S.desk = id; const d = S.deskData[id] || {};
+        S.widgets = Array.isArray(d.widgets) ? d.widgets : []; if (d.wall) { S.wall = d.wall; document.documentElement.dataset.wall = d.wall; }
+        WINS.forEach(w => w.el.classList.toggle('away', !onDesk(w)));
+        if (window.JMOS_WIDGETS) JMOS_WIDGETS.render();
+        const t = topWin(); if (t) focus(t); else { WINS.forEach(w => w.el.classList.remove('focus')); document.title = 'J.Mainz OS'; }
+        renderTasks(); save(); (window.JMOS_DESK_HOOKS || []).forEach(f => { try { f(id); } catch (x) {} });
+    }
+    function moveToDesk(win, id) { win.desk = id; win.el.classList.toggle('away', !onDesk(win)); if (!onDesk(win)) { win.el.classList.remove('focus'); const t = topWin(); if (t) focus(t); } renderTasks(); save(); }
     function toggleMin(win, on = !win.min) { win.min = on; place(win); if (on) { win.el.classList.remove('focus'); const t = topWin(); if (t) focus(t); else document.title = 'J.Mainz OS'; } else focus(win); renderTasks(); save(); }
     function toggleMax(win, on = !win.max) { if (win.app.noMax) return; animate(win, () => { win.max = on; place(win); }); save(); }
     function closeWin(win) {
@@ -329,7 +345,7 @@
     const isPinned = id => pins().includes(id);
     function togglePin(id) { S.pinned = isPinned(id) ? pins().filter(x => x !== id) : [...pins(), id]; renderTasks(); save(); }
     function renderTasks() {
-        const t = topWin(), open = WINS.filter(w => !w.closing), used = new Set();
+        const t = topWin(), open = WINS.filter(w => !w.closing && onDesk(w)), used = new Set();
         const winBtn = w => { used.add(w); const ttl = w.el.querySelector('.wt-title').textContent;
             return `<button type="button" class="task${w === t && !w.min && w.el.classList.contains('focus') ? ' on' : ''}${w.min ? ' mini' : ''}${isPinned(w.app.id) ? ' pinned' : ''}" data-w="${w.id}" title="${e(ttl)}"><span class="wt-ico${w.app.folder ? ' folder' : ''}" style="--c:${w.app.c || '#818cf8'}"><i class="fa-solid ${w.app.folder ? 'fa-folder' : w.app.icon}"></i></span><span>${e(ttl)}</span></button>`; };
         const pinBtn = id => { const a = APPS[id]; return `<button type="button" class="task pin" data-pin="${id}" title="${e(a.name)} öffnen"><span class="wt-ico${a.folder ? ' folder' : ''}" style="--c:${a.c || '#818cf8'}"><i class="fa-solid ${a.folder ? 'fa-folder' : a.icon}"></i></span><span>${e(a.name)}</span></button>`; };
@@ -347,11 +363,11 @@
             const b = ev.target.closest('.task'); if (!b) return; ev.preventDefault();
             if (b.dataset.pin) return ctx(ev.clientX, ev.clientY - 10, [['fa-up-right-from-square', 'Öffnen', () => openApp(b.dataset.pin)], ['fa-thumbtack', 'Von Taskleiste lösen', () => togglePin(b.dataset.pin)]], true);
             const w = WINS.find(x => x.id === b.dataset.w);
-            ctx(ev.clientX, ev.clientY - 10, [!w.params && !w.app.hidden && ['fa-thumbtack', isPinned(w.app.id) ? 'Von Taskleiste lösen' : 'An Taskleiste anheften', () => togglePin(w.app.id)], null, [w.min ? 'fa-window-restore' : 'fa-window-minimize', w.min ? 'Wiederherstellen' : 'Minimieren', () => toggleMin(w)], !w.app.noMax && ['fa-window-maximize', w.max ? 'Verkleinern' : 'Maximieren', () => { if (w.min) toggleMin(w, false); toggleMax(w); }], w.app.url && ['fa-up-right-from-square', 'In neuem Browser-Tab öffnen', () => window.open(w.url || w.app.url, '_blank', 'noopener')], null, ['fa-xmark', 'Fenster schließen', () => closeWin(w)]], true);
+            ctx(ev.clientX, ev.clientY - 10, [...desks().filter(d => d.id !== w.desk).map(d => ['fa-clone', 'Verschieben nach „' + d.name + '“', () => moveToDesk(w, d.id)]), desks().length > 1 && null, !w.params && !w.app.hidden && ['fa-thumbtack', isPinned(w.app.id) ? 'Von Taskleiste lösen' : 'An Taskleiste anheften', () => togglePin(w.app.id)], null, [w.min ? 'fa-window-restore' : 'fa-window-minimize', w.min ? 'Wiederherstellen' : 'Minimieren', () => toggleMin(w)], !w.app.noMax && ['fa-window-maximize', w.max ? 'Verkleinern' : 'Maximieren', () => { if (w.min) toggleMin(w, false); toggleMax(w); }], w.app.url && ['fa-up-right-from-square', 'In neuem Browser-Tab öffnen', () => window.open(w.url || w.app.url, '_blank', 'noopener')], null, ['fa-xmark', 'Fenster schließen', () => closeWin(w)]], true);
         });
         let shown = null;
         $('show-desk').addEventListener('click', () => {
-            const open = WINS.filter(w => !w.min && !w.closing);
+            const open = WINS.filter(w => !w.min && !w.closing && onDesk(w));
             if (open.length) { shown = open.map(w => w.id); open.forEach(w => toggleMin(w, true)); }
             else if (shown) { shown.forEach(id => { const w = WINS.find(x => x.id === id); if (w) toggleMin(w, false); }); shown = null; }
         });
@@ -369,7 +385,7 @@
     // ---------- Startmenü ----------
     function toggleStart(on = $('start').hidden) {
         closePops('start'); $('start').hidden = !on; $('start-btn').setAttribute('aria-expanded', on);
-        if (on) { $('st-q').value = ''; renderStart(); setTimeout(() => $('st-q').focus(), 30); }
+        if (on) { $('st-q').value = ''; renderStart(); $('st-q').focus(); setTimeout(() => { if (document.activeElement !== $('st-q')) $('st-q').focus(); }, 30); }
     }
     let RES = [];
     function renderStart() {
@@ -378,7 +394,7 @@
         $('st-apps').innerHTML = pinned.map(btn).join(''); $('st-web').innerHTML = web.map(btn).join('');
         $('st-apps').previousElementSibling.hidden = !pinned.length; $('st-web').previousElementSibling.hidden = !web.length;
         // Suche über alles (Termine, Aufgaben, Dateien … aus OS/extras.js)
-        RES = q.length >= 2 && window.JMOS_SEARCH ? JMOS_SEARCH(q) : [];
+        RES = q.length >= 2 && window.JMOS_SEARCH ? JMOS_SEARCH($('st-q').value.trim()) : [];
         $('st-res').innerHTML = RES.length ? `<div class="st-head"><span>Gefunden</span><small>${RES.length > 30 ? '30+' : RES.length} Treffer</small></div>` + RES.slice(0, 30).map((r, i) => `<button type="button" class="st-r" data-r="${i}"><span class="ic" style="--c:${r.c || '#818cf8'}"><i class="fa-solid ${r.icon}"></i></span><span class="tx"><b>${e(r.title)}</b><small>${e(r.sub || '')}</small></span><em>${e(r.kind || '')}</em></button>`).join('') : '';
         if (window.JMOS_RECENT && !q) $('st-res').innerHTML = JMOS_RECENT();
         $('st-empty').hidden = !!(pinned.length + web.length + RES.length);
@@ -527,10 +543,12 @@
         $('st-role').textContent = isAdmin(user) ? 'Administrator' : 'Mitglied';
         $('st-av').innerHTML = typeof avatarInner === 'function' ? avatarInner({ ...user, name }) : e((name || '?')[0]);
         renderIcons(); wireIcons(); wireBar(); wireStart();
-        Object.assign(API, { state: () => S, save, openApp, closeWin, focus, ctx, closePops, toggleStart, renderStart, topWin, toggleMin, toggleMax, place, animate, area, showSnap, renderTasks, renderIcons, keys: KEYS, snapTo, snapRect, togglePin, isPinned, deskH, user: () => USER, apps: () => APPS, order: () => ORDER, webset: () => WEBSET, wins: WINS, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '', tile, esc: e });
+        Object.assign(API, { state: () => S, save, openApp, closeWin, focus, ctx, closePops, toggleStart, renderStart, topWin, toggleMin, toggleMax, place, animate, area, showSnap, renderTasks, renderIcons, keys: KEYS, switchDesk, moveToDesk, desks, curDesk, onDesk, snapTo, snapRect, togglePin, isPinned, deskH, user: () => USER, apps: () => APPS, order: () => ORDER, webset: () => WEBSET, wins: WINS, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '', tile, esc: e });
         if (window.JMOS_WIDGETS) JMOS_WIDGETS.init(API, user);
         (window.JMOS_EXT || []).forEach(x => { if (x.ui) Object.assign(NATIVE_UI, x.ui); try { x.init && x.init(API, user); } catch (err) { console.error('J.Mainz OS Erweiterung:', err); } });
-        (S.wins || []).forEach(w => { if (APPS[w.app]) { const win = openApp(w.app, { ...w, restore: true }); if (win && w.min) toggleMin(win, true); } });
+        if (!desks().some(d => d.id === curDesk())) S.desk = desks()[0].id;
+        (S.wins || []).forEach(w => { if (APPS[w.app]) { const win = openApp(w.app, { ...w, desk: desks().some(d => d.id === w.desk) ? w.desk : curDesk(), restore: true }); if (win) { win.el.classList.toggle('away', !onDesk(win)); if (w.min) toggleMin(win, true); } } });
+        renderTasks();
         $('boot-msg').textContent = `Willkommen, ${name}`;
         setTimeout(() => document.documentElement.classList.remove('os-boot'), 450);
     }

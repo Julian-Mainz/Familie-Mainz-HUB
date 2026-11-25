@@ -8,8 +8,8 @@
     <title>J.Mainz OS</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366f1'/%3E%3Cstop offset='1' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='56' height='56' rx='16' fill='url(%23g)'/%3E%3Crect x='16' y='16' width='14' height='14' rx='3' fill='%23fff'/%3E%3Crect x='34' y='16' width='14' height='14' rx='3' fill='%23fff' opacity='.7'/%3E%3Crect x='16' y='34' width='14' height='14' rx='3' fill='%23fff' opacity='.7'/%3E%3Crect x='34' y='34' width='14' height='14' rx='3' fill='%23fff' opacity='.45'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="/assets/icons.css?v=eb59d042">
-    <link rel="stylesheet" href="os-icons.css?v=23a9fdb8">
-    <link rel="stylesheet" href="os.css?v=1b65abf8">
+    <link rel="stylesheet" href="os-icons.css?v=d2170b9b">
+    <link rel="stylesheet" href="os.css?v=3dbcbd4a">
     <!-- Anmeldung und Rechte kommen aus dem Dashboard (nur gelesen, nichts daran geändert) -->
     <script src="/js/vendor/firebase-app-compat.js?v=c066068f" defer></script>
     <script src="/js/vendor/firebase-auth-compat.js?v=4d9f6e50" defer></script>
@@ -20,10 +20,11 @@
     <script src="widgets.js?v=b71c50e4" defer></script>
     <script src="/js/messenger-core.js?v=2891ce1a" defer></script>
     <script src="explorer.js?v=0d85a446" defer></script>
-    <script src="extras.js?v=2951ec83" defer></script>
-    <script src="shell.js?v=46494062" defer></script>
+    <script src="extras.js?v=917a05a5" defer></script>
+    <script src="shell.js?v=ef039760" defer></script>
     <script src="apps.js?v=a18d1135" defer></script>
-    <script src="os.js?v=ecfffe83" defer></script>
+    <script src="plus.js?v=6a3f8310" defer></script>
+    <script src="os.js?v=85e5f7f2" defer></script>
 </head>
 <body>
     <!-- Hintergrund -->
@@ -82,6 +83,10 @@
     <section id="nc" class="pop" hidden aria-label="Mitteilungen"></section>
     <div id="toasts" aria-live="polite"></div>
 
+    <!-- Schnellstart und Zwischenablage -->
+    <section id="qs" class="pop" hidden aria-label="Schnellstart"></section>
+    <section id="clip" class="pop" hidden aria-label="Zwischenablage"></section>
+
     <!-- Kontextmenü -->
     <div id="ctx" class="pop" hidden role="menu"></div>
 
@@ -89,11 +94,12 @@
     <footer id="bar" aria-label="Taskleiste">
         <button type="button" id="start-btn" aria-label="Start" aria-expanded="false" aria-controls="start"><span class="logo"><span></span><span></span><span></span><span></span></span></button>
         <button type="button" id="bar-search" aria-label="Suchen"><i class="fa-solid fa-magnifying-glass"></i><span>Suchen</span></button>
+        <button type="button" id="desk-chip" hidden title="Desktop wechseln (Alt+Bild auf/ab)"></button>
         <button type="button" id="bar-tv" aria-label="Fensterübersicht" title="Fensterübersicht (Alt+Q)"><i class="fa-solid fa-clone"></i></button>
         <button type="button" id="bar-wg" aria-label="Widgets hinzufügen" title="Widgets hinzufügen"><i class="fa-solid fa-table-cells-large"></i></button>
         <div id="tasks" role="toolbar" aria-label="Geöffnete Apps"></div>
         <div id="tray">
-            <span class="tray-i" id="net" title="Verbunden"><i class="fa-solid fa-wifi"></i></span>
+            <button type="button" class="tray-i" id="net" title="Schnellstart (Alt+A)" aria-label="Schnellstart" aria-expanded="false" aria-controls="qs"><i class="fa-solid fa-wifi"></i></button>
             <button type="button" class="tray-i" id="bell" aria-label="Mitteilungen" aria-expanded="false" aria-controls="nc"><i class="fa-solid fa-bell"></i><b id="bell-n" hidden></b></button>
             <button type="button" id="clock" aria-label="Uhr und Kalender" aria-expanded="false" aria-controls="cal"><b id="clk-t">--:--</b><small id="clk-d"></small></button>
             <button type="button" id="show-desk" title="Desktop anzeigen" aria-label="Desktop anzeigen"></button>
