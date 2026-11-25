@@ -2,6 +2,15 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (16)
+
+### Zeiterfassung: eigene Arbeitstage und Sollstunden, Bundesland, Stundenzettel aus der Firmen-Vorlage
+- Arbeitstage und Sollstunden pro Wochentag (z. B. nur Mo, Mi, Fr mit je 7 Stunden). Tage mit 0 Stunden sind frei: kein Soll, Urlaub zählt dort nicht. Schnellwahl „Mo–Fr 8 Std“, „Mo–Do 8 Std“, „Mo, Mi, Fr 7 Std“. Die Startseite und der Desktop-Modus rechnen genauso.
+- Feiertage nach dem eigenen Bundesland statt fest NRW (gleiche Einstellung wie im Kalender).
+- Stundenzettel: die Excel-Vorlage der Firma (.xlsx) einmal hochladen, das Dashboard erkennt die Felder aus den Überschriften (Name, Monat, Beginn, Pause, Ende, Kürzel, Aufgezeichnet am, Bemerkung) und lässt sie per Klick korrigieren. Danach erstellt ein Klick den ausgefüllten Zettel für einen Monat als Excel-Datei; Formeln der Vorlage (z. B. Dauer und Summe) rechnen beim Öffnen neu. Krank, Urlaub und Feiertage bekommen ihre Kürzel (einstellbar).
+- Geänderte Dateien: js/calendar-core.js, js/pages/zeiterfassung.js, zeiterfassung.html, js/timesheet.js (neu), js/pages/menu.js, OS/widgets.js, assets/icons.css
+- Firestore-Regeln: neuer Block `timesheet_tpl` (Stundenzettel-Vorlage).
+
 ## 25.11.2026 (15)
 
 ### Kalender: Feiertage & Ferien, mehrere Wochentage, Ort & Notizen, Erinnerungen, Teilen mit Personen, gemeinsame Kalender, Einladungen, Anhänge

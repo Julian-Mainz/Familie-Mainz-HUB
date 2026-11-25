@@ -47,19 +47,12 @@
     };
 
     // ---------- Rechnen wie auf der Startseite (Zeiterfassung) ----------
-    const HOL = {};
-    function holidays(y) {
-        if (HOL[y]) return HOL[y];
-        const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), f0 = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
-        const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * f0 + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
-        const ea = n => { const x = new Date(y, Math.floor((h + l - 7 * m + 114) / 31) - 1, (h + l - 7 * m + 114) % 31 + 1); x.setDate(x.getDate() + n); return localDate(x); };
-        return HOL[y] = new Set([`${y}-01-01`, ea(-2), ea(1), `${y}-05-01`, ea(39), ea(50), ea(60), `${y}-10-03`, `${y}-11-01`, `${y}-12-25`, `${y}-12-26`]);
-    }
+    const holidays = y => CAL.holidays(y, CAL.prefs(U).region);          // Feiertage nach Bundesland (Kalender-Einstellungen)
     const W = () => ({ pause: 60, after: 6, weekly: 40, vacation: 30, carry: 0, carryYear: 0, ...(U.userPrefs?.work || {}) });
-    const dayMin = () => Math.round(W().weekly / 5 * 60);
+    const dayMin = () => CAL.workAvg(W());
     const pDate = s => new Date(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10));
-    const isWork = d => d.getDay() % 6 !== 0 && !holidays(d.getFullYear()).has(localDate(d));
-    const sollMin = (from, to) => { if (to < from) return 0; let n = 0; for (const d = pDate(from), end = pDate(to); d <= end; d.setDate(d.getDate() + 1)) if (isWork(d)) n++; return n * dayMin(); };
+    const isWork = d => CAL.workDayMin(W(), localDate(d), CAL.prefs(U).region) > 0;
+    const sollMin = (from, to) => CAL.workSoll(W(), from, to, CAL.prefs(U).region);
     const hh = min => { const s = min < 0 ? '-' : ''; min = Math.abs(Math.round(min)); return `${s}${Math.floor(min / 60)}:${pad(min % 60)} h`; };
     function zeitKpis({ active, entries }) {
         const now = new Date(), today = localDate(now), sum = (a, b) => entries.reduce((x, en) => x + (en.date >= a && en.date <= b ? Number(en.netMinutes) || 0 : 0), 0);
@@ -79,7 +72,7 @@
         }
         const y = now.getFullYear(), total = w.vacation + (w.carryYear === y ? w.carry : 0);
         const used = new Set(entries.filter(en => (en.type || 'work') === 'vacation' && en.date && en.date.startsWith(String(y))).map(en => en.date)).size + Math.max(0, +((w.vacPre || {})[y]) || 0);
-        return { day, daySoll: isWork(now) ? dayMin() : 0, week, weekSoll: sollMin(localDate(mon), localDate(sun)), ot: acc, vac: total - used, vacTotal: total };
+        return { day, daySoll: CAL.workDayMin(W(), localDate(now), CAL.prefs(U).region), week, weekSoll: sollMin(localDate(mon), localDate(sun)), ot: acc, vac: total - used, vacTotal: total };
     }
 
     // ---------- Wetter-Symbole (wie Startseite) ----------

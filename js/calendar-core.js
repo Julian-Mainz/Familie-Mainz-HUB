@@ -193,6 +193,19 @@
         return new Date(y, mo - 1, d, hh, mm).getTime() - m * 60000;
     }
 
+    // ---------- Sollarbeitszeit (Zeiterfassung) ----------
+    // work = userPrefs.work: days = [So, Mo, …, Sa] in Stunden (eigene Arbeitstage); fehlt days, gilt Wochenstunden / 5 an Mo–Fr.
+    function workBase(work, wd) {
+        const w = work || {};
+        if (Array.isArray(w.days) && w.days.length === 7) return Math.round(Math.max(0, Math.min(24, +w.days[wd] || 0)) * 60);
+        return wd >= 1 && wd <= 5 ? Math.round((+w.weekly || 40) / 5 * 60) : 0;
+    }
+    // Soll an einem Tag in Minuten (0 an Feiertagen und freien Tagen)
+    const workDayMin = (work, s, region) => (holidayMap(+s.slice(0, 4), region).has(s) ? 0 : workBase(work, new Date(toMs(s)).getUTCDay()));
+    function workSoll(work, from, to, region) { if (to < from) return 0; let n = 0; for (let ms = toMs(from), c = 0; c < 4000 && toStr(ms) <= to; c++, ms += DAY) n += workDayMin(work, toStr(ms), region); return n; }
+    // durchschnittliches Tagessoll an Arbeitstagen (für Hinweise und Diagramm-Linien)
+    function workAvg(work) { const v = [0, 1, 2, 3, 4, 5, 6].map(d => workBase(work, d)).filter(x => x > 0); return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : 0; }
+
     // ---------- Wer sieht was? ----------
     const shareOf = ev => (ev && ev.share) || (ev && ev.isPublic ? 'public' : 'private');
     const rsvpOf = (ev, uid) => (ev && ev.rsvp && ev.rsvp[uid]) || '';
@@ -211,6 +224,6 @@
     }
 
     root.CAL = { occurrencesOf, expand, nextOccurrences, repeatLabel, timeLabel, validate, deleteOne, deleteFollowing, isRecurring, addDays, germanDate, REPEATS, COLORS, colorOf, isWorkday,
-        REGIONS, holidays, holidayName, holidayMap, specialDays, loadFerien, ferienCached, REMINDS, prefs, remindAt, shareOf, rsvpOf, isInvite, visible, subscribe, WD };
+        workBase, workDayMin, workSoll, workAvg, REGIONS, holidays, holidayName, holidayMap, specialDays, loadFerien, ferienCached, REMINDS, prefs, remindAt, shareOf, rsvpOf, isInvite, visible, subscribe, WD };
     if (typeof module !== 'undefined' && module.exports) module.exports = root.CAL;
 })(typeof window !== 'undefined' ? window : globalThis);

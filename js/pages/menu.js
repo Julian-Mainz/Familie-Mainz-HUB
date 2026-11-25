@@ -97,22 +97,13 @@ function isoWeek(d) { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(),
 // ---------- Zeiterfassung (nur Anzeige, gestempelt wird auf der Seite Zeiterfassung) ----------
 let workEntries = [], active = null, stOffset = 0;
 const W = () => ({ pause: 60, after: 6, weekly: 40, vacation: 30, carry: 0, carryYear: 0, ...(currentUser.userPrefs?.work || {}) });
-const dayMin = () => Math.round(W().weekly / 5 * 60);
+const dayMin = () => CAL.workAvg(W());
 const hh = min => { const s = min < 0 ? '-' : ''; min = Math.abs(Math.round(min)); return `${s}${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')} h`; };
 const pDate = s => new Date(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10));
-const HOL = {};
-function easter(y) {
-    const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
-    const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
-    return new Date(y, Math.floor((h + l - 7 * m + 114) / 31) - 1, (h + l - 7 * m + 114) % 31 + 1);
-}
-function holidays(y) {      // gesetzliche Feiertage NRW (wie auf der Seite Zeiterfassung)
-    if (HOL[y]) return HOL[y];
-    const add = n => { const d = easter(y); d.setDate(d.getDate() + n); return localDate(d); };
-    return HOL[y] = new Set([`${y}-01-01`, add(-2), add(1), `${y}-05-01`, add(39), add(50), add(60), `${y}-10-03`, `${y}-11-01`, `${y}-12-25`, `${y}-12-26`]);
-}
-const isWork = d => d.getDay() % 6 !== 0 && !holidays(d.getFullYear()).has(localDate(d));
-function sollMin(from, to) { if (to < from) return 0; let n = 0; for (const d = pDate(from), end = pDate(to); d <= end; d.setDate(d.getDate() + 1)) if (isWork(d)) n++; return n * dayMin(); }
+// Soll pro Wochentag (Zeiterfassung-Einstellungen), Feiertage nach Bundesland (Kalender-Einstellungen)
+const holidays = y => CAL.holidays(y, CAL.prefs(currentUser).region);
+const isWork = d => CAL.workDayMin(W(), localDate(d), CAL.prefs(currentUser).region) > 0;
+const sollMin = (from, to) => CAL.workSoll(W(), from, to, CAL.prefs(currentUser).region);
 const typeOf = e => e.type || 'work';
 const sumNet = (from, to) => workEntries.reduce((a, e) => a + (e.date >= from && e.date <= to ? Number(e.netMinutes) || 0 : 0), 0);
 function liveNet() {
@@ -143,7 +134,7 @@ function renderStampKpis() {
     if (!currentUser || !can(currentUser, 'zeit')) return;
     const now = new Date(), today = localDate(now), live = liveNet(), pct = (a, b) => Math.min(100, b ? a / b * 100 : 0) + '%';
     // Heute
-    const dIst = sumNet(today, today) + live, dSoll = isWork(now) ? dayMin() : 0;
+    const dIst = sumNet(today, today) + live, dSoll = CAL.workDayMin(W(), localDate(now), CAL.prefs(currentUser).region);
     setT($('k-day'), hh(dIst)); $('k-day-s').innerText = dSoll ? `von ${hh(dSoll)}` : 'kein Arbeitstag'; $('k-day-b').style.width = pct(dIst, dSoll || dIst);
     // Woche (mit den Pfeilen auch frühere Wochen)
     const mon = new Date(now); mon.setDate(now.getDate() - (now.getDay() + 6) % 7 + stOffset * 7); const sun = new Date(mon); sun.setDate(mon.getDate() + 6);

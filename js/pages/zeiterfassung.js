@@ -51,42 +51,61 @@ window.addEventListener('hashchange', () => showTab(location.hash.slice(1) || 'o
 
 // ---------- Einstellungen ----------
 const W = () => ({ pause: 60, after: 6, weekly: 40, vacation: 30, carry: 0, carryYear: 0, ...(currentUser.userPrefs?.work || {}) });
-const dayMin = () => Math.round(W().weekly / 5 * 60);
+// Sollzeit: pro Wochentag einstellbar (userPrefs.work.days), Feiertage nach Bundesland (Kalender-Einstellungen)
+const region = () => CAL.prefs(currentUser).region;
+const dayMinOf = d => CAL.workDayMin(W(), typeof d === 'string' ? d : localDate(d), region());
+const dayMin = () => CAL.workAvg(W());
+// Arbeitstage: sieben Felder Mo … So (Stunden); gespeichert als days = [So, Mo, …, Sa]
+const WDN = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'], WDO = [1, 2, 3, 4, 5, 6, 0];
+function paintDays(days) {
+    $('set-days').innerHTML = WDO.map(d => `<label class="${days[d] > 0 ? '' : 'off'}">${WDN[d]}<input type="number" min="0" max="24" step="0.25" class="ux-in" data-d="${d}" value="${+days[d] || 0}" aria-label="Sollstunden ${WDN[d]}"></label>`).join('');
+    sumDays();
+}
+function readDays() { const a = [0, 0, 0, 0, 0, 0, 0]; $('set-days').querySelectorAll('input').forEach(i => { a[+i.dataset.d] = Math.max(0, Math.min(24, Math.round((+i.value || 0) * 4) / 4)); }); return a; }
+function sumDays() { const a = readDays(), n = a.filter(x => x > 0).length, t = a.reduce((x, y) => x + y, 0); $('set-sum').textContent = `${n} Arbeitstag${n === 1 ? '' : 'e'} · ${String(t).replace('.', ',')} Std pro Woche`; $('set-days').querySelectorAll('label').forEach(l => l.classList.toggle('off', !(+l.querySelector('input').value > 0))); }
+$('set-days').addEventListener('input', sumDays);
+document.querySelector('#modal-settings').addEventListener('click', e => { const b = e.target.closest('[data-wd]'); if (!b) return; const [n, h] = b.dataset.wd.split('x').map(Number), a = [0, 0, 0, 0, 0, 0, 0]; (n === 3 ? [1, 3, 5] : WDO.slice(0, n)).forEach(d => { a[d] = h; }); paintDays(a); });
+$('set-region').innerHTML = CAL.REGIONS.map(([k, n]) => `<option value="${k}">${n}</option>`).join('');
+function sollText() {
+    const a = [0, 1, 2, 3, 4, 5, 6].map(d => CAL.workBase(W(), d)), on = WDO.filter(d => a[d] > 0), same = on.every(d => a[d] === a[on[0]]);
+    if (!on.length) return 'kein Soll';
+    const days = on.length === 5 && on.join() === '1,2,3,4,5' ? 'Mo–Fr' : on.map(d => WDN[d]).join(', ');
+    return same ? `${days} · ${hm(a[on[0]])}` : `${days} · Ø ${hm(dayMin())}`;
+}
 function openSettings(focus) {
-    const w = W(), cy = new Date().getFullYear(); $('set-pause').value = w.pause; $('set-after').value = w.after; $('set-weekly').value = w.weekly; $('set-vac').value = w.vacation; $('set-carry').value = w.carryYear === cy ? w.carry : 0;
+    const w = W(), cy = new Date().getFullYear(); $('set-pause').value = w.pause; $('set-after').value = w.after; paintDays([0, 1, 2, 3, 4, 5, 6].map(d => CAL.workBase(w, d) / 60)); $('set-region').value = region(); $('set-vac').value = w.vacation; $('set-carry').value = w.carryYear === cy ? w.carry : 0;
     $('set-pre').value = (w.vacPre || {})[cy] || 0; $('set-pre-year').textContent = cy; openModal('modal-settings'); if (focus === 'vac') setTimeout(() => $('set-vac').focus(), 50);
 }
 function saveSettings(e) {
     e.preventDefault();
-    const work = { ...(currentUser.userPrefs?.work || {}), pause: Math.max(0, +$('set-pause').value), after: Math.max(0, +$('set-after').value), weekly: Math.min(60, Math.max(1, +$('set-weekly').value)), vacation: Math.max(0, +$('set-vac').value), carry: Math.max(0, +$('set-carry').value), carryYear: new Date().getFullYear(),
+    const work = { ...(currentUser.userPrefs?.work || {}), pause: Math.max(0, +$('set-pause').value), after: Math.max(0, +$('set-after').value), days: readDays(), weekly: readDays().reduce((a, b) => a + b, 0), vacation: Math.max(0, +$('set-vac').value), carry: Math.max(0, +$('set-carry').value), carryYear: new Date().getFullYear(),
         vacPre: { ...(currentUser.userPrefs?.work?.vacPre || {}), [new Date().getFullYear()]: Math.max(0, +$('set-pre').value || 0) } };
     run(async () => {
-        await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.work': work });
-        currentUser.userPrefs = { ...(currentUser.userPrefs || {}), work };
+        const cal = { ...CAL.prefs(currentUser), ...(currentUser.userPrefs?.cal || {}), region: $('set-region').value };
+        await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.work': work, 'userPrefs.cal': cal });
+        currentUser.userPrefs = { ...(currentUser.userPrefs || {}), work, cal };
         closeModal('modal-settings'); applyConfig(); renderAll(false); logSystemEvent('data', 'Zeiterfassung: Einstellungen geändert', work);
     });
 }
 function applyConfig() {
     const w = W();
-    $('cfg-day').innerText = hm(dayMin()); $('cfg-pause').innerText = w.pause + ' Min';
+    $('cfg-day').innerText = sollText(); $('cfg-pause').innerText = w.pause + ' Min';
     $('pause-hint').innerText = w.after > 0 ? `Wird abgezogen, wenn du mindestens ${w.after} Std. arbeitest.` : 'Wird immer abgezogen.';
 }
 
-// ---------- Feiertage NRW & Soll ----------
-const HOL = {};
-function easter(y) {
-    const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
-    const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
-    const mo = Math.floor((h + l - 7 * m + 114) / 31), da = (h + l - 7 * m + 114) % 31 + 1;
-    return new Date(y, mo - 1, da);
+// ---------- Stundenzettel aus der Firmen-Vorlage (Modul js/timesheet.js wird erst bei Bedarf geladen) ----------
+function openTimesheet() {
+    openModal('modal-ts');
+    const go = () => Timesheet.open({ db, user: currentUser, entries: () => workEntries, holiday: k => holidays(+k.slice(0, 4)).has(k), isWorkday: k => CAL.workBase(W(), parse(k).getDay()) > 0,
+        log: ym => logSystemEvent('data', 'Stundenzettel erstellt', { monat: ym }) });
+    if (window.Timesheet) return go();
+    const s = document.createElement('script'); s.src = (window.assetUrl || (p => p))('/js/timesheet.js'); s.onload = go; s.onerror = () => { $('ts-body').textContent = 'Das Modul konnte nicht geladen werden.'; }; document.head.appendChild(s);
 }
-function holidays(y) {
-    if (HOL[y]) return HOL[y];
-    const add = n => { const d = easter(y); d.setDate(d.getDate() + n); return localDate(d); };
-    return HOL[y] = new Set([`${y}-01-01`, add(-2), add(1), `${y}-05-01`, add(39), add(50), add(60), `${y}-10-03`, `${y}-11-01`, `${y}-12-25`, `${y}-12-26`]);
-}
-const isWork = d => d.getDay() % 6 !== 0 && !holidays(d.getFullYear()).has(localDate(d));
-function sollMin(from, to) { if (to < from) return 0; let n = 0; for (const d = parse(from), end = parse(to); d <= end; d.setDate(d.getDate() + 1)) if (isWork(d)) n++; return n * dayMin(); }
+
+// ---------- Feiertage (Bundesland) & Soll ----------
+const holidays = y => CAL.holidays(y, region());
+const isWork = d => dayMinOf(d) > 0;
+const sollMin = (from, to) => CAL.workSoll(W(), from, to, region());
 
 // ---------- Zustand ----------
 let vacYear = new Date().getFullYear();
@@ -190,7 +209,7 @@ function renderSummary() {
     if (!currentUser) return;
     const today = localDate(), live = liveNet(), now = new Date();
     // Heute (Ring um die Uhr)
-    const bookedToday = sumNet(inRange(today, today)), dIst = bookedToday + live, dSoll = isWork(now) ? dayMin() : 0;
+    const bookedToday = sumNet(inRange(today, today)), dIst = bookedToday + live, dSoll = dayMinOf(now);
     $('day-txt').innerText = dSoll ? `${hm(dIst)} von ${hm(dSoll)}` : `${hm(dIst)} · kein Sollarbeitstag`; UX.ring($('ring-arc'), dSoll ? dIst / dSoll : 0);
     // Woche
     const mon = new Date(now); mon.setDate(now.getDate() - (now.getDay() + 6) % 7);
@@ -199,7 +218,7 @@ function renderSummary() {
     $('week-txt').innerText = `${hm(wIst)} von ${hm(wSoll)}`; $('week-bar').style.width = Math.min(100, wSoll ? wIst / wSoll * 100 : 0) + '%'; renderWeek();
     // Feierabend-Prognose
     if (active?.startTime) {
-        const rest = dayMin() - bookedToday, pause = rest >= W().after * 60 ? livePause() : 0;
+        const rest = dayMinOf(now) - bookedToday, pause = rest >= W().after * 60 ? livePause() : 0;
         const eta = new Date(active.startTime.toDate().getTime() + (rest + pause) * 60000);
         $('eta').innerHTML = dSoll && dIst >= dSoll ? `<i class="fa-solid fa-circle-check"></i> Tagessoll erreicht (${sg(dIst - dSoll)})` : dSoll ? `Tagessoll erreicht um <b>${fmtT(eta)} Uhr</b>` : 'Heute kein Sollarbeitstag';
     }
@@ -301,7 +320,7 @@ async function saveAbsence(e) {
     }
     run(async () => {
         const b = db.batch();
-        todo.forEach(date => b.set(db.collection('worktime').doc(), { type, date, start: '', end: '', pauseMinutes: 0, netMinutes: type === 'flex' ? 0 : dayMin(), note: note || TYPES[type][0], owner: currentUser.email, createdAt: TS() }));
+        todo.forEach(date => b.set(db.collection('worktime').doc(), { type, date, start: '', end: '', pauseMinutes: 0, netMinutes: type === 'flex' ? 0 : dayMinOf(date), note: note || TYPES[type][0], owner: currentUser.email, createdAt: TS() }));
         await b.commit(); closeModal('modal-absence'); logSystemEvent('data', 'Abwesenheit eingetragen', { type, tage: todo.length });
     });
 }
@@ -468,7 +487,7 @@ function renderDays() {
     let total = 0, n = 0;
     const html = [...keys].sort().reverse().map(key => {
         const d = parse(key), es = by[key] || [], at = absOf(es), hn = holName(d.getFullYear()).get(key), work = es.filter(e => typeOf(e) === 'work').sort((a, b) => (a.start || '').localeCompare(b.start || ''));
-        const live = key === today ? liveNet() : 0, net = sumNet(es) + live, soll = isWork(d) ? dayMin() : 0, fut = key > today, miss = !net && !at && !hn && !fut;
+        const live = key === today ? liveNet() : 0, net = sumNet(es) + live, soll = dayMinOf(d), fut = key > today, miss = !net && !at && !hn && !fut;
         if (net) { total += net; n++; }
         const what = at ? TYPES[at][0] : work.length ? work.map(w => `${w.start || '--:--'} – ${w.end || '--:--'}`).join(', ') + (live ? ' · läuft' : '') : live ? 'Läuft gerade' : hn ? hn : fut ? 'geplant' : 'Keine Zeit erfasst';
         const sub = at ? (es.find(e => typeOf(e) === at)?.note && es.find(e => typeOf(e) === at).note !== TYPES[at][0] ? es.find(e => typeOf(e) === at).note : (at === 'flex' ? 'Soll bleibt' : 'ganzer Tag'))
@@ -483,13 +502,7 @@ function renderDays() {
 }
 
 // ---------- Monatskalender ----------
-const HOLN = {};
-function holName(y) {
-    if (HOLN[y]) return HOLN[y];
-    const e = n => { const d = easter(y); d.setDate(d.getDate() + n); return localDate(d); };
-    return HOLN[y] = new Map([[`${y}-01-01`, 'Neujahr'], [e(-2), 'Karfreitag'], [e(1), 'Ostermontag'], [`${y}-05-01`, 'Tag der Arbeit'], [e(39), 'Christi Himmelfahrt'], [e(50), 'Pfingstmontag'], [e(60), 'Fronleichnam'],
-        [`${y}-10-03`, 'Tag der Deutschen Einheit'], [`${y}-11-01`, 'Allerheiligen'], [`${y}-12-25`, '1. Weihnachtstag'], [`${y}-12-26`, '2. Weihnachtstag']]);
-}
+const holName = y => CAL.holidayMap(y, region());
 const ABS_ORDER = ['sick', 'vacation', 'flex'], ABS_ICON = { vacation: 'fa-umbrella-beach', sick: 'fa-plus', flex: 'fa-hourglass-half' };
 const absOf = es => ABS_ORDER.find(t => es.some(e => typeOf(e) === t)) || '';
 function renderCal() {
@@ -508,7 +521,7 @@ function renderCal() {
     }
     $('cal-grid').innerHTML = h;
     $('cal-title').innerText = monthLabel(m);
-    const n = sollMin(`${m}-01`, `${m}-${String(lastD).padStart(2, '0')}`) / dayMin(); $('cal-soll').innerText = `${n} Soll-Tage`;
+    let n = 0; for (let i = 1; i <= lastD; i++) if (dayMinOf(`${m}-${String(i).padStart(2, '0')}`) > 0) n++; $('cal-soll').innerText = `${n} Soll-Tage`;
 }
 // Tagesmenü
 let popDay = '';
@@ -520,7 +533,7 @@ function openCalPop(key, el) {
     const at = absOf(es), hn = holName(d.getFullYear()).get(key), we = d.getDay() % 6 === 0, wd = isWork(d), today = localDate(), net = sumNet(work);
     const head = at ? TYPES[at][0] : hn ? 'Feiertag' : we ? 'Wochenende' : 'Arbeitstag';
     const note = at ? (at === 'flex' ? '0 Std · Soll bleibt, baut Überstunden ab' : 'Ganzer Tag · Tagessoll gutgeschrieben') + (net ? ` · zusätzlich ${hm(net)} gearbeitet` : '')
-        : net ? `Gearbeitet: <b>${hm(net)}</b>` + (wd ? ` · Soll ${hm(dayMin())}` : '') : hn ? esc(hn) + ' · kein Sollarbeitstag' : we ? 'Kein Sollarbeitstag' : key > today ? 'Noch nichts eingetragen' : 'Keine Zeit erfasst';
+        : net ? `Gearbeitet: <b>${hm(net)}</b>` + (wd ? ` · Soll ${hm(dayMinOf(d))}` : '') : hn ? esc(hn) + ' · kein Sollarbeitstag' : we ? 'Kein Sollarbeitstag' : key > today ? 'Noch nichts eingetragen' : 'Keine Zeit erfasst';
     let a = work.map(w => `<button type="button" data-a="edit" data-id="${esc(w.id)}"><i class="fa-solid fa-pen-to-square" style="color:#34d399"></i>${esc(w.start || '--:--')} – ${esc(w.end || '--:--')}<small>${hm(w.netMinutes || 0)}</small></button>`).join('');
     a += `<button type="button" data-a="add"><i class="fa-solid fa-plus" style="color:#34d399"></i>Arbeitszeit erfassen</button>`;
     if (wd) a += ABS_ORDER.map(t => { const T = TYPES[t], cur = at === t; return `<button type="button" data-a="set" data-t="${t}"${cur ? ' class="cur" disabled' : ''}><i class="fa-solid ${ABS_ICON[t]}" style="color:${T[2]}"></i>${cur ? T[0] + ' (eingetragen)' : (at ? 'Auf ' + T[0] + ' ändern' : T[0])}</button>`; }).join('');
@@ -552,7 +565,7 @@ async function setDayType(key, t) {
     if (t === 'vacation' && !old.some(o => typeOf(o) === 'vacation')) { const st = vacStats(+key.slice(0, 4)); if (st.left - 1 < 0 && !(await uiConfirm(`Damit überschreitest du deinen Urlaubsanspruch ${key.slice(0, 4)}. Trotzdem eintragen?`))) return; }
     run(async () => {
         const b = db.batch(); old.forEach(o => b.delete(db.collection('worktime').doc(o.id)));
-        b.set(db.collection('worktime').doc(), { type: t, date: key, start: '', end: '', pauseMinutes: 0, netMinutes: t === 'flex' ? 0 : dayMin(), note: TYPES[t][0], owner: currentUser.email, createdAt: TS() });
+        b.set(db.collection('worktime').doc(), { type: t, date: key, start: '', end: '', pauseMinutes: 0, netMinutes: t === 'flex' ? 0 : dayMinOf(key), note: TYPES[t][0], owner: currentUser.email, createdAt: TS() });
         await b.commit(); logSystemEvent('data', 'Abwesenheit im Kalender gesetzt', { date: key, type: t });
     });
 }
@@ -608,7 +621,7 @@ function updateVacReq() {
 }
 async function bookVacation(days) {
     const b = db.batch();
-    days.forEach(date => b.set(db.collection('worktime').doc(), { type: 'vacation', date, start: '', end: '', pauseMinutes: 0, netMinutes: dayMin(), note: 'Urlaub', owner: currentUser.email, createdAt: TS() }));
+    days.forEach(date => b.set(db.collection('worktime').doc(), { type: 'vacation', date, start: '', end: '', pauseMinutes: 0, netMinutes: dayMinOf(date), note: 'Urlaub', owner: currentUser.email, createdAt: TS() }));
     await b.commit(); return days.length;
 }
 async function submitVacReq(e) {

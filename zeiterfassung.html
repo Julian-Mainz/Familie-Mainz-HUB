@@ -13,14 +13,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="J.Mainz">
-    <link rel="stylesheet" href="/assets/icons.css?v=ee8f7468">
+    <link rel="stylesheet" href="/assets/icons.css?v=946dd4ee">
     <link rel="stylesheet" href="/assets/ui.css?v=5c4d9c4c">
     <link rel="stylesheet" href="/assets/light.css?v=00672ed2">
     <link rel="stylesheet" href="/assets/space.css?v=6a03cf86">
     <script src="/js/space.js?v=6b19e834"></script>
     <link rel="stylesheet" href="/assets/ux.css?v=5dadaea8">
     <link rel="stylesheet" href="/assets/layout.css?v=af1abb40">
-    <script src="/js/theme.js?v=c962e4c1"></script>
+    <script src="/js/theme.js?v=8268ccac"></script>
     <script src="/js/vendor/firebase-app-compat.js?v=c066068f" defer></script>
     <script src="/js/vendor/firebase-auth-compat.js?v=4d9f6e50" defer></script>
     <script src="/js/vendor/firebase-firestore-compat.js?v=53cdabb9" defer></script>
@@ -102,6 +102,25 @@
         .abs-k b { display: block; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; } .abs-k small { color: #cbd5e1; font-size: 12px; display: flex; align-items: center; gap: 6px; }
         #abs-list { max-height: 360px; overflow-y: auto; }
         @media (max-width: 560px) { .abs-k { gap: 6px; } .abs-k div { padding: 10px; } .abs-k b { font-size: 19px; } }
+        .wd-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+        .wd-grid label { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: #cbd5e1; }
+        .wd-grid input { width: 100%; text-align: center; padding: 8px 2px; } .wd-grid label.off input { opacity: .55; }
+        html.hell .wd-grid label { color: #334155; }
+        .ts-box { width: min(100%, 1100px) !important; } .ts-load { padding: 30px; text-align: center; color: #94a3b8; }
+        .ts-up { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px 10px; text-align: center; } .ts-up > i { font-size: 40px; color: #34d399; } .ts-up b { font-size: 16px; } .ts-up span { color: #94a3b8; font-size: 13px; max-width: 520px; } .ts-up .ts-hint { font-size: 12px; } .ts-up .ts-err { color: #fca5a5; } .ts-up label { cursor: pointer; margin-top: 6px; }
+        .ts-map { display: grid; grid-template-columns: 290px 1fr; gap: 14px; min-height: 0; } .ts-fields { display: flex; flex-direction: column; gap: 4px; max-height: 62vh; overflow: auto; padding-right: 4px; }
+        .ts-fb { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(148, 163, 184, .2); background: rgba(148, 163, 184, .05); color: inherit; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+        .ts-fb span { flex: 1; } .ts-fb b { font-family: ui-monospace, monospace; color: #6ee7b7; } .ts-fb i { color: #94a3b8; padding: 2px 4px; } .ts-fb.on { border-color: var(--m); background: rgba(var(--mr), .16); box-shadow: 0 0 0 2px rgba(var(--mr), .3); }
+        .ts-fields .ux-f { margin: 8px 0 0; } .ts-codes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .ts-codes label { display: flex; flex-direction: column; font-size: 11.5px; color: #94a3b8; gap: 3px; }
+        .ts-gwrap { overflow: auto; max-height: 62vh; border: 1px solid rgba(148, 163, 184, .2); border-radius: 12px; background: #fff; }
+        .ts-grid { border-collapse: collapse; font: 11px/1.3 Arial, sans-serif; color: #111; } .ts-grid th { position: sticky; top: 0; background: #f1f5f9; color: #475569; font-weight: 600; padding: 3px 6px; border: 1px solid #e2e8f0; z-index: 1; } .ts-grid tr th:first-child { position: sticky; left: 0; z-index: 2; }
+        .ts-grid td { border: 1px solid #e2e8f0; padding: 3px 5px; min-width: 54px; max-width: 160px; height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: crosshair; } .ts-grid td:hover { background: #ecfdf5; outline: 2px solid #34d399; outline-offset: -2px; }
+        .ts-grid td.ts-f { color: #94a3b8; text-align: center; } .ts-grid td.ts-on { background: #d1fae5; } .ts-grid td.ts-cont { background: #f0fdf4; } .ts-tag { display: inline-block; padding: 1px 6px; border-radius: 6px; background: #059669; color: #fff; font-weight: 600; font-size: 10.5px; }
+        .ts-ok { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; background: rgba(52, 211, 153, .12); color: #6ee7b7; margin-bottom: 12px; font-size: 13px; }
+        .ts-ready { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; background: rgba(148, 163, 184, .08); margin-bottom: 14px; } .ts-ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: rgba(52, 211, 153, .15); color: #34d399; font-size: 20px; }
+        .ts-ready span:last-child { display: flex; flex-direction: column; } .ts-ready small { color: #94a3b8; font-size: 12px; }
+        @media (max-width: 760px) { .ts-map { grid-template-columns: 1fr; } }
+        html.hell .ts-fb b { color: #047857; } html.hell .ts-up span, html.hell .ts-ready small, html.hell .ts-codes label { color: #475569; } html.hell .ts-ok { color: #065f46; background: #d1fae5; }
     </style>
 </head>
 <body class="ux">
@@ -121,6 +140,7 @@
             <button type="button" onclick="monthShift(-1)" aria-label="Neuerer Monat"><i class="fa-solid fa-chevron-right"></i></button></div>
         <button class="ux-btn" id="lay-btn" onclick="Layout.toggle()" title="Karten und Reiter verschieben, Breite ändern, ausblenden"><i class="fa-solid fa-table-columns"></i>Anpassen</button>
         <button class="ux-btn" onclick="openVacReq()"><i class="fa-solid fa-file-pdf"></i>Urlaubsantrag</button>
+        <button class="ux-btn" onclick="openTimesheet()"><i class="fa-solid fa-file-excel"></i>Stundenzettel</button>
     </div>
 
     <!-- ===== Reiter: Übersicht ===== -->
@@ -240,6 +260,11 @@
         <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('modal-absence')">Abbrechen</button><button class="ux-btn pri">Eintragen</button></div>
     </form></div></div>
 
+<!-- Fenster: Stundenzettel aus der Firmen-Vorlage (js/timesheet.js) -->
+<div id="modal-ts" class="ux-modal hidden"><div class="ux-box ts-box" style="--m:#34d399;--m2:#10b981;--mr:52,211,153">
+    <h3><i class="fa-solid fa-file-excel"></i>Stundenzettel<button class="ux-ib" onclick="closeModal('modal-ts')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3>
+    <div id="ts-body" style="margin-top:12px"></div></div></div>
+
 <!-- Fenster: Urlaubsantrag -->
 <div id="modal-vacreq" class="ux-modal hidden"><div class="ux-box lg" style="--m:#38bdf8;--m2:#6366f1;--mr:56,189,248">
     <h3><i class="fa-solid fa-file-pdf"></i>Urlaubsantrag<button class="ux-ib" onclick="closeModal('modal-vacreq')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3>
@@ -291,13 +316,19 @@
     <form onsubmit="saveSettings(event)">
         <label class="ux-f"><span>Standard-Pause pro Tag (Minuten)</span><span class="ux-flex"><input type="number" min="0" id="set-pause" required class="ux-in"><button type="button" class="chip" onclick="$('set-pause').value=0">0</button><button type="button" class="chip" onclick="$('set-pause').value=30">30</button><button type="button" class="chip" onclick="$('set-pause').value=45">45</button><button type="button" class="chip" onclick="$('set-pause').value=60">60</button></span></label>
         <label class="ux-f"><span>Pause erst abziehen ab Arbeitsdauer von (Stunden)</span><input type="number" min="0" step="0.25" id="set-after" required class="ux-in"><span class="ux-note" style="margin-top:5px">Bei kürzeren Tagen wird beim Ausstempeln keine Pause abgezogen. 0 = immer abziehen.</span></label>
-        <label class="ux-f"><span>Sollstunden pro Woche (5-Tage-Woche)</span><input type="number" min="1" max="60" step="0.5" id="set-weekly" required class="ux-in"></label>
+        <div class="ux-f"><span>Arbeitstage und Sollstunden</span>
+            <div class="wd-grid" id="set-days"></div>
+            <span class="ux-flex" style="margin-top:8px;align-items:center;flex-wrap:wrap"><span class="ux-note" style="margin:0" id="set-sum"></span><span style="flex:1"></span>
+                <button type="button" class="chip" data-wd="5x8">Mo–Fr 8 Std</button><button type="button" class="chip" data-wd="4x8">Mo–Do 8 Std</button><button type="button" class="chip" data-wd="3x7">Mo, Mi, Fr 7 Std</button></span>
+            <span class="ux-note" style="margin-top:5px">Tage mit 0 Stunden sind frei (kein Soll, Urlaub zählt dort nicht).</span></div>
+        <label class="ux-f"><span>Bundesland (Feiertage)</span><select id="set-region" class="ux-in"></select><span class="ux-note" style="margin-top:5px">Gilt auch für den Kalender.</span></label>
         <div class="ux-row2"><label class="ux-f"><span>Urlaubsanspruch pro Jahr (Tage)</span><input type="number" min="0" step="0.5" id="set-vac" required class="ux-in"></label><label class="ux-f"><span>Resturlaub Vorjahr (Tage)</span><input type="number" min="0" step="0.5" id="set-carry" required class="ux-in"></label></div>
         <label class="ux-f"><span>Davon <span id="set-pre-year"></span> schon genommen, aber nicht eingetragen (Tage)</span><input type="number" min="0" step="0.5" id="set-pre" class="ux-in"><span class="ux-note" style="margin-top:5px">Zum Beispiel, wenn du im Juni anfängst und vorher schon 4 Tage Urlaub hattest. Diese Tage zählen als genommen.</span></label>
         <p class="ux-note">Der Resturlaub gilt nur für das laufende Jahr und muss jedes Jahr neu eingetragen werden. Die Pause für den aktuellen Tag änderst du beim Arbeiten direkt an der Stempeluhr.</p>
         <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('modal-settings')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div>
     </form></div></div>
 
-<script src="/js/pages/zeiterfassung.js?v=144482ed" defer></script>
+<script src="/js/calendar-core.js?v=205fb9b3" defer></script>
+<script src="/js/pages/zeiterfassung.js?v=dda8f1ef" defer></script>
 </body>
 </html>
