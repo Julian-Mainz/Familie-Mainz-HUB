@@ -93,6 +93,8 @@ html:not(.os-boot) #boot { opacity: 0; visibility: hidden; }
 .wb-load.done { opacity: 0; pointer-events: none; }
 .shield { position: absolute; inset: 0; z-index: 3; display: none; }
 body.dragging .shield { display: block; }
+.win.mv { transition: none; will-change: transform; }
+html.ff body.dragging * { backdrop-filter: none !important; }  /* Firefox: Unschärfe beim Ziehen aus, sonst ruckelt es */
 body.dragging, body.dragging * { user-select: none !important; }
 .rz { position: absolute; z-index: 4; }
 .rz.n, .rz.s { left: 8px; right: 8px; height: 7px; cursor: ns-resize; } .rz.n { top: -3px; } .rz.s { bottom: -3px; }

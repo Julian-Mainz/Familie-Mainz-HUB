@@ -24,6 +24,7 @@
         shoot.push({ x: fromLeft ? Math.random() * innerWidth * .6 : innerWidth * (.4 + Math.random() * .6), y: Math.random() * innerHeight * .45, vx: Math.sin(a) * 14 * (fromLeft ? 1 : 1), vy: Math.cos(Math.abs(a)) * 6, life: 0, max: 50 + Math.random() * 30 });
     }
     function frame(t) {
+        if (document.body.classList.contains('dragging')) { lastT = t; raf = requestAnimationFrame(frame); return; }   // beim Ziehen eines Fensters Pause
         const dt = Math.min(3, (t - lastT) / 16.7 || 1); lastT = t;
         fcx.clearRect(0, 0, innerWidth, innerHeight);
         // Sternschnuppen

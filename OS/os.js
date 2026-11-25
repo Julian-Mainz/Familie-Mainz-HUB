@@ -69,6 +69,7 @@
     const tile = (a, cls = '') => a.folder ? `<span class="ico-t folder ${cls}"><i class="fa-solid fa-folder"></i></span>` : a.thumb ? `<span class="ico-t thumb ${cls}"><img src="${a.thumb}" alt=""></span>` : `<span class="ico-t ${cls}${a.file ? ' file' : ''}" style="--c:${a.c}"><i class="fa-solid ${a.icon}"></i></span>`;
     const deskH = () => window.innerHeight - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--bar-h'));
 
+    if (/firefox/i.test(navigator.userAgent)) document.documentElement.classList.add('ff');
     // ---------- Sternenhimmel ----------
     function stars() {
         const cv = $('stars'), cx = cv.getContext('2d'); let pts = [], raf = 0;
@@ -77,7 +78,10 @@
             pts = Array.from({ length: Math.round(innerWidth * innerHeight / 3800) }, () => ({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, r: Math.random() * 1.2 + .2, a: Math.random(), s: Math.random() * .015 + .003, p: Math.random() * 6.3 }));
         };
         const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let lastD = -1e9;
         const draw = t => {
+            if (t && (t - lastD < 66 || document.body.classList.contains('dragging'))) { if (!calm && !document.hidden) raf = requestAnimationFrame(draw); return; }   // Funkeln ist langsam: ~15 Bilder/s reichen, beim Ziehen Pause
+            lastD = t;
             cx.clearRect(0, 0, innerWidth, innerHeight);
             for (const p of pts) { const a = calm ? p.a : .35 + .65 * Math.abs(Math.sin(p.p + t * p.s * .06)); cx.globalAlpha = a; cx.fillStyle = p.r > 1.1 ? '#c7d2fe' : '#fff'; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.283); cx.fill(); }
             if (!calm && !document.hidden) raf = requestAnimationFrame(draw);
@@ -284,14 +288,16 @@
         bar.addEventListener('pointerdown', ev => {
             if (ev.target.closest('.wt-btns') || ev.button > 0 || innerWidth <= 760) return;
             ev.preventDefault(); bar.setPointerCapture(ev.pointerId);
-            const ar = area(); let sx = ev.clientX, sy = ev.clientY, ox = win.x, oy = win.y, moved = false, snap = null, tabT = null;
-            const mv = m => {
+            const ar = area(); let sx = ev.clientX, sy = ev.clientY, ox = win.x, oy = win.y, moved = false, snap = null, tabT = null, last = null, fr = 0, bx = 0, by = 0;
+            const mv = m => { last = m; if (!fr) fr = requestAnimationFrame(step); };
+            const step = () => { fr = 0; const m = last; if (!m) return;
                 const dx = m.clientX - sx, dy = m.clientY - sy;
                 if (!moved && Math.hypot(dx, dy) < 4) return;
                 if (!moved) { moved = true; document.body.classList.add('dragging');
-                    if (win.max) { const rel = (m.clientX) / ar.w; win.max = false; win.x = Math.round(m.clientX - win.w * rel); win.y = 0; ox = win.x; oy = win.y; sx = m.clientX; sy = m.clientY; place(win); } }
+                    if (win.max) { const rel = (m.clientX) / ar.w; win.max = false; win.x = Math.round(m.clientX - win.w * rel); win.y = 0; ox = win.x; oy = win.y; sx = m.clientX; sy = m.clientY; place(win); }
+                    bx = win.x; by = win.y; el.classList.add('mv'); }
                 win.x = ox + (m.clientX - sx); win.y = Math.max(0, Math.min(ar.h - 40, oy + (m.clientY - sy)));
-                el.style.left = win.x + 'px'; el.style.top = win.y + 'px';
+                el.style.transform = `translate3d(${win.x - bx}px, ${win.y - by}px, 0)`;            // nur verschieben, kein neues Layout
                 const L = m.clientX <= 2, R = m.clientX >= innerWidth - 3, T = m.clientY <= 2, C = 80, ah = deskH();
                 snap = (L || m.clientX < C) && T ? 'tl' : (R || m.clientX > innerWidth - C) && T ? 'tr' : L && m.clientY < C ? 'tl' : R && m.clientY < C ? 'tr' : L && m.clientY > ah - C ? 'bl' : R && m.clientY > ah - C ? 'br' : T ? 'max' : L ? 'l' : R ? 'r' : null;
                 tabT = window.JMOS_TABTARGET ? JMOS_TABTARGET(win, m.clientX, m.clientY) : null; if (tabT) snap = null;          // auf die Titelleiste eines anderen Fensters = als Tab einfügen
@@ -299,6 +305,8 @@
             };
             const up = () => {
                 bar.removeEventListener('pointermove', mv); bar.removeEventListener('pointerup', up); bar.removeEventListener('pointercancel', up);
+                if (fr) { cancelAnimationFrame(fr); step(); }
+                if (moved) { el.style.transform = ''; el.style.left = win.x + 'px'; el.style.top = win.y + 'px'; el.classList.remove('mv'); }
                 document.body.classList.remove('dragging'); showSnap(null);
                 if (window.JMOS_TABDROP) JMOS_TABDROP(win, tabT);
                 if (tabT) { /* als Tab eingefügt */ }
@@ -312,7 +320,9 @@
         el.querySelectorAll('.rz').forEach(h => h.addEventListener('pointerdown', ev => {
             ev.preventDefault(); ev.stopPropagation(); h.setPointerCapture(ev.pointerId); document.body.classList.add('dragging');
             const d = h.dataset.d, s = { x: ev.clientX, y: ev.clientY, l: win.x, t: win.y, w: win.w, h: win.h }, MW = 320, MH = 220;
-            const mv = m => {
+            let last = null, fr = 0;
+            const mv = m => { last = m; if (!fr) fr = requestAnimationFrame(() => { fr = 0; step(last); }); };
+            const step = m => {
                 const dx = m.clientX - s.x, dy = m.clientY - s.y;
                 if (d.includes('e')) win.w = Math.max(MW, s.w + dx);
                 if (d.includes('s')) win.h = Math.max(MH, s.h + dy);
@@ -320,7 +330,7 @@
                 if (d.includes('n')) { win.h = Math.max(MH, s.h - dy); win.y = Math.max(0, s.t + s.h - win.h); if (s.t + s.h - win.h < 0) win.h = s.t + s.h; }
                 place(win);
             };
-            const up = () => { h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', up); document.body.classList.remove('dragging'); save(); };
+            const up = () => { h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', up); if (fr) { cancelAnimationFrame(fr); fr = 0; if (last) step(last); } document.body.classList.remove('dragging'); save(); };
             h.addEventListener('pointermove', mv); h.addEventListener('pointerup', up);
         }));
     }

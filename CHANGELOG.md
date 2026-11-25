@@ -2,6 +2,15 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (18)
+
+### Desktop-Modus: Fenster verschieben ohne Ruckeln (vor allem in Firefox)
+- Fenster werden beim Ziehen nur noch verschoben statt bei jeder Mausbewegung neu aufgebaut, höchstens einmal pro Bild. Größe ändern genauso.
+- Sternenhimmel, Sternschnuppen, Wetter und Schnee pausieren, solange ein Fenster gezogen wird. Das Funkeln der Sterne wird außerdem seltener neu gezeichnet (spart auch im Ruhezustand Leistung, sieht gleich aus).
+- In Firefox ist die Glas-Unschärfe während des Ziehens kurz aus.
+- Geänderte Dateien: OS/os.js, OS/os.css, OS/live.js, OS/season.js
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (17)
 
 ### Finanzen: neue Kategorien, eigene Bezeichnungen, Sparziele und Schulden
