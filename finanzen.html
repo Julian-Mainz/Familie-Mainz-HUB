@@ -13,14 +13,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="J.Mainz">
-    <link rel="stylesheet" href="/assets/icons.css?v=946dd4ee">
+    <link rel="stylesheet" href="/assets/icons.css?v=f020f76b">
     <link rel="stylesheet" href="/assets/ui.css?v=5c4d9c4c">
     <link rel="stylesheet" href="/assets/light.css?v=00672ed2">
     <link rel="stylesheet" href="/assets/space.css?v=6a03cf86">
     <script src="/js/space.js?v=6b19e834"></script>
     <link rel="stylesheet" href="/assets/ux.css?v=5dadaea8">
     <link rel="stylesheet" href="/assets/layout.css?v=af1abb40">
-    <script src="/js/theme.js?v=8268ccac"></script>
+    <script src="/js/theme.js?v=4a806aea"></script>
     <script src="/js/vendor/firebase-app-compat.js?v=c066068f" defer></script>
     <script src="/js/vendor/firebase-auth-compat.js?v=4d9f6e50" defer></script>
     <script src="/js/vendor/firebase-firestore-compat.js?v=53cdabb9" defer></script>
@@ -58,6 +58,23 @@
     .quick{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.quick button{font-size:11.5px;padding:4px 9px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#cbd5e1;cursor:pointer}
     #inv-ov .inv{grid-template-columns:40px minmax(0,1fr) auto;padding:10px 12px}#inv-ov .inv .ic{width:40px;height:40px;font-size:16px}
     @media(max-width:760px){.inv .acts{min-width:0}.inv{grid-template-columns:42px minmax(0,1fr) auto;gap:10px}.inv .ic{width:42px;height:42px}.inv .due{grid-column:2;text-align:left}.inv .amt{grid-column:3;grid-row:1}.inv .acts{grid-column:2/4;justify-content:flex-end}}
+        /* Sparen & Schulden */
+        .sv2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; } .sv2 > div { padding: 12px; border-radius: 14px; background: rgba(148, 163, 184, .07); display: flex; flex-direction: column; gap: 2px; }
+        .sv2 small { color: #94a3b8; font-size: 12px; } .sv2 b { font-size: 22px; font-variant-numeric: tabular-nums; } .sv2 span { color: #94a3b8; font-size: 11.5px; } .sv2 .pos b { color: #4ade80; } .sv2 .neg b { color: #fb7185; }
+        .sv-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 6px 2px; border-top: 1px solid rgba(148, 163, 184, .1); font-size: 12.5px; } .sv-line span { color: #94a3b8; } .sv-line b { font-variant-numeric: tabular-nums; } .sv-line span:not(:first-child) { margin-left: auto; }
+        .sv-sum { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; } .sv-sum > div { display: flex; flex-direction: column; gap: 2px; } .sv-sum small { color: #94a3b8; font-size: 12px; } .sv-sum b { font-size: 22px; font-variant-numeric: tabular-nums; }
+        .sv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+        .gl { display: grid; grid-template-columns: 84px 1fr; grid-template-rows: 1fr auto; gap: 8px 14px; padding: 14px; border-radius: 18px; background: rgba(148, 163, 184, .06); border: 1px solid rgba(148, 163, 184, .12); }
+        .gl-pic { grid-row: span 2; width: 84px; height: 84px; border-radius: 20px; overflow: hidden; display: grid; place-items: center; background: radial-gradient(circle at 50% 40%, #1e1b4b, #070b16); }
+        .gl-pic .planet { width: 100%; height: 100%; } .gl-img { width: 100%; height: 100%; object-fit: cover; }
+        .gl-b { display: flex; flex-direction: column; gap: 4px; min-width: 0; } .gl-b > b { font-size: 15px; } .gl-b small { color: #94a3b8; font-size: 12px; } .gl-v { display: flex; align-items: baseline; gap: 8px; } .gl-v span { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .gl .bar { height: 8px; border-radius: 99px; background: rgba(148, 163, 184, .15); overflow: hidden; } .gl .bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #14b8a6, #5eead4); }
+        .gl.debt .bar i { background: linear-gradient(90deg, #e11d48, #fb7185); } .db-ic { font-size: 30px; color: #fb7185; } .gl.debt .gl-pic { background: rgba(251, 113, 133, .12); }
+        .gl-a { display: flex; gap: 6px; align-items: center; } .gl-a .ux-btn { padding: 7px 12px; font-size: 12.5px; margin-right: auto; }
+        .gl-pics { display: flex; flex-wrap: wrap; gap: 8px; } .gl-pics button, .gl-pics .own { width: 56px; height: 56px; padding: 0; border-radius: 14px; border: 2px solid transparent; background: radial-gradient(circle at 50% 40%, #1e1b4b, #070b16); overflow: hidden; cursor: pointer; }
+        .gl-pics button.on, .gl-pics .own.on { border-color: var(--m); box-shadow: 0 0 0 3px rgba(var(--mr), .3); } .gl-pics .planet { width: 100%; height: 100%; } .gl-pics .own img { width: 100%; height: 100%; object-fit: cover; }
+        html.hell .sv2 > div, html.hell .gl { background: #f8fafc; border-color: rgba(15, 23, 42, .12); } html.hell .sv2 small, html.hell .sv2 span, html.hell .sv-line span, html.hell .sv-sum small, html.hell .gl-b small { color: #475569; }
+        html.hell .sv2 .pos b { color: #15803d; } html.hell .sv2 .neg b { color: #be123c; }
     </style>
 </head>
 <body class="ux">
@@ -71,6 +88,7 @@
             <button class="tab" data-tab="ov" onclick="showTab('ov')"><i class="fa-solid fa-chart-pie"></i>Übersicht</button>
             <button class="tab" data-tab="tx" onclick="showTab('tx')"><i class="fa-solid fa-list"></i>Buchungen</button>
             <button class="tab" data-tab="fix" onclick="showTab('fix')"><i class="fa-solid fa-repeat"></i>Fixkosten</button>
+            <button class="tab" data-tab="sav" onclick="showTab('sav')"><i class="fa-solid fa-piggy-bank"></i>Sparen &amp; Schulden</button>
             <button class="tab" data-tab="inv" onclick="showTab('inv')"><i class="fa-solid fa-file-invoice"></i>Rechnungen</button>
             <button class="tab" data-tab="pay" onclick="showTab('pay')"><i class="fa-solid fa-folder-open"></i>Lohn</button>
         </div>
@@ -110,6 +128,7 @@
             <div class="ux-t"><i class="fa-solid fa-piggy-bank"></i>Budgets<small><button class="ux-btn" style="padding:7px 12px;font-size:12px" onclick="openBudgets()"><i class="fa-solid fa-sliders"></i>Festlegen</button></small></div>
             <div id="bud-list"></div>
         </section>
+        <section class="ux-card" id="mod-sav"><div class="ux-t"><i class="fa-solid fa-scale-balanced"></i>Sparen &amp; Schulden pro Monat<small><button class="ux-btn" style="padding:7px 12px;font-size:12px" onclick="showTab('sav')">Gläser</button></small></div><div id="sav-ov"></div></section>
         <section class="ux-card" id="mod-fc"><div class="ux-t"><i class="fa-solid fa-chart-line"></i>Prognose Monatsende</div><div id="forecast"></div></section>
         <section class="ux-card" id="mod-top"><div class="ux-t"><i class="fa-solid fa-ranking-star"></i>Größte Ausgaben</div><div id="top-exp"></div></section>
         <section class="ux-card" id="mod-inv"><div class="ux-t"><i class="fa-solid fa-file-invoice"></i>Nächste Rechnungen <span class="chip" id="inv-ov-n">0 offen</span></div><div id="inv-ov"></div><button class="ux-btn" style="width:100%;justify-content:center;margin-top:6px" onclick="showTab('inv')">Alle Rechnungen</button></section>
@@ -140,6 +159,13 @@
             <div style="display:flex;gap:10px;flex-wrap:wrap"><button onclick="bookDue()" class="ux-btn"><i class="fa-solid fa-circle-check" style="color:#4ade80"></i>Fällige buchen</button><button onclick="openFix()" class="ux-btn pri"><i class="fa-solid fa-plus"></i>Fixkosten</button></div>
         </div>
         <div id="fix-list" class="fxgrid"></div>
+    </section>
+
+    <!-- Sparziele und Schulden -->
+    <section id="tab-sav" class="hidden" style="display:flex;flex-direction:column;gap:16px">
+        <div class="ux-card sv-head"><div id="sv-sum" class="sv-sum"></div></div>
+        <div class="ux-card"><div class="ux-t"><i class="fa-solid fa-jar"></i>Sparziele<small><button class="ux-btn pri" style="padding:7px 12px;font-size:12px" onclick="openGoal()"><i class="fa-solid fa-plus"></i>Sparziel</button></small></div><div id="goal-list" class="sv-grid"></div></div>
+        <div class="ux-card"><div class="ux-t"><i class="fa-solid fa-hand-holding-dollar"></i>Schulden<small><button class="ux-btn pri" style="padding:7px 12px;font-size:12px" onclick="openDebt()"><i class="fa-solid fa-plus"></i>Schuld</button></small></div><div id="debt-list" class="sv-grid"></div></div>
     </section>
 
     <!-- Rechnungen -->
@@ -177,6 +203,8 @@
         <div class="ux-row2"><label class="ux-f"><span>Datum</span><input type="date" id="tx-date" required class="ux-in"></label><label class="ux-f"><span>Art</span><select id="tx-kind" class="ux-in"><option value="out">Ausgabe</option><option value="in">Einnahme</option></select></label></div>
         <label class="ux-f"><span>Partner / Quelle</span><input id="tx-partner" required class="ux-in" placeholder="z. B. Rewe, Gehalt"></label>
         <div class="ux-row2"><label class="ux-f"><span>Kategorie</span><select id="tx-category" class="ux-in"></select></label><label class="ux-f"><span>Betrag (€)</span><input type="number" step="0.01" min="0" id="tx-amount" required class="ux-in" placeholder="45.50"></label></div>
+        <label class="ux-f hidden" id="tx-link-w"><span id="tx-link-l">Sparziel</span><select id="tx-link" class="ux-in"></select></label>
+        <label class="ux-f"><span>Eigene Bezeichnung (optional)</span><input id="tx-label" maxlength="60" list="tx-labels" class="ux-in" placeholder="z. B. Rückzahlung Restaurant, Tierarzt, Tankstelle"><datalist id="tx-labels"></datalist></label>
         <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-tx')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div>
     </form></div></div>
 
@@ -187,8 +215,30 @@
         <label class="ux-f"><span>Bezeichnung</span><input id="fx-name" required class="ux-in" placeholder="z. B. Miete, Netflix, KFZ-Versicherung"></label>
         <div class="ux-row2"><label class="ux-f"><span>Art</span><select id="fx-kind" class="ux-in"><option value="out">Ausgabe</option><option value="in">Einnahme</option></select></label><label class="ux-f"><span>Betrag (€)</span><input type="number" step="0.01" min="0" id="fx-amount" required class="ux-in"></label></div>
         <div class="ux-row2"><label class="ux-f"><span>Kategorie</span><select id="fx-category" class="ux-in"></select></label><label class="ux-f"><span>Rhythmus</span><select id="fx-int" class="ux-in"><option value="1">monatlich</option><option value="3">vierteljährlich</option><option value="6">halbjährlich</option><option value="12">jährlich</option></select></label></div>
+        <label class="ux-f hidden" id="fx-link-w"><span id="fx-link-l">Sparziel</span><select id="fx-link" class="ux-in"></select></label>
         <div class="ux-row2"><label class="ux-f"><span>Erste Fälligkeit im Monat</span><select id="fx-start" class="ux-in"></select></label><label class="ux-f"><span>Tag im Monat (1–31)</span><input type="number" min="1" max="31" id="fx-day" value="1" required class="ux-in"></label></div>
         <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-fix')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div>
+    </form></div></div>
+
+<!-- Fenster: Sparziel -->
+<div id="m-goal" class="ux-modal hidden"><div class="ux-box fin" style="--m:#2dd4bf;--m2:#14b8a6;--mr:45,212,191">
+    <h3><i class="fa-solid fa-jar"></i><span id="gl-title">Sparziel</span><button class="ux-ib" onclick="closeModal('m-goal')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Ein Sparglas, z. B. für Auto, Urlaub oder Notgroschen.</p>
+    <form onsubmit="saveGoal(event)"><input type="hidden" id="gl-id">
+        <label class="ux-f"><span>Titel</span><input id="gl-name" required maxlength="40" class="ux-in" placeholder="z. B. Auto, Urlaub 2027, Notgroschen"></label>
+        <div class="ux-row2"><label class="ux-f"><span>Sparziel (€, optional)</span><input type="number" step="0.01" min="0" id="gl-target" class="ux-in" placeholder="z. B. 5000"></label><label class="ux-f"><span>Schon vorhanden (€)</span><input type="number" step="0.01" min="0" id="gl-start" class="ux-in" placeholder="z. B. 1000"></label></div>
+        <div class="ux-f"><span>Bild</span><div class="gl-pics" id="gl-pics"></div>
+            <span class="ux-flex" style="margin-top:8px"><label class="ux-btn" style="cursor:pointer"><i class="fa-solid fa-image"></i>Eigenes Bild<input type="file" id="gl-file" accept="image/*" hidden></label><button type="button" class="ux-btn hidden" id="gl-noimg"><i class="fa-solid fa-xmark"></i>Eigenes Bild entfernen</button></span></div>
+        <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-goal')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div>
+    </form></div></div>
+
+<!-- Fenster: Schuld -->
+<div id="m-debt" class="ux-modal hidden"><div class="ux-box fin" style="--m:#fb7185;--m2:#e11d48;--mr:251,113,133">
+    <h3><i class="fa-solid fa-hand-holding-dollar"></i><span id="db-title">Schuld</span><button class="ux-ib" onclick="closeModal('m-debt')" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></h3><p class="sub">Wem schuldest du wie viel, und wie viel zahlst du monatlich?</p>
+    <form onsubmit="saveDebt(event)"><input type="hidden" id="db-id">
+        <label class="ux-f"><span>An wen / wofür</span><input id="db-name" required maxlength="40" class="ux-in" placeholder="z. B. Person A, Autokredit, Handy"></label>
+        <div class="ux-row2"><label class="ux-f"><span>Offener Betrag beim Anlegen (€)</span><input type="number" step="0.01" min="0" id="db-total" required class="ux-in" placeholder="z. B. 2400"></label><label class="ux-f"><span>Rate pro Monat (€, optional)</span><input type="number" step="0.01" min="0" id="db-rate" class="ux-in" placeholder="z. B. 200"></label></div>
+        <label class="ux-f"><span>Notiz (optional)</span><input id="db-note" maxlength="120" class="ux-in" placeholder="z. B. zinsfrei, bis Dezember 2027"></label>
+        <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-debt')">Abbrechen</button><button class="ux-btn pri">Speichern</button></div>
     </form></div></div>
 
 <!-- Fenster: Budgets -->
@@ -240,6 +290,6 @@
         <div class="ux-acts"><button type="button" class="ux-btn" onclick="closeModal('m-pay')">Abbrechen</button><button id="pay-btn" class="ux-btn pri">In Cloud speichern</button></div>
     </form></div></div>
 
-<script src="/js/pages/finanzen.js?v=abf5f0af" defer></script>
+<script src="/js/pages/finanzen.js?v=1379bc06" defer></script>
 </body>
 </html>

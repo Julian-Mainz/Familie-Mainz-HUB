@@ -2,6 +2,18 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (17)
+
+### Finanzen: neue Kategorien, eigene Bezeichnungen, Sparziele und Schulden
+- Neue Kategorien: Einnahmen (Einnahmen, Sonstige Einnahmen) und Ausgaben (Wohnen, Versicherungen, Abos, Gesundheit, Auto, Lebensmittel, Freizeit, Gastro, Sparen / Rücklagen, Schulden / Rückzahlungen, Sonstiges). Die Auswahl passt sich an, je nachdem ob Einnahme oder Ausgabe. Alte Buchungen, Fixkosten, Budgets und Rechnungen werden beim Laden automatisch auf die neuen Kategorien umgestellt.
+- Eigene Bezeichnung pro Buchung (z. B. „Wocheneinkauf Aldi“), mit Vorschlägen aus früheren Bezeichnungen.
+- Budgets für jede Ausgaben-Kategorie.
+- Neuer Reiter „Sparen & Schulden“: Sparziele (Sparglas) mit Titel, Zielbetrag, schon gespartem Betrag und eigenem Bild oder Planeten-Bild als Platzhalter; Fortschritt in Prozent. Schulden mit Name (wem), Gesamtbetrag, monatlicher Rate und Notiz; zeigt, was noch offen ist.
+- Buchungen und Fixkosten mit der Kategorie „Sparen / Rücklagen“ oder „Schulden / Rückzahlungen“ lassen sich einem Sparglas bzw. einer Schuld zuordnen und zählen dort automatisch mit. „Einzahlen“ bzw. „Rate zahlen“ direkt am Sparglas oder an der Schuld.
+- In der Übersicht neue Kachel „Sparen & Schulden pro Monat“ neben den Fixkosten (Sparen +X / Schulden −Y).
+- Geänderte Dateien: finanzen.html, js/pages/finanzen.js, assets/icons.css
+- Firestore-Regeln: neue Blöcke `finance_goals` (Sparziele) und `finance_debts` (Schulden).
+
 ## 25.11.2026 (16)
 
 ### Zeiterfassung: eigene Arbeitstage und Sollstunden, Bundesland, Stundenzettel aus der Firmen-Vorlage
