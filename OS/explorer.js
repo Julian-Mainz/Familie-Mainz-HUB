@@ -23,7 +23,7 @@
     // ---------- Alle Dateien als eine Liste ----------
     function items() {
         const out = [];
-        D.docs.filter(d => d.status === 'ready').forEach(d => out.push({ key: 'up:' + d.id, src: 'up', id: d.id, name: d.name || 'Datei', mime: d.mime || '', size: d.size || 0, date: tms(d.createdAt), folder: d.folder || '', thumb: PHOTO.test(d.thumb || '') ? d.thumb : '', own: true }));
+        D.docs.filter(d => d.status === 'ready' && !d.deletedAt).forEach(d => out.push({ key: 'up:' + d.id, src: 'up', id: d.id, name: d.name || 'Datei', mime: d.mime || '', size: d.size || 0, date: tms(d.createdAt), folder: d.folder || '', thumb: PHOTO.test(d.thumb || '') ? d.thumb : '', own: true }));
         D.inv.filter(v => v.fileName && v.fileChunks).forEach(v => { const ext = /pdf/.test(v.fileMime || '') ? 'pdf' : /png/.test(v.fileMime || '') ? 'png' : /webp/.test(v.fileMime || '') ? 'webp' : 'jpg';
             out.push({ key: 'rech:' + v.id, src: 'rech', id: v.id, name: `Rechnung_${String(v.vendor || 'Anbieter').replace(/[^\wäöüÄÖÜß-]+/g, '_').slice(0, 40)}_${v.date || v.due || ''}.${ext}`, mime: v.fileMime || '', size: v.fileSize || 0, date: Date.parse((v.date || v.due || '2000-01-01') + 'T12:00:00') || 0, folder: '', thumb: '' }); });
         D.pays.filter(p => p.fileData).forEach(p => { const mime = dataMime(p.fileData), ext = (p.fileName || '').split('.').pop().toLowerCase();
@@ -32,6 +32,12 @@
         return out;
     }
     const used = () => D.docs.reduce((s, d) => s + (d.size || 0), 0);
+    // Papierkorb: gelöschte eigene Dateien (deletedAt), nach 30 Tagen endgültig weg
+    const trash = () => D.docs.filter(d => d.status === 'ready' && d.deletedAt).map(d => ({ key: 'up:' + d.id, src: 'up', id: d.id, name: d.name || 'Datei', mime: d.mime || '', size: d.size || 0, date: d.deletedAt, folder: d.folder || '', thumb: PHOTO.test(d.thumb || '') ? d.thumb : '', own: true, trash: true, k: kind(d.name, d.mime) }));
+    const toTrash = it => db.collection('documents').doc(it.id).update({ deletedAt: Date.now() });
+    const restore = it => db.collection('documents').doc(it.id).update({ deletedAt: firebase.firestore.FieldValue.delete() });
+    let purged = false;
+    function purgeOld() { if (purged) return; purged = true; const lim = Date.now() - 30 * 864e5; D.docs.filter(d => d.deletedAt && d.deletedAt < lim).forEach(d => removeDoc(d.id).catch(() => {})); }
     async function getBlob(it) {
         if (blobs.has(it.key)) return blobs.get(it.key);
         let blob;
@@ -116,7 +122,9 @@
                 <button type="button" class="xp-t" data-a="open" disabled><i class="fa-solid fa-up-right-from-square"></i>Öffnen</button>
                 <button type="button" class="xp-t" data-a="dl" disabled><i class="fa-solid fa-download"></i>Herunterladen</button>
                 <button type="button" class="xp-t" data-a="ren" disabled><i class="fa-solid fa-pen"></i>Umbenennen</button>
+                <button type="button" class="xp-t" data-a="restore" hidden disabled><i class="fa-solid fa-rotate-left"></i>Wiederherstellen</button>
                 <button type="button" class="xp-t bad" data-a="del" disabled><i class="fa-solid fa-trash-can"></i>Löschen</button>
+                <button type="button" class="xp-t bad" data-a="empty" hidden><i class="fa-solid fa-trash-can"></i>Papierkorb leeren</button>
                 <span class="xp-fill"></span>
                 <select class="xp-sort" aria-label="Sortieren"><option value="name">Name</option><option value="date">Datum</option><option value="size">Größe</option><option value="type">Typ</option></select>
                 <div class="xp-mode" role="group" aria-label="Ansicht"><button type="button" data-m="grid" title="Symbole"><i class="fa-solid fa-grip"></i></button><button type="button" data-m="list" title="Liste"><i class="fa-solid fa-list"></i></button></div>
@@ -126,13 +134,13 @@
             <input type="file" multiple hidden class="xp-file" accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.zip">
             <div class="xp-drop"><i class="fa-solid fa-upload"></i><b>Loslassen zum Hochladen</b><span class="xp-drop-t"></span></div></div>`;
         const $q = s => body.querySelector(s), files = $q('.xp-files');
-        const VIEW_NAMES = () => ({ all: ['Alle Dateien', 'fa-layer-group', '#a78bfa'], root: ['Eigene Dateien', 'fa-house', '#818cf8'], rech: ['Rechnungen', 'fa-file-invoice', '#fbbf24'], lohn: ['Lohnabrechnungen', 'fa-file-pdf', '#f87171'], ...Object.fromEntries(folders.map(f => [f.id, [f.name, 'fa-folder', '#f59e0b']])) });
-        const isFolderView = () => !['all', 'rech', 'lohn'].includes(view);
+        const VIEW_NAMES = () => ({ all: ['Alle Dateien', 'fa-layer-group', '#a78bfa'], root: ['Eigene Dateien', 'fa-house', '#818cf8'], rech: ['Rechnungen', 'fa-file-invoice', '#fbbf24'], lohn: ['Lohnabrechnungen', 'fa-file-pdf', '#f87171'], trash: ['Papierkorb', 'fa-trash-can', '#94a3b8'], ...Object.fromEntries(folders.map(f => [f.id, [f.name, 'fa-folder', '#f59e0b']])) });
+        const isFolderView = () => !['all', 'rech', 'lohn', 'trash'].includes(view);
         const canUpload = () => view === 'root' || folders.some(f => f.id === view);
         const inView = it => view === 'all' || (view === 'root' ? it.src === 'up' && !it.folder : view === 'rech' || view === 'lohn' ? it.src === view : it.src === 'up' && it.folder === view);
         const list = () => {
-            const all = items(), nq = q.toLowerCase();
-            let out = all.filter(it => (q ? true : inView(it)) && (!q || it.name.toLowerCase().includes(nq)));
+            const all = view === 'trash' ? trash() : items(), nq = q.toLowerCase();
+            let out = all.filter(it => (q || view === 'trash' ? true : inView(it)) && (!q || it.name.toLowerCase().includes(nq)));
             const by = { name: (a, b) => a.name.localeCompare(b.name, 'de'), date: (a, b) => b.date - a.date, size: (a, b) => b.size - a.size, type: (a, b) => a.k.localeCompare(b.k) || a.name.localeCompare(b.name, 'de') }[sort];
             return out.sort(by);
         };
@@ -141,7 +149,8 @@
             const names = VIEW_NAMES(); if (!names[view]) view = 'root';
             const all = items(), cnt = v => all.filter(it => v === 'all' ? true : v === 'root' ? it.src === 'up' && !it.folder : v === 'rech' || v === 'lohn' ? it.src === v : it.src === 'up' && it.folder === v).length;
             const side = (v, sub) => { const [n, ic, c] = names[v]; return `<button type="button" class="xp-s${view === v ? ' on' : ''}${sub ? ' sub' : ''}" data-view="${e(v)}" data-drop="${v === 'root' || sub ? e(v) : ''}"><i class="fa-solid ${ic}" style="color:${c}"></i><span>${e(n)}</span><em>${cnt(v)}</em></button>`; };
-            $q('.xp-side').innerHTML = `<div class="xp-g">Schnellzugriff</div>${side('all')}${side('root')}${folders.map(f => side(f.id, true)).join('')}${canFin ? `<div class="xp-g">Finanzen</div>${side('rech')}${side('lohn')}` : ''}`;
+            const tcount = trash().length;
+            $q('.xp-side').innerHTML = `<div class="xp-g">Schnellzugriff</div>${side('all')}${side('root')}${folders.map(f => side(f.id, true)).join('')}${canFin ? `<div class="xp-g">Finanzen</div>${side('rech')}${side('lohn')}` : ''}<div class="xp-g">System</div><button type="button" class="xp-s${view === 'trash' ? ' on' : ''}" data-view="trash" data-drop="trash"><i class="fa-solid fa-trash-can" style="color:#94a3b8"></i><span>Papierkorb</span><em>${tcount}</em></button>`;
             $q('.xp-path').innerHTML = `<i class="fa-solid fa-hard-drive"></i><button type="button" data-view="root">Dieser Desktop</button>${view !== 'root' ? `<i class="fa-solid fa-chevron-right sep"></i><span>${e(names[view][0])}</span>` : ''}${q ? `<i class="fa-solid fa-chevron-right sep"></i><span>Suche „${e(q)}“</span>` : ''}`;
             const L = list(), F = subFolders();
             if (sel && !L.some(it => it.key === sel) && !F.some(f => 'f:' + f.id === sel)) sel = null;
@@ -156,6 +165,8 @@
             $q('.xp-used').textContent = `${size(used())} von 100 MB belegt`;
             $q('.xp-sort').value = sort; body.querySelectorAll('[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === mode));
             $q('[data-a="upload"]').disabled = !canUpload(); $q('[data-a="newfolder"]').hidden = view !== 'root';
+            const tr = view === 'trash'; ['upload', 'ren', 'open', 'dl'].forEach(k => { $q(`[data-a="${k}"]`).hidden = tr; }); $q('[data-a="restore"]').hidden = !tr; $q('[data-a="empty"]').hidden = !tr || !trash().length;
+            $q('[data-a="del"]').innerHTML = tr ? '<i class="fa-solid fa-trash-can"></i>Endgültig löschen' : '<i class="fa-solid fa-trash-can"></i>Löschen';
             $q('[data-a="up"]').disabled = view === 'root' && !q;
             win.el.querySelector('.wt-title').textContent = 'Explorer – ' + (q ? 'Suche' : names[view][0]); API.renderTasks();
             selUI();
@@ -165,12 +176,13 @@
             files.querySelectorAll('[data-key]').forEach(x => x.classList.toggle('sel', x.dataset.key === sel));
             const n = files.querySelectorAll('[data-key]').length; $q('.xp-count').textContent = `${n} ${n === 1 ? 'Element' : 'Elemente'}${sel ? ' · 1 ausgewählt' : ''}`;
             const it = cur(), dir = sel && sel.startsWith('f:');
+            $q('[data-a="restore"]').disabled = !it;
             $q('[data-a="open"]').disabled = !sel; $q('[data-a="dl"]').disabled = !it; $q('[data-a="ren"]').disabled = !(dir || (it && it.own)); $q('[data-a="del"]').disabled = !(dir || (it && it.own));
         };
         const empty = () => `<div class="xp-empty"><i class="fa-regular fa-folder-open"></i><b>${q ? 'Nichts gefunden' : 'Dieser Ordner ist leer'}</b>${canUpload() && !q ? '<span>Dateien hierher ziehen oder auf „Hochladen“ klicken</span>' : ''}</div>`;
-        const cur = () => sel && !sel.startsWith('f:') ? items().find(it => it.key === sel) : null;
+        const cur = () => sel && !sel.startsWith('f:') ? (view === 'trash' ? trash() : items()).find(it => it.key === sel) : null;
         const go = v => { view = v; sel = null; q = ''; $q('.xp-q input').value = ''; render(); };
-        const openSel = () => { if (!sel) return; if (sel.startsWith('f:')) return go(sel.slice(2)); const it = cur(); if (it) openViewer(it, list()); };
+        const openSel = () => { if (!sel) return; if (sel.startsWith('f:')) return go(sel.slice(2)); const it = cur(); if (it && !it.trash) openViewer(it, list()); };
         async function rename() {
             if (sel && sel.startsWith('f:')) { const f = folders.find(x => x.id === sel.slice(2)); const v = await ask('Ordner umbenennen', f.name, 'Umbenennen'); if (v) await saveFolders(folders.map(x => x.id === f.id ? { ...x, name: v.slice(0, 40) } : x)).catch(x => uiAlert(x.message)); return; }
             const it = cur(); if (!it || !it.own) return; const v = await ask('Datei umbenennen', it.name, 'Umbenennen');
@@ -184,7 +196,8 @@
                 return;
             }
             const it = cur(); if (!it || !it.own) return;
-            if (!(await uiConfirm(`„${it.name}“ endgültig löschen?`, { danger: true, ok: 'Löschen' }))) return;
+            if (!it.trash) { try { await toTrash(it); sel = null; unDesk(it.key); } catch (x) { uiAlert('Löschen fehlgeschlagen: ' + x.message); } return; }
+            if (!(await uiConfirm(`„${it.name}“ endgültig löschen? Das lässt sich nicht rückgängig machen.`, { danger: true, ok: 'Endgültig löschen' }))) return;
             try { await removeDoc(it.id); sel = null; logSystemEvent('data', 'Dokument gelöscht', { ueber: 'OS' }); } catch (x) { uiAlert('Löschen fehlgeschlagen: ' + x.message); }
         }
         async function newFolder() { const v = await ask('Neuer Ordner', 'Neuer Ordner', 'Anlegen'); if (v) saveFolders([...folders, { id: 'f' + Date.now().toString(36), name: v.slice(0, 40) }]).catch(x => uiAlert(x.message)); }
@@ -195,7 +208,9 @@
         body.addEventListener('click', ev => {
             const v = ev.target.closest('[data-view]'); if (v) return go(v.dataset.view);
             const m = ev.target.closest('[data-m]'); if (m) { mode = m.dataset.m; API.state().xpMode = mode; API.save(); return render(); }
-            const a = ev.target.closest('[data-a]'); if (a) return ({ up: () => go('root'), upload: () => $q('.xp-file').click(), newfolder: newFolder, open: openSel, dl: () => { const it = cur(); if (it) download(it); }, ren: rename, del })[a.dataset.a]();
+            const a = ev.target.closest('[data-a]'); if (a) return ({ up: () => go('root'), upload: () => $q('.xp-file').click(), newfolder: newFolder, open: openSel, dl: () => { const it = cur(); if (it) download(it); }, ren: rename, del,
+                restore: () => { const it = cur(); if (it) restore(it).catch(x => uiAlert(x.message)); },
+                empty: async () => { const t = trash(); if (!t.length || !(await uiConfirm(`Papierkorb leeren? ${t.length} Datei(en) werden endgültig gelöscht.`, { danger: true, ok: 'Leeren' }))) return; for (const it of t) await removeDoc(it.id).catch(() => {}); } })[a.dataset.a]();
             if (!ev.target.closest('.xp-files')) return;
             const i = ev.target.closest('[data-key]'); sel = i ? i.dataset.key : null; selUI();
             if (i && matchMedia('(pointer: coarse)').matches) openSel();
@@ -214,9 +229,10 @@
             ev.preventDefault(); const i = ev.target.closest('[data-key]'); if (i) { sel = i.dataset.key; selUI(); }
             const it = cur(), dir = sel && sel.startsWith('f:');
             if (i && dir) return API.ctx(ev.clientX, ev.clientY, [['fa-folder-open', 'Öffnen', openSel], ['fa-pen', 'Umbenennen', rename], null, ['fa-trash-can', 'Ordner löschen', del]]);
-            if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], ['fa-download', 'Herunterladen', () => download(it)],
+            if (i && it && it.trash) return API.ctx(ev.clientX, ev.clientY, [['fa-rotate-left', 'Wiederherstellen', () => restore(it).catch(x => uiAlert(x.message))], null, ['fa-trash-can', 'Endgültig löschen', del]]);
+            if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], ['fa-download', 'Herunterladen', () => download(it)], ['fa-display', onDesk(it.key) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => (onDesk(it.key) ? unDesk(it.key) : toDesk(it.key))],
                 it.own && ['fa-pen', 'Umbenennen', rename], ...(it.own ? [null, ...[['', 'Eigene Dateien'], ...folders.map(f => [f.id, f.name])].filter(([id]) => id !== it.folder).map(([id, n]) => ['fa-folder', 'Verschieben nach „' + n + '“', () => move(it.key, id)])] : []),
-                it.own && null, it.own && ['fa-trash-can', 'Löschen', del]]);
+                it.own && null, it.own && ['fa-trash-can', 'In den Papierkorb', del]]);
             API.ctx(ev.clientX, ev.clientY, [canUpload() && ['fa-upload', 'Dateien hochladen', () => $q('.xp-file').click()], view === 'root' && ['fa-folder-plus', 'Neuer Ordner', newFolder], null,
                 ['fa-grip', 'Ansicht: Symbole', () => { mode = 'grid'; API.state().xpMode = mode; API.save(); render(); }], ['fa-list', 'Ansicht: Liste', () => { mode = 'list'; API.state().xpMode = mode; API.save(); render(); }]]);
         });
@@ -229,7 +245,7 @@
         body.addEventListener('drop', ev => {
             ev.preventDefault(); depth = 0; drop.classList.remove('on'); body.querySelectorAll('.drop-on').forEach(x => x.classList.remove('drop-on'));
             const key = ev.dataTransfer.getData('text/x-jmos-file');
-            if (key) { const t = ev.target.closest('[data-drop]'); if (t) move(key, t.dataset.drop === 'root' ? '' : t.dataset.drop); return; }
+            if (key) { const t = ev.target.closest('[data-drop]'); if (t && t.dataset.drop === 'trash') { const it = items().find(x => x.key === key); if (it && it.own) toTrash(it).then(() => unDesk(key)).catch(x => uiAlert(x.message)); } else if (t) move(key, t.dataset.drop === 'root' ? '' : t.dataset.drop); return; }
             if (ev.dataTransfer.files.length) doUpload(ev.dataTransfer.files);
         });
         const v = { render }; VIEWS.add(v); win.onClose = () => VIEWS.delete(v);
@@ -276,9 +292,41 @@
         show(); setTimeout(() => body.focus(), 60);
     }
 
+    // ---------- Dateien auf dem Desktop ----------
+    const dk = () => (API.state().deskFiles = Array.isArray(API.state().deskFiles) ? API.state().deskFiles : []);
+    const onDesk = key => dk().includes(key);
+    function toDesk(key) { if (!onDesk(key)) { API.state().deskFiles = [...dk(), key]; API.save(); syncDesk(); } }
+    function unDesk(key) { if (onDesk(key)) { API.state().deskFiles = dk().filter(k => k !== key); API.save(); syncDesk(); } }
+    let deskSig = '';
+    function syncDesk() {
+        const its = items(), map = Object.fromEntries(its.map(it => [it.key, it]));
+        Object.keys(API.apps()).filter(id => id.startsWith('file:')).forEach(id => API.unregisterApp(id));
+        dk().forEach(key => { const it = map[key]; if (!it) return;
+            API.registerApp({ id: 'file:' + key, name: it.name, icon: KIND[it.k][0], c: KIND[it.k][1], thumb: it.thumb || '', file: true, hidden: true,
+                run: () => openViewer(it, its),
+                ctx: () => [['fa-up-right-from-square', 'Öffnen', () => openViewer(it, items())], ['fa-folder-open', 'Im Explorer zeigen', () => API.openApp('explorer', { params: { view: it.src === 'up' ? (it.folder || 'root') : it.src, select: it.key } })], ['fa-download', 'Herunterladen', () => download(it)], null, ['fa-display', 'Vom Desktop entfernen', () => unDesk(key)], it.own && ['fa-trash-can', 'In den Papierkorb', () => toTrash(it).then(() => unDesk(key)).catch(x => uiAlert(x.message))]] }); });
+        const sig = dk().filter(k => map[k]).map(k => k + map[k].name).join('|'); if (sig !== deskSig) { deskSig = sig; API.renderIcons(); }
+    }
+    window.JMOS_DESK_EXTRA = () => (API ? dk().map(k => 'file:' + k) : []);      // vor init() gibt es noch keine API
+    function wireDeskDrop() {
+        const desk = document.getElementById('desk'); let depth = 0;
+        const hint = document.createElement('div'); hint.className = 'desk-drop'; hint.innerHTML = '<i class="fa-solid fa-upload"></i><b>Auf den Desktop legen</b><span>Dateien werden in „Eigene Dateien“ hochgeladen</span>'; document.body.appendChild(hint);
+        desk.addEventListener('dragover', ev => { if (ev.target.closest('.wg')) return; ev.preventDefault(); });
+        desk.addEventListener('dragenter', ev => { if ([...ev.dataTransfer.types].includes('Files')) { depth++; hint.classList.add('on'); } });
+        desk.addEventListener('dragleave', ev => { if ([...ev.dataTransfer.types].includes('Files') && --depth <= 0) { depth = 0; hint.classList.remove('on'); } });
+        desk.addEventListener('drop', async ev => {
+            if (ev.target.closest('.wg')) return; ev.preventDefault(); depth = 0; hint.classList.remove('on');
+            const key = ev.dataTransfer.getData('text/x-jmos-file'); if (key) return toDesk(key);
+            if (!ev.dataTransfer.files.length || !can(U, 'dokumente')) return;
+            const before = new Set(D.docs.map(d => d.id)), n = await upload(ev.dataTransfer.files, '', null);
+            if (n) setTimeout(() => { D.docs.filter(d => !before.has(d.id) && d.status === 'ready').forEach(d => toDesk('up:' + d.id)); }, 800);
+        });
+    }
+
     (window.JMOS_EXT = window.JMOS_EXT || []).push({
         apps: [
             { id: 'explorer', name: 'Explorer', icon: 'fa-folder-open', c: '#f59e0b', native: 'explorer', perm: 'dokumente', w: 980, h: 620 },
+            { id: 'papierkorb', name: 'Papierkorb', icon: 'fa-trash-can', c: '#64748b', perm: 'dokumente', run: () => API.openApp('explorer', { params: { view: 'trash' } }) },
             { id: 'vorschau', name: 'Vorschau', icon: 'fa-file-image', c: '#38bdf8', native: 'viewer', hidden: true, noRestore: true, w: 900, h: 680 },
         ],
         ui: { explorer, viewer },
@@ -286,8 +334,9 @@
             API = api; U = user; e = api.esc;
             folders = Array.isArray(user.userPrefs?.docFolders) ? user.userPrefs.docFolders.filter(f => f && f.id && f.name) : [];
             if (!can(user, 'dokumente')) return;
-            const re = () => VIEWS.forEach(v => v.render());
-            JMOS_WIDGETS.use('docs', d => { D.docs = d; re(); });
+            const re = () => { VIEWS.forEach(v => v.render()); syncDesk(); };
+            JMOS_WIDGETS.use('docs', d => { D.docs = d; re(); purgeOld(); });
+            wireDeskDrop();
             if (can(user, 'finanzen')) { JMOS_WIDGETS.use('fin', d => { D.inv = d.inv; re(); }); JMOS_WIDGETS.use('pays', d => { D.pays = d; re(); }); }
         },
         items: () => items(), openViewer: (it, list) => openViewer(it, list),

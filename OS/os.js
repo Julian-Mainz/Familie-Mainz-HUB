@@ -66,7 +66,7 @@
 
     const $ = id => document.getElementById(id);
     const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    const tile = (a, cls = '') => a.folder ? `<span class="ico-t folder ${cls}"><i class="fa-solid fa-folder"></i></span>` : `<span class="ico-t ${cls}" style="--c:${a.c}"><i class="fa-solid ${a.icon}"></i></span>`;
+    const tile = (a, cls = '') => a.folder ? `<span class="ico-t folder ${cls}"><i class="fa-solid fa-folder"></i></span>` : a.thumb ? `<span class="ico-t thumb ${cls}"><img src="${a.thumb}" alt=""></span>` : `<span class="ico-t ${cls}${a.file ? ' file' : ''}" style="--c:${a.c}"><i class="fa-solid ${a.icon}"></i></span>`;
     const deskH = () => window.innerHeight - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--bar-h'));
 
     // ---------- Sternenhimmel ----------
@@ -93,7 +93,7 @@
     let CW = 104, CH = 108;
     const rows = () => Math.max(1, Math.floor((deskH() - PAD) / CH));
     const cols = () => Math.max(1, Math.floor((innerWidth - PAD) / CW));
-    const deskApps = () => [...ORDER.filter(id => !APPS[id].hidden), ...(APPS.spiele ? ['spiele'] : [])];
+    const deskApps = () => [...ORDER.filter(id => !APPS[id].hidden && !APPS[id].noDesk), ...(APPS.spiele ? ['spiele'] : []), ...(() => { try { return window.JMOS_DESK_EXTRA ? JMOS_DESK_EXTRA() : []; } catch (x) { return []; } })().filter(id => APPS[id])];
     function placeIcons() {
         const taken = new Set(), R = rows(), C = cols(), ids = deskApps();
         ids.forEach(id => { const p = S.icons[id]; if (p && p.c < C && p.r < R && !taken.has(p.c + ',' + p.r)) taken.add(p.c + ',' + p.r); else delete S.icons[id]; });
@@ -149,6 +149,7 @@
             if (ev.target.closest('.wg')) { if (!ev.target.closest('input, textarea')) ev.preventDefault(); return; }
             ev.preventDefault(); const el = ev.target.closest('.ico');
             if (el) { const a = APPS[el.dataset.id]; sel([a.id]);
+                if (a.ctx) return ctx(ev.clientX, ev.clientY, a.ctx());
                 return ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', () => openApp(a.id)], !a.folder && ['fa-thumbtack', isPinned(a.id) ? 'Von Taskleiste lösen' : 'An Taskleiste anheften', () => togglePin(a.id)], a.url && ['fa-arrow-up-right-from-square', 'In neuem Browser-Tab öffnen', () => window.open(a.url, '_blank', 'noopener')]]); }
             ctx(ev.clientX, ev.clientY, [
                 ['fa-plus', 'Widgets hinzufügen', () => JMOS_WIDGETS.picker()],
@@ -171,6 +172,7 @@
 
     function openApp(id, o = {}) {
         const a = APPS[id]; if (!a) return;
+        if (a.run) { closePops(); return a.run(o); }
         closePops();
         const key = o.key || '';
         const ex = WINS.find(w => w.app.id === id && (w.key || '') === key && !w.closing);
@@ -543,7 +545,7 @@
         $('st-role').textContent = isAdmin(user) ? 'Administrator' : 'Mitglied';
         $('st-av').innerHTML = typeof avatarInner === 'function' ? avatarInner({ ...user, name }) : e((name || '?')[0]);
         renderIcons(); wireIcons(); wireBar(); wireStart();
-        Object.assign(API, { state: () => S, save, openApp, closeWin, focus, ctx, closePops, toggleStart, renderStart, topWin, toggleMin, toggleMax, place, animate, area, showSnap, renderTasks, renderIcons, keys: KEYS, switchDesk, moveToDesk, desks, curDesk, onDesk, snapTo, snapRect, togglePin, isPinned, deskH, user: () => USER, apps: () => APPS, order: () => ORDER, webset: () => WEBSET, wins: WINS, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '', tile, esc: e });
+        Object.assign(API, { state: () => S, save, openApp, closeWin, focus, ctx, closePops, toggleStart, renderStart, topWin, toggleMin, toggleMax, place, animate, area, showSnap, renderTasks, renderIcons, keys: KEYS, registerApp: a => { APPS[a.id] = a; }, unregisterApp: id => { delete APPS[id]; }, switchDesk, moveToDesk, desks, curDesk, onDesk, snapTo, snapRect, togglePin, isPinned, deskH, user: () => USER, apps: () => APPS, order: () => ORDER, webset: () => WEBSET, wins: WINS, hasApp: id => !!APPS[id], appName: id => APPS[id] ? APPS[id].name : '', tile, esc: e });
         if (window.JMOS_WIDGETS) JMOS_WIDGETS.init(API, user);
         (window.JMOS_EXT || []).forEach(x => { if (x.ui) Object.assign(NATIVE_UI, x.ui); try { x.init && x.init(API, user); } catch (err) { console.error('J.Mainz OS Erweiterung:', err); } });
         if (!desks().some(d => d.id === curDesk())) S.desk = desks()[0].id;

@@ -195,7 +195,7 @@
         ui: { fotos, board, clock },
         init(api, user) {
             API = api; U = user; e = api.esc; S = api.state();
-            Object.assign(W().TYPES, TYPES);
+            Object.assign(W().TYPES, TYPES); window.JMOS_SP = sp; window.JMOS_SP_TOK = spTok;
             W().addSource('budgets', set => db.collection('finance_settings').doc(U.uid).onSnapshot(d => set(d.exists ? (d.data().budgets || {}) : {}), () => set({})));
             W().render();
             // neue Apps auf dem Desktop einmalig ergänzen (freie Plätze)

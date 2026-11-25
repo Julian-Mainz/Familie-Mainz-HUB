@@ -2,6 +2,18 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (6)
+
+### J.Mainz OS: Familien-Zettel, Chat-Blasen, Papierkorb, Dateien auf dem Desktop, Musik
+- Widget „Familien-Zettel“: ein gemeinsamer Zettel, den alle freigegebenen Familienmitglieder sehen und bearbeiten, mit Anzeige, wer zuletzt geschrieben hat.
+- Chat-Blasen: Kommt eine neue Nachricht, erscheint rechts eine runde Blase mit Bild bzw. Anfangsbuchstaben und Zähler. Ein Klick öffnet ein kleines Chatfenster zum direkten Antworten, ohne den Messenger zu öffnen. Abschaltbar in den Einstellungen („Chat & Musik“).
+- Papierkorb: Gelöschte Dateien landen zuerst im Papierkorb (Explorer und Desktop-Symbol) und werden nach 30 Tagen automatisch endgültig gelöscht. Wiederherstellen, endgültig löschen und Papierkorb leeren sind möglich. Dateien lassen sich auch per Ziehen auf „Papierkorb“ löschen.
+- Dateien auf dem Desktop: per Rechtsklick „Auf den Desktop legen“, per Ziehen aus dem Explorer oder direkt vom Computer auf den Desktop ziehen (wird hochgeladen). Bilder erscheinen als Vorschau.
+- Musik in der Taskleiste: Läuft Spotify, zeigt die Taskleiste Titel und Interpret mit Pause und Weiter. Abschaltbar.
+- Dokumente-Seite: Dateien im Papierkorb werden dort nicht mehr angezeigt.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/os-icons.css, OS/explorer.js, OS/apps.js, OS/social.js (neu), js/pages/dokumente.js
+- Firestore-Regeln: neuer Block `os_shared` (Familien-Zettel).
+
 ## 25.11.2026 (5)
 
 ### J.Mainz OS: Schnellstart, mehrere Desktops, Zwischenablage, Erinnerungen
