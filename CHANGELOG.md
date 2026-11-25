@@ -2,6 +2,17 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (20)
+
+### Desktop-Modus: ZIP im Explorer, Texteditor, Task-Manager
+- Explorer – mehrere Dateien auswählen: Strg+Klick einzeln, Umschalt+Klick für einen Bereich, Strg+A für alle. Mehrere auf einmal herunterladen (als ZIP), verschieben oder in den Papierkorb legen.
+- Explorer – ZIP: Neuer Knopf „ZIP“ lädt die Auswahl als ZIP-Datei herunter (auch ganze Ordner per Rechtsklick). „ZIP-Datei hier erstellen“ speichert das Archiv direkt in den Dokumenten (bis 3 MB). Rechtsklick auf eine ZIP-Datei → „Entpacken …“ legt alle passenden Dateien in einen neuen Ordner. Die Vorschau und die Schnellvorschau (Leertaste) zeigen den Inhalt eines Archivs; in der Vorschau lässt sich jede Datei einzeln herunterladen.
+- Neue App „Texteditor“: öffnet .txt-, .md-, .json-, .log- und .csv-Dateien aus dem Explorer (Doppelklick auf Textdateien), speichert sie zurück (Strg+S) oder als neue Datei in einen Ordner (Strg+Umschalt+S). Mehrere Dateien als Tabs, Suchen und Ersetzen (Strg+F), Zeilenumbruch, Schriftgröße, Markdown-Vorschau, Zeile/Spalte und Wörter in der Statusleiste. Ungespeicherte Änderungen bleiben auch nach dem Neuladen erhalten und werden beim Schließen abgefragt. „Neues Textdokument“ per Rechtsklick auf den Desktop oder im Explorer.
+- .md-, .json- und .log-Dateien können jetzt hochgeladen werden.
+- Neue App „Task-Manager“ (Alt+Entf, Startmenü oder Rechtsklick auf die freie Taskleiste): Prozesse mit allen Fenstern (Status, Elemente, Ladezeit, geladene Daten; wechseln, neu laden, beenden) und den Diensten des Desktops; Leistung mit Bildrate, Arbeitsspeicher (Chrome/Edge), Elementen und Netzwerk als Verlauf, dazu Gerätedaten und Leistungsmodus; Speicher mit belegtem Platz nach Dateiart und den größten Dateien; Benutzer mit Online-Status. Optional eine kleine FPS-Anzeige oben rechts.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/os-icons.css, OS/explorer.js, OS/more.js, OS/zip.js (neu), OS/editor.js (neu), OS/taskman.js (neu)
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (19)
 
 ### Desktop-Modus: Leistungsmodus (automatisch in Firefox)

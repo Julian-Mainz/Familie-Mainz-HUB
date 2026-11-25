@@ -5,12 +5,12 @@
 (function () {
     'use strict';
     const MAX = 3 * 1024 * 1024, QUOTA = 100 * 1024 * 1024, CH = 700000;
-    const ALLOWED = /\.(pdf|png|jpe?g|webp|gif|txt|csv|docx?|xlsx?|pptx?|odt|ods|zip)$/i, SAFE_IMG = /^image\/(png|jpeg|webp|gif)$/;
+    const ALLOWED = /\.(pdf|png|jpe?g|webp|gif|txt|md|json|log|csv|docx?|xlsx?|pptx?|odt|ods|zip)$/i, SAFE_IMG = /^image\/(png|jpeg|webp|gif)$/;
     const PHOTO = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
     const KIND = { pdf: ['fa-file-pdf', '#f87171', 'PDF'], img: ['fa-file-image', '#38bdf8', 'Bild'], doc: ['fa-file-word', '#60a5fa', 'Dokument'], sheet: ['fa-file-excel', '#34d399', 'Tabelle'], txt: ['fa-file-lines', '#94a3b8', 'Text'], zip: ['fa-file-zipper', '#fbbf24', 'Archiv'], other: ['fa-file', '#94a3b8', 'Datei'] };
     const kind = (name, mime) => { const n = (name || '').toLowerCase(), m = mime || '';
         if (m === 'application/pdf' || /\.pdf$/.test(n)) return 'pdf'; if (SAFE_IMG.test(m) || /\.(png|jpe?g|webp|gif)$/.test(n)) return 'img';
-        if (/\.(docx?|odt|pptx?)$/.test(n)) return 'doc'; if (/\.(xlsx?|ods|csv)$/.test(n)) return 'sheet'; if (/\.txt$/.test(n)) return 'txt'; if (/\.zip$/.test(n)) return 'zip'; return 'other'; };
+        if (/\.(docx?|odt|pptx?)$/.test(n)) return 'doc'; if (/\.(xlsx?|ods|csv)$/.test(n)) return 'sheet'; if (/\.(txt|md|json|log)$/.test(n)) return 'txt'; if (/\.zip$/.test(n)) return 'zip'; return 'other'; };
     const size = b => b < 1024 ? b + ' B' : b < 1048576 ? Math.round(b / 1024) + ' KB' : (b / 1048576).toFixed(1).replace('.', ',') + ' MB';
     const tms = t => (t && t.toDate ? t.toDate().getTime() : t && t.seconds ? t.seconds * 1000 : typeof t === 'number' ? t : 0);
     const dataMime = u => (/^data:([^;,]+)/.exec(u || '') || [])[1] || '';
@@ -23,7 +23,7 @@
     // ---------- Alle Dateien als eine Liste ----------
     function items() {
         const out = [];
-        D.docs.filter(d => d.status === 'ready' && !d.deletedAt).forEach(d => out.push({ key: 'up:' + d.id, src: 'up', id: d.id, name: d.name || 'Datei', mime: d.mime || '', size: d.size || 0, date: tms(d.createdAt), folder: d.folder || '', thumb: PHOTO.test(d.thumb || '') ? d.thumb : '', own: true }));
+        D.docs.filter(d => d.status === 'ready' && !d.deletedAt).forEach(d => out.push({ key: 'up:' + d.id, src: 'up', id: d.id, name: d.name || 'Datei', mime: d.mime || '', size: d.size || 0, date: tms(d.updatedAt) || tms(d.createdAt), folder: d.folder || '', thumb: PHOTO.test(d.thumb || '') ? d.thumb : '', own: true }));
         D.inv.filter(v => v.fileName && v.fileChunks).forEach(v => { const ext = /pdf/.test(v.fileMime || '') ? 'pdf' : /png/.test(v.fileMime || '') ? 'png' : /webp/.test(v.fileMime || '') ? 'webp' : 'jpg';
             out.push({ key: 'rech:' + v.id, src: 'rech', id: v.id, name: `Rechnung_${String(v.vendor || 'Anbieter').replace(/[^\wäöüÄÖÜß-]+/g, '_').slice(0, 40)}_${v.date || v.due || ''}.${ext}`, mime: v.fileMime || '', size: v.fileSize || 0, date: Date.parse((v.date || v.due || '2000-01-01') + 'T12:00:00') || 0, folder: '', thumb: '' }); });
         D.pays.filter(p => p.fileData).forEach(p => { const mime = dataMime(p.fileData), ext = (p.fileName || '').split('.').pop().toLowerCase();
@@ -52,6 +52,72 @@
     async function download(it) {
         try { const b = await getBlob(it), a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(b), download: it.name }); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
         catch (x) { uiAlert('Herunterladen fehlgeschlagen: ' + x.message); }
+    }
+    function saveBlob(b, name) { const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(b), download: name }); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+    async function makeZip(list, onStep) {
+        if (!window.JMZIP || !JMZIP.ok) throw new Error('Dein Browser kann keine ZIP-Dateien erstellen.');
+        const files = []; for (const { it, path } of list) files.push([path, await getBlob(it)]);
+        return JMZIP.zip(files, onStep);
+    }
+    const EXT_MIME = { pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif', txt: 'text/plain', md: 'text/markdown', json: 'application/json', log: 'text/plain', csv: 'text/csv', zip: 'application/zip',
+        doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ppt: 'application/vnd.ms-powerpoint', pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', odt: 'application/vnd.oasis.opendocument.text', ods: 'application/vnd.oasis.opendocument.spreadsheet' };
+    const mimeOf = n => EXT_MIME[(n.split('.').pop() || '').toLowerCase()] || '';
+    // ZIP entpacken: alle erlaubten Dateien in einen neuen Ordner (Name wie das Archiv)
+    async function unzipTo(it) {
+        if (!window.JMZIP || !JMZIP.ok) return uiAlert('Dein Browser kann keine ZIP-Dateien entpacken.');
+        let buf, ents;
+        try { buf = new Uint8Array(await (await getBlob(it)).arrayBuffer()); ents = JMZIP.list(buf).filter(x => !x.dir && !/(^|\/)(__MACOSX|\.DS_Store|Thumbs\.db)/i.test(x.name)); }
+        catch (x) { return uiAlert('Entpacken nicht möglich: ' + x.message); }
+        if (!ents.length) return uiAlert('Das Archiv ist leer.');
+        const base = it.name.replace(/\.zip$/i, '').slice(0, 40) || 'Entpackt'; let fname = base, k = 1; while (folders.some(f => f.name.toLowerCase() === fname.toLowerCase())) fname = `${base} (${++k})`;
+        const ok = ents.filter(x => ALLOWED.test(x.name) && x.size > 0 && x.size <= MAX), skip = ents.filter(x => !ok.includes(x));
+        if (!ok.length) return uiAlert(`Im Archiv ist keine Datei, die hier gespeichert werden kann (erlaubt: PDF, Bilder, Text, Office-Dateien, ZIP bis 3 MB).`);
+        const sum = ok.reduce((a, x) => a + x.size, 0);
+        if (used() + sum > QUOTA) return uiAlert(`Dafür reicht der Speicher nicht: ${size(sum)} nötig, ${size(QUOTA - used())} frei.`);
+        if (!(await uiConfirm(`${ok.length} ${ok.length === 1 ? 'Datei' : 'Dateien'} (${size(sum)}) in den neuen Ordner „${fname}“ entpacken?${skip.length ? `\n\n${skip.length} übersprungen (Dateityp nicht erlaubt, leer oder größer als 3 MB): ${skip.slice(0, 6).map(x => x.name.split('/').pop()).join(', ')}${skip.length > 6 ? ' …' : ''}` : ''}`, { ok: 'Entpacken', title: 'Entpacken' }))) return;
+        try {
+            const files = [], seen = new Set();
+            for (const ent of ok) { let n = ent.name.split('/').pop().slice(0, 120), j = 1; const n0 = n; while (seen.has(n.toLowerCase())) { const d = n0.lastIndexOf('.'); n = d > 0 ? `${n0.slice(0, d)} (${++j})${n0.slice(d)}` : `${n0} (${++j})`; } seen.add(n.toLowerCase());
+                files.push(new File([await JMZIP.extract(buf, ent)], n, { type: mimeOf(n) })); }
+            const id = 'f' + Date.now().toString(36); await saveFolders([...folders, { id, name: fname }]);
+            const n = await upload(files, id, null);
+            API.openApp('explorer', { params: { view: id } });
+        } catch (x) { uiAlert('Entpacken fehlgeschlagen: ' + x.message); }
+    }
+    // Inhaltsliste eines Archivs (Vorschau und Schnellvorschau)
+    async function zipView(m, it, big) {
+        const buf = new Uint8Array(await (await getBlob(it)).arrayBuffer()), ents = JMZIP.list(buf).filter(x => !x.dir);
+        const tot = ents.reduce((a, x) => a + x.size, 0);
+        m.innerHTML = `<div class="zv"><div class="zv-h"><i class="fa-solid fa-file-zipper"></i><b>${ents.length} ${ents.length === 1 ? 'Datei' : 'Dateien'}</b><span>${size(tot)} entpackt · ${size(it.size)} gepackt</span>${big && can(U, 'dokumente') ? '<button type="button" class="btn pri" data-zu><i class="fa-solid fa-box-open"></i>Alle entpacken</button>' : ''}</div>
+            <div class="zv-l">${ents.slice(0, 500).map((x, i) => { const k = kind(x.name, ''); return `<div class="zv-r"><i class="fa-solid ${KIND[k][0]}" style="color:${KIND[k][1]}"></i><span class="zv-n" title="${e(x.name)}">${e(x.name)}</span><small>${size(x.size)}</small>${big ? `<button type="button" data-ze="${i}" title="Diese Datei herunterladen"><i class="fa-solid fa-download"></i></button>` : ''}</div>`; }).join('')}${ents.length > 500 ? `<div class="zv-r"><span class="zv-n">… und ${ents.length - 500} weitere</span></div>` : ''}</div></div>`;
+        if (!big) return;
+        m.onclick = async ev => { const b = ev.target.closest('[data-ze]'); if (b) { try { const x = ents[+b.dataset.ze]; saveBlob(new Blob([await JMZIP.extract(buf, x)], { type: mimeOf(x.name) }), x.name.split('/').pop()); } catch (er) { uiAlert(er.message); } } if (ev.target.closest('[data-zu]')) unzipTo(it); };
+    }
+    // Textdateien für den Texteditor
+    const B64 = s => { const b = new TextEncoder().encode(s); let o = ''; for (let i = 0; i < b.length; i += 0x8000) o += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return { b64: btoa(o), size: b.length }; };
+    async function saveText(key, text) {
+        const it = items().find(x => x.key === key); if (!it || !it.own) throw new Error('Die Datei gibt es nicht mehr oder sie gehört dir nicht.');
+        const { b64, size: sz } = B64(text); if (sz > MAX) throw new Error('Die Datei ist größer als 3 MB.');
+        if (used() - it.size + sz > QUOTA) throw new Error('Dein Speicher (100 MB) ist voll.');
+        const ref = db.collection('documents').doc(it.id), n = Math.max(1, Math.ceil(b64.length / CH)), old = (D.docs.find(d => d.id === it.id) || {}).chunks || 0;
+        for (let i = 0; i < n; i++) await ref.collection('chunks').doc(String(i).padStart(3, '0')).set({ i, data: b64.slice(i * CH, (i + 1) * CH) });
+        for (let i = n; i < old; i++) await ref.collection('chunks').doc(String(i).padStart(3, '0')).delete().catch(() => {});
+        await ref.update({ size: sz, chunks: n, updatedAt: TS() });
+        blobs.delete(key);
+    }
+    async function createText(name, text, folder) {
+        const { b64, size: sz } = B64(text); if (sz > MAX) throw new Error('Die Datei ist größer als 3 MB.');
+        if (used() + sz > QUOTA) throw new Error('Dein Speicher (100 MB) ist voll.');
+        const n = Math.max(1, Math.ceil(b64.length / CH)), ref = db.collection('documents').doc();
+        await ref.set({ owner: U.email, name: name.slice(0, 120), mime: mimeOf(name) || 'text/plain', size: sz, folder: folder || '', chunks: n, status: 'uploading', thumb: '', createdAt: TS() });
+        try { for (let i = 0; i < n; i++) await ref.collection('chunks').doc(String(i).padStart(3, '0')).set({ i, data: b64.slice(i * CH, (i + 1) * CH) }); await ref.update({ status: 'ready' }); }
+        catch (x) { removeDoc(ref.id).catch(() => {}); throw x; }
+        return 'up:' + ref.id;
+    }
+    async function newText(folder) {
+        const taken = new Set(items().filter(x => x.src === 'up' && (x.folder || '') === (folder || '')).map(x => x.name.toLowerCase()));
+        let n = 'Neues Textdokument.txt', k = 1; while (taken.has(n.toLowerCase())) n = `Neues Textdokument (${++k}).txt`;
+        try { const key = await createText(n, '', folder); window.JMOS_EDITOR && JMOS_EDITOR.open(key, { name: n }); } catch (x) { uiAlert('Anlegen fehlgeschlagen: ' + x.message); }
     }
     async function removeDoc(id) {
         const ref = db.collection('documents').doc(id), sn = await ref.collection('chunks').get();
@@ -108,7 +174,7 @@
     // ---------- Explorer-Fenster ----------
     function explorer(body, win) {
         const canFin = can(U, 'finanzen');
-        let view = (win.params && win.params.view) || 'root', sel = null, mode = API.state().xpMode || 'grid', q = '', sort = API.state().xpSort || 'name';
+        let view = (win.params && win.params.view) || 'root', sel = null, picks = new Set(), anchor = null, mode = API.state().xpMode || 'grid', q = '', sort = API.state().xpSort || 'name';
         body.innerHTML = `<div class="xp">
             <div class="xp-bar">
                 <button type="button" class="xp-b" data-a="up" title="Zur Übersicht" aria-label="Zur Übersicht"><i class="fa-solid fa-arrow-up"></i></button>
@@ -121,6 +187,7 @@
                 <span class="xp-sep"></span>
                 <button type="button" class="xp-t" data-a="open" disabled><i class="fa-solid fa-up-right-from-square"></i>Öffnen</button>
                 <button type="button" class="xp-t" data-a="dl" disabled><i class="fa-solid fa-download"></i>Herunterladen</button>
+                <button type="button" class="xp-t" data-a="zip" disabled title="Ausgewählte Dateien als ZIP herunterladen"><i class="fa-solid fa-file-zipper"></i>ZIP</button>
                 <button type="button" class="xp-t" data-a="ren" disabled><i class="fa-solid fa-pen"></i>Umbenennen</button>
                 <button type="button" class="xp-t" data-a="restore" hidden disabled><i class="fa-solid fa-rotate-left"></i>Wiederherstellen</button>
                 <button type="button" class="xp-t bad" data-a="del" disabled><i class="fa-solid fa-trash-can"></i>Löschen</button>
@@ -131,7 +198,7 @@
             </div>
             <div class="xp-main"><nav class="xp-side" aria-label="Ordner"></nav><div class="xp-files" tabindex="0" aria-label="Dateien"></div></div>
             <div class="xp-status"><span class="xp-count"></span><span class="xp-prog"></span><span class="xp-used"></span></div>
-            <input type="file" multiple hidden class="xp-file" accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.zip">
+            <input type="file" multiple hidden class="xp-file" accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.json,.log,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.zip">
             <div class="xp-drop"><i class="fa-solid fa-upload"></i><b>Loslassen zum Hochladen</b><span class="xp-drop-t"></span></div></div>`;
         const $q = s => body.querySelector(s), files = $q('.xp-files');
         const VIEW_NAMES = () => ({ all: ['Alle Dateien', 'fa-layer-group', '#a78bfa'], root: ['Eigene Dateien', 'fa-house', '#818cf8'], rech: ['Rechnungen', 'fa-file-invoice', '#fbbf24'], lohn: ['Lohnabrechnungen', 'fa-file-pdf', '#f87171'], trash: ['Papierkorb', 'fa-trash-can', '#94a3b8'], ...Object.fromEntries(folders.map(f => [f.id, [f.name, 'fa-folder', '#f59e0b']])) });
@@ -154,6 +221,7 @@
             $q('.xp-path').innerHTML = `<i class="fa-solid fa-hard-drive"></i><button type="button" data-view="root">Dieser Desktop</button>${view !== 'root' ? `<i class="fa-solid fa-chevron-right sep"></i><span>${e(names[view][0])}</span>` : ''}${q ? `<i class="fa-solid fa-chevron-right sep"></i><span>Suche „${e(q)}“</span>` : ''}`;
             const L = list(), F = subFolders();
             if (sel && !L.some(it => it.key === sel) && !F.some(f => 'f:' + f.id === sel)) sel = null;
+            picks = new Set([...picks].filter(k => L.some(it => it.key === k) || F.some(f => 'f:' + f.id === k)));
             files.className = 'xp-files ' + mode;
             const thumb = it => it.thumb ? `<img src="${it.thumb}" alt="" loading="lazy">` : `<i class="fa-solid ${KIND[it.k][0]}" style="color:${KIND[it.k][1]}"></i>`;
             const dt = t => t ? new Date(t).toLocaleDateString('de-DE') : '–';
@@ -173,12 +241,30 @@
         };
         // Auswahl nur umschalten, ohne neu zu zeichnen (sonst gehen Doppelklicks verloren)
         const selUI = () => {
-            files.querySelectorAll('[data-key]').forEach(x => x.classList.toggle('sel', x.dataset.key === sel));
-            const n = files.querySelectorAll('[data-key]').length; $q('.xp-count').textContent = `${n} ${n === 1 ? 'Element' : 'Elemente'}${sel ? ' · 1 ausgewählt' : ''}`;
-            const it = cur(), dir = sel && sel.startsWith('f:');
+            if (!sel) picks.clear(); else if (!picks.has(sel)) picks = new Set([sel]);            // einfache Auswahl = genau ein Element
+            files.querySelectorAll('[data-key]').forEach(x => x.classList.toggle('sel', picks.has(x.dataset.key)));
+            const n = files.querySelectorAll('[data-key]').length; $q('.xp-count').textContent = `${n} ${n === 1 ? 'Element' : 'Elemente'}${picks.size ? ` · ${picks.size} ausgewählt` : ''}`;
+            const it = cur(), dir = sel && sel.startsWith('f:'), many = picks.size > 1, pk = picked();
             $q('[data-a="restore"]').disabled = !it;
-            $q('[data-a="open"]').disabled = !sel; $q('[data-a="dl"]').disabled = !it; $q('[data-a="ren"]').disabled = !(dir || (it && it.own)); $q('[data-a="del"]').disabled = !(dir || (it && it.own));
+            $q('[data-a="open"]').disabled = !sel || many; $q('[data-a="dl"]').disabled = !(it || (many && pk.length)); $q('[data-a="ren"]').disabled = many || !(dir || (it && it.own));
+            $q('[data-a="del"]').disabled = many ? !pk.some(x => x.own) : !(dir || (it && it.own));
+            const zb = $q('[data-a="zip"]'); zb.hidden = view === 'trash'; zb.disabled = !zipList().length;
         };
+        // ausgewählte Dateien (ohne Ordner) und für ZIP: Ordner mit ihrem Inhalt
+        const picked = () => { const all = view === 'trash' ? trash() : items(); return [...picks].filter(k => !k.startsWith('f:')).map(k => all.find(it => it.key === k)).filter(Boolean); };
+        const zipList = () => { if (view === 'trash') return []; const out = picked().map(it => ({ it, path: it.name }));
+            [...picks].filter(k => k.startsWith('f:')).forEach(k => { const f = folders.find(x => x.id === k.slice(2)); if (f) items().filter(it => it.src === 'up' && it.folder === f.id).forEach(it => out.push({ it, path: f.name + '/' + it.name })); });
+            return out; };
+        const zipName = () => { const pk = [...picks]; if (pk.length === 1) { const k = pk[0]; if (k.startsWith('f:')) return (folders.find(x => x.id === k.slice(2)) || {}).name || 'Ordner'; const it = cur(); return it ? it.name.replace(/\.[^.]+$/, '') : 'Dateien'; } return VIEW_NAMES()[view] ? VIEW_NAMES()[view][0] : 'Dateien'; };
+        const prog = (t, p) => { $q('.xp-prog').innerHTML = t ? `<i class="fa-solid fa-file-zipper"></i>${e(t)} <b style="width:${Math.round((p || 0) * 60)}px"></b>` : ''; };
+        async function doZip(save) {
+            const L = zipList(); if (!L.length) return;
+            try { const blob = await makeZip(L, (i, n) => prog(`ZIP wird erstellt (${i}/${n})`, i / n)), name = zipName() + '.zip'; prog('');
+                if (!save) return saveBlob(blob, name);
+                if (blob.size > MAX) return uiAlert(`Die ZIP-Datei ist ${size(blob.size)} groß. Speichern geht bis 3 MB – lade sie stattdessen herunter.`);
+                await upload([new File([blob], name, { type: 'application/zip' })], view === 'root' || !isFolderView() ? '' : view);
+            } catch (x) { prog(''); uiAlert('ZIP fehlgeschlagen: ' + x.message); }
+        }
         const empty = () => `<div class="xp-empty"><i class="fa-regular fa-folder-open"></i><b>${q ? 'Nichts gefunden' : 'Dieser Ordner ist leer'}</b>${canUpload() && !q ? '<span>Dateien hierher ziehen oder auf „Hochladen“ klicken</span>' : ''}</div>`;
         const cur = () => sel && !sel.startsWith('f:') ? (view === 'trash' ? trash() : items()).find(it => it.key === sel) : null;
         const go = v => { view = v; sel = null; q = ''; $q('.xp-q input').value = ''; render(); };
@@ -189,6 +275,12 @@
             if (v && v !== it.name) db.collection('documents').doc(it.id).update({ name: v.slice(0, 120) }).catch(x => uiAlert('Umbenennen fehlgeschlagen: ' + x.message));
         }
         async function del() {
+            if (picks.size > 1) {
+                const L = picked().filter(it => it.own); if (!L.length) return;
+                if (view === 'trash') { if (!(await uiConfirm(`${L.length} Dateien endgültig löschen? Das lässt sich nicht rückgängig machen.`, { danger: true, ok: 'Endgültig löschen' }))) return; for (const it of L) await removeDoc(it.id).catch(() => {}); }
+                else { for (const it of L) { await toTrash(it).catch(() => {}); unDesk(it.key); } }
+                sel = null; return selUI();
+            }
             if (sel && sel.startsWith('f:')) {
                 const f = folders.find(x => x.id === sel.slice(2)), inside = D.docs.filter(d => d.folder === f.id);
                 if (!(await uiConfirm(`Ordner „${f.name}“ löschen?${inside.length ? `\n\nDie ${inside.length} Datei(en) darin bleiben erhalten und landen in „Eigene Dateien“.` : ''}`, { danger: true, ok: 'Löschen' }))) return;
@@ -201,23 +293,29 @@
             try { await removeDoc(it.id); sel = null; logSystemEvent('data', 'Dokument gelöscht', { ueber: 'OS' }); } catch (x) { uiAlert('Löschen fehlgeschlagen: ' + x.message); }
         }
         async function newFolder() { const v = await ask('Neuer Ordner', 'Neuer Ordner', 'Anlegen'); if (v) saveFolders([...folders, { id: 'f' + Date.now().toString(36), name: v.slice(0, 40) }]).catch(x => uiAlert(x.message)); }
-        const move = (key, folder) => { const it = items().find(x => x.key === key); if (it && it.own && it.folder !== folder) db.collection('documents').doc(it.id).update({ folder }).catch(x => uiAlert(x.message)); };
+        const move1 = (key, folder) => { const it = items().find(x => x.key === key); if (it && it.own && it.folder !== folder) db.collection('documents').doc(it.id).update({ folder }).catch(x => uiAlert(x.message)); };
+        const move = (key, folder) => { if (picks.size > 1 && picks.has(key)) [...picks].filter(k => !k.startsWith('f:')).forEach(k => move1(k, folder)); else move1(key, folder); };
         const doUpload = list => { if (!canUpload()) return uiAlert('Hochladen geht in „Eigene Dateien“ und in eigene Ordner.'); const fd = view === 'root' ? '' : view;
             upload(list, fd, (name, p) => { $q('.xp-prog').innerHTML = name ? `<i class="fa-solid fa-upload"></i>${e(name)} <b style="width:${Math.round((p || 0) * 60)}px"></b>` : ''; }); };
         // Bedienung
         body.addEventListener('click', ev => {
             const v = ev.target.closest('[data-view]'); if (v) return go(v.dataset.view);
             const m = ev.target.closest('[data-m]'); if (m) { mode = m.dataset.m; API.state().xpMode = mode; API.save(); return render(); }
-            const a = ev.target.closest('[data-a]'); if (a) return ({ up: () => go('root'), upload: () => $q('.xp-file').click(), newfolder: newFolder, open: openSel, dl: () => { const it = cur(); if (it) download(it); }, ren: rename, del,
+            const a = ev.target.closest('[data-a]'); if (a) return ({ up: () => go('root'), upload: () => $q('.xp-file').click(), newfolder: newFolder, open: openSel, dl: () => { if (picks.size > 1) return doZip(false); const it = cur(); if (it) download(it); }, zip: () => doZip(false), ren: rename, del,
                 restore: () => { const it = cur(); if (it) restore(it).catch(x => uiAlert(x.message)); },
                 empty: async () => { const t = trash(); if (!t.length || !(await uiConfirm(`Papierkorb leeren? ${t.length} Datei(en) werden endgültig gelöscht.`, { danger: true, ok: 'Leeren' }))) return; for (const it of t) await removeDoc(it.id).catch(() => {}); } })[a.dataset.a]();
             if (!ev.target.closest('.xp-files')) return;
-            const i = ev.target.closest('[data-key]'); sel = i ? i.dataset.key : null; selUI();
+            const i = ev.target.closest('[data-key]'), k = i ? i.dataset.key : null;
+            if (k && (ev.ctrlKey || ev.metaKey)) { if (picks.has(k)) { picks.delete(k); sel = picks.size ? [...picks].pop() : null; } else { picks.add(k); sel = k; } anchor = k; return selUI(); }
+            if (k && ev.shiftKey && anchor) { const all = [...files.querySelectorAll('[data-key]')].map(x => x.dataset.key), a = all.indexOf(anchor), b = all.indexOf(k);
+                if (a >= 0 && b >= 0) { picks = new Set(all.slice(Math.min(a, b), Math.max(a, b) + 1)); sel = k; return selUI(); } }
+            picks = new Set(k ? [k] : []); sel = k; anchor = k; selUI();
             if (i && matchMedia('(pointer: coarse)').matches) openSel();
         });
         files.addEventListener('dblclick', ev => { const i = ev.target.closest('[data-key]'); if (i) { sel = i.dataset.key; openSel(); } });
         files.addEventListener('keydown', ev => {
             if (ev.key === ' ' && !ev.repeat) { ev.preventDefault(); const it = cur(); if (it && sel && !sel.startsWith('f:')) quickLook(it, () => [...files.querySelectorAll('[data-key]')].map(x => x.dataset.key), k => { sel = k; selUI(); files.querySelector(`[data-key="${CSS.escape(k)}"]`)?.scrollIntoView({ block: 'nearest' }); return cur(); }, () => files.focus()); return; }
+            if ((ev.ctrlKey || ev.metaKey) && (ev.key === 'a' || ev.key === 'A')) { ev.preventDefault(); const all = [...files.querySelectorAll('[data-key]')].map(x => x.dataset.key).filter(k => !k.startsWith('f:')); picks = new Set(all); sel = all[0] || null; anchor = sel; return selUI(); }
             if (ev.key === 'Enter') openSel(); else if (ev.key === 'Delete') del(); else if (ev.key === 'F2') { ev.preventDefault(); rename(); }
             else if (ev.key === 'Backspace' && view !== 'root') go('root');
             else if (/^Arrow/.test(ev.key)) { const all = [...files.querySelectorAll('[data-key]')], k = all.findIndex(x => x.dataset.key === sel), cols = mode === 'grid' ? Math.max(1, Math.floor(files.clientWidth / 112)) : 1;
@@ -229,12 +327,17 @@
         body.addEventListener('contextmenu', ev => {
             ev.preventDefault(); const i = ev.target.closest('[data-key]'); if (i) { sel = i.dataset.key; selUI(); }
             const it = cur(), dir = sel && sel.startsWith('f:');
-            if (i && dir) return API.ctx(ev.clientX, ev.clientY, [['fa-folder-open', 'Öffnen', openSel], ['fa-pen', 'Umbenennen', rename], null, ['fa-trash-can', 'Ordner löschen', del]]);
+            if (i && picks.size > 1) { const pk = picked(), own = pk.filter(x => x.own);
+                if (view === 'trash') return API.ctx(ev.clientX, ev.clientY, [['fa-rotate-left', `${pk.length} wiederherstellen`, () => pk.forEach(x => restore(x).catch(() => {}))], null, ['fa-trash-can', `${pk.length} endgültig löschen`, del]]);
+                return API.ctx(ev.clientX, ev.clientY, [['fa-file-zipper', `Als ZIP herunterladen (${picks.size})`, () => doZip(false)], canUpload() && ['fa-file-zipper', 'ZIP-Datei hier erstellen', () => doZip(true)],
+                    ...(own.length ? [null, ...[['', 'Eigene Dateien'], ...folders.map(f => [f.id, f.name])].map(([id, n]) => ['fa-folder', 'Verschieben nach „' + n + '“', () => move(own[0].key, id)]), null, ['fa-trash-can', `In den Papierkorb (${own.length})`, del]] : [])]); }
+            if (i && dir) return API.ctx(ev.clientX, ev.clientY, [['fa-folder-open', 'Öffnen', openSel], ['fa-file-zipper', 'Als ZIP herunterladen', () => doZip(false)], ['fa-pen', 'Umbenennen', rename], null, ['fa-trash-can', 'Ordner löschen', del]]);
             if (i && it && it.trash) return API.ctx(ev.clientX, ev.clientY, [['fa-rotate-left', 'Wiederherstellen', () => restore(it).catch(x => uiAlert(x.message))], null, ['fa-trash-can', 'Endgültig löschen', del]]);
-            if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], ['fa-download', 'Herunterladen', () => download(it)], window.JMOS_CHAT && ['fa-paper-plane', 'Per Chat senden …', () => JMOS_CHAT.sendVia({ key: it.key })], ['fa-display', onDesk(it.key) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => (onDesk(it.key) ? unDesk(it.key) : toDesk(it.key))],
+            if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], it.k === 'txt' && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Im Texteditor bearbeiten', () => JMOS_EDITOR.open(it.key)], it.k !== 'txt' && /\.csv$/i.test(it.name) && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Als Text bearbeiten', () => JMOS_EDITOR.open(it.key)],
+                it.k === 'zip' && can(U, 'dokumente') && ['fa-box-open', 'Entpacken …', () => unzipTo(it)], ['fa-download', 'Herunterladen', () => download(it)], it.k !== 'zip' && ['fa-file-zipper', 'Als ZIP herunterladen', () => doZip(false)], window.JMOS_CHAT && ['fa-paper-plane', 'Per Chat senden …', () => JMOS_CHAT.sendVia({ key: it.key })], ['fa-display', onDesk(it.key) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => (onDesk(it.key) ? unDesk(it.key) : toDesk(it.key))],
                 it.own && ['fa-pen', 'Umbenennen', rename], ...(it.own ? [null, ...[['', 'Eigene Dateien'], ...folders.map(f => [f.id, f.name])].filter(([id]) => id !== it.folder).map(([id, n]) => ['fa-folder', 'Verschieben nach „' + n + '“', () => move(it.key, id)])] : []),
                 it.own && null, it.own && ['fa-trash-can', 'In den Papierkorb', del]]);
-            API.ctx(ev.clientX, ev.clientY, [canUpload() && ['fa-upload', 'Dateien hochladen', () => $q('.xp-file').click()], view === 'root' && ['fa-folder-plus', 'Neuer Ordner', newFolder], null,
+            API.ctx(ev.clientX, ev.clientY, [canUpload() && ['fa-upload', 'Dateien hochladen', () => $q('.xp-file').click()], view === 'root' && ['fa-folder-plus', 'Neuer Ordner', newFolder], canUpload() && window.JMOS_EDITOR && ['fa-file-lines', 'Neues Textdokument', () => newText(view === 'root' ? '' : view)], null,
                 ['fa-grip', 'Ansicht: Symbole', () => { mode = 'grid'; API.state().xpMode = mode; API.save(); render(); }], ['fa-list', 'Ansicht: Liste', () => { mode = 'list'; API.state().xpMode = mode; API.save(); render(); }]]);
         });
         // Drag & Drop: Dateien vom Computer hochladen, eigene Dateien in Ordner ziehen
@@ -270,6 +373,7 @@
                 <div class="ql-m"><div class="wb-load">${API.tile({ icon: KIND[cur.k][0], c: KIND[cur.k][1] })}<span>Wird geladen …</span></div></div>
                 <small class="ql-f">Leertaste oder Esc schließt · ← → nächste Datei · Enter öffnet</small></div>`;
             const m = el.querySelector('.ql-m');
+            if (cur.k === 'zip' && window.JMZIP) { try { await zipView(m, cur, false); } catch (x) { m.innerHTML = `<div class="xp-empty"><i class="fa-solid fa-triangle-exclamation" style="color:#f87171"></i><b>Vorschau nicht möglich</b><span>${e(x.message)}</span></div>`; } return; }
             if (!['img', 'pdf', 'txt'].includes(cur.k) && !/\.csv$/i.test(cur.name)) { m.innerHTML = `<div class="xp-empty"><span class="ql-big">${API.tile({ icon: KIND[cur.k][0], c: KIND[cur.k][1] })}</span><b>${e(cur.name)}</b><span>Keine Vorschau für diesen Dateityp</span></div>`; return; }
             try {
                 const blob = await getBlob(cur); if (my !== token) return; url = URL.createObjectURL(blob);
@@ -294,6 +398,7 @@
 
     // ---------- Vorschau / Bildbetrachter ----------
     function openViewer(it, list) {
+        if (it.k === 'txt' && it.own && window.JMOS_EDITOR) { const S0 = API.state(); S0.recentFiles = [{ key: it.key, name: it.name }, ...(S0.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save(); return JMOS_EDITOR.open(it.key); }
         const imgs = (list || []).filter(x => x.k === 'img');
         const S = API.state(); S.recentFiles = [{ key: it.key, name: it.name }, ...(S.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save();
         API.openApp('vorschau', { key: it.key, title: it.name, params: { it, imgs }, w: it.k === 'img' ? 900 : 860, h: 680 });
@@ -314,6 +419,7 @@
                 const blob = await getBlob(it); url = URL.createObjectURL(blob);
                 if (it.k === 'img') main.innerHTML = `<img src="${url}" alt="${e(it.name)}" class="vw-img" draggable="false">`;
                 else if (it.k === 'pdf') main.innerHTML = `<iframe src="${url}" title="${e(it.name)}" class="vw-pdf"></iframe>`;
+                else if (it.k === 'zip' && window.JMZIP) await zipView(main, it, true);
                 else if (it.k === 'txt' || /\.csv$/i.test(it.name)) main.innerHTML = `<pre class="vw-txt">${e((await blob.text()).slice(0, 200000))}</pre>`;
                 else main.innerHTML = `<div class="xp-empty"><i class="fa-solid ${KIND[it.k][0]}" style="color:${KIND[it.k][1]}"></i><b>Keine Vorschau für diesen Dateityp</b><button type="button" class="btn pri" data-v="dl"><i class="fa-solid fa-download"></i>Herunterladen</button></div>`;
             } catch (x) { main.innerHTML = `<div class="xp-empty"><i class="fa-solid fa-triangle-exclamation" style="color:#f87171"></i><b>Vorschau nicht möglich</b><span>${e(x.message)}</span></div>`; }
@@ -350,6 +456,12 @@
         async blobOf(key) { const it = items().find(x => x.key === key); if (!it) throw new Error('Datei nicht gefunden.'); const blob = await getBlob(it); return { blob: it.mime && !blob.type ? new Blob([blob], { type: it.mime }) : blob, name: it.name, k: it.k }; },
         upload: (files, folder) => upload(files, folder || ''),
         toDesk: key => toDesk(key),
+        saveText, createText, newText,
+        all: () => items(),
+        textFiles: () => items().filter(x => x.own && (x.k === 'txt' || /\.csv$/i.test(x.name))),
+        item: key => items().find(x => x.key === key) || null,
+        folders: () => folders.slice(),
+        onChange: fn => { const v = { render: fn }; VIEWS.add(v); return () => VIEWS.delete(v); },
         latestKey: name => { const it = items().filter(x => x.src === 'up' && x.name === name).sort((a, b) => (b.date || 0) - (a.date || 0))[0]; return it && it.key; },
     };
     window.JMOS_DESK_EXTRA = () => (API ? dk().map(k => 'file:' + k) : []);      // vor init() gibt es noch keine API

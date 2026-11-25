@@ -114,10 +114,11 @@
     }
     // ================= Tastenkürzel-Übersicht =================
     const KEYS = [
-        ['Allgemein', [[['Strg', 'Leertaste'], 'Suche und Startmenü'], [['Alt', 'A'], 'Schnellstart-Leiste'], [['Alt', 'V'], 'Zwischenablage-Verlauf'], [['Alt', 'L'], 'Bildschirm sperren'], [['Alt', '?'], 'Diese Übersicht (auch F1)'], [['Esc'], 'Menü oder Dialog schließen']]],
+        ['Allgemein', [[['Strg', 'Leertaste'], 'Suche und Startmenü'], [['Alt', 'A'], 'Schnellstart-Leiste'], [['Alt', 'V'], 'Zwischenablage-Verlauf'], [['Alt', 'L'], 'Bildschirm sperren'], [['Alt', '?'], 'Diese Übersicht (auch F1)'], [['Alt', 'Entf'], 'Task-Manager'], [['Esc'], 'Menü oder Dialog schließen']]],
         ['Fenster', [[['Alt', 'Q'], 'Fenster wechseln (Alt gedrückt halten)'], [['Alt', 'W'], 'Fenster schließen'], [['Alt', 'M'], 'Fenster minimieren'], [['Alt', 'Umschalt', '← → ↑'], 'Fenster andocken'], [['Alt', '1 … 9'], 'Angeheftete App öffnen'], [['Ziehen'], 'auf eine andere Titelleiste: als Tab einfügen']]],
+        ['Texteditor', [[['Strg', 'S'], 'Speichern'], [['Strg', 'Umschalt', 'S'], 'Speichern unter'], [['Strg', 'O'], 'Datei öffnen'], [['Strg', 'F'], 'Suchen und Ersetzen'], [['Strg', '+ / −'], 'Schrift größer / kleiner']]],
         ['Desktops', [[['Alt', 'Umschalt', 'D'], 'Desktop anzeigen'], [['Alt', 'Bild ↑ / ↓'], 'Desktop wechseln']]],
-        ['Explorer', [[['Leertaste'], 'Schnellvorschau'], [['Enter'], 'Öffnen'], [['F2'], 'Umbenennen'], [['Entf'], 'In den Papierkorb'], [['Rücktaste'], 'Zurück zur Übersicht'], [['← ↑ → ↓'], 'Auswahl bewegen']]],
+        ['Explorer', [[['Strg', 'Klick'], 'Mehrere auswählen (Umschalt = Bereich)'], [['Strg', 'A'], 'Alle auswählen'], [['Leertaste'], 'Schnellvorschau'], [['Enter'], 'Öffnen'], [['F2'], 'Umbenennen'], [['Entf'], 'In den Papierkorb'], [['Rücktaste'], 'Zurück zur Übersicht'], [['← ↑ → ↓'], 'Auswahl bewegen']]],
     ];
     let kbEl = null;
     function kbOpen() {

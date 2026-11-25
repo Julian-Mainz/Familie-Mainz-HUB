@@ -170,7 +170,7 @@
                 ['fa-table-cells-large', 'Symbole automatisch anordnen', arrangeIcons],
                 ['fa-rotate-right', 'Aktualisieren', () => { renderIcons(); }], null,
                 ['fa-image', 'Hintergrund ändern', () => openApp('einstellungen')],
-                ['fa-note-sticky', 'Neue Notiz', () => openApp('notizen')], null,
+                ['fa-note-sticky', 'Neue Notiz', () => openApp('notizen')], window.JMOS_EDITOR && JMOS_EDITOR.ok() && ['fa-file-lines', 'Neues Textdokument', () => JMOS_EDITOR.newOnDesk()], null,
                 ['fa-circle-info', 'Über J.Mainz OS', () => openApp('info')],
             ]);
         });
@@ -282,7 +282,9 @@
     function moveToDesk(win, id) { win.desk = id; win.el.classList.toggle('away', !onDesk(win)); if (!onDesk(win)) { win.el.classList.remove('focus'); const t = topWin(); if (t) focus(t); } renderTasks(); save(); }
     function toggleMin(win, on = !win.min) { win.min = on; place(win); if (on) { win.el.classList.remove('focus'); const t = topWin(); if (t) focus(t); else document.title = 'J.Mainz OS'; } else focus(win); renderTasks(); save(); }
     function toggleMax(win, on = !win.max) { if (win.app.noMax) return; animate(win, () => { win.max = on; place(win); }); save(); }
-    function closeWin(win) {
+    function closeWin(win, force) {
+        if (win.closing) return;
+        if (!force && win.beforeClose) { const msg = win.beforeClose(); if (msg) { focus(win); uiConfirm(msg, { ok: 'Ohne Speichern schließen', danger: true, title: win.app.name }).then(ok => { if (ok) closeWin(win, true); }); return; } }   // z. B. Texteditor mit ungespeicherten Änderungen
         win.closing = true; win.el.classList.add('closing'); try { win.onClose && win.onClose(); } catch (x) {} try { window.JMOS_ONCLOSE && JMOS_ONCLOSE(win); } catch (x) {}
         setTimeout(() => { win.el.remove(); WINS.splice(WINS.indexOf(win), 1); const t = topWin(); if (t) focus(t); else document.title = 'J.Mainz OS'; renderTasks(); save(); }, 170);
         renderTasks();
