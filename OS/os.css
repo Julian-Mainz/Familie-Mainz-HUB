@@ -691,3 +691,44 @@ html.os-bye #bar { transition: transform .5s var(--ease); transform: translateY(
 .st-az button { height: 42px; border: 0; border-radius: 10px; background: rgba(148, 163, 184, .1); color: var(--txt); font-size: 15px; font-weight: 700; }
 .st-az button:hover:not([disabled]), .st-az button:focus-visible { background: var(--grad); color: #fff; outline: 0; }
 .st-az button[disabled] { opacity: .25; }
+
+/* ---------- Paket D: Snap-Layouts, Tabs, Schnellvorschau, Tastenkürzel, Offline ---------- */
+.sl-pop { position: fixed; z-index: 400; display: grid; grid-template-columns: repeat(3, 76px); gap: 10px; padding: 12px; border-radius: 14px; background: rgba(16, 22, 42, .97); border: 1px solid var(--line-2); box-shadow: 0 24px 60px -12px rgba(0, 0, 0, .85); backdrop-filter: blur(20px); animation: popIn .16s var(--ease); }
+.sl-l { display: grid; gap: 3px; height: 50px; padding: 3px; border-radius: 8px; background: rgba(148, 163, 184, .08); }
+.sl-l button { border: 0; border-radius: 4px; background: rgba(148, 163, 184, .28); transition: background-color .12s; padding: 0; }
+.sl-l button:hover, .sl-l button:focus-visible { background: var(--acc-l); outline: 0; }
+.win.tabbed .wt-title, .win.tabbed .wt > .wt-ico { display: none; }
+.wtabs { flex: 1; min-width: 0; display: flex; align-items: flex-end; gap: 2px; align-self: stretch; padding-top: 6px; overflow: hidden; }
+.wtab { position: relative; flex: 0 1 200px; min-width: 70px; display: flex; align-items: center; gap: 7px; height: 100%; padding: 0 6px 0 10px; border-radius: 10px 10px 0 0; color: var(--mut); font-size: 12.5px; cursor: default; transition: background-color .12s, color .12s; }
+.wtab:hover { background: rgba(148, 163, 184, .1); color: var(--txt); }
+.wtab.on { background: rgba(148, 163, 184, .16); color: var(--txt); box-shadow: inset 0 2px 0 var(--acc-l); }
+.wtab .wt-ico { width: 18px; height: 18px; font-size: 9px; border-radius: 6px; flex: none; }
+.wtab-t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wtab-x { flex: none; width: 20px; height: 20px; border: 0; border-radius: 6px; background: none; color: var(--mut); font-size: 10px; opacity: 0; }
+.wtab:hover .wtab-x, .wtab.on .wtab-x { opacity: 1; } .wtab-x:hover { background: rgba(248, 113, 113, .2); color: #fca5a5; }
+.win.tab-drop { box-shadow: 0 0 0 3px var(--acc-l), 0 30px 80px -20px rgba(0, 0, 0, .8) !important; }
+.win.tab-drop .wt { background: rgba(var(--acc-rgb), .22); }
+.win.tab-drop .wt::after { content: "Als Tab einfügen"; position: absolute; right: 150px; top: 50%; transform: translateY(-50%); padding: 3px 10px; border-radius: 99px; background: var(--grad); color: #fff; font-size: 11.5px; font-weight: 600; pointer-events: none; }
+.wt { position: relative; }
+.ql { position: fixed; inset: 0; z-index: 9000; display: grid; place-items: center; background: rgba(3, 6, 14, .55); backdrop-filter: blur(6px); animation: osFade .15s; outline: 0; }
+.ql-card { width: min(980px, 86vw); height: min(760px, 84vh); display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; background: rgba(14, 20, 38, .98); border: 1px solid var(--line-2); box-shadow: 0 40px 100px -20px rgba(0, 0, 0, .9); animation: qlIn .2s var(--ease); }
+@keyframes qlIn { from { opacity: 0; transform: scale(.94); } }
+.ql-h { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 10px 10px 16px; border-bottom: 1px solid var(--line); } .ql-h b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ql-h small { flex: 1; color: var(--mut); font-size: 12px; white-space: nowrap; }
+.ql-h button { width: 32px; height: 32px; border: 0; border-radius: 9px; background: none; color: #cbd5e1; } .ql-h button:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.ql-m { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; background: #070b16; overflow: hidden; }
+.ql-m img { max-width: 100%; max-height: 100%; object-fit: contain; } .ql-m iframe { width: 100%; height: 100%; border: 0; background: #fff; } .ql-m pre { align-self: stretch; justify-self: stretch; margin: 0; padding: 18px; overflow: auto; font-size: 12.5px; color: #cbd5e1; white-space: pre-wrap; }
+.ql-big .ico-t { width: 72px; height: 72px; font-size: 32px; border-radius: 20px; }
+.ql-f { flex: none; padding: 8px 16px; color: var(--mut); font-size: 11.5px; border-top: 1px solid var(--line); text-align: center; }
+.ks-ov { position: fixed; inset: 0; z-index: 9000; display: grid; place-items: center; background: rgba(3, 6, 14, .6); backdrop-filter: blur(6px); animation: osFade .15s; }
+.ks-card { width: min(880px, 92vw); max-height: 86vh; overflow: auto; padding: 20px 24px; border-radius: 20px; background: rgba(14, 20, 38, .98); border: 1px solid var(--line-2); box-shadow: 0 40px 100px -20px rgba(0, 0, 0, .9); outline: 0; animation: qlIn .2s var(--ease); }
+.ks-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; } .ks-top b { font-size: 17px; display: flex; align-items: center; gap: 10px; } .ks-top b i { color: var(--acc-l); }
+.ks-x { width: 32px; height: 32px; border: 0; border-radius: 9px; background: none; color: #cbd5e1; } .ks-x:hover { background: rgba(255, 255, 255, .1); }
+.ks-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 6px 28px; }
+.ks-cols h4 { margin: 10px 0 6px; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--acc-l); }
+.ks-r { display: flex; align-items: center; gap: 14px; padding: 6px 0; border-bottom: 1px solid rgba(148, 163, 184, .08); font-size: 13px; } .ks-r > span:last-child { color: #cbd5e1; }
+.ks-k { flex: none; width: 200px; display: flex; align-items: center; gap: 4px; } .ks-k i { font-style: normal; color: var(--mut); font-size: 11px; }
+kbd { display: inline-block; min-width: 24px; padding: 3px 7px; border-radius: 7px; background: rgba(148, 163, 184, .14); border: 1px solid rgba(148, 163, 184, .25); border-bottom-width: 2px; font-family: inherit; font-size: 11.5px; font-weight: 600; line-height: 1.2; color: var(--txt); text-align: center; white-space: nowrap; }
+.ks-f { display: block; margin-top: 14px; color: var(--mut); font-size: 11.5px; text-align: center; }
+#net.off { color: #fca5a5; } #net.off::after { content: ""; position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 0 2px #0b1020; } #net { position: relative; }
+#off-bar { position: fixed; left: 50%; top: 12px; transform: translateX(-50%); z-index: 500; display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-radius: 99px; background: rgba(127, 29, 29, .9); border: 1px solid rgba(248, 113, 113, .5); color: #fee2e2; font-size: 12.5px; box-shadow: 0 16px 40px -10px rgba(0, 0, 0, .8); animation: popIn .25s var(--ease); }
+#off-bar i { color: #fca5a5; }

@@ -2,6 +2,17 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 25.11.2026 (10)
+
+### J.Mainz OS: Snap-Layouts, Fenster mit Tabs, Schnellvorschau, Tastenkürzel, Offline-Anzeige
+- Snap-Layouts: Maus kurz über den Maximieren-Knopf halten, dann erscheinen sechs Layouts (halb/halb, zwei Drittel/ein Drittel, drei Spalten, links groß mit zwei rechts, vier Ecken). Klick auf ein Feld ordnet das Fenster dort ein.
+- Fenster mit Tabs: Ein Fenster an der Titelleiste auf die Titelleiste eines anderen Fensters ziehen („Als Tab einfügen“ erscheint), dann teilen sich beide ein Fenster mit Tabs. Klick wechselt, Mittelklick oder ✕ schließt, Rechtsklick „Als eigenes Fenster lösen“. Tab-Gruppen bleiben nach dem Neuladen erhalten.
+- Schnellvorschau im Explorer: Datei markieren und Leertaste drücken. Pfeiltasten blättern, Enter öffnet, Leertaste oder Esc schließt.
+- Tastenkürzel-Übersicht mit Alt+? oder F1 (auch über die Suche „Tastenkürzel“).
+- Offline-Anzeige: Ohne Internet erscheint oben ein Hinweis und das Symbol in der Taskleiste wird rot. Kommt die Verbindung zurück, meldet das OS „Wieder online“ und bestätigt, wenn alle Änderungen gespeichert sind.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/os-icons.css, OS/explorer.js, OS/more.js (neu)
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (9)
 
 ### J.Mainz OS: Startmenü als Liste wie bei Windows

@@ -217,6 +217,7 @@
         });
         files.addEventListener('dblclick', ev => { const i = ev.target.closest('[data-key]'); if (i) { sel = i.dataset.key; openSel(); } });
         files.addEventListener('keydown', ev => {
+            if (ev.key === ' ' && !ev.repeat) { ev.preventDefault(); const it = cur(); if (it && sel && !sel.startsWith('f:')) quickLook(it, () => [...files.querySelectorAll('[data-key]')].map(x => x.dataset.key), k => { sel = k; selUI(); files.querySelector(`[data-key="${CSS.escape(k)}"]`)?.scrollIntoView({ block: 'nearest' }); return cur(); }, () => files.focus()); return; }
             if (ev.key === 'Enter') openSel(); else if (ev.key === 'Delete') del(); else if (ev.key === 'F2') { ev.preventDefault(); rename(); }
             else if (ev.key === 'Backspace' && view !== 'root') go('root');
             else if (/^Arrow/.test(ev.key)) { const all = [...files.querySelectorAll('[data-key]')], k = all.findIndex(x => x.dataset.key === sel), cols = mode === 'grid' ? Math.max(1, Math.floor(files.clientWidth / 112)) : 1;
@@ -252,6 +253,43 @@
         win.onParams = p => { if (p.view) go(p.view); if (p.select) { sel = p.select; selUI(); } };
         render(); if (win.params && win.params.select) { sel = win.params.select; selUI(); }
         setTimeout(() => files.focus(), 60);
+    }
+
+    // ---------- Schnellvorschau mit der Leertaste (wie „Quick Look“) ----------
+    let qlEl = null;
+    function quickLook(it, keysFn, pick, back) {
+        if (qlEl) { qlEl._close(); return; }
+        let url = '', cur = it, token = 0;
+        const el = document.createElement('div'); el.className = 'ql'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Schnellvorschau'); el.tabIndex = -1;
+        document.body.appendChild(el); qlEl = el;
+        const show = async () => {
+            const my = ++token; if (url) URL.revokeObjectURL(url); url = '';
+            const k = keysFn(), i = k.indexOf(cur.key);
+            el.innerHTML = `<div class="ql-card"><div class="ql-h"><i class="fa-solid ${KIND[cur.k][0]}" style="color:${KIND[cur.k][1]}"></i><b>${e(cur.name)}</b><small>${size(cur.size)}${k.length > 1 ? ` · ${i + 1} von ${k.length}` : ''}</small>
+                <button type="button" data-q="open" title="Öffnen (Enter)"><i class="fa-solid fa-up-right-from-square"></i></button><button type="button" data-q="x" title="Schließen (Leertaste)"><i class="fa-solid fa-xmark"></i></button></div>
+                <div class="ql-m"><div class="wb-load">${API.tile({ icon: KIND[cur.k][0], c: KIND[cur.k][1] })}<span>Wird geladen …</span></div></div>
+                <small class="ql-f">Leertaste oder Esc schließt · ← → nächste Datei · Enter öffnet</small></div>`;
+            const m = el.querySelector('.ql-m');
+            if (!['img', 'pdf', 'txt'].includes(cur.k) && !/\.csv$/i.test(cur.name)) { m.innerHTML = `<div class="xp-empty"><span class="ql-big">${API.tile({ icon: KIND[cur.k][0], c: KIND[cur.k][1] })}</span><b>${e(cur.name)}</b><span>Keine Vorschau für diesen Dateityp</span></div>`; return; }
+            try {
+                const blob = await getBlob(cur); if (my !== token) return; url = URL.createObjectURL(blob);
+                if (cur.k === 'img') m.innerHTML = `<img src="${url}" alt="${e(cur.name)}">`;
+                else if (cur.k === 'pdf') m.innerHTML = `<iframe src="${url}" title="${e(cur.name)}"></iframe>`;
+                else m.innerHTML = `<pre>${e((await blob.text()).slice(0, 60000))}</pre>`;
+            } catch (x) { if (my === token) m.innerHTML = `<div class="xp-empty"><i class="fa-solid fa-triangle-exclamation" style="color:#f87171"></i><b>Vorschau nicht möglich</b><span>${e(x.message)}</span></div>`; }
+        };
+        const close = () => { token++; if (url) URL.revokeObjectURL(url); el.remove(); qlEl = null; document.removeEventListener('keydown', key, true); back && back(); };
+        el._close = close;
+        const step = d => { const k = keysFn(), i = k.indexOf(cur.key); if (k.length < 2) return; let j = i, n; do { j = (j + d + k.length) % k.length; n = k[j]; } while (n.startsWith('f:') && j !== i); const it2 = pick(n); if (it2 && it2.key) { cur = it2; show(); } };
+        const key = ev => {
+            if (ev.key === ' ' || ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); close(); }
+            else if (ev.key === 'ArrowRight' || ev.key === 'ArrowDown') { ev.preventDefault(); ev.stopPropagation(); step(1); }
+            else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowUp') { ev.preventDefault(); ev.stopPropagation(); step(-1); }
+            else if (ev.key === 'Enter') { ev.preventDefault(); ev.stopPropagation(); const c = cur; close(); openViewer(c, items()); }
+        };
+        document.addEventListener('keydown', key, true);
+        el.addEventListener('click', ev => { const b = ev.target.closest('[data-q]'); if (ev.target === el || (b && b.dataset.q === 'x')) close(); else if (b && b.dataset.q === 'open') { const c = cur; close(); openViewer(c, items()); } });
+        show(); el.focus();
     }
 
     // ---------- Vorschau / Bildbetrachter ----------

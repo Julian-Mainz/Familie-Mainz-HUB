@@ -56,7 +56,7 @@
         if (S.notes === undefined) { try { const n = localStorage.getItem(KEY + '-notes'); if (n) S.notes = n; } catch (e) {} }   // alte Notizen übernehmen
     }
     let saveT = 0, cloudT = 0, dirty = false;
-    const snapshot = () => { S.wins = WINS.filter(w => !w.closing && !w.params && !w.app.noRestore).map(w => ({ app: w.app.id, x: w.x, y: w.y, w: w.w, h: w.h, max: w.max, min: w.min, url: w.url, desk: w.desk })); return JSON.parse(JSON.stringify(S)); };
+    const snapshot = () => { S.wins = WINS.filter(w => !w.closing && !w.params && !w.app.noRestore).map(w => ({ app: w.app.id, x: w.x, y: w.y, w: w.w, h: w.h, max: w.max, min: w.min, url: w.url, desk: w.desk, grp: w.grp || null, tabAway: !!w.tabAway })); return JSON.parse(JSON.stringify(S)); };
     function cloud() {
         clearTimeout(cloudT); if (!dirty || !USER) return; dirty = false;
         db.collection('users').doc(USER.uid).update({ 'userPrefs.os': snapshot() }).catch(() => { dirty = true; });
@@ -177,7 +177,7 @@
         const key = o.key || '';
         const ex = WINS.find(w => w.app.id === id && (w.key || '') === key && !w.closing);
         if (ex && !o.restore) {
-            if (!onDesk(ex)) switchDesk(ex.desk);
+            if (ex.tabAway && window.JMOS_TABACT) JMOS_TABACT(ex); else if (!onDesk(ex)) switchDesk(ex.desk);
             if (ex.min) toggleMin(ex, false); focus(ex);
             if (o.url && ex.frame && ex.url !== o.url) { ex.url = o.url; ex.frame.src = o.url; }          // z. B. Finanzen direkt auf "Rechnungen"
             if (o.params && ex.onParams) ex.onParams(o.params);
@@ -185,7 +185,7 @@
         }
         const ar = area(), n = WINS.length % 8;
         const w = Math.min(a.w || 1180, ar.w - 120), h = Math.min(a.h || 760, ar.h - 70);
-        const win = { id: 'w' + (++seq), app: a, key, desk: o.desk || curDesk(), params: o.params, url: o.url || a.url, x: o.x ?? Math.max(10, Math.round((ar.w - w) / 2) - 120 + n * 34), y: o.y ?? Math.max(8, Math.round((ar.h - h) / 2) - 50 + n * 30), w: o.w || w, h: o.h || h, max: !!o.max, min: false };
+        const win = { id: 'w' + (++seq), app: a, key, desk: o.desk || curDesk(), params: o.params, url: o.url || a.url, x: o.x ?? Math.max(10, Math.round((ar.w - w) / 2) - 120 + n * 34), y: o.y ?? Math.max(8, Math.round((ar.h - h) / 2) - 50 + n * 30), w: o.w || w, h: o.h || h, max: !!o.max, min: false, grp: o.grp || null, tabAway: !!o.tabAway };
         win.x = Math.min(Math.max(-win.w + 120, win.x), ar.w - 120); win.y = Math.min(Math.max(0, win.y), ar.h - 40);
         const el = document.createElement('div'); el.className = 'win'; el.id = win.id; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', a.name);
         el.innerHTML = `<div class="wt"><span class="wt-ico${a.folder ? ' folder' : ''}" style="--c:${a.c || '#818cf8'}"><i class="fa-solid ${a.folder ? 'fa-folder' : a.icon}"></i></span><span class="wt-title">${e(o.title || a.name)}</span>
@@ -252,7 +252,7 @@
     const topWin = () => WINS.filter(w => !w.min && !w.closing && onDesk(w)).sort((a, b) => b.el.style.zIndex - a.el.style.zIndex)[0];
     // ---------- Mehrere Desktops: Fenster, Widgets und Hintergrund je Desktop, Symbole gemeinsam ----------
     const curDesk = () => S.desk || 'd1';
-    const onDesk = w => (w.desk || 'd1') === curDesk();
+    const onDesk = w => (w.desk || 'd1') === curDesk() && !w.tabAway;          // Fenster in einer Tab-Gruppe, die gerade nicht vorne sind, zählen nicht
     const desks = () => (Array.isArray(S.desks) && S.desks.length ? S.desks : (S.desks = [{ id: 'd1', name: 'Desktop 1' }]));
     function switchDesk(id) {
         if (!desks().some(d => d.id === id) || id === curDesk()) return;
@@ -268,7 +268,7 @@
     function toggleMin(win, on = !win.min) { win.min = on; place(win); if (on) { win.el.classList.remove('focus'); const t = topWin(); if (t) focus(t); else document.title = 'J.Mainz OS'; } else focus(win); renderTasks(); save(); }
     function toggleMax(win, on = !win.max) { if (win.app.noMax) return; animate(win, () => { win.max = on; place(win); }); save(); }
     function closeWin(win) {
-        win.closing = true; win.el.classList.add('closing'); try { win.onClose && win.onClose(); } catch (x) {}
+        win.closing = true; win.el.classList.add('closing'); try { win.onClose && win.onClose(); } catch (x) {} try { window.JMOS_ONCLOSE && JMOS_ONCLOSE(win); } catch (x) {}
         setTimeout(() => { win.el.remove(); WINS.splice(WINS.indexOf(win), 1); const t = topWin(); if (t) focus(t); else document.title = 'J.Mainz OS'; renderTasks(); save(); }, 170);
         renderTasks();
     }
@@ -284,7 +284,7 @@
         bar.addEventListener('pointerdown', ev => {
             if (ev.target.closest('.wt-btns') || ev.button > 0 || innerWidth <= 760) return;
             ev.preventDefault(); bar.setPointerCapture(ev.pointerId);
-            const ar = area(); let sx = ev.clientX, sy = ev.clientY, ox = win.x, oy = win.y, moved = false, snap = null;
+            const ar = area(); let sx = ev.clientX, sy = ev.clientY, ox = win.x, oy = win.y, moved = false, snap = null, tabT = null;
             const mv = m => {
                 const dx = m.clientX - sx, dy = m.clientY - sy;
                 if (!moved && Math.hypot(dx, dy) < 4) return;
@@ -294,12 +294,15 @@
                 el.style.left = win.x + 'px'; el.style.top = win.y + 'px';
                 const L = m.clientX <= 2, R = m.clientX >= innerWidth - 3, T = m.clientY <= 2, C = 80, ah = deskH();
                 snap = (L || m.clientX < C) && T ? 'tl' : (R || m.clientX > innerWidth - C) && T ? 'tr' : L && m.clientY < C ? 'tl' : R && m.clientY < C ? 'tr' : L && m.clientY > ah - C ? 'bl' : R && m.clientY > ah - C ? 'br' : T ? 'max' : L ? 'l' : R ? 'r' : null;
+                tabT = window.JMOS_TABTARGET ? JMOS_TABTARGET(win, m.clientX, m.clientY) : null; if (tabT) snap = null;          // auf die Titelleiste eines anderen Fensters = als Tab einfügen
                 showSnap(snap);
             };
             const up = () => {
                 bar.removeEventListener('pointermove', mv); bar.removeEventListener('pointerup', up); bar.removeEventListener('pointercancel', up);
                 document.body.classList.remove('dragging'); showSnap(null);
-                if (snap === 'max') toggleMax(win, true);
+                if (window.JMOS_TABDROP) JMOS_TABDROP(win, tabT);
+                if (tabT) { /* als Tab eingefügt */ }
+                else if (snap === 'max') toggleMax(win, true);
                 else if (snap) { snapTo(win, snap); if (window.JMOS_SNAPPED) JMOS_SNAPPED(win, snap); }
                 if (moved) save();
             };
@@ -324,7 +327,8 @@
     // Bereiche zum Andocken: Hälften und Viertel
     function snapRect(s) {
         const ar = area(), hw = Math.round(ar.w / 2), hh = Math.round(ar.h / 2);
-        return { l: [0, 0, hw, ar.h], r: [hw, 0, ar.w - hw, ar.h], tl: [0, 0, hw, hh], tr: [hw, 0, ar.w - hw, hh], bl: [0, hh, hw, ar.h - hh], br: [hw, hh, ar.w - hw, ar.h - hh] }[s];
+        const t1 = Math.round(ar.w / 3), t2 = Math.round(ar.w * 2 / 3);
+        return { l: [0, 0, hw, ar.h], r: [hw, 0, ar.w - hw, ar.h], l13: [0, 0, t1, ar.h], c13: [t1, 0, t2 - t1, ar.h], r13: [t2, 0, ar.w - t2, ar.h], l23: [0, 0, t2, ar.h], r23: [t1, 0, ar.w - t1, ar.h], tl: [0, 0, hw, hh], tr: [hw, 0, ar.w - hw, hh], bl: [0, hh, hw, ar.h - hh], br: [hw, hh, ar.w - hw, ar.h - hh] }[s];
     }
     function snapTo(win, s) {
         if (s === 'max') return toggleMax(win, true);
