@@ -2,6 +2,20 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 26.11.2026 (5)
+OS – Paket B: Office-Ausbau
+- Automatisch speichern: Schalter oben rechts in Writer, Tabellen und Präsentation. Gespeicherte Dateien werden kurz nach jeder Änderung von selbst gesichert (neue, noch nie gespeicherte Dokumente fragen wie bisher nach dem Namen).
+- Versionsverlauf: Datei → Versionsverlauf zeigt die letzten 5 Stände (höchstens alle 10 Minuten einer) mit „Wiederherstellen“ und „Herunterladen“. Wiederherstellen hebt den jetzigen Stand vorher auf. Lässt sich im selben Fenster abschalten.
+- Eigene Vorlagen: Datei → „Als Vorlage speichern“; die Vorlagen stehen danach unter Datei → Neu (mit Löschen-Knopf).
+- Diagramme in Tabellen: Einfügen → Säulen, Balken, Linie oder Kreis aus der Auswahl. Verschieben, Größe ändern, Rechtsklick für Typ, Titel, Datenbereich, als Bild kopieren/herunterladen. Wird als echtes Excel-Diagramm in der .xlsx gespeichert (öffnet auch in Excel/LibreOffice) und vorhandene Excel-Diagramme werden angezeigt.
+- Diagramm übernehmen: In Writer und Präsentation unter Einfügen → „Diagramm aus Tabelle“ (oder in Tabellen „Als Bild kopieren“ und mit Strg+V einfügen).
+- Serienbrief in Writer: neuer Reiter „Sendungen“ – Empfänger aus einer Tabelle wählen, Felder wie «Vorname» einfügen, Vorschau je Empfänger, alle Briefe als ein Dokument oder direkt drucken.
+- Volltextsuche im Explorer: Die Suche findet jetzt auch Wörter in Word-, Excel-, PowerPoint- und Textdateien und zeigt die Fundstelle an.
+
+Geänderte Dateien: OS/officekit.js (neu), OS/chart.js (neu), OS/office.js, OS/index.html, OS/writer.js, OS/calc.js, OS/slides.js, OS/sheetcore.js, OS/explorer.js, OS/os.css, OS/os-icons.css, CHANGELOG.md
+
+Firestore-Regeln: keine Änderung (Versionen und Vorlagen liegen als versteckte Einträge in deinen Dokumenten und zählen zum 100-MB-Speicher)
+
 ## 26.11.2026 (4)
 OS – Paket A: schnellerer Start, „Empfohlen“ im Startmenü, Systemklänge
 - Schnellerer Start: Writer, Tabellen und Präsentation (samt .docx/.xlsx/.pptx-Code) werden nicht mehr beim Start ausgeführt, sondern erst beim ersten Öffnen nachgeladen. Der Browser lädt sie im Leerlauf vor, das Öffnen bleibt also schnell.

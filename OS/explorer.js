@@ -93,11 +93,64 @@
         if (!big) return;
         m.onclick = async ev => { const b = ev.target.closest('[data-ze]'); if (b) { try { const x = ents[+b.dataset.ze]; saveBlob(new Blob([await JMZIP.extract(buf, x)], { type: mimeOf(x.name) }), x.name.split('/').pop()); } catch (er) { uiAlert(er.message); } } if (ev.target.closest('[data-zu]')) unzipTo(it); };
     }
+    // ---------- Volltextsuche: Inhalte von Word-, Excel-, PowerPoint- und Textdateien (Text wird im Browser zwischengespeichert) ----------
+    const fts = (() => {
+        const mem = new Map(), FT = /\.(docx|xlsx|pptx|txt|md|csv|json|log)$/i; let db_ = null, run = null;
+        const idb = () => db_ || (db_ = new Promise(res => { try { const r = indexedDB.open('jmos-fts', 1); r.onupgradeneeded = () => r.result.createObjectStore('t'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); } catch (x) { res(null); } }));
+        const get = async k => { const d = await idb(); if (!d) return null; return new Promise(res => { try { const q = d.transaction('t').objectStore('t').get(k); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); } catch (x) { res(null); } }); };
+        const put = async (k, v) => { const d = await idb(); if (d) try { d.transaction('t', 'readwrite').objectStore('t').put(v, k); } catch (x) {} };
+        const sig = it => it.size + ':' + it.date, ok = it => it.own && it.src === 'up' && FT.test(it.name) && it.size <= MAX;
+        const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
+        const strip = x => x.replace(/<\/(w:p|a:p|si|row|text:p)>/g, '\n').replace(/<\/(c|w:tc)>|<w:tab\/>|<a:br\/>/g, ' ').replace(/<[^>]+>/g, '').replace(/&(#x?[0-9a-f]+|\w+);/gi, (m, n) => n[0] === '#' ? String.fromCodePoint(n[1] === 'x' || n[1] === 'X' ? parseInt(n.slice(2), 16) : +n.slice(1)) : ENT[n] || m);
+        async function extract(it) {
+            const blob = await getBlob(it); if (!/\.(docx|xlsx|pptx)$/i.test(it.name)) return (await blob.text()).slice(0, 300000);
+            const bytes = new Uint8Array(await blob.arrayBuffer()), want = /\.docx$/i.test(it.name) ? /^word\/(document|header\d*|footer\d*)\.xml$/ : /\.xlsx$/i.test(it.name) ? /^xl\/(sharedStrings|worksheets\/sheet\d+)\.xml$/ : /^ppt\/(slides\/slide\d+|notesSlides\/notesSlide\d+)\.xml$/;
+            let out = ''; for (const en of JMZIP.list(bytes)) { const n = en.name.replace(/^\/+/, ''); if (!want.test(n)) continue; let x = new TextDecoder().decode(await JMZIP.extract(bytes, en));
+                if (/sheet\d+\.xml$/.test(n)) x = x.replace(/<c [^>]*t="s"[^>]*>.*?<\/c>/g, '').replace(/<f>.*?<\/f>/g, '');          // Textverweise stehen in sharedStrings, Formeln nicht durchsuchen
+                out += strip(x) + '\n'; if (out.length > 300000) break; }
+            return out;
+        }
+        async function textOf(it) {
+            const m = mem.get(it.id); if (m && m.sig === sig(it)) return m.text;
+            const k = U.uid + ':' + it.id, c = await get(k); if (c && c.sig === sig(it)) { mem.set(it.id, c); return c.text; }
+            let text = ''; try { text = await extract(it); } catch (x) { text = ''; }
+            const v = { sig: sig(it), text: text.replace(/[ \t]+/g, ' ') }; mem.set(it.id, v); put(k, v); return v.text;
+        }
+        return {
+            ok,
+            todo: () => items().filter(it => ok(it) && !(mem.get(it.id) && mem.get(it.id).sig === sig(it))),
+            index(onStep) { if (run) return run; const list = this.todo(); run = (async () => { for (let i = 0; i < list.length; i++) { await textOf(list[i]); onStep && onStep(i + 1, list.length); } })().finally(() => { run = null; }); return run; },
+            hit(it, nq) { const m = mem.get(it.id); if (!m || !nq) return ''; const t = m.text, i = t.toLowerCase().indexOf(nq); if (i < 0) return ''; const a = Math.max(0, i - 40), b = Math.min(t.length, i + nq.length + 60);
+                return (a ? '…' : '') + t.slice(a, b).replace(/\s+/g, ' ').trim() + (b < t.length ? '…' : ''); },
+            hits(q) { const nq = String(q || '').trim().toLowerCase(); return items().map(it => ({ key: it.key, name: it.name, snip: this.hit(it, nq) })).filter(x => x.snip); },
+        };
+    })();
     // Textdateien für den Texteditor
     const B64b = b => { let o = ''; for (let i = 0; i < b.length; i += 0x8000) o += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return { b64: btoa(o), size: b.length }; };
     const B64 = s => B64b(typeof s === 'string' ? new TextEncoder().encode(s) : s);
-    async function saveText(key, text) {
+    // ---------- Versionen und Vorlagen (versteckte Einträge in documents: status 'version' / 'template') ----------
+    const hidden = st => D.docs.filter(d => d.status === st);
+    const versionsOf = id => hidden('version').filter(d => d.verOf === id).sort((a, b) => (b.verAt || 0) - (a.verAt || 0));
+    async function putHidden(name, bytes, status, extra) {
+        const { b64, size: sz } = B64b(bytes); if (sz > MAX) throw new Error('Die Datei ist größer als 3 MB.'); if (used() + sz > QUOTA) throw new Error('Dein Speicher (100 MB) ist voll.');
+        const n = Math.max(1, Math.ceil(b64.length / CH)), ref = db.collection('documents').doc();
+        await ref.set(Object.assign({ owner: U.email, name: name.slice(0, 120), mime: mimeOf(name) || 'application/octet-stream', size: sz, folder: '', chunks: n, status: 'uploading', thumb: '', createdAt: TS() }, extra));
+        try { for (let i = 0; i < n; i++) await ref.collection('chunks').doc(String(i).padStart(3, '0')).set({ i, data: b64.slice(i * CH, (i + 1) * CH) }); await ref.update({ status }); }
+        catch (x) { removeDoc(ref.id).catch(() => {}); throw x; }
+        return ref.id;
+    }
+    const hiddenBlob = d => getBlob({ key: 'h:' + d.id, src: 'up', id: d.id, mime: d.mime || '' });
+    // Stand vor dem Überschreiben sichern: höchstens alle 10 Minuten (force = sofort), die letzten 5 bleiben
+    async function snapshot(key, force) {
+        const it = items().find(x => x.key === key); if (!it || !it.own || it.src !== 'up') return;
+        const vs = versionsOf(it.id); if (!force && vs[0] && Date.now() - (vs[0].verAt || 0) < 10 * 60000) return;
+        const blob = await getBlob(it), bytes = new Uint8Array(await blob.arrayBuffer()); if (!bytes.length) return;
+        const nid = await putHidden(it.name, bytes, 'version', { verOf: it.id, verAt: Date.now(), mime: it.mime || mimeOf(it.name) || '' });
+        versionsOf(it.id).filter(v => v.id !== nid).slice(4).forEach(v => removeDoc(v.id).catch(() => {}));
+    }
+    async function saveText(key, text, opts) {
         const it = items().find(x => x.key === key); if (!it || !it.own) throw new Error('Die Datei gibt es nicht mehr oder sie gehört dir nicht.');
+        if (opts && opts.version) { try { await snapshot(key, opts.version === 'force'); } catch (x) { /* Version ist ein Extra – Speichern geht trotzdem */ } }
         const { b64, size: sz } = B64(text); if (sz > MAX) throw new Error(`Die Datei ist ${size(sz)} groß – gespeichert werden können höchstens 3 MB. Tipp: Bilder verkleinern.`);
         if (used() - it.size + sz > QUOTA) throw new Error('Dein Speicher (100 MB) ist voll.');
         const ref = db.collection('documents').doc(it.id), n = Math.max(1, Math.ceil(b64.length / CH)), old = (D.docs.find(d => d.id === it.id) || {}).chunks || 0;
@@ -124,6 +177,7 @@
         const ref = db.collection('documents').doc(id), sn = await ref.collection('chunks').get();
         for (let i = 0; i < sn.docs.length; i += 400) { const b = db.batch(); sn.docs.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit(); }
         await ref.delete();
+        hidden('version').filter(d => d.verOf === id).forEach(v => removeDoc(v.id).catch(() => {}));          // Versionen einer gelöschten Datei gleich mit
     }
     async function makeThumb(file) {
         if (!SAFE_IMG.test(file.type)) return '';
@@ -222,7 +276,7 @@
         const inView = it => view === 'all' || (view === 'root' ? it.src === 'up' && !it.folder : view === 'rech' || view === 'lohn' ? it.src === view : it.src === 'up' && it.folder === view);
         const list = () => {
             const all = view === 'trash' ? trash() : items(), nq = q.toLowerCase();
-            let out = all.filter(it => (q || view === 'trash' ? true : inView(it)) && (!q || it.name.toLowerCase().includes(nq)));
+            let out = all.filter(it => (q || view === 'trash' ? true : inView(it)) && (!q || it.name.toLowerCase().includes(nq) || (view !== 'trash' && nq.length >= 2 && fts.hit(it, nq))));
             const by = { name: (a, b) => a.name.localeCompare(b.name, 'de'), date: (a, b) => b.date - a.date, size: (a, b) => b.size - a.size, type: (a, b) => a.k.localeCompare(b.k) || a.name.localeCompare(b.name, 'de') }[sort];
             return out.sort(by);
         };
@@ -238,13 +292,15 @@
             if (sel && !L.some(it => it.key === sel) && !F.some(f => 'f:' + f.id === sel)) sel = null;
             picks = new Set([...picks].filter(k => L.some(it => it.key === k) || F.some(f => 'f:' + f.id === k)));
             files.className = 'xp-files ' + mode;
+            const nq = q.toLowerCase(), snip = it => q.length >= 2 && !it.name.toLowerCase().includes(nq) ? fts.hit(it, nq) : '';
+            const hl = t => e(t).replace(new RegExp(nq.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'), 'gi'), m => `<mark>${m}</mark>`);
             const thumb = it => it.thumb ? `<img src="${it.thumb}" alt="" loading="lazy">` : `<i class="fa-solid ${KIND[it.k][0]}" style="color:${KIND[it.k][1]}"></i>`;
             const dt = t => t ? new Date(t).toLocaleDateString('de-DE') : '–';
             if (mode === 'grid') files.innerHTML = (F.map(f => `<button type="button" class="xp-i dir${sel === 'f:' + f.id ? ' sel' : ''}" data-key="f:${e(f.id)}" data-drop="${e(f.id)}"><span class="th"><i class="fa-solid fa-folder"></i></span><span class="nm">${e(f.name)}</span></button>`).join('') +
-                L.map(it => `<button type="button" class="xp-i${sel === it.key ? ' sel' : ''}" data-key="${e(it.key)}" draggable="${it.own ? 'true' : 'false'}" title="${e(it.name)} · ${size(it.size)}"><span class="th">${thumb(it)}</span><span class="nm">${e(it.name)}</span></button>`).join('')) || empty();
+                L.map(it => `<button type="button" class="xp-i${sel === it.key ? ' sel' : ''}" data-key="${e(it.key)}" draggable="${it.own ? 'true' : 'false'}" title="${e(it.name)} · ${size(it.size)}"><span class="th">${thumb(it)}</span><span class="nm">${e(it.name)}</span>${snip(it) ? `<span class="xp-hit">${hl(snip(it))}</span>` : ''}</button>`).join('')) || empty();
             else files.innerHTML = (F.length + L.length) ? `<div class="xp-lh"><span>Name</span><span>Geändert</span><span>Typ</span><span>Größe</span></div>` +
                 F.map(f => `<button type="button" class="xp-r dir${sel === 'f:' + f.id ? ' sel' : ''}" data-key="f:${e(f.id)}" data-drop="${e(f.id)}"><span class="nm"><i class="fa-solid fa-folder" style="color:#f59e0b"></i>${e(f.name)}</span><span></span><span>Ordner</span><span></span></button>`).join('') +
-                L.map(it => `<button type="button" class="xp-r${sel === it.key ? ' sel' : ''}" data-key="${e(it.key)}" draggable="${it.own ? 'true' : 'false'}"><span class="nm"><i class="fa-solid ${KIND[it.k][0]}" style="color:${KIND[it.k][1]}"></i>${e(it.name)}</span><span>${dt(it.date)}</span><span>${KIND[it.k][2]}</span><span>${size(it.size)}</span></button>`).join('') : empty();
+                L.map(it => `<button type="button" class="xp-r${sel === it.key ? ' sel' : ''}" data-key="${e(it.key)}" draggable="${it.own ? 'true' : 'false'}"><span class="nm"><i class="fa-solid ${KIND[it.k][0]}" style="color:${KIND[it.k][1]}"></i>${e(it.name)}${snip(it) ? `<small class="xp-hit">${hl(snip(it))}</small>` : ''}</span><span>${dt(it.date)}</span><span>${KIND[it.k][2]}</span><span>${size(it.size)}</span></button>`).join('') : empty();
             $q('.xp-used').textContent = `${size(used())} von 100 MB belegt`;
             $q('.xp-sort').value = sort; body.querySelectorAll('[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === mode));
             $q('[data-a="upload"]').disabled = !canUpload(); $q('[data-a="newfolder"]').hidden = view !== 'root';
@@ -331,7 +387,10 @@
             else if (/^Arrow/.test(ev.key)) { const all = [...files.querySelectorAll('[data-key]')], k = all.findIndex(x => x.dataset.key === sel), cols = mode === 'grid' ? Math.max(1, Math.floor(files.clientWidth / 112)) : 1;
                 const d = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: cols, ArrowUp: -cols }[ev.key], nx = all[Math.max(0, Math.min(all.length - 1, (k < 0 ? 0 : k + d)))]; if (nx) { ev.preventDefault(); sel = nx.dataset.key; selUI(); files.querySelector(`[data-key="${CSS.escape(sel)}"]`)?.scrollIntoView({ block: 'nearest' }); } }
         });
-        $q('.xp-q input').addEventListener('input', ev => { q = ev.target.value.trim(); render(); });
+        let ftsT = 0;
+        const deep = () => { clearTimeout(ftsT); if (q.length < 2 || view === 'trash' || !fts.todo().length) return; ftsT = setTimeout(() => { const pr = $q('.xp-prog'), mine = q; let last = 0;
+            fts.index((i, n) => { if (pr) pr.textContent = i < n ? `Inhalte werden durchsucht … ${i}/${n}` : ''; if (Date.now() - last > 600 && q === mine) { last = Date.now(); render(); } }).then(() => { if (pr) pr.textContent = ''; if (q) render(); }); }, 350); };
+        $q('.xp-q input').addEventListener('input', ev => { q = ev.target.value.trim(); render(); deep(); });
         $q('.xp-sort').addEventListener('change', ev => { sort = ev.target.value; API.state().xpSort = sort; API.save(); render(); });
         $q('.xp-file').addEventListener('change', ev => { if (ev.target.files.length) doUpload(ev.target.files); ev.target.value = ''; });
         body.addEventListener('contextmenu', ev => {
@@ -479,7 +538,14 @@
         toDesk: key => toDesk(key),
         unDesk: key => unDesk(key),
         newDeskFolder: () => newFolderNamed(true),
-        saveText, createText, newText, touch,
+        saveText, createText, newText, touch, snapshot,
+        versions: key => { const it = items().find(x => x.key === key); return it && it.src === 'up' ? versionsOf(it.id).slice(0, 5).map(d => ({ id: d.id, at: d.verAt || 0, size: d.size || 0, name: d.name })) : []; },
+        versionBlob: id => { const d = D.docs.find(x => x.id === id && x.status === 'version'); if (!d) return Promise.reject(new Error('Version nicht gefunden.')); return hiddenBlob(d); },
+        templates: ext => hidden('template').filter(d => !ext || (d.name || '').toLowerCase().endsWith('.' + ext)).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'de')).map(d => ({ id: d.id, name: d.name, size: d.size || 0 })),
+        templateBlob: id => { const d = D.docs.find(x => x.id === id && x.status === 'template'); if (!d) return Promise.reject(new Error('Vorlage nicht gefunden.')); return hiddenBlob(d); },
+        saveTemplate: (name, bytes) => putHidden(name, bytes, 'template', {}),
+        deleteTemplate: id => { const d = D.docs.find(x => x.id === id && x.status === 'template'); return d ? removeDoc(id) : Promise.resolve(); },
+        contentHits: (q) => fts.hits(q),
         all: () => items(),
         textFiles: () => items().filter(x => x.own && (x.k === 'txt' || /\.csv$/i.test(x.name))),
         wordFiles: () => items().filter(x => x.own && /\.docx$/i.test(x.name)),

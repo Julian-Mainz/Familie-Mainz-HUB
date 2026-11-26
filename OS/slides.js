@@ -116,7 +116,7 @@
                 </div>
                 <div class="wr-band" data-band="ins" hidden>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-dd="newslide"><i class="fa-solid fa-square-plus"></i><span>Neue Folie</span></button></div><small>Folien</small></div>
-                    <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="imgpc"><i class="fa-solid fa-image"></i><span>Bild vom Computer</span></button><button type="button" class="wr-big" data-c="imgdoc"><i class="fa-solid fa-folder-open"></i><span>Bild aus Dokumenten</span></button><button type="button" class="wr-big" data-dd="shapes"><i class="fa-solid fa-shapes"></i><span>Formen</span></button></div><small>Bilder &amp; Formen</small></div>
+                    <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="imgpc"><i class="fa-solid fa-image"></i><span>Bild vom Computer</span></button><button type="button" class="wr-big" data-c="imgdoc"><i class="fa-solid fa-folder-open"></i><span>Bild aus Dokumenten</span></button><button type="button" class="wr-big" data-c="chart"><i class="fa-solid fa-chart-column"></i><span>Diagramm aus Tabelle</span></button><button type="button" class="wr-big" data-dd="shapes"><i class="fa-solid fa-shapes"></i><span>Formen</span></button></div><small>Bilder &amp; Formen</small></div>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="textbox"><i class="fa-solid fa-font"></i><span>Textfeld</span></button><button type="button" class="wr-big" data-c="date"><i class="fa-solid fa-calendar-day"></i><span>Datum</span></button><button type="button" class="wr-big" data-c="slidenum"><i class="fa-solid fa-hashtag"></i><span>Folien&shy;nummern</span></button></div><small>Text</small></div>
                 </div>
                 <div class="wr-band" data-band="des" hidden>
@@ -402,6 +402,9 @@
         };
         const C = {
             save: () => save(), saveas: () => save(true), dl: download, print, close: () => API.closeWin(win), show0: () => show(0), showCur: () => show(cur),
+            chart: async () => { endEdit(); const f = await JMOFFICE.pickChart(); if (f) { picTarget = null; imageFile(f); } },
+            versions: () => JMOFFICE.versions({ doc, dirty, save: () => save(), reload: () => loadFile() }),
+            saveTpl: () => { endEditKeep(); JMOFFICE.saveTemplate(doc.name, 'pptx', bytes); },
             dupSlide, delSlide: () => delSlide(), textbox, imgpc: () => { picTarget = null; $('.px-fimg').click(); }, imgdoc: () => { picTarget = null; imageDocs(); },
             bold: () => fmt('bold'), italic: () => fmt('italic'), underline: () => fmt('underline'), fore: () => fmt('color', lastFore),
             grow: () => { const z = curRun().sz || 18; fmt('size', SIZES.find(s => s > z) || z + 4); }, shrinkf: () => { const z = curRun().sz || 18; fmt('size', [...SIZES].reverse().find(s => s < z) || Math.max(6, z - 2)); },
@@ -461,7 +464,7 @@
 
         // ---------- Speichern, Laden, Drucken ----------
         const bytes = async () => new Uint8Array(await (await JMPPTX.write(Object.assign({}, deck, { author: U.name || '', title: doc.name.replace(/\.pptx$/i, '') }))).arrayBuffer());
-        async function save(as) {
+        async function save(as, auto) {
             endEditKeep(); if (doc.saving) return;
             if (!window.JMOS_FILES || !can(U, 'dokumente')) return uiAlert('Zum Speichern brauchst du die Berechtigung „Dokumente“. Du kannst die Präsentation aber herunterladen (Datei → Herunterladen).');
             if (!doc.key || as) {
@@ -472,7 +475,8 @@
                 doc.saving = false; title(); stage.focus(); return;
             }
             doc.saving = true; title();
-            try { await JMOS_FILES.saveText(doc.key, await bytes()); doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); try { localStorage.removeItem(DKEY()); } catch (x) {} } catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
+            const was = sig();
+            try { await JMOS_FILES.saveText(doc.key, await bytes(), JMOFFICE.saveOpts()); doc.saved = was; if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); if (!dirty()) try { localStorage.removeItem(DKEY()); } catch (x) {} } catch (x) { if (auto) doc.autoOff = true; uiAlert('Speichern fehlgeschlagen: ' + x.message + (auto ? '\nAutomatisches Speichern ist für dieses Fenster pausiert.' : '')); }
             doc.saving = false; title();
         }
         function askSave(name, folder) {
@@ -492,14 +496,18 @@
             f.contentDocument.open(); f.contentDocument.write(`<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>${e(doc.name.replace(/\.pptx$/i, ''))}</title><style>@page{size:${deck.W}px ${deck.H}px;margin:0} html,body{margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact} .pg{position:relative;width:${deck.W}px;height:${deck.H}px;overflow:hidden;break-after:page;font-family:Calibri,Carlito,sans-serif} ${css}</style></head><body>${deck.slides.map(s => `<div class="pg" style="${slideBg(s)}">${slideHtml(s, false)}</div>`).join('')}</body></html>`); f.contentDocument.close();
             setTimeout(() => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (x) { uiAlert(x.message); } setTimeout(() => f.remove(), 60000); }, 400);
         }
-        const back = $('.wr-back');
+        const back = $('.wr-back'); let bsTab = 'home';
+        async function fromTemplate(id, name) { const b = await JMOFFICE.templateBytes(id); loadDeck(await JMPPTX.read(b.buffer)); doc.key = null; doc.name = (name || 'Präsentation').replace(/\.pptx$/i, '') + '.pptx'; doc.saved = ''; title(); }
+        JMOFFICE.tplClicks({ back, rerender: () => backstage(bsTab), use: async id => { const t = JMOS_FILES.templates('pptx').find(x => x.id === id);
+            if (doc.key || !isEmpty()) { back.hidden = true; return API.openApp('praesentation', { key: 'px:neu' + (++seq), params: { utpl: id, folder: doc.folder } }); }
+            try { await fromTemplate(id, t && t.name); back.hidden = true; } catch (x) { uiAlert('Vorlage nicht lesbar: ' + x.message); } } });
         function backstage(tab) {
             const files = window.JMOS_FILES ? JMOS_FILES.slideFiles().sort((a, b) => (b.date || 0) - (a.date || 0)) : [], fold = Object.fromEntries((window.JMOS_FILES ? JMOS_FILES.folders() : []).map(f => [f.id, f.name]));
-            const NAV = [['home', 'fa-house', 'Start'], ['new', 'fa-file-circle-plus', 'Neu'], ['open', 'fa-folder-open', 'Öffnen'], null, ['save', 'fa-floppy-disk', 'Speichern'], ['saveas', 'fa-file-export', 'Speichern unter'], ['dl', 'fa-download', 'Herunterladen (.pptx)'], ['print', 'fa-file-pdf', 'Als PDF / Drucken'], null, ['close', 'fa-xmark', 'Schließen']];
+            const NAV = [['home', 'fa-house', 'Start'], ['new', 'fa-file-circle-plus', 'Neu'], ['open', 'fa-folder-open', 'Öffnen'], null, ['save', 'fa-floppy-disk', 'Speichern'], ['saveas', 'fa-file-export', 'Speichern unter'], ['versions', 'fa-clock-rotate-left', 'Versionsverlauf'], ['saveTpl', 'fa-bookmark', 'Als Vorlage speichern'], ['dl', 'fa-download', 'Herunterladen (.pptx)'], ['print', 'fa-file-pdf', 'Als PDF / Drucken'], null, ['close', 'fa-xmark', 'Schließen']];
             const tpl = Object.entries(TPL).map(([k, t]) => { const d = DESIGNS[t.d]; return `<button type="button" class="wr-tpl px-tpl" data-tpl="${k}"><span class="px-tpi" style="background:#${d.bg}"><i class="fa-solid ${t.i}" style="color:#${d.acc}"></i><b style="color:#${d.ti}">${e(t.n)}</b></span><b>${e(t.n)}</b></button>`; }).join('');
             const rows = l => l.map(it => `<button type="button" class="wr-fr" data-open="${e(it.key)}"><i class="fa-solid fa-file-powerpoint px-fi"></i><span><b>${e(it.name)}</b><small>${e(it.folder ? fold[it.folder] || 'Ordner' : 'Eigene Dateien')}</small></span><small>${it.date ? new Date(it.date).toLocaleDateString('de-DE') : ''}</small></button>`).join('') || '<p class="wr-none">Noch keine Präsentationen in deinen Dokumenten.</p>';
-            const main = tab === 'new' ? `<h2>Neu</h2><div class="wr-tpls">${tpl}</div>` : tab === 'open' ? `<h2>Öffnen</h2><button type="button" class="btn" data-bs="pc"><i class="fa-solid fa-laptop"></i>Vom Computer öffnen (.pptx)</button><div class="wr-frs">${rows(files)}</div>`
-                : `<h2>${new Date().getHours() < 11 ? 'Guten Morgen' : new Date().getHours() < 18 ? 'Hallo' : 'Guten Abend'}${U.firstName ? ', ' + e(U.firstName) : ''}</h2><div class="wr-tpls">${tpl}</div><h3>Zuletzt bearbeitet</h3><div class="wr-frs">${rows(files.slice(0, 8))}</div>`;
+            bsTab = tab; const main = tab === 'new' ? `<h2>Neu</h2><div class="wr-tpls">${tpl}</div>${JMOFFICE.tplHtml('pptx')}` : tab === 'open' ? `<h2>Öffnen</h2><button type="button" class="btn" data-bs="pc"><i class="fa-solid fa-laptop"></i>Vom Computer öffnen (.pptx)</button><div class="wr-frs">${rows(files)}</div>`
+                : `<h2>${new Date().getHours() < 11 ? 'Guten Morgen' : new Date().getHours() < 18 ? 'Hallo' : 'Guten Abend'}${U.firstName ? ', ' + e(U.firstName) : ''}</h2><div class="wr-tpls">${tpl}</div>${JMOFFICE.tplHtml('pptx')}<h3>Zuletzt bearbeitet</h3><div class="wr-frs">${rows(files.slice(0, 8))}</div>`;
             back.innerHTML = `<nav class="px-nav"><button type="button" class="wr-bk" data-bs="back" aria-label="Zurück"><i class="fa-solid fa-arrow-left"></i></button>${NAV.map(n => n ? `<button type="button" data-bs="${n[0]}" class="${n[0] === tab ? 'on' : ''}"><i class="fa-solid ${n[1]}"></i>${n[2]}</button>` : '<hr>').join('')}</nav><section>${main}</section>`; back.hidden = false;
         }
         const isEmpty = () => !deck.slides.some(s => s.shapes.some(x => x.type === 'image' || (x.type !== 'shape' && !empty(x)))) && deck.slides.length === 1;
@@ -525,7 +533,9 @@
         win.onParams = p => { if (p && p.open && p.open !== doc.key) open(p.open); };
         new ResizeObserver(() => fit()).observe(stage);
 
+        JMOFFICE.autosave({ body, win, doc, dirty, save, busy: () => editing >= 0 || !!doc.autoOff || !back.hidden || !!document.querySelector('.px-show') });
         if (doc.key) { renderAll(); loadFile(); }
+        else if (P.utpl) { loadDeck(deck); doc.saved = sig(); title(); const t = window.JMOS_FILES && JMOS_FILES.templates('pptx').find(x => x.id === P.utpl); fromTemplate(P.utpl, t && t.name).catch(x => uiAlert('Vorlage nicht lesbar: ' + x.message)); }
         else { loadDeck(deck); doc.name = P.tpl && P.tpl !== 'leer' ? TPL[P.tpl].n + '.pptx' : 'Präsentation1.pptx'; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); if (!P.tpl) backstage('home'); title(); }
         setTimeout(() => stage.focus({ preventScroll: true }), 80);
     }

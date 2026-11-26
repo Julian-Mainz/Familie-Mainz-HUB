@@ -13,7 +13,7 @@
     const SPECIAL = '€ § © ® ™ ° ± × ÷ – — „ “ ‚ ‘ » « … • · → ← ↑ ↓ ✓ ✗ ½ ¼ ¾ ² ³ µ ∞ ≈ ≠ ≤ ≥ Ø ♥ ☺'.split(' ');
     const MARGINS = [['Normal', { t: 25, r: 25, b: 20, l: 25 }], ['Schmal', { t: 12.7, r: 12.7, b: 12.7, l: 12.7 }], ['Mittel', { t: 25.4, r: 19.1, b: 25.4, l: 19.1 }], ['Breit', { t: 25.4, r: 50.8, b: 25.4, l: 50.8 }], ['DIN 5008 (Brief)', { t: 27, r: 20, b: 20, l: 25 }]];
     const MM = 3.7795;
-    let seq = 0;
+    let seq = 0; const HAND = {};          // Übergabe an ein neues Fenster (Serienbrief-Ergebnis)
 
     const today = () => new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
     const TPL = {
@@ -80,7 +80,7 @@
             <div class="wr-rib">
                 <div class="wr-tabs" role="tablist">
                     <button type="button" class="wr-file" data-rt="file">Datei</button>
-                    ${[['home', 'Start'], ['ins', 'Einfügen'], ['lay', 'Layout'], ['view', 'Ansicht']].map(([k, n], i) => `<button type="button" role="tab" data-rt="${k}"${i ? '' : ' class="on"'}>${n}</button>`).join('')}
+                    ${[['home', 'Start'], ['ins', 'Einfügen'], ['lay', 'Layout'], ['mail', 'Sendungen'], ['view', 'Ansicht']].map(([k, n], i) => `<button type="button" role="tab" data-rt="${k}"${i ? '' : ' class="on"'}>${n}</button>`).join('')}
                     <span class="wr-fill"></span><span class="wr-sv"></span>
                     <button type="button" class="wr-qs" data-c="save" title="Speichern (Strg+S)"><i class="fa-solid fa-floppy-disk"></i></button>
                 </div>
@@ -106,7 +106,7 @@
                 <div class="wr-band" data-band="ins" hidden>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="pb" title="Seitenumbruch (Strg+Enter)"><i class="fa-solid fa-file-circle-plus"></i><span>Seiten&shy;umbruch</span></button></div><small>Seiten</small></div>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-dd="tbl"><i class="fa-solid fa-table"></i><span>Tabelle <i class="fa-solid fa-chevron-down wr-chev"></i></span></button></div><small>Tabellen</small></div>
-                    <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="imgpc"><i class="fa-solid fa-image"></i><span>Bild vom Computer</span></button><button type="button" class="wr-big" data-c="imgdoc"><i class="fa-solid fa-folder-open"></i><span>Bild aus Dokumenten</span></button></div><small>Illustrationen</small></div>
+                    <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="imgpc"><i class="fa-solid fa-image"></i><span>Bild vom Computer</span></button><button type="button" class="wr-big" data-c="imgdoc"><i class="fa-solid fa-folder-open"></i><span>Bild aus Dokumenten</span></button><button type="button" class="wr-big" data-c="chart"><i class="fa-solid fa-chart-column"></i><span>Diagramm aus Tabelle</span></button></div><small>Illustrationen</small></div>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="link" title="Link (Strg+K)"><i class="fa-solid fa-link"></i><span>Link</span></button></div><small>Links</small></div>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="hr"><i class="fa-solid fa-grip-lines"></i><span>Linie</span></button><button type="button" class="wr-big" data-c="date"><i class="fa-solid fa-calendar-day"></i><span>Datum</span></button><button type="button" class="wr-big" data-dd="sym"><i class="fa-solid fa-paragraph"></i><span>Symbol <i class="fa-solid fa-chevron-down wr-chev"></i></span></button></div><small>Text &amp; Symbole</small></div>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="hdr"><i class="fa-solid fa-heading"></i><span>Kopf&shy;zeile</span></button><button type="button" class="wr-big" data-c="ftr"><i class="fa-solid fa-shoe-prints"></i><span>Fuß&shy;zeile</span></button><button type="button" class="wr-big wr-tg" data-c="pnum"><i class="fa-solid fa-hashtag"></i><span>Seiten&shy;zahlen</span></button></div><small>Kopf- und Fußzeile</small></div>
@@ -115,6 +115,12 @@
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-dd="mar"><i class="fa-solid fa-ruler-combined"></i><span>Seiten&shy;ränder <i class="fa-solid fa-chevron-down wr-chev"></i></span></button><button type="button" class="wr-big wr-tg" data-c="portrait"><i class="fa-solid fa-file"></i><span>Hochformat</span></button><button type="button" class="wr-big wr-tg" data-c="landscape"><i class="fa-solid fa-file fa-rotate-90"></i><span>Querformat</span></button></div><small>Seite einrichten</small></div>
                     <div class="wr-g wr-gform"><div class="wr-gb wr-rows"><label>Kopfzeile<input class="wr-in-h" maxlength="200" placeholder="z. B. Familie Mainz"></label><label>Fußzeile<input class="wr-in-f" maxlength="200" placeholder="z. B. Vertraulich"></label></div><small>Kopf- und Fußzeile</small></div>
                     <div class="wr-g"><div class="wr-gb wr-rows"><div class="wr-row"><span class="wr-lab">Zeilenabstand</span>${['1', '1.15', '1.5', '2'].map(v => `<button type="button" data-lh="${v}">${v.replace('.', ',')}</button>`).join('')}</div><div class="wr-row"><span class="wr-lab">Einzug</span><button type="button" data-c="outdent"><i class="fa-solid fa-outdent"></i></button><button type="button" data-c="indent"><i class="fa-solid fa-indent"></i></button></div></div><small>Absatz</small></div>
+                </div>
+                <div class="wr-band" data-band="mail" hidden>
+                    <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-dd="mmsrc"><i class="fa-solid fa-users"></i><span>Empfänger wählen <i class="fa-solid fa-chevron-down wr-chev"></i></span></button><div class="wr-mminfo">Noch keine Empfänger.<br><small>Eine Tabelle mit Überschriften in der ersten Zeile${window.JMOS_CONTACTS ? ' oder die Kontakte' : ''}.</small></div></div><small>Serienbrief starten</small></div>
+                    <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-dd="mmfield"><i class="fa-solid fa-code"></i><span>Feld einfügen <i class="fa-solid fa-chevron-down wr-chev"></i></span></button></div><small>Felder</small></div>
+                    <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big wr-tg" data-c="mmprev"><i class="fa-solid fa-eye"></i><span>Vorschau</span></button><div class="wr-mmnav"><button type="button" data-c="mmback" aria-label="Vorheriger Empfänger"><i class="fa-solid fa-chevron-left"></i></button><span class="wr-mmpos">–</span><button type="button" data-c="mmfwd" aria-label="Nächster Empfänger"><i class="fa-solid fa-chevron-right"></i></button></div></div><small>Vorschau</small></div>
+                    <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="mmdoc"><i class="fa-solid fa-file-circle-plus"></i><span>Alle Briefe als Dokument</span></button><button type="button" class="wr-big" data-c="mmprint"><i class="fa-solid fa-print"></i><span>Alle drucken</span></button></div><small>Fertigstellen</small></div>
                 </div>
                 <div class="wr-band" data-band="view" hidden>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="zout"><i class="fa-solid fa-magnifying-glass-minus"></i><span>Verkleinern</span></button><button type="button" class="wr-big" data-c="z100"><i class="fa-solid fa-magnifying-glass"></i><span>100 %</span></button><button type="button" class="wr-big" data-c="zin"><i class="fa-solid fa-magnifying-glass-plus"></i><span>Vergrößern</span></button><button type="button" class="wr-big" data-c="zfit"><i class="fa-solid fa-arrows-left-right"></i><span>Seiten&shy;breite</span></button></div><small>Zoom</small></div>
@@ -139,6 +145,7 @@
         const $ = s => body.querySelector(s), page = $('.wr-page'), sheet = $('.wr-sheet'), scroll = $('.wr-scroll'), pop = $('.wr-pop');
         try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch (x) {}
         let zoom = 100, lastFore = 'C00000', lastHil = 'FFFF00', savedRange = null;
+        const mm = { src: null, name: '', fields: [], rows: [], i: 0, preview: false, orig: null };          // Serienbrief
 
         // ---------- Auswahl merken (Menüband-Knöpfe stehlen sonst den Fokus) ----------
         const inPage = n => n && (n === page || page.contains(n));
@@ -243,8 +250,48 @@
             zin: () => setZoom(zoom + 10), zout: () => setZoom(zoom - 10), z100: () => setZoom(100), zfit: () => setZoom(Math.floor((scroll.clientWidth - 40) / (sheet.offsetWidth) * 100)),
             focus: () => { body.querySelector('.wr').classList.toggle('focus'); reflect(); }, marks: () => { body.querySelector('.wr').classList.toggle('marks'); reflect(); },
             count: () => { const t = page.innerText, w = (t.match(/\S+/g) || []).length; uiAlert(`Seiten: ${pages()}\nWörter: ${w.toLocaleString('de-DE')}\nZeichen (ohne Leerzeichen): ${t.replace(/\s/g, '').length.toLocaleString('de-DE')}\nZeichen (mit Leerzeichen): ${t.replace(/\n/g, '').length.toLocaleString('de-DE')}\nAbsätze: ${page.querySelectorAll('p,h1,h2,h3,h4,li,blockquote').length}`); },
-            save: () => save(), saveas: () => save(true), dl: download, print, close: () => API.closeWin(win),
+            save: () => save(), saveas: () => save(true), dl: download, print: () => print(), close: () => API.closeWin(win),
+            chart: async () => { const f = await JMOFFICE.pickChart(); if (f) { restoreSel(); imageFromFile(f); } },
+            versions: () => JMOFFICE.versions({ doc, dirty, save: () => save(), reload: () => loadFile() }),
+            saveTpl: () => JMOFFICE.saveTemplate(doc.name, 'docx', bytes),
+            mmprev: () => { if (!mm.rows.length) return uiAlert('Wähle zuerst die Empfänger (Sendungen → Empfänger wählen).'); mmPreview(!mm.preview); },
+            mmback: () => { if (!mm.rows.length) return; mm.i = (mm.i - 1 + mm.rows.length) % mm.rows.length; if (mm.preview) mmShow(); mmInfo(); },
+            mmfwd: () => { if (!mm.rows.length) return; mm.i = (mm.i + 1) % mm.rows.length; if (mm.preview) mmShow(); mmInfo(); },
+            mmdoc: () => { const h = mmAll(); if (!h) return; const id = 'h' + Date.now().toString(36); HAND[id] = { html: h, st: JSON.parse(JSON.stringify(doc.st)), name: doc.name.replace(/\.docx$/i, '') + ' – Serienbrief.docx' }; API.openApp('writer', { key: 'wr:neu' + (++seq), params: { hand: id, folder: doc.folder } }); },
+            mmprint: () => { const h = mmAll(); if (h) print(h); },
         };
+
+        // ---------- Serienbrief: Felder «Name» werden mit den Zeilen einer Tabelle (oder den Kontakten) gefüllt ----------
+        const FIELD = /«([^«»\n]{1,60})»/g;
+        function mmValue(row, f) { if (f in row) return row[f]; const k = Object.keys(row).find(x => x.toLowerCase() === f.trim().toLowerCase()); return k ? row[k] : ''; }
+        function mmMerge(html, row) {
+            const box = document.createElement('div'); box.innerHTML = html;
+            const w = document.createTreeWalker(box, NodeFilter.SHOW_TEXT), list = []; let n; while ((n = w.nextNode())) if (n.nodeValue.includes('«')) list.push(n);
+            list.forEach(t => { t.nodeValue = t.nodeValue.replace(FIELD, (m, f) => mmValue(row, f)); });
+            return box.innerHTML;
+        }
+        function mmAll() {
+            if (!mm.rows.length) { uiAlert('Wähle zuerst die Empfänger (Sendungen → Empfänger wählen).'); return null; }
+            const src = mm.preview ? mm.orig : page.innerHTML; if (!FIELD.test(src.replace(/<[^>]+>/g, ''))) { FIELD.lastIndex = 0; uiAlert('Im Brief steht noch kein Feld. Setze den Cursor an die Stelle und wähle „Feld einfügen“.'); return null; } FIELD.lastIndex = 0;
+            return mm.rows.map(r => mmMerge(src, r)).join('<div class="wr-pb" contenteditable="false"></div>');
+        }
+        function mmShow() { page.innerHTML = mmMerge(mm.orig, mm.rows[mm.i] || {}); }
+        function mmPreview(on) {
+            if (on === mm.preview) return;
+            if (on) { mm.orig = page.innerHTML; mm.preview = true; mmShow(); page.contentEditable = 'false'; }
+            else { page.innerHTML = mm.orig; mm.orig = null; mm.preview = false; page.contentEditable = 'true'; }
+            body.querySelector('.wr').classList.toggle('mmprev', mm.preview); reflect(); mmInfo(); status();
+        }
+        function mmInfo() {
+            $('.wr-mmpos').textContent = mm.rows.length ? `${mm.i + 1} / ${mm.rows.length}` : '–';
+            $('.wr-mminfo').innerHTML = mm.src ? `<b>${e(mm.name)}</b><br><small>${mm.rows.length} ${mm.rows.length === 1 ? 'Empfänger' : 'Empfänger'} · ${mm.fields.length} Felder</small>` : `Noch keine Empfänger.<br><small>Eine Tabelle mit Überschriften in der ersten Zeile${window.JMOS_CONTACTS ? ' oder die Kontakte' : ''}.</small>`;
+        }
+        async function mmLoad(id) {
+            const s = JMOFFICE.sources().find(x => x.id === id); $('.wr-mminfo').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Wird gelesen …';
+            try { const r = await JMOFFICE.records(id); if (!r.rows.length) throw new Error('In der Tabelle stehen unter der Überschriftenzeile keine Einträge.'); Object.assign(mm, { src: id, name: s ? s.name : id, fields: r.fields, rows: r.rows, i: 0 }); if (mm.preview) mmShow(); }
+            catch (x) { uiAlert('Empfänger konnten nicht gelesen werden: ' + x.message); }
+            mmInfo();
+        }
 
         // ---------- Aufklapp-Menüs ----------
         function showPop(btn, html, onClick) {
@@ -254,6 +301,10 @@
         }
         const swatches = (list, none) => `<div class="wr-sw">${list.map(c => c ? `<button type="button" data-v="${c}" style="background:#${c}" title="#${c}"></button>` : '').join('')}</div>${none ? `<button type="button" class="wr-pi" data-v="">${none}</button>` : ''}`;
         const DD = {
+            mmsrc: b => { const list = JMOFFICE.sources(); if (!list.length) return uiAlert('Lege zuerst in „Tabellen“ eine Liste an: erste Zeile Überschriften (z. B. Vorname, Nachname, Straße, PLZ, Ort), darunter je Empfänger eine Zeile. Speichern – dann hier auswählen.');
+                showPop(b, `<b class="wr-ph">Empfänger aus …</b><div class="wr-pl">${list.map(x => `<button type="button" class="wr-pi" data-v="${e(x.id)}"><i class="fa-solid ${x.icon}" style="color:${x.c}"></i>${e(x.name)}</button>`).join('')}</div>`, v => mmLoad(v)); },
+            mmfield: b => { if (!mm.fields.length) return uiAlert('Wähle zuerst die Empfänger – dann stehen hier die Spalten (z. B. Vorname, Straße) als Felder bereit.'); if (mm.preview) mmPreview(false);
+                showPop(b, `<b class="wr-ph">Feld einfügen</b><div class="wr-pl">${mm.fields.map(f => `<button type="button" class="wr-pi" data-v="${e(f)}"><i class="fa-solid fa-code"></i>${e(f)}</button>`).join('')}</div>`, v => act(() => ex('insertText', '«' + v + '»'))); },
             col: b => showPop(b, '<b class="wr-ph">Schriftfarbe</b>' + swatches(PAL, '<i class="fa-solid fa-droplet-slash"></i>Automatisch (Schwarz)'), v => { lastFore = v || '000000'; $('.wr-fbar').style.background = '#' + lastFore; act(() => ex('foreColor', '#' + lastFore)); }),
             hil: b => showPop(b, '<b class="wr-ph">Hervorheben</b>' + swatches(HIL, '<i class="fa-solid fa-droplet-slash"></i>Keine Farbe'), v => { lastHil = v; $('.wr-hbar').style.background = v ? '#' + v : 'transparent'; act(() => ex('hiliteColor', v ? '#' + v : 'transparent')); }),
             lh: b => showPop(b, ['1', '1.15', '1.5', '2', '2.5', '3'].map(v => `<button type="button" class="wr-pi" data-v="${v}">${v.replace('.', ',')}</button>`).join(''), v => act(() => lineH(v))),
@@ -285,6 +336,7 @@
 
         // Zustand im Menüband anzeigen
         function reflect() {
+            const mp = body.querySelector('[data-c="mmprev"]'); if (mp) mp.classList.toggle('on', mm.preview);
             const q = c => { try { return document.queryCommandState(c); } catch (x) { return false; } };
             ['bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'insertUnorderedList', 'insertOrderedList', 'justifyCenter', 'justifyRight', 'justifyFull'].forEach(c => body.querySelectorAll(`[data-c="${c}"]`).forEach(b => b.classList.toggle('on', q(c))));
             const s = getSelection(), n = s.anchorNode && (s.anchorNode.nodeType === 1 ? s.anchorNode : s.anchorNode.parentElement);
@@ -442,8 +494,8 @@
             const blob = await JMDOCX.write(page, Object.assign({}, doc.st, { author: U.name || '' }));
             return new Uint8Array(await blob.arrayBuffer());
         }
-        async function save(as) {
-            if (doc.saving) return;
+        async function save(as, auto) {
+            if (doc.saving) return; if (mm.preview) mmPreview(false);
             if (!window.JMOS_FILES || !can(U, 'dokumente')) return uiAlert('Zum Speichern brauchst du die Berechtigung „Dokumente“. Du kannst das Dokument aber herunterladen (Datei → Herunterladen).');
             if (!doc.key || as) {
                 const firstLine = (page.innerText || '').split('\n').map(s => s.trim()).find(Boolean) || 'Dokument';
@@ -455,8 +507,9 @@
                 doc.saving = false; title(); return;
             }
             doc.saving = true; status();
-            try { const b = await bytes(); await JMOS_FILES.saveText(doc.key, b); doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); try { localStorage.removeItem(DKEY()); } catch (x) {} }
-            catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
+            const was = sig();
+            try { const b = await bytes(); await JMOS_FILES.saveText(doc.key, b, JMOFFICE.saveOpts()); doc.saved = was; if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); if (!dirty()) try { localStorage.removeItem(DKEY()); } catch (x) {} }
+            catch (x) { if (auto) doc.autoOff = true; uiAlert('Speichern fehlgeschlagen: ' + x.message + (auto ? '\nAutomatisches Speichern ist für dieses Fenster pausiert.' : '')); }
             doc.saving = false; title();
         }
         function askSave(name, folder) {
@@ -488,7 +541,7 @@
             try { const b = await bytes(), a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([b], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })), download: doc.name });
                 document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); } catch (x) { uiAlert(x.message); }
         }
-        function print() {
+        function print(content) {
             const m = doc.st.margins, land = doc.st.orient === 'landscape', st = doc.st;
             const css = getComputedStyle(page), f = document.createElement('iframe'); f.style.cssText = 'position:fixed;width:0;height:0;border:0;left:-9999px'; document.body.appendChild(f);
             const sheetCss = [...document.styleSheets].map(s => { try { return [...s.cssRules].filter(r => r.selectorText && /\.wr-page|\.wr-content/.test(r.selectorText)).map(r => r.cssText.replace(/\.wr-page/g, '.wr-content')).join('\n'); } catch (x) { return ''; } }).join('\n');
@@ -499,26 +552,34 @@
                 .wr-content { outline: 0; } .ph-h, .ph-f { font: 9pt Calibri, Carlito, Arial, sans-serif; color: #595959; text-align: center; } .ph-h { padding-bottom: 6mm; } .ph-f { padding-top: 6mm; }
                 table.wr-pt { width: 100%; border-collapse: collapse; } table.wr-pt > * > tr > td { padding: 0; border: 0; }
                 .wr-pb { break-after: page; height: 0; border: 0; margin: 0; } .wr-pb::after { display: none; }
-            </style></head><body><table class="wr-pt"><thead><tr><td>${hf(st.header, 'ph-h')}</td></tr></thead><tfoot><tr><td>${hf(st.footer, 'ph-f')}</td></tr></tfoot><tbody><tr><td><div class="wr-content">${page.innerHTML}</div></td></tr></tbody></table></body></html>`);
+            </style></head><body><table class="wr-pt"><thead><tr><td>${hf(st.header, 'ph-h')}</td></tr></thead><tfoot><tr><td>${hf(st.footer, 'ph-f')}</td></tr></tfoot><tbody><tr><td><div class="wr-content">${typeof content === 'string' ? content : page.innerHTML}</div></td></tr></tbody></table></body></html>`);
             f.contentDocument.close();
             setTimeout(() => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (x) { uiAlert('Drucken nicht möglich: ' + x.message); } setTimeout(() => f.remove(), 60000); }, 350);
         }
 
         // ---------- Datei-Menü (Backstage) ----------
         const back = $('.wr-back');
-        function backstage(tab) {
+        let backstage = function (tab) {
             const files = window.JMOS_FILES ? JMOS_FILES.wordFiles().sort((a, b) => (b.date || 0) - (a.date || 0)) : [];
             const fold = Object.fromEntries((window.JMOS_FILES ? JMOS_FILES.folders() : []).map(f => [f.id, f.name]));
-            const NAV = [['home', 'fa-house', 'Start'], ['new', 'fa-file-circle-plus', 'Neu'], ['open', 'fa-folder-open', 'Öffnen'], null, ['save', 'fa-floppy-disk', 'Speichern'], ['saveas', 'fa-file-export', 'Speichern unter'], ['dl', 'fa-download', 'Herunterladen (.docx)'], ['print', 'fa-print', 'Drucken / PDF'], null, ['close', 'fa-xmark', 'Schließen']];
+            const NAV = [['home', 'fa-house', 'Start'], ['new', 'fa-file-circle-plus', 'Neu'], ['open', 'fa-folder-open', 'Öffnen'], null, ['save', 'fa-floppy-disk', 'Speichern'], ['saveas', 'fa-file-export', 'Speichern unter'], ['versions', 'fa-clock-rotate-left', 'Versionsverlauf'], ['saveTpl', 'fa-bookmark', 'Als Vorlage speichern'], ['dl', 'fa-download', 'Herunterladen (.docx)'], ['print', 'fa-print', 'Drucken / PDF'], null, ['close', 'fa-xmark', 'Schließen']];
             const tplHtml = Object.entries(TPL).map(([k, t]) => `<button type="button" class="wr-tpl" data-tpl="${k}"><span class="wr-tpi"><i class="fa-solid ${t.i}"></i></span><b>${e(t.n)}</b></button>`).join('');
             const fileRows = list => list.map(it => `<button type="button" class="wr-fr" data-open="${e(it.key)}"><i class="fa-solid fa-file-word"></i><span><b>${e(it.name)}</b><small>${e(it.folder ? fold[it.folder] || 'Ordner' : 'Eigene Dateien')}</small></span><small>${it.date ? new Date(it.date).toLocaleDateString('de-DE') : ''}</small></button>`).join('') || '<p class="wr-none">Noch keine Word-Dokumente in deinen Dokumenten.</p>';
-            const main = tab === 'new' ? `<h2>Neu</h2><div class="wr-tpls">${tplHtml}</div>`
+            const main = tab === 'new' ? `<h2>Neu</h2><div class="wr-tpls">${tplHtml}</div>${JMOFFICE.tplHtml('docx')}`
                 : tab === 'open' ? `<h2>Öffnen</h2><button type="button" class="btn" data-bs="pc"><i class="fa-solid fa-laptop"></i>Vom Computer öffnen (.docx)</button><div class="wr-frs">${fileRows(files)}</div>`
-                : `<h2>${new Date().getHours() < 11 ? 'Guten Morgen' : new Date().getHours() < 18 ? 'Hallo' : 'Guten Abend'}${U.firstName ? ', ' + e(U.firstName) : ''}</h2><div class="wr-tpls">${tplHtml}</div><h3>Zuletzt bearbeitet</h3><div class="wr-frs">${fileRows(files.slice(0, 8))}</div>`;
+                : `<h2>${new Date().getHours() < 11 ? 'Guten Morgen' : new Date().getHours() < 18 ? 'Hallo' : 'Guten Abend'}${U.firstName ? ', ' + e(U.firstName) : ''}</h2><div class="wr-tpls">${tplHtml}</div>${JMOFFICE.tplHtml('docx')}<h3>Zuletzt bearbeitet</h3><div class="wr-frs">${fileRows(files.slice(0, 8))}</div>`;
             back.innerHTML = `<nav><button type="button" class="wr-bk" data-bs="back" aria-label="Zurück"><i class="fa-solid fa-arrow-left"></i></button>${NAV.map(n => n ? `<button type="button" data-bs="${n[0]}" class="${n[0] === tab ? 'on' : ''}"><i class="fa-solid ${n[1]}"></i>${n[2]}</button>` : '<hr>').join('')}</nav><section>${main}</section>`;
             back.hidden = false;
-        }
+        };
         function backstageClose() { back.hidden = true; page.focus(); }
+        let bsTab = 'home'; const bs0 = backstage; backstage = t => { bsTab = t; bs0(t); };
+        async function fromTemplate(id, name) {
+            const b = await JMOFFICE.templateBytes(id), r = await JMDOCX.read(b.buffer);
+            loadDoc(r.html, r.settings); doc.key = null; doc.name = (name || 'Dokument').replace(/\.docx$/i, '') + '.docx'; doc.saved = ''; title(); changed(true);
+        }
+        JMOFFICE.tplClicks({ back, rerender: () => backstage(bsTab), use: async id => { const t = JMOS_FILES.templates('docx').find(x => x.id === id);
+            if (doc.key || page.innerText.trim()) { backstageClose(); return API.openApp('writer', { key: 'wr:neu' + (++seq), params: { utpl: id, folder: doc.folder } }); }
+            try { await fromTemplate(id, t && t.name); backstageClose(); } catch (x) { uiAlert('Vorlage nicht lesbar: ' + x.message); } } });
         back.addEventListener('click', async ev => {
             const b = ev.target.closest('[data-bs]'), t = ev.target.closest('[data-tpl]'), o = ev.target.closest('[data-open]');
             if (t) { if (dirty() && page.innerText.trim() && !(await uiConfirm('Das aktuelle Dokument hat ungespeicherte Änderungen. Trotzdem eine neue Vorlage laden?', { danger: true, ok: 'Verwerfen' }))) return;
@@ -546,7 +607,7 @@
             } catch (x) { page.contentEditable = 'true'; page.innerHTML = `<p><b>Das Dokument lässt sich nicht öffnen.</b></p><p>${e(x.message)}</p>`; doc.key = null; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); }
             title();
         }
-        win.beforeClose = () => dirty() && (doc.key || page.innerText.trim()) ? `„${doc.name}“ hat ungespeicherte Änderungen. Trotzdem schließen?` : '';
+        win.beforeClose = () => (mm.preview && mmPreview(false), 0) || dirty() && (doc.key || page.innerText.trim()) ? `„${doc.name}“ hat ungespeicherte Änderungen. Trotzdem schließen?` : '';
         win.onClose = () => { clearTimeout(tDraft); try { localStorage.removeItem(DKEY()); } catch (x) {}          // Schließen = gespeichert oder bewusst verworfen
             document.removeEventListener('selectionchange', onSel); };
         win.onParams = p => { if (p && p.open && p.open !== doc.key) open(p.open); };
@@ -561,8 +622,11 @@
         });
         new ResizeObserver(() => { status(); placeIb(); }).observe(page);
 
+        JMOFFICE.autosave({ body, win, doc, dirty, save, busy: () => mm.preview || !!doc.autoOff || !back.hidden });
         setZoom(win.el.offsetWidth < 900 ? 80 : 100);
         if (doc.key) loadFile();
+        else if (P.hand && HAND[P.hand]) { const h = HAND[P.hand]; delete HAND[P.hand]; loadDoc(h.html, h.st); doc.name = h.name; doc.saved = ''; title(); }
+        else if (P.utpl) { const t = window.JMOS_FILES && JMOS_FILES.templates('docx').find(x => x.id === P.utpl); loadDoc('<p><br></p>', {}); doc.saved = sig(); title(); fromTemplate(P.utpl, t && t.name).catch(x => uiAlert('Vorlage nicht lesbar: ' + x.message)); }
         else {
             const tp = TPL[P.tpl] || TPL.leer; loadDoc(tp.html(), tp.st || {}); doc.name = P.tpl && P.tpl !== 'leer' ? tp.n + '.docx' : 'Dokument1.docx'; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name);
             let d = null; try { d = JSON.parse(localStorage.getItem(DKEY()) || 'null'); } catch (x) {}

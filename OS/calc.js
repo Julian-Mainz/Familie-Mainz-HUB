@@ -7,6 +7,7 @@
     let API, U, e;
     const S = () => window.JMSHEET;
     const RH = 24, HH = 26, HW = 48, DEFW = 96;
+    const CC = a => (a || []).map(c => Object.assign({}, c, c.src ? { src: Object.assign({}, c.src) } : {}));          // Diagramme kopieren
     const PAL = ['000000', '404040', '7F7F7F', 'BFBFBF', 'FFFFFF', 'C00000', 'FF0000', 'FFC000', 'FFFF00', '92D050', '00B050', '00B0F0', '0070C0', '002060', '7030A0', '1F4E78', 'C55A11', '548235', 'BF8F00', '833C0B'];
     const FILLS = ['', 'F2F2F2', 'D9D9D9', 'DDEBF7', 'E2EFDA', 'FFF2CC', 'FCE4D6', 'EDE2F6', 'BDD7EE', 'C6E0B4', 'FFE699', 'F8CBAD', '9BC2E6', 'A9D08E', 'FFD966', 'F4B084', '5B9BD5', '70AD47', 'FFC000', 'ED7D31'];
     const FMTS = [['gen', 'Standard', '123,4'], ['num', 'Zahl', '1.234,50'], ['cur', 'Währung', '1.234,50 €'], ['pct', 'Prozent', '12 %'], ['date', 'Datum', '26.11.2026'], ['time', 'Uhrzeit', '8:30'], ['int', 'Ganze Zahl', '1.235']];
@@ -73,6 +74,7 @@
                 <div class="wr-band" data-band="ins" hidden>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="insRow"><i class="fa-solid fa-grip-lines"></i><span>Zeile einfügen</span></button><button type="button" class="wr-big" data-c="insCol"><i class="fa-solid fa-grip-lines-vertical"></i><span>Spalte einfügen</span></button><button type="button" class="wr-big" data-c="addSheet"><i class="fa-solid fa-file-circle-plus"></i><span>Neues Blatt</span></button></div><small>Zellen &amp; Blätter</small></div>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="today"><i class="fa-solid fa-calendar-day"></i><span>Heutiges Datum</span></button><button type="button" class="wr-big" data-c="now"><i class="fa-solid fa-clock"></i><span>Uhrzeit</span></button></div><small>Werte</small></div>
+                    <div class="wr-g"><div class="wr-gb">${Object.entries(JMCHART.TYPES).map(([k, [n, i]]) => `<button type="button" class="wr-big" data-chart="${k}" title="${n}diagramm aus der Auswahl"><i class="fa-solid ${i}"></i><span>${n}</span></button>`).join('')}</div><small>Diagramme</small></div>
                 </div>
                 <div class="wr-band" data-band="form" hidden>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="fnDlg"><i class="fa-solid fa-square-root-variable"></i><span>Funktion einfügen</span></button>${[['SUMME', 'Σ', 'Summe'], ['MITTELWERT', 'Ø', 'Mittelwert'], ['ANZAHL', '#', 'Anzahl'], ['MAX', '↑', 'Maximum'], ['MIN', '↓', 'Minimum']].map(([f, i, n]) => `<button type="button" class="wr-big" data-auto="${f}"><b class="cx-bigsym">${i}</b><span>${n}</span></button>`).join('')}</div><small>Funktionen</small></div>
@@ -89,7 +91,7 @@
                 </div>
             </div>
             <div class="cx-fbar"><input class="cx-name" aria-label="Zelle" spellcheck="false"><span class="cx-fxi">ƒx</span><input class="cx-fx" aria-label="Inhalt der Zelle" spellcheck="false" autocomplete="off"></div>
-            <div class="cx-grid" tabindex="-1"><div class="cx-in"><div class="cx-hr"></div><div class="cx-rows"></div><div class="cx-sel"><div class="cx-act"></div><div class="cx-fh"></div></div><div class="cx-cp" hidden></div><textarea class="cx-ed" spellcheck="false" hidden></textarea><div class="cx-ac" hidden></div></div></div>
+            <div class="cx-grid" tabindex="-1"><div class="cx-in"><div class="cx-hr"></div><div class="cx-rows"></div><div class="cx-charts"></div><div class="cx-sel"><div class="cx-act"></div><div class="cx-fh"></div></div><div class="cx-cp" hidden></div><textarea class="cx-ed" spellcheck="false" hidden></textarea><div class="cx-ac" hidden></div></div></div>
             <div class="cx-tabs"><button type="button" class="cx-add" data-c="addSheet" title="Neues Blatt"><i class="fa-solid fa-plus"></i></button><div class="cx-tl"></div></div>
             <div class="wr-st"><span class="cx-mode">Bereit</span><span class="wr-fill"></span><span class="cx-agg"></span><button type="button" data-c="zout" aria-label="Verkleinern"><i class="fa-solid fa-minus"></i></button><input type="range" class="wr-zr" min="50" max="200" step="10" value="100" aria-label="Zoom"><button type="button" data-c="zin" aria-label="Vergrößern"><i class="fa-solid fa-plus"></i></button><span class="wr-zv">100 %</span></div>
             <textarea class="cx-kb" aria-label="Tabelle" spellcheck="false"></textarea>
@@ -151,7 +153,52 @@
             for (let r = fr - 1; r >= 0; r--) out.unshift(`<div class="cx-r cx-frz" style="${r === 0 ? 'margin-top:' + HH + 'px;' : ''}top:${HH + r * RH}px" data-row="${r}"><div class="cx-rn">${r + 1}</div>${Array.from({ length: NC }, (_, c) => cellHtml(r, c)).join('')}</div>`);
             rowsEl.innerHTML = out.join('');
             body.querySelector('.tbx').classList.toggle('frz', fr > 0); inner.style.setProperty('--frz', fr);
-            placeSel(); headSel();
+            placeSel(); headSel(); drawCharts();
+        }
+        // ---------- Diagramme ----------
+        let selC = null, chSig = '';
+        const chartModel = ch => ch.src ? JMCHART.data(ch, (r, c) => { const x = sh().cells.get(r + ',' + c); return x ? val(si, r, c) : null; }) : { type: ch.type, title: ch.title, cats: (ch.cache || {}).cats || [], series: (ch.cache || {}).series || [] };
+        const chartPos = ch => ({ x: HW + (colX[ch.c] != null ? colX[ch.c] : colX[colX.length - 1] + (ch.c - colX.length + 1) * DEFW) + (ch.ox || 0), y: HH + ch.r * RH + (ch.oy || 0) });
+        function drawCharts() {
+            const list = sh().charts || [], box = $('.cx-charts'); if (selC != null && !list[selC]) selC = null;
+            const parts = list.map((ch, i) => { const m = chartModel(ch), p = chartPos(ch); return { i, m, p, ch, k: JSON.stringify([m, p, ch.w, ch.h, selC === i]) }; }), sg = si + '|' + parts.map(x => x.k).join('|');
+            if (sg === chSig) return; chSig = sg;
+            box.innerHTML = parts.map(({ i, m, p, ch }) => `<div class="cx-chart${selC === i ? ' on' : ''}" data-ci="${i}" style="left:${p.x}px;top:${p.y}px;width:${ch.w}px;height:${ch.h}px">${JMCHART.svg(m, ch.w, ch.h)}<i class="cx-crz" data-crz="${i}"></i></div>`).join('');
+        }
+        function chartSet(fn) { snapOp(fn); chSig = ''; }
+        function addChart(type) {
+            if (ed && !commit()) return; let a = norm(); if (a.r1 === a.r2 && a.c1 === a.c2) a = region();
+            const probe = JMCHART.data({ type, src: a }, (r, c) => sh().cells.get(r + ',' + c) ? val(si, r, c) : null);
+            if (!probe.series.some(x => x.vals.some(v => v != null))) return uiAlert('Markiere zuerst die Zahlen für das Diagramm – am besten mit Überschriften in der ersten Zeile und Beschriftungen in der ersten Spalte (z. B. Monat | Einnahmen | Ausgaben).');
+            const ch = { type, title: probe.series.length === 1 ? probe.series[0].name.replace(/^Reihe 1$/, '') : '', src: { r1: a.r1, c1: a.c1, r2: a.r2, c2: a.c2 }, c: a.c2 + 2, r: a.r1, ox: 0, oy: 0, w: 480, h: 288 };
+            chartSet(() => { sh().charts = sh().charts || []; sh().charts.push(ch); }); selC = sh().charts.length - 1; chSig = ''; paint();
+            const p = chartPos(ch); if (p.x + ch.w > grid.scrollLeft / (zoom / 100) + grid.clientWidth / (zoom / 100)) grid.scrollLeft = Math.max(0, (p.x - 60) * zoom / 100);
+        }
+        async function chartBlob(i) { const ch = sh().charts[i]; return JMCHART.png(chartModel(ch), ch.w, ch.h); }
+        async function chartCopy(i) {
+            try { const b = await chartBlob(i); await navigator.clipboard.write([new ClipboardItem({ 'image/png': b })]); JMOFFICE.flash('Diagramm kopiert – in Writer oder Präsentation mit Strg+V einfügen'); }
+            catch (x) { uiAlert('Der Browser erlaubt das Kopieren von Bildern hier nicht. Tipp: In Writer oder Präsentation „Einfügen → Diagramm aus Tabelle“ wählen (dazu die Mappe speichern).'); }
+        }
+        async function chartTitle(i) { const ch = sh().charts[i]; const v = await ask('Diagrammtitel', ch.title || '', 'Übernehmen'); if (v == null) return; chartSet(() => { sh().charts[i] = Object.assign({}, ch, { title: v.slice(0, 120) }); }); paint(); }
+        function chartMenu(ev, i) {
+            selC = i; chSig = ''; paint(); const ch = sh().charts[i];
+            API.ctx(ev.clientX, ev.clientY, [...Object.entries(JMCHART.TYPES).map(([k, [n, ic]]) => [ic, (ch.type === k ? '✓ ' : '') + n + 'diagramm', () => { chartSet(() => { sh().charts[i] = Object.assign({}, ch, { type: k }); }); paint(); }]), null,
+                ['fa-heading', 'Titel ändern …', () => chartTitle(i)],
+                ['fa-table-cells', 'Daten = aktuelle Auswahl', () => { const a = norm(); if (a.r1 === a.r2 && a.c1 === a.c2) return uiAlert('Markiere zuerst den neuen Datenbereich in der Tabelle (Klick ins Diagramm hebt die Auswahl nicht auf).'); chartSet(() => { sh().charts[i] = Object.assign({}, ch, { src: { r1: a.r1, c1: a.c1, r2: a.r2, c2: a.c2 } }); }); paint(); }],
+                null, ['fa-copy', 'Als Bild kopieren', () => chartCopy(i)], ['fa-download', 'Als Bild herunterladen (PNG)', async () => { try { dlBlob(await chartBlob(i), (ch.title || 'Diagramm').replace(/[\\/:*?"<>|]+/g, '_') + '.png'); } catch (x) { uiAlert(x.message); } }],
+                null, ['fa-trash-can', 'Diagramm löschen', () => { chartSet(() => { sh().charts.splice(i, 1); }); selC = null; paint(); }]]);
+        }
+        function chartDown(ev, el) {
+            ev.preventDefault(); ev.stopPropagation(); if (ed && !commit()) return; const i = +el.dataset.ci, ch = sh().charts[i], z = zoom / 100, rz = ev.target.closest('[data-crz]');
+            selC = i; chSig = ''; paint(); kb.focus({ preventScroll: true });
+            const x0 = ev.clientX, y0 = ev.clientY, p0 = chartPos(ch), w0 = ch.w, h0 = ch.h; let moved = false, before = null;
+            const mv = m => { const dx = (m.clientX - x0) / z, dy = (m.clientY - y0) / z; if (!moved && Math.abs(dx) + Math.abs(dy) < 3) return; if (!moved) { moved = true; before = book.sheets.map(s => ({ name: s.name, cells: new Map(s.cells), cols: Object.assign({}, s.cols), freeze: s.freeze, charts: CC(s.charts) })); }
+                if (rz) { ch.w = Math.max(160, Math.round(w0 + dx)); ch.h = Math.max(120, Math.round(h0 + dy)); }
+                else { const x = Math.max(HW, p0.x + dx) - HW, y = Math.max(HH, p0.y + dy) - HH; let c = 0; while (c < colX.length - 2 && colX[c + 1] <= x) c++; ch.c = c; ch.ox = Math.round(x - colX[c]); ch.r = Math.floor(y / RH); ch.oy = Math.round(y - ch.r * RH); }
+                const d = el.style; const p = chartPos(ch); d.left = p.x + 'px'; d.top = p.y + 'px'; if (rz) { d.width = ch.w + 'px'; d.height = ch.h + 'px'; } };
+            const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); if (!moved) return;
+                const after = book.sheets.map(s => ({ name: s.name, cells: new Map(s.cells), cols: Object.assign({}, s.cols), freeze: s.freeze, charts: CC(s.charts) })); hist.st = hist.st.slice(0, hist.i + 1); hist.st.push({ snap: [before, after] }); hist.i = hist.st.length - 1; chSig = ''; changed(true); };
+            addEventListener('pointermove', mv); addEventListener('pointerup', up);
         }
         function placeSel() {
             const a = norm(), x = HW + colX[a.c1], y = HH + a.r1 * RH, w = colX[a.c2 + 1] - colX[a.c1], hh = (a.r2 - a.r1 + 1) * RH;
@@ -187,22 +234,22 @@
             changed();
         }
         function snapOp(fn) {                       // für Strukturänderungen: alle Blätter sichern
-            const before = book.sheets.map(s => ({ name: s.name, cells: new Map(s.cells), cols: Object.assign({}, s.cols), freeze: s.freeze })); fn();
-            const after = book.sheets.map(s => ({ name: s.name, cells: new Map(s.cells), cols: Object.assign({}, s.cols), freeze: s.freeze }));
+            const before = book.sheets.map(s => ({ name: s.name, cells: new Map(s.cells), cols: Object.assign({}, s.cols), freeze: s.freeze, charts: CC(s.charts) })); fn();
+            const after = book.sheets.map(s => ({ name: s.name, cells: new Map(s.cells), cols: Object.assign({}, s.cols), freeze: s.freeze, charts: CC(s.charts) }));
             hist.st = hist.st.slice(0, hist.i + 1); hist.st.push({ snap: [before, after] }); hist.i = hist.st.length - 1; changed(true);
         }
-        function restoreSnap(arr) { book.sheets = arr.map(s => ({ name: s.name, cells: new Map(s.cells), cols: Object.assign({}, s.cols), freeze: s.freeze })); si = Math.min(si, book.sheets.length - 1); changed(true); }
+        function restoreSnap(arr) { book.sheets = arr.map(s => ({ name: s.name, cells: new Map(s.cells), cols: Object.assign({}, s.cols), freeze: s.freeze, charts: CC(s.charts) })); si = Math.min(si, book.sheets.length - 1); changed(true); }
         function undo() { if (hist.i < 0) return; const h = hist.st[hist.i--]; if (h.snap) return restoreSnap(h.snap[0]); h.undo.forEach(([i, k, c]) => { if (c) book.sheets[i].cells.set(k, c); else book.sheets[i].cells.delete(k); }); changed(); }
         function redo() { if (hist.i >= hist.st.length - 1) return; const h = hist.st[++hist.i]; if (h.snap) return restoreSnap(h.snap[1]); h.do.forEach(([i, k, c]) => { if (c) book.sheets[i].cells.set(k, c); else book.sheets[i].cells.delete(k); }); changed(); }
         let tDraft = 0;
         function changed(struct) { dirtyCalc(); if (struct) { measure(); tabs(); } paint(); title(); clearTimeout(tDraft); tDraft = setTimeout(draft, 1500); }
         const cellsKey = c => { const s = c.s ? JSON.stringify(c.s) : ''; return (c.f ? '=' + c.f : JSON.stringify(c.v)) + s; };
-        const sig = () => JSON.stringify(book.sheets.map(s => [s.name, [...s.cells].map(([k, c]) => k + ':' + cellsKey(c)).join('|'), s.cols, s.freeze || 0]));
+        const sig = () => JSON.stringify(book.sheets.map(s => [s.name, [...s.cells].map(([k, c]) => k + ':' + cellsKey(c)).join('|'), s.cols, s.freeze || 0, (s.charts || []).map(c => [c.type, c.title, c.src, c.r, c.c, c.ox, c.oy, c.w, c.h])]));
         const dirty = () => sig() !== doc.saved;
         function title() { const t = (dirty() ? '*' : '') + doc.name + ' – Tabellen', el = win.el.querySelector('.wt-title'); if (el && el.textContent !== t) { el.textContent = t; API.renderTasks(); }
             $('.wr-sv').innerHTML = doc.saving ? '<i class="fa-solid fa-spinner fa-spin"></i>Speichert …' : !doc.key ? '<i class="fa-solid fa-circle-info"></i>Nicht gespeichert' : dirty() ? '<i class="fa-solid fa-pen"></i>Geändert' : '<i class="fa-solid fa-cloud"></i>Gespeichert'; }
-        const ser = b => JSON.stringify({ sheets: b.sheets.map(s => ({ name: s.name, cells: [...s.cells], cols: s.cols, freeze: s.freeze || 0 })) });
-        const deser = j => { const o = JSON.parse(j); return { sheets: o.sheets.map(s => ({ name: s.name, cells: new Map(s.cells), cols: s.cols || {}, freeze: s.freeze || 0 })) }; };
+        const ser = b => JSON.stringify({ sheets: b.sheets.map(s => ({ name: s.name, cells: [...s.cells], cols: s.cols, freeze: s.freeze || 0, charts: CC(s.charts) })) });
+        const deser = j => { const o = JSON.parse(j); return { sheets: o.sheets.map(s => ({ name: s.name, cells: new Map(s.cells), cols: s.cols || {}, freeze: s.freeze || 0, charts: CC(s.charts) })) }; };
         function draft() { try { if (dirty()) localStorage.setItem(DKEY(), JSON.stringify({ b: ser(book), name: doc.name, t: Date.now() })); else localStorage.removeItem(DKEY()); } catch (x) {} }
 
         // ---------- Bearbeiten ----------
@@ -356,6 +403,8 @@
             if (has(r, c) && has(r + dr, c + dc)) { while (has(r + dr, c + dc) && r + dr >= 0 && c + dc >= 0) { r += dr; c += dc; } return [r, c]; }
             r += dr; c += dc; while (r >= 0 && c >= 0 && (dr ? r : c) <= lim && !has(r, c)) { r += dr; c += dc; } if (r < 0 || c < 0 || (dr ? r : c) > lim) return [dr ? (dr < 0 ? 0 : Math.max(0, r - dr)) : r, dc ? (dc < 0 ? 0 : Math.max(0, c - dc)) : c]; return [r, c]; };
         kb.addEventListener('keydown', ev => {
+            if (selC != null && (sh().charts || [])[selC]) { if (ev.key === 'Delete' || ev.key === 'Backspace') { ev.preventDefault(); chartSet(() => { sh().charts.splice(selC, 1); }); selC = null; return paint(); }
+                if (ev.key === 'Escape') { selC = null; chSig = ''; return paint(); } if ((ev.ctrlKey || ev.metaKey) && (ev.key === 'c' || ev.key === 'C')) { ev.preventDefault(); return chartCopy(selC); } }
             const k = ev.key, c = ev.ctrlKey || ev.metaKey, sft = ev.shiftKey, cur = sft ? { r: sel.r2, c: sel.c2 } : sel;
             const mv = (dr, dc) => { ev.preventDefault(); let [r, cc] = c ? edge(cur.r, cur.c, dr, dc) : [cur.r + dr, cur.c + dc]; setSel(r, cc, sft); };
             if (k === 'ArrowDown') return mv(1, 0); if (k === 'ArrowUp') return mv(-1, 0); if (k === 'ArrowLeft') return mv(0, -1); if (k === 'ArrowRight') return mv(0, 1);
@@ -404,10 +453,12 @@
             return { r: Math.min(NR - 1, r), c }; };
         grid.addEventListener('pointerdown', ev => {
             if (ev.button !== 0 || ev.target.closest('.cx-ed, .cx-ac')) return;
+            const chEl = ev.target.closest('.cx-chart'); if (chEl) return chartDown(ev, chEl);
+            if (selC != null) { selC = null; chSig = ''; }
             const rz = ev.target.closest('[data-rz]');
             if (rz) { ev.preventDefault(); const c = +rz.dataset.rz, x0 = ev.clientX, w0 = width(c), before = Object.assign({}, sh().cols);
                 const mv = m => { sh().cols[c] = Math.max(24, Math.round(w0 + (m.clientX - x0) / (zoom / 100))); measure(); paint(); };
-                const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); const after = Object.assign({}, sh().cols); hist.st = hist.st.slice(0, hist.i + 1); const cur = book.sheets.map(s => ({ name: s.name, cells: new Map(s.cells), cols: Object.assign({}, s.cols), freeze: s.freeze })); const prev = cur.map((s, i) => i === si ? Object.assign({}, s, { cols: before }) : s); hist.st.push({ snap: [prev, cur] }); hist.i++; changed(); };
+                const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); const after = Object.assign({}, sh().cols); hist.st = hist.st.slice(0, hist.i + 1); const cur = book.sheets.map(s => ({ name: s.name, cells: new Map(s.cells), cols: Object.assign({}, s.cols), freeze: s.freeze, charts: CC(s.charts) })); const prev = cur.map((s, i) => i === si ? Object.assign({}, s, { cols: before }) : s); hist.st.push({ snap: [prev, cur] }); hist.i++; changed(); };
                 addEventListener('pointermove', mv); addEventListener('pointerup', up); return; }
             if (ev.target.closest('.cx-corner')) { sel = { r: 0, c: 0, r2: NR - 1, c2: NC - 1 }; paint(); return; }
             const ch = ev.target.closest('.cx-ch'); if (ch) { ev.preventDefault(); if (ed && !commit()) return; const c = +ch.dataset.col; if (ev.shiftKey) { sel.c2 = c; sel.r = 0; sel.r2 = NR - 1; } else sel = { r: 0, c, r2: NR - 1, c2: c };
@@ -426,11 +477,11 @@
             ev.preventDefault(); if (ev.shiftKey) { sel.r2 = h.r; sel.c2 = h.c; } else sel = { r: h.r, c: h.c, r2: h.r, c2: h.c }; paint(); kb.focus({ preventScroll: true });
             const mv = m => { const b = hit(m); if (b.r !== sel.r2 || b.c !== sel.c2) { sel.r2 = b.r; sel.c2 = b.c; paint(); } }; const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); }; addEventListener('pointermove', mv); addEventListener('pointerup', up);
         });
-        grid.addEventListener('dblclick', ev => { if (ev.target.closest('.cx-ch, .cx-rn, .cx-ed, [data-rz]')) { const rz = ev.target.closest('[data-rz]'); if (rz) autofitCol(+rz.dataset.rz); return; } const h = hit(ev); sel = { r: h.r, c: h.c, r2: h.r, c2: h.c }; startEdit(); });
+        grid.addEventListener('dblclick', ev => { const chEl = ev.target.closest('.cx-chart'); if (chEl) { ev.stopPropagation(); return chartTitle(+chEl.dataset.ci); } if (ev.target.closest('.cx-ch, .cx-rn, .cx-ed, [data-rz]')) { const rz = ev.target.closest('[data-rz]'); if (rz) autofitCol(+rz.dataset.rz); return; } const h = hit(ev); sel = { r: h.r, c: h.c, r2: h.r, c2: h.c }; startEdit(); });
         grid.addEventListener('scroll', paint, { passive: true });
         function autofitCol(c) { let w = 40; const cv = document.createElement('canvas').getContext('2d'); cv.font = '14.6px Calibri, Carlito, sans-serif'; sh().cells.forEach((cell, k) => { const [r, cc] = k.split(',').map(Number); if (cc !== c) return; w = Math.max(w, cv.measureText(J.fmtVal(val(si, r, c), cell.s || {})).width * ((cell.s && cell.s.fs) || 11) / 11 + 14); }); snapOp(() => { sh().cols[c] = Math.min(500, Math.round(w)); }); }
         grid.addEventListener('contextmenu', ev => {
-            ev.preventDefault(); const onHead = ev.target.closest('.cx-ch'), onRow = ev.target.closest('.cx-rn'), h = hit(ev), a = norm();
+            ev.preventDefault(); const chEl = ev.target.closest('.cx-chart'); if (chEl) return chartMenu(ev, +chEl.dataset.ci); const onHead = ev.target.closest('.cx-ch'), onRow = ev.target.closest('.cx-rn'), h = hit(ev), a = norm();
             if (!onHead && !onRow && !(h.r >= a.r1 && h.r <= a.r2 && h.c >= a.c1 && h.c <= a.c2)) { sel = { r: h.r, c: h.c, r2: h.r, c2: h.c }; paint(); }
             const n = norm(), nr = n.r2 - n.r1 + 1, nc = n.c2 - n.c1 + 1, whole = (n.r2 - n.r1 + 1) >= NR - 1, wholeR = (n.c2 - n.c1 + 1) >= NC - 1;
             API.ctx(ev.clientX, ev.clientY, [['fa-scissors', 'Ausschneiden', CMD.cut], ['fa-copy', 'Kopieren', CMD.copy], ['fa-paste', 'Einfügen', CMD.paste], null,
@@ -442,7 +493,7 @@
 
         // ---------- Blätter ----------
         function tabs() { $('.cx-tl').innerHTML = book.sheets.map((s, i) => `<button type="button" class="cx-tab${i === si ? ' on' : ''}" data-sh="${i}">${e(s.name)}</button>`).join(''); }
-        function goSheet(i) { if (ed && !commit()) return; si = i; sel = { r: 0, c: 0, r2: 0, c2: 0 }; NR = 200; grid.scrollTop = grid.scrollLeft = 0; measure(); tabs(); paint(); reflect(); }
+        function goSheet(i) { if (ed && !commit()) return; si = i; selC = null; chSig = ''; sel = { r: 0, c: 0, r2: 0, c2: 0 }; NR = 200; grid.scrollTop = grid.scrollLeft = 0; measure(); tabs(); paint(); reflect(); }
         async function renameSheet(i) {
             const old = book.sheets[i].name, v = await ask('Blatt umbenennen', old, 'Umbenennen'); if (!v || v === old) return;
             if (/[\\/?*[\]:]/.test(v) || v.length > 31) return uiAlert('Blattnamen dürfen höchstens 31 Zeichen haben und keine der Zeichen \\ / ? * [ ] : enthalten.');
@@ -453,7 +504,7 @@
         $('.cx-tl').addEventListener('click', ev => { const t = ev.target.closest('[data-sh]'); if (t) goSheet(+t.dataset.sh); });
         $('.cx-tl').addEventListener('dblclick', ev => { const t = ev.target.closest('[data-sh]'); if (t) renameSheet(+t.dataset.sh); });
         $('.cx-tl').addEventListener('contextmenu', ev => { const t = ev.target.closest('[data-sh]'); if (!t) return; ev.preventDefault(); const i = +t.dataset.sh;
-            API.ctx(ev.clientX, ev.clientY - 10, [['fa-pen', 'Umbenennen', () => renameSheet(i)], ['fa-clone', 'Kopieren', () => { snapOp(() => { const s = book.sheets[i]; let n = s.name + ' (2)', k = 2; while (book.sheets.some(x => x.name === n)) n = `${s.name} (${++k})`; book.sheets.splice(i + 1, 0, { name: n, cells: new Map([...s.cells].map(([kk, c]) => [kk, Object.assign({}, c)])), cols: Object.assign({}, s.cols), freeze: s.freeze }); }); goSheet(i + 1); }],
+            API.ctx(ev.clientX, ev.clientY - 10, [['fa-pen', 'Umbenennen', () => renameSheet(i)], ['fa-clone', 'Kopieren', () => { snapOp(() => { const s = book.sheets[i]; let n = s.name + ' (2)', k = 2; while (book.sheets.some(x => x.name === n)) n = `${s.name} (${++k})`; book.sheets.splice(i + 1, 0, { name: n, cells: new Map([...s.cells].map(([kk, c]) => [kk, Object.assign({}, c)])), cols: Object.assign({}, s.cols), freeze: s.freeze, charts: CC(s.charts) }); }); goSheet(i + 1); }],
                 i > 0 && ['fa-arrow-left', 'Nach links', () => { snapOp(() => { const [s] = book.sheets.splice(i, 1); book.sheets.splice(i - 1, 0, s); }); goSheet(i - 1); }], i < book.sheets.length - 1 && ['fa-arrow-right', 'Nach rechts', () => { snapOp(() => { const [s] = book.sheets.splice(i, 1); book.sheets.splice(i + 1, 0, s); }); goSheet(i + 1); }],
                 null, book.sheets.length > 1 && ['fa-trash-can', 'Löschen', async () => { if (book.sheets[i].cells.size && !(await uiConfirm(`Blatt „${book.sheets[i].name}“ mit allen Inhalten löschen?`, { danger: true, ok: 'Löschen' }))) return; snapOp(() => book.sheets.splice(i, 1)); goSheet(Math.max(0, i - 1)); }]], true); });
 
@@ -486,12 +537,15 @@
             csvIn: () => { $('.cx-fopen').click(); }, csvOut, freeze: () => snapOp(() => { sh().freeze = sh().freeze ? 0 : 1; }), dedupe,
             zin: () => setZoom(zoom + 10), zout: () => setZoom(zoom - 10), z100: () => setZoom(100), lines: () => { body.querySelector('.tbx').classList.toggle('nolines'); reflect(); },
             save: () => save(), saveas: () => save(true), dl: download, print, close: () => API.closeWin(win),
+            versions: () => JMOFFICE.versions({ doc, dirty, save: () => save(), reload: () => loadFile() }),
+            saveTpl: () => { if (ed && !commit()) return; JMOFFICE.saveTemplate(doc.name.replace(/\.csv$/i, '.xlsx'), 'xlsx', bytes); },
         };
         body.addEventListener('mousedown', ev => { if (ev.target.closest('.wr-rib button, .wr-pop button, .cx-tabs button')) ev.preventDefault(); });
         body.addEventListener('click', ev => {
             const rt = ev.target.closest('[data-rt]'); if (rt) { if (rt.dataset.rt === 'file') return backstage('home'); body.querySelectorAll('[data-rt]').forEach(b => b.classList.toggle('on', b === rt)); body.querySelectorAll('[data-band]').forEach(b => { b.hidden = b.dataset.band !== rt.dataset.rt; }); return; }
             const dd = ev.target.closest('[data-dd]'); if (dd && !ev.target.closest('.wr-pop')) { if (!pop.hidden && pop.dataset.for === dd.dataset.dd) { pop.hidden = true; return; } pop.dataset.for = dd.dataset.dd; if (ed && !commit()) return; return DD[dd.dataset.dd](dd); }
             const c = ev.target.closest('[data-c]'); if (c && CMD[c.dataset.c]) { pop.hidden = true; if (ed && !['save', 'saveas'].includes(c.dataset.c) && !commit()) return; CMD[c.dataset.c](); if (!ed) kb.focus({ preventScroll: true }); return; }
+            const chb = ev.target.closest('[data-chart]'); if (chb) { pop.hidden = true; addChart(chb.dataset.chart); return; }
             const au = ev.target.closest('[data-auto]'); if (au) { if (ed && !commit()) return; return autoSum(au.dataset.auto); }
             if (!ev.target.closest('.wr-pop')) pop.hidden = true;
         });
@@ -541,7 +595,7 @@
 
         // ---------- Speichern, Herunterladen, Drucken ----------
         const bytes = async () => new Uint8Array(await (await J.writeXlsx(Object.assign({}, book, { author: U.name || '' }), (i, r, c) => val(i, r, c))).arrayBuffer());
-        async function save(as) {
+        async function save(as, auto) {
             if (doc.saving) return; if (ed && !commit()) return;
             if (!window.JMOS_FILES || !can(U, 'dokumente')) return uiAlert('Zum Speichern brauchst du die Berechtigung „Dokumente“. Du kannst die Mappe aber herunterladen (Datei → Herunterladen).');
             if (!doc.key || as) {
@@ -551,7 +605,8 @@
                 doc.saving = false; title(); kb.focus(); return;
             }
             doc.saving = true; title();
-            try { await JMOS_FILES.saveText(doc.key, await bytes()); doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); try { localStorage.removeItem(DKEY()); } catch (x) {} } catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
+            const was = sig();
+            try { await JMOS_FILES.saveText(doc.key, await bytes(), JMOFFICE.saveOpts()); doc.saved = was; if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); if (!dirty()) try { localStorage.removeItem(DKEY()); } catch (x) {} } catch (x) { if (auto) doc.autoOff = true; uiAlert('Speichern fehlgeschlagen: ' + x.message + (auto ? '\nAutomatisches Speichern ist für dieses Fenster pausiert.' : '')); }
             doc.saving = false; title();
         }
         function askSave(name, folder) {
@@ -582,14 +637,19 @@
         function backstage(tab) {
             if (ed && !commit()) return;
             const files = window.JMOS_FILES ? JMOS_FILES.sheetFiles().sort((a, b) => (b.date || 0) - (a.date || 0)) : [], fold = Object.fromEntries((window.JMOS_FILES ? JMOS_FILES.folders() : []).map(f => [f.id, f.name]));
-            const NAV = [['home', 'fa-house', 'Start'], ['new', 'fa-file-circle-plus', 'Neu'], ['open', 'fa-folder-open', 'Öffnen'], null, ['save', 'fa-floppy-disk', 'Speichern'], ['saveas', 'fa-file-export', 'Speichern unter'], ['dl', 'fa-download', 'Herunterladen (.xlsx)'], ['csvOut', 'fa-file-csv', 'Als CSV herunterladen'], ['print', 'fa-print', 'Drucken / PDF'], null, ['close', 'fa-xmark', 'Schließen']];
+            const NAV = [['home', 'fa-house', 'Start'], ['new', 'fa-file-circle-plus', 'Neu'], ['open', 'fa-folder-open', 'Öffnen'], null, ['save', 'fa-floppy-disk', 'Speichern'], ['saveas', 'fa-file-export', 'Speichern unter'], ['versions', 'fa-clock-rotate-left', 'Versionsverlauf'], ['saveTpl', 'fa-bookmark', 'Als Vorlage speichern'], ['dl', 'fa-download', 'Herunterladen (.xlsx)'], ['csvOut', 'fa-file-csv', 'Als CSV herunterladen'], ['print', 'fa-print', 'Drucken / PDF'], null, ['close', 'fa-xmark', 'Schließen']];
             const tpl = Object.entries(TPL).map(([k, t]) => `<button type="button" class="wr-tpl" data-tpl="${k}"><span class="wr-tpi cx-tpi"><i class="fa-solid ${t.i}"></i></span><b>${e(t.n)}</b></button>`).join('');
             const rows = l => l.map(it => `<button type="button" class="wr-fr" data-open="${e(it.key)}"><i class="fa-solid ${/\.csv$/i.test(it.name) ? 'fa-file-csv' : 'fa-file-excel'} cx-fi"></i><span><b>${e(it.name)}</b><small>${e(it.folder ? fold[it.folder] || 'Ordner' : 'Eigene Dateien')}</small></span><small>${it.date ? new Date(it.date).toLocaleDateString('de-DE') : ''}</small></button>`).join('') || '<p class="wr-none">Noch keine Tabellen in deinen Dokumenten.</p>';
-            const main = tab === 'new' ? `<h2>Neu</h2><div class="wr-tpls">${tpl}</div>` : tab === 'open' ? `<h2>Öffnen</h2><button type="button" class="btn" data-bs="pc"><i class="fa-solid fa-laptop"></i>Vom Computer öffnen (.xlsx, .csv)</button><div class="wr-frs">${rows(files)}</div>`
-                : `<h2>${new Date().getHours() < 11 ? 'Guten Morgen' : new Date().getHours() < 18 ? 'Hallo' : 'Guten Abend'}${U.firstName ? ', ' + e(U.firstName) : ''}</h2><div class="wr-tpls">${tpl}</div><h3>Zuletzt bearbeitet</h3><div class="wr-frs">${rows(files.slice(0, 8))}</div>`;
+            bsTab = tab; const main = tab === 'new' ? `<h2>Neu</h2><div class="wr-tpls">${tpl}</div>${JMOFFICE.tplHtml('xlsx')}` : tab === 'open' ? `<h2>Öffnen</h2><button type="button" class="btn" data-bs="pc"><i class="fa-solid fa-laptop"></i>Vom Computer öffnen (.xlsx, .csv)</button><div class="wr-frs">${rows(files)}</div>`
+                : `<h2>${new Date().getHours() < 11 ? 'Guten Morgen' : new Date().getHours() < 18 ? 'Hallo' : 'Guten Abend'}${U.firstName ? ', ' + e(U.firstName) : ''}</h2><div class="wr-tpls">${tpl}</div>${JMOFFICE.tplHtml('xlsx')}<h3>Zuletzt bearbeitet</h3><div class="wr-frs">${rows(files.slice(0, 8))}</div>`;
             back.innerHTML = `<nav class="cx-nav"><button type="button" class="wr-bk" data-bs="back" aria-label="Zurück"><i class="fa-solid fa-arrow-left"></i></button>${NAV.map(n => n ? `<button type="button" data-bs="${n[0]}" class="${n[0] === tab ? 'on' : ''}"><i class="fa-solid ${n[1]}"></i>${n[2]}</button>` : '<hr>').join('')}</nav><section>${main}</section>`; back.hidden = false;
         }
         const backClose = () => { back.hidden = true; kb.focus(); };
+        let bsTab = 'home';
+        async function fromTemplate(id, name) { const b = await JMOFFICE.templateBytes(id); loadBook(await J.readXlsx(b)); doc.key = null; doc.name = (name || 'Mappe').replace(/\.xlsx$/i, '') + '.xlsx'; doc.saved = ''; title(); }
+        JMOFFICE.tplClicks({ back, rerender: () => backstage(bsTab), use: async id => { const t = JMOS_FILES.templates('xlsx').find(x => x.id === id);
+            if (doc.key || !isEmpty()) { backClose(); return API.openApp('tabellen', { key: 'tb:neu' + (++seq), params: { utpl: id, folder: doc.folder } }); }
+            try { await fromTemplate(id, t && t.name); backClose(); } catch (x) { uiAlert('Vorlage nicht lesbar: ' + x.message); } } });
         const isEmpty = () => book.sheets.length === 1 && !book.sheets[0].cells.size;
         back.addEventListener('click', ev => {
             const b = ev.target.closest('[data-bs]'), t = ev.target.closest('[data-tpl]'), o = ev.target.closest('[data-open]');
@@ -601,7 +661,7 @@
         $('.cx-fopen').addEventListener('change', async ev => { const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
             try { const b = /\.csv$/i.test(f.name) ? J.readCsv(await f.text()) : await J.readXlsx(await f.arrayBuffer()); if (doc.key || !isEmpty()) { if (!(await uiConfirm('Die geöffnete Datei ersetzt den Inhalt dieses Fensters. Weiter?', { ok: 'Öffnen' }))) return; } loadBook(b); doc.key = null; doc.name = f.name.replace(/\.(csv|xlsx)$/i, '') + '.xlsx'; doc.saved = ''; title(); backClose(); } catch (x) { uiAlert('Datei nicht lesbar: ' + x.message); } });
 
-        function loadBook(b) { book = b; book.sheets.forEach(s => { s.cols = s.cols || {}; }); si = 0; sel = { r: 0, c: 0, r2: 0, c2: 0 }; NR = 200; hist.st = []; hist.i = -1; dirtyCalc(); measure(); tabs(); paint(); }
+        function loadBook(b) { book = b; book.sheets.forEach(s => { s.cols = s.cols || {}; s.charts = s.charts || []; }); selC = null; chSig = ''; si = 0; sel = { r: 0, c: 0, r2: 0, c2: 0 }; NR = 200; hist.st = []; hist.i = -1; dirtyCalc(); measure(); tabs(); paint(); }
         async function loadFile() {
             $('.cx-mode').textContent = 'Wird geladen …';
             try { const { blob, name } = await JMOS_FILES.blobOf(doc.key); const it = JMOS_FILES.item(doc.key); doc.name = name; doc.folder = it ? it.folder || '' : '';
@@ -620,7 +680,9 @@
             else if (k === 'escape' && !back.hidden) { ev.stopPropagation(); backClose(); } else if (k === 'escape' && !pop.hidden) pop.hidden = true; });
         new ResizeObserver(paint).observe(grid);
 
+        JMOFFICE.autosave({ body, win, doc, dirty, save, busy: () => !!ed || !!doc.autoOff || !back.hidden });
         if (doc.key) { measure(); tabs(); paint(); loadFile(); }
+        else if (P.utpl) { loadBook(TPL.leer.make()); doc.saved = sig(); title(); const t = window.JMOS_FILES && JMOS_FILES.templates('xlsx').find(x => x.id === P.utpl); fromTemplate(P.utpl, t && t.name).catch(x => uiAlert('Vorlage nicht lesbar: ' + x.message)); }
         else { const t = TPL[P.tpl] || TPL.leer; loadBook(t.make()); doc.name = P.tpl && P.tpl !== 'leer' ? t.n + '.xlsx' : 'Mappe1.xlsx'; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); if (!P.tpl) backstage('home'); title(); }
         setTimeout(() => { if (back.hidden) kb.focus({ preventScroll: true }); }, 80);
     }

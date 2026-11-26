@@ -302,6 +302,21 @@
             xfs.push(`<xf numFmtId="${nf}" fontId="${fi}" fillId="${fl}" borderId="${bi}" xfId="0"${nf ? ' applyNumberFormat="1"' : ''}${fi ? ' applyFont="1"' : ''}${fl ? ' applyFill="1"' : ''}${bi ? ' applyBorder="1"' : ''}${al ? ' applyAlignment="1">' + al + '</xf>' : '/>'}`);
             return (xfMap[k] = xfs.length - 1);
         };
+        // Diagramme (OS/chart.js) als echte Excel-Diagramme
+        const extra = [], ctx = [], DRW = 'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing', REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+        let nChart = 0, nDraw = 0;
+        function drawingOf(sh, si) {
+            const list = (sh.charts || []).filter(c => c && c.src); if (!list.length || !window.JMCHART) return '';
+            const d = ++nDraw, get = (r, c) => { const cell = sh.cells.get(r + ',' + c); if (!cell) return null; return cell.f ? calc(si, r, c) : cell.v; }, E = px => Math.round(px * 9525);
+            const anchors = list.map((ch, i) => { const k = ++nChart, m = JMCHART.data(ch, get);
+                extra.push([`xl/charts/chart${k}.xml`, JMCHART.xml(m, sh.name)]); ctx.push(`<Override PartName="/xl/charts/chart${k}.xml" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/>`);
+                return { rel: `<Relationship Id="rId${i + 1}" Type="${REL}/chart" Target="../charts/chart${k}.xml"/>`, xml: `<xdr:oneCellAnchor><xdr:from><xdr:col>${ch.c || 0}</xdr:col><xdr:colOff>${E(ch.ox || 0)}</xdr:colOff><xdr:row>${ch.r || 0}</xdr:row><xdr:rowOff>${E(ch.oy || 0)}</xdr:rowOff></xdr:from><xdr:ext cx="${E(ch.w || 480)}" cy="${E(ch.h || 288)}"/><xdr:graphicFrame macro=""><xdr:nvGraphicFramePr><xdr:cNvPr id="${i + 2}" name="Diagramm ${i + 1}"/><xdr:cNvGraphicFramePr/></xdr:nvGraphicFramePr><xdr:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></xdr:xfrm><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:chart xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" r:id="rId${i + 1}"/></a:graphicData></a:graphic></xdr:graphicFrame><xdr:clientData/></xdr:oneCellAnchor>` }; });
+            extra.push([`xl/drawings/drawing${d}.xml`, `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><xdr:wsDr xmlns:xdr="${DRW}" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="${REL}">${anchors.map(a => a.xml).join('')}</xdr:wsDr>`]);
+            extra.push([`xl/drawings/_rels/drawing${d}.xml.rels`, `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${anchors.map(a => a.rel).join('')}</Relationships>`]);
+            extra.push([`xl/worksheets/_rels/sheet${si + 1}.xml.rels`, `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${REL}/drawing" Target="../drawings/drawing${d}.xml"/></Relationships>`]);
+            ctx.push(`<Override PartName="/xl/drawings/drawing${d}.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>`);
+            return '<drawing r:id="rId1"/>';
+        }
         const sheetsXml = book.sheets.map((sh, si) => {
             const rows = new Map(); let maxR = 0, maxC = 0;
             sh.cells.forEach((cell, k) => { const [r, c] = k.split(',').map(Number); if (!rows.has(r)) rows.set(r, []); rows.get(r).push([c, cell]); maxR = Math.max(maxR, r); maxC = Math.max(maxC, c); });
@@ -316,18 +331,18 @@
             }).join('')}</row>`).join('');
             const cols = Object.keys(sh.cols || {}).map(Number).sort((a, b) => a - b).map(c => `<col min="${c + 1}" max="${c + 1}" width="${(sh.cols[c] / 7.2).toFixed(2)}" customWidth="1"/>`).join('');
             const freeze = sh.freeze ? `<sheetViews><sheetView workbookViewId="0"${si === 0 ? ' tabSelected="1"' : ''}><pane ySplit="${sh.freeze}" topLeftCell="A${sh.freeze + 1}" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>` : `<sheetViews><sheetView workbookViewId="0"${si === 0 ? ' tabSelected="1"' : ''}/></sheetViews>`;
-            return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="${NSM}" xmlns:r="${NSR}"><dimension ref="A1:${addr(maxR, maxC)}"/>${freeze}<sheetFormatPr defaultRowHeight="15"/>${cols ? `<cols>${cols}</cols>` : ''}<sheetData>${rowXml}</sheetData><pageMargins left="0.7" right="0.7" top="0.78740157499999996" bottom="0.78740157499999996" header="0.3" footer="0.3"/></worksheet>`;
+            return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="${NSM}" xmlns:r="${NSR}"><dimension ref="A1:${addr(maxR, maxC)}"/>${freeze}<sheetFormatPr defaultRowHeight="15"/>${cols ? `<cols>${cols}</cols>` : ''}<sheetData>${rowXml}</sheetData><pageMargins left="0.7" right="0.7" top="0.78740157499999996" bottom="0.78740157499999996" header="0.3" footer="0.3"/>${drawingOf(sh, si)}</worksheet>`;
         });
         const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="${NSM}">${numFmts.length ? `<numFmts count="${numFmts.length}">${numFmts.map(([id, c]) => `<numFmt numFmtId="${id}" formatCode="${X(c)}"/>`).join('')}</numFmts>` : ''}<fonts count="${fonts.length}">${fonts.join('')}</fonts><fills count="${fills.length}">${fills.join('')}</fills><borders count="${borders.length}">${borders.join('')}</borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${xfs.length}">${xfs.join('')}</cellXfs><cellStyles count="1"><cellStyle name="Standard" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
         const n = book.sheets.length;
         const wb = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="${NSM}" xmlns:r="${NSR}"><bookViews><workbookView activeTab="0"/></bookViews><sheets>${book.sheets.map((s, i) => `<sheet name="${X(s.name.slice(0, 31))}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets><calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>`;
         const wbRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${book.sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}<Relationship Id="rId${n + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
-        const ct = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${book.sheets.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`;
+        const ct = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${book.sheets.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${ctx.join('')}<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`;
         const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>`;
         const now = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
         const core = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:creator>${X(book.author || '')}</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified></cp:coreProperties>`;
         const app = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>J.Mainz Tabellen</Application></Properties>`;
-        const files = [['[Content_Types].xml', ct], ['_rels/.rels', rels], ['xl/workbook.xml', wb], ['xl/_rels/workbook.xml.rels', wbRels], ['xl/styles.xml', styles], ['docProps/core.xml', core], ['docProps/app.xml', app], ...sheetsXml.map((x, i) => [`xl/worksheets/sheet${i + 1}.xml`, x])];
+        const files = [['[Content_Types].xml', ct], ['_rels/.rels', rels], ['xl/workbook.xml', wb], ['xl/_rels/workbook.xml.rels', wbRels], ['xl/styles.xml', styles], ['docProps/core.xml', core], ['docProps/app.xml', app], ...sheetsXml.map((x, i) => [`xl/worksheets/sheet${i + 1}.xml`, x]), ...extra];
         const z = await JMZIP.zip(files); return new Blob([z], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     }
 
@@ -370,6 +385,7 @@
                     let ft = f.textContent;
                     if (f.getAttribute('t') === 'shared') { const si = f.getAttribute('si'); if (ft) sharedF[si] = { f: ft, r: ref.r, c: ref.c }; else if (sharedF[si]) ft = offsetFormula(sharedF[si].f, ref.r - sharedF[si].r, ref.c - sharedF[si].c); }
                     if (ft) cell.f = ft.replace(/_xlfn\./g, '');
+                    if (cell.f && v) cell.cv = t === 'str' || t === 'e' ? v.textContent : t === 'b' ? v.textContent === '1' : +v.textContent;          // zuletzt berechneter Wert (für Serienbrief, Suche)
                 }
                 if (!cell.f) {
                     if (t === 's' && v) cell.v = shared[+v.textContent] ?? ''; else if (t === 'inlineStr') cell.v = T(c, 't').map(x => x.textContent).join(''); else if (t === 'str') cell.v = v ? v.textContent : ''; else if (t === 'b') cell.v = v ? v.textContent === '1' : false;
@@ -378,7 +394,26 @@
                 if (cell.f || (cell.v !== undefined && cell.v !== '') || cell.s) cells.set(key(ref.r, ref.c), cell);
             }
             const pane = T(doc, 'pane')[0], fr = pane && pane.getAttribute('state') === 'frozen' ? +pane.getAttribute('ySplit') || 0 : 0;
-            sheets.push({ name: sh.getAttribute('name') || 'Tabelle' + (sheets.length + 1), cells, cols, freeze: fr });
+            const charts = [];
+            try { const dEl = T(doc, 'drawing')[0]; if (dEl && window.JMCHART) {
+                const dir = p.replace(/[^/]+$/, ''), relsOf = async f => { const x = xml(await get(f.replace(/([^/]+)$/, '_rels/$1.rels'))), o = {}; [...x.getElementsByTagName('Relationship')].forEach(r => { o[r.getAttribute('Id')] = r.getAttribute('Target'); }); return o; };
+                const res = (base, t) => { if (t.startsWith('/')) return t.slice(1); const parts = (base + t).split('/'), out = []; parts.forEach(x => { if (x === '..') out.pop(); else if (x && x !== '.') out.push(x); }); return out.join('/'); };
+                const sr = await relsOf(p), dp_ = res(dir, sr[dEl.getAttributeNS(NSR, 'id') || dEl.getAttribute('r:id')] || ''); if (dp_ && map[dp_]) {
+                    const dx = xml(await get(dp_)), dr = await relsOf(dp_), XDR = 'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing', Q = (el, n) => el ? [...el.getElementsByTagNameNS(XDR, n)] : [];
+                    const num = (el, n) => +((Q(el, n)[0] || {}).textContent || 0), cw = c => cols[c] || 64;
+                    for (const an of [...dx.documentElement.children]) {
+                        const ce = an.getElementsByTagNameNS('http://schemas.openxmlformats.org/drawingml/2006/chart', 'chart')[0]; if (!ce) continue;
+                        const target = dr[ce.getAttributeNS(NSR, 'id') || ce.getAttribute('r:id')]; if (!target) continue;
+                        const m = JMCHART.parse(await get(res(dp_.replace(/[^/]+$/, ''), target))); if (!m) continue;
+                        const fr = Q(an, 'from')[0], to = Q(an, 'to')[0], ext = Q(an, 'ext')[0], c = num(fr, 'col'), r = num(fr, 'row'), ox = Math.round(num(fr, 'colOff') / 9525), oy = Math.round(num(fr, 'rowOff') / 9525);
+                        let w = 480, h = 288;
+                        if (ext) { w = Math.round(+ext.getAttribute('cx') / 9525); h = Math.round(+ext.getAttribute('cy') / 9525); }
+                        else if (to) { const c2 = num(to, 'col'), r2 = num(to, 'row'); w = 0; for (let i = c; i < c2; i++) w += cw(i); w += Math.round(num(to, 'colOff') / 9525) - ox; h = (r2 - r) * 24 + Math.round(num(to, 'rowOff') / 9525) - oy; }
+                        const ch = { type: m.type, title: m.title, c, r, ox: Math.max(0, ox), oy: Math.max(0, Math.min(23, oy)), w: Math.max(160, w || 480), h: Math.max(120, h || 288), cache: { cats: m.cats, series: m.series } };
+                        if (m.src && m.src.sheet.toLowerCase() === (sh.getAttribute('name') || '').toLowerCase()) ch.src = { r1: m.src.r1, c1: m.src.c1, r2: m.src.r2, c2: m.src.c2 };
+                        charts.push(ch);
+                    } } } } catch (x) { /* Diagramm nicht lesbar – Tabelle trotzdem öffnen */ }
+            sheets.push({ name: sh.getAttribute('name') || 'Tabelle' + (sheets.length + 1), cells, cols, freeze: fr, charts });
         }
         if (!sheets.length) sheets.push({ name: 'Tabelle1', cells: new Map(), cols: {} });
         return { sheets };
