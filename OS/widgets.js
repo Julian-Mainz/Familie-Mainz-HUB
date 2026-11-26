@@ -202,7 +202,7 @@
                         ${w.size !== 's' ? `<div class="iv"><span class="l">Nächste Rechnungen <em>${inv.filter(v => v.status !== 'paid').length} offen</em></span>${open.length ? open.map(v => { const [t, c] = dueTxt(v); return `<div class="rw"><span><b>${e(v.vendor || 'Rechnung')}</b><small class="${c}">${e(t)}</small></span><b>${v.amount ? eur(v.amount) : '–'}</b></div>`; }).join('') : '<div class="ok"><i class="fa-solid fa-circle-check"></i>Keine offenen Rechnungen</div>'}</div>` : ''}</div>`;
                 });
             } },
-        notes: { name: 'Pinnwand', icon: 'fa-thumbtack', c: '#f59e0b', perm: 'pinnwand', app: 'menu', desc: 'Notizen der Familie lesen und neue anpinnen', sizes: { s: [280, 250], m: [320, 340], l: [380, 460] },
+        notes: { name: 'Pinnwand', icon: 'fa-thumbtack', c: '#f59e0b', perm: 'pinnwand', app: 'menu', desc: 'Gemeinsame Notizen lesen und neue anpinnen', sizes: { s: [280, 250], m: [320, 340], l: [380, 460] },
             mount(b, w) {
                 b.innerHTML = `<div class="wg-pin"><div class="lst"></div><form class="add"><input maxlength="300" placeholder="Notiz anpinnen …" aria-label="Neue Notiz"><button type="submit" class="ok" aria-label="Anpinnen"><i class="fa-solid fa-thumbtack"></i></button></form></div>`;
                 b.addEventListener('click', ev => { const d = ev.target.closest('[data-del]'); if (d) db.collection('notes').doc(d.dataset.del).delete().catch(x => uiAlert('Löschen fehlgeschlagen: ' + x.message)); });

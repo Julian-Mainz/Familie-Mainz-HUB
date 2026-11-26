@@ -52,7 +52,7 @@
     function hero(kind) {
         const name = [U.firstName, U.lastName].filter(Boolean).join(' ') || U.email;
         if (kind === 'pers') return `<div class="ws-hero ws-pv"><div class="pv-scr"><div class="pv-wall"></div><div class="pv-win"><i></i><i></i><i></i></div><div class="pv-bar"><span></span><i></i><i></i><i></i></div></div><div class="ws-hero-t"><b>Dein Desktop</b><small>Hintergrund, Farben und lebendige Effekte</small></div></div>`;
-        if (kind === 'konto') return `<div class="ws-hero"><span class="ws-av big">${typeof avatarInner === 'function' ? avatarInner({ ...U, name }) : e(name[0])}</span><div class="ws-hero-t"><b>${e(name)}</b><small>${e(U.email || '')}</small><em>${isAdmin(U) ? 'Administrator' : 'Familienmitglied'}</em></div></div>`;
+        if (kind === 'konto') return `<div class="ws-hero"><span class="ws-av big">${typeof avatarInner === 'function' ? avatarInner({ ...U, name }) : e(name[0])}</span><div class="ws-hero-t"><b>${e(name)}</b><small>${e(U.email || '')}</small><em>${isAdmin(U) ? 'Administrator' : 'Mitglied'}</em></div></div>`;
         if (kind === 'astro') return `<div class="ws-hero ws-astro"><div class="ws-astro-a" id="ws-astro-a"></div><div class="ws-hero-t"><b>Astro</b><small>Dein kleiner Begleiter auf dem Desktop. Bestwert im Minispiel: ${+S.astroBest || 0} Punkte.</small></div></div>`;
         if (kind === 'info') return `<div class="ws-hero"><div class="boot-logo ws-logo"><span></span><span></span><span></span><span></span></div><div class="ws-hero-t"><b>J.Mainz <span class="ws-grad">OS</span></b><small class="ws-ver">Stand wird geladen …</small><em>Desktop-Modus des J.Mainz Dashboards</em></div></div>`;
         return '';

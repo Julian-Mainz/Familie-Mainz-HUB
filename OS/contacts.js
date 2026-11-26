@@ -1,5 +1,5 @@
 // OS/contacts.js – Kontakte (Adressbuch) für J.Mainz OS: Familie, Freunde, Ärzte, Handwerker …
-// Firestore „contacts“: eigene Kontakte sieht nur man selbst; „Für die Familie sichtbar“ zeigt sie allen freigeschalteten Mitgliedern (bearbeiten kann nur, wer sie angelegt hat).
+// Firestore „contacts“: eigene Kontakte sieht nur man selbst; „Für alle sichtbar“ zeigt sie allen freigeschalteten Mitgliedern (bearbeiten kann nur, wer sie angelegt hat).
 // Nutzbar in Writer: Brief an einen Kontakt, Adresse einfügen und Serienbrief (Sendungen → Empfänger → Kontakte).
 (function () {
     'use strict';
@@ -91,7 +91,7 @@
         function drawSide() {
             const a = all(), n = k => a.filter(c => k === '' ? true : k === '*shared' ? c.shared : c.kat === k).length;
             const row = (k, ic, c, label) => `<button type="button" class="kt-cat${cat === k ? ' on' : ''}" data-cat="${e(k)}"><i class="fa-solid ${ic}" style="color:${c}"></i><span>${e(label)}</span><em>${n(k)}</em></button>`;
-            $('.kt-cats').innerHTML = row('', 'fa-address-book', '#a5b4fc', 'Alle Kontakte') + CATS.map(([k, ic, c]) => row(k, ic, c, k)).join('') + '<hr>' + row('*shared', 'fa-people-roof', '#f472b6', 'Für die Familie sichtbar');
+            $('.kt-cats').innerHTML = row('', 'fa-address-book', '#a5b4fc', 'Alle Kontakte') + CATS.map(([k, ic, c]) => row(k, ic, c, k)).join('') + '<hr>' + row('*shared', 'fa-people-roof', '#f472b6', 'Für alle sichtbar');
         }
         function drawList() {
             const L = filtered(); let last = '', html = '';
@@ -99,7 +99,7 @@
             else if (!L.length) html = `<p class="kt-empty"><i class="fa-solid fa-address-book"></i>${q || cat ? 'Keine Kontakte gefunden.' : 'Noch keine Kontakte. Lege den ersten an oder importiere eine vCard-Datei vom Handy.'}</p>`;
             L.forEach(c => { const ch = (sortKey(c)[0] || '#').toUpperCase().replace(/[ÄÖÜ]/, x => ({ Ä: 'A', Ö: 'O', Ü: 'U' }[x])); if (ch !== last) { last = ch; html += `<div class="kt-let">${e(/[A-Z]/.test(ch) ? ch : '#')}</div>`; }
                 const k = CAT[c.kat] || CAT.Sonstiges, sub = [c.firma && c.firma !== nameOf(c) ? c.firma : '', c.kat, c.ort].filter(Boolean).join(' · ');
-                html += `<button type="button" class="kt-row${c.id === selId ? ' on' : ''}" data-id="${e(c.id)}"><span class="kt-av" style="--c:${k[2]}">${e(initials(c))}</span><span><b>${e(nameOf(c))}</b><small>${e(sub)}</small></span>${c.shared ? '<i class="fa-solid fa-people-roof kt-sh" title="Für die Familie sichtbar"></i>' : ''}</button>`; });
+                html += `<button type="button" class="kt-row${c.id === selId ? ' on' : ''}" data-id="${e(c.id)}"><span class="kt-av" style="--c:${k[2]}">${e(initials(c))}</span><span><b>${e(nameOf(c))}</b><small>${e(sub)}</small></span>${c.shared ? '<i class="fa-solid fa-people-roof kt-sh" title="Für alle sichtbar"></i>' : ''}</button>`; });
             listEl.innerHTML = html;
         }
         function drawDetail() {
@@ -108,7 +108,7 @@
             if (!c) { det.innerHTML = `<div class="kt-hint"><i class="fa-solid fa-address-card"></i><b>Kontakte</b><span>Wähle links einen Kontakt oder lege einen neuen an. Kontakte kannst du in Writer für Briefe und Serienbriefe nutzen.</span></div>`; return; }
             const k = CAT[c.kat] || CAT.Sonstiges, bd = birthday(c.geb), ro = !mine(c);
             const f = (ic, label, v, href) => v ? `<div class="kt-f"><i class="fa-solid ${ic}"></i><span><small>${label}</small>${href ? `<a href="${e(href)}">${e(v)}</a>` : e(v).replace(/\n/g, '<br>')}</span></div>` : '';
-            det.innerHTML = `<div class="kt-head"><span class="kt-av big" style="--c:${k[2]}">${e(initials(c))}</span><div><h2>${e(nameOf(c))}</h2><span class="kt-chip" style="--c:${k[2]}"><i class="fa-solid ${k[1]}"></i>${e(c.kat || 'Sonstiges')}</span>${c.shared ? '<span class="kt-chip" style="--c:#f472b6"><i class="fa-solid fa-people-roof"></i>Für die Familie sichtbar</span>' : ''}</div></div>
+            det.innerHTML = `<div class="kt-head"><span class="kt-av big" style="--c:${k[2]}">${e(initials(c))}</span><div><h2>${e(nameOf(c))}</h2><span class="kt-chip" style="--c:${k[2]}"><i class="fa-solid ${k[1]}"></i>${e(c.kat || 'Sonstiges')}</span>${c.shared ? '<span class="kt-chip" style="--c:#f472b6"><i class="fa-solid fa-people-roof"></i>Für alle sichtbar</span>' : ''}</div></div>
                 <div class="kt-acts">${c.tel || c.mobil ? `<a class="btn" href="tel:${e((c.mobil || c.tel).replace(/[^\d+]/g, ''))}"><i class="fa-solid fa-phone"></i>Anrufen</a>` : ''}${c.mail ? `<a class="btn" href="mailto:${e(c.mail)}"><i class="fa-solid fa-envelope"></i>E-Mail</a>` : ''}<button type="button" class="btn" data-k="letter"><i class="fa-solid fa-file-word"></i>Brief schreiben</button>
                     ${ro ? '' : '<button type="button" class="btn" data-k="edit"><i class="fa-solid fa-pen"></i>Bearbeiten</button>'}<button type="button" class="btn" data-k="vcf" title="Als vCard herunterladen"><i class="fa-solid fa-download"></i></button>${ro ? '' : '<button type="button" class="btn bad" data-k="del" title="Löschen"><i class="fa-solid fa-trash-can"></i></button>'}</div>
                 <div class="kt-fs">${f('fa-building', 'Firma', c.firma && c.firma !== nameOf(c) ? c.firma : '')}${f('fa-phone', 'Telefon', c.tel, 'tel:' + (c.tel || '').replace(/[^\d+]/g, ''))}${f('fa-mobile-screen', 'Mobil', c.mobil, 'tel:' + (c.mobil || '').replace(/[^\d+]/g, ''))}${f('fa-envelope', 'E-Mail', c.mail, 'mailto:' + (c.mail || ''))}
@@ -124,7 +124,7 @@
                 ${inp('tel', 'Telefon', 'tel')}${inp('mobil', 'Mobil', 'tel')}<div class="kt-wide">${inp('mail', 'E-Mail', 'email')}</div>
                 <div class="kt-wide">${inp('str', 'Straße und Hausnummer')}</div>${inp('plz', 'PLZ')}${inp('ort', 'Ort')}
                 <label class="kt-in kt-wide"><span>Notiz</span><textarea name="notiz" rows="3" maxlength="2000" placeholder="z. B. Sprechzeiten, Kundennummer, Ansprechpartner">${e(c.notiz || '')}</textarea></label></div>
-                <label class="kt-shr"><input type="checkbox" class="tgl" name="shared"${c.shared ? ' checked' : ''}><span><b>Für die ganze Familie sichtbar</b><small>Alle freigeschalteten Familienmitglieder sehen diesen Kontakt (ändern kannst nur du).</small></span></label>
+                <label class="kt-shr"><input type="checkbox" class="tgl" name="shared"${c.shared ? ' checked' : ''}><span><b>Für alle sichtbar</b><small>Alle freigeschalteten Mitglieder sehen diesen Kontakt (ändern kannst nur du).</small></span></label>
                 <div class="kt-fa"><button type="button" class="btn" data-k="cancel">Abbrechen</button><button type="submit" class="btn pri"><i class="fa-solid fa-check"></i>Speichern</button></div></form>`;
             const fm = det.querySelector('form'); fm.querySelector('[name="vorname"]').focus();
             fm.addEventListener('submit', async ev => { ev.preventDefault(); const d = Object.fromEntries(new FormData(fm)); d.shared = fm.shared.checked;

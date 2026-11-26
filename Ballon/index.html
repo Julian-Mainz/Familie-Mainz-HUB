@@ -1033,7 +1033,7 @@ function showOverlay(kind) {
     const customs = Object.keys(MAPS).filter(k => MAPS[k].custom);
     main.innerHTML = `<div class="mpage"><div class="mh"><div class="lbl">${sp ? 'Sektor wählen' : 'Karte wählen'}</div><h2>Neues Spiel</h2></div>
       <div class="maps">${BUILTIN.map(k => mapCard(k, MAPS[k])).join('')}</div>
-      <div class="pn cm"><b>✏️ Eigene Karten</b>${customs.length ? customs.map(k => `<button class="chip2${k === pickMap ? ' on' : ''}" data-map="${k}" title="${esc(MAPS[k].d)}"><span data-raw>${esc(MAPS[k].n)}</span>${M.best[k] ? ' · ' + (sp ? 'W ' : 'R ') + M.best[k] : ''}</button>`).join('') : '<span class="note">Noch keine. Bau eine oder lade Karten der Familie.</span>'}<button class="btn sm" id="o-edit2">✏️ Karte bauen</button>${window.NET && NET.ok() ? '<button class="btn sm" id="o-maps">🌍 Karten der Familie</button>' : ''}</div>
+      <div class="pn cm"><b>✏️ Eigene Karten</b>${customs.length ? customs.map(k => `<button class="chip2${k === pickMap ? ' on' : ''}" data-map="${k}" title="${esc(MAPS[k].d)}"><span data-raw>${esc(MAPS[k].n)}</span>${M.best[k] ? ' · ' + (sp ? 'W ' : 'R ') + M.best[k] : ''}</button>`).join('') : '<span class="note">Noch keine. Bau eine oder lade Karten der anderen.</span>'}<button class="btn sm" id="o-edit2">✏️ Karte bauen</button>${window.NET && NET.ok() ? '<button class="btn sm" id="o-maps">🌍 Karten der anderen</button>' : ''}</div>
       <div class="pn box"><div class="lbl">Schwierigkeit</div><div class="opts">${Object.entries(DIFF).map(([k, d]) => `<button class="opt${M.diff === k ? ' on' : ''}" data-diff="${k}"><b>${d.n}</b><small>${d.d} · 💎 ×${String(d.dia).replace('.', ',')}</small></button>`).join('')}</div></div>
       <div class="g2"><div class="pn box"><div class="lbl">Modus</div><div class="opts two"><button class="opt${goal ? '' : ' on'}" data-gm="endless"><b>♾️ Endlos</b><small>So weit du kommst</small></button><button class="opt${goal ? ' on' : ''}" data-gm="goal"><b>🎯 Ziel: ${R} ${GOAL}</b><small>Bis zu 3 Sterne je Karte</small></button></div></div>
         <label class="tgl pn"><input type="checkbox" id="o-wx" ${M.wx ? 'checked' : ''}><span class="t"><b>${sp ? 'Weltraumwetter' : 'Wetter'}</b><small>Ab ${R} 6 manchmal ${Object.values(WEATHER).map(x => x.n).join(', ')}</small></span><span class="sw${M.wx ? ' on' : ''}"></span></label></div>
@@ -1055,7 +1055,7 @@ function showOverlay(kind) {
     main.querySelectorAll('[data-save]').forEach(b => b.onclick = () => { const i = +b.dataset.save; if (slots[i] && !confirm(`Platz ${i + 1} überschreiben?`)) return; saveSlot(i); showOverlay('menu'); });
     main.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { const i = +b.dataset.del; if (!confirm(`Spielstand in Platz ${i + 1} löschen?`)) return; deleteSlot(i); showOverlay('menu'); });
   } else if (menuTab === 'board') {
-    main.innerHTML = `<div class="mpage"><div class="mh"><div class="lbl">Familie</div><h2>Bestenliste</h2><p class="lead">Wer kommt am weitesten? Alle im Portal mit dem Recht „Web-Apps“ sehen deinen Vornamen und deine beste Runde.</p></div><div class="pn box"><div id="lb" data-raw></div></div></div>`;
+    main.innerHTML = `<div class="mpage"><div class="mh"><div class="lbl">Alle</div><h2>Bestenliste</h2><p class="lead">Wer kommt am weitesten? Alle im Portal mit dem Recht „Web-Apps“ sehen deinen Vornamen und deine beste Runde.</p></div><div class="pn box"><div id="lb" data-raw></div></div></div>`;
     if (window.NET) NET.renderBoard($('lb')); else $('lb').innerHTML = '<p class="note">Die Bestenliste braucht eine Anmeldung im Portal und eine Internetverbindung.</p>';
   } else if (menuTab === 'ach') {
     main.innerHTML = `<div class="mpage"><div class="mh"><div class="lbl">${M.ach.length} von ${ACH.length} geschafft</div><h2>Erfolge</h2><p class="lead">Jeder Erfolg bringt 💎 und erscheint auch im Game Center.</p></div><div class="achs">${ACH.map(([id, e, n, d, dia]) => { const ok = M.ach.includes(id); return `<div class="ac${ok ? ' ok' : ''}"><span class="ae">${ok ? e : '🔒'}</span><div><b>${n}</b><small>${d}</small></div><span class="dia">${ok ? '✓' : '+' + dia + ' 💎'}</span></div>`; }).join('')}</div></div>`;
@@ -1142,7 +1142,7 @@ async function saveEditorMap() {
   const title = (EDIT.title || '').trim() || 'Meine Karte', pts = editorPts(), id = 'm' + Date.now().toString(36);
   const def = { n: title.slice(0, 30), theme: EDIT.theme, pts, by: 'dir', mine: true };
   if (window.NET && NET.ok()) { try { const r = await NET.publishMap(def); if (r) { def.remote = r.id; def.by = r.by; } } catch (e) { toast('Teilen fehlgeschlagen, nur auf diesem Konto gespeichert'); } }
-  M.custom[id] = def; registerCustom(id, def); M.best['c_' + id] = 0; saveMeta(); checkAch(); pickMap = 'c_' + id; EDIT = null; $('stage').classList.remove('editing'); toast(`💾 Karte „${def.n}“ gespeichert${def.remote ? ' und mit der Familie geteilt' : ''}`); menuTab = 'play'; renderAll(); showOverlay('menu');
+  M.custom[id] = def; registerCustom(id, def); M.best['c_' + id] = 0; saveMeta(); checkAch(); pickMap = 'c_' + id; EDIT = null; $('stage').classList.remove('editing'); toast(`💾 Karte „${def.n}“ gespeichert${def.remote ? ' und mit allen geteilt' : ''}`); menuTab = 'play'; renderAll(); showOverlay('menu');
 }
 // ================= Bedienung =================
 function toWorld(e) { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
@@ -1204,6 +1204,6 @@ window.TD = { get S() { return S; }, get M() { return M; }, step(n = 1) { for (l
 });
 </script>
 
-<script src="online.js?v=43ea3af7"></script>
+<script src="online.js?v=e82e7072"></script>
 </body>
 </html>

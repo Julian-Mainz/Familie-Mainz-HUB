@@ -2,6 +2,18 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 26.11.2026 (7)
+Texte: kein Familien-Dashboard mehr, sondern für mich und meine Freunde
+- Teilen im Explorer heißt jetzt einfach „Teilen …“ (statt „Mit Familie teilen …“), Hinweise sprechen von „Mitgliedern“.
+- Kontakte: „Für alle sichtbar“ statt „Für die Familie sichtbar“ (die Kategorie „Familie“ für eigene Verwandte bleibt).
+- Widget „Familien-Zettel“ heißt jetzt „Gemeinsamer Zettel“, Pinnwand-Beschreibung angepasst, Konto zeigt „Mitglied“ statt „Familienmitglied“.
+- Präsentationsvorlage „Familien-Info“ wird zu „Gruppen-Info“; Writer-Beispiel in der Kopfzeile neutral.
+- Kalender-Beispiel „Freunde“ statt „Familie“; Ballon-Spiel: „Karten der anderen“, Bestenliste „Alle“.
+
+Geänderte Dateien: OS/explorer.js, OS/contacts.js, OS/social.js, OS/widgets.js, OS/writer.js, OS/slides.js, OS/setwin.js, OS/os-icons.css, menu.html, Ballon/index.html, Ballon/online.js, CHANGELOG.md
+
+Firestore-Regeln: keine Änderung
+
 ## 26.11.2026 (6)
 OS – Paket C: Kontakte und Dateien teilen
 - Neue App „Kontakte“ (Adressbuch): Kategorien Familie, Freunde, Ärzte, Handwerker, Behörden & Ämter, Arbeit, Sonstiges; Suche, Anrufen, E-Mail, Geburtstag mit „wird 36 in 2 Tagen“, Notizen, vCard-Import (z. B. vom Handy) und -Export.

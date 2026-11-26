@@ -1,20 +1,20 @@
-// OS/social.js – Familien-Zettel (geteiltes Widget), Chat-Blasen mit Antwortfeld und Musik-Leiste in der Taskleiste für J.Mainz OS.
+// OS/social.js – Gemeinsamer Zettel (geteiltes Widget), Chat-Blasen mit Antwortfeld und Musik-Leiste in der Taskleiste für J.Mainz OS.
 (function () {
     'use strict';
     let API, U, e, S;
     const $ = id => document.getElementById(id);
 
-    // ---------- Widget: Familien-Zettel (os_shared/zettel, für alle freigegebenen Mitglieder) ----------
-    const FAMILY = { name: 'Familien-Zettel', icon: 'fa-users', c: '#fb923c', desc: 'Ein Zettel, den alle in der Familie sehen und bearbeiten', sizes: { s: [230, 200], m: [280, 260], l: [340, 340] }, bare: true,
+    // ---------- Widget: Gemeinsamer Zettel (os_shared/zettel, für alle freigegebenen Mitglieder) ----------
+    const FAMILY = { name: 'Gemeinsamer Zettel', icon: 'fa-users', c: '#fb923c', desc: 'Ein Zettel, den alle Mitglieder sehen und bearbeiten', sizes: { s: [230, 200], m: [280, 260], l: [340, 340] }, bare: true,
         mount(b) {
-            b.innerHTML = `<div class="wg-fam"><textarea class="wg-sticky" maxlength="3000" placeholder="Für alle sichtbar, z. B. „Wer holt heute die Kinder?“" aria-label="Familien-Zettel"></textarea><small class="by"></small></div>`;
+            b.innerHTML = `<div class="wg-fam"><textarea class="wg-sticky" maxlength="3000" placeholder="Für alle sichtbar, z. B. „Wer bringt was mit?“" aria-label="Gemeinsamer Zettel"></textarea><small class="by"></small></div>`;
             const ta = b.querySelector('textarea'), by = b.querySelector('.by'); let t = 0, dirty = false;
             const ref = db.collection('os_shared').doc('zettel');
             const off = ref.onSnapshot(d => {
                 const x = d.exists ? d.data() : {};
                 if (!dirty && document.activeElement !== ta) ta.value = x.text || '';
                 by.textContent = x.by ? `zuletzt: ${x.by} · ${new Date(x.at || 0).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : 'noch leer';
-            }, err => { by.textContent = err.code === 'permission-denied' ? 'Firestore-Regel für den Familien-Zettel fehlt noch' : 'nicht erreichbar'; });
+            }, err => { by.textContent = err.code === 'permission-denied' ? 'Firestore-Regel für den gemeinsamen Zettel fehlt noch' : 'nicht erreichbar'; });
             ta.addEventListener('input', () => { dirty = true; by.textContent = 'wird gespeichert …'; clearTimeout(t);
                 t = setTimeout(() => ref.set({ text: ta.value.slice(0, 3000), by: U.firstName || U.email, at: Date.now() }).then(() => { dirty = false; }).catch(x => { by.textContent = 'Speichern fehlgeschlagen: ' + (x.code === 'permission-denied' ? 'Regel fehlt' : x.message); }), 800); });
             ta.addEventListener('blur', () => { if (!dirty) return; });

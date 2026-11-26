@@ -47,7 +47,7 @@
     if (!ok()) return null; const r = await N.db.collection('ballon_maps').add({ uid: N.user.uid, author: N.name, title: def.n, theme: def.theme, pts: flat(def.pts), at: TS() }); return { id: r.id, by: N.name };
   }
   async function browseMaps(o) {
-    o.innerHTML = `<div class="card box"><h2>🌍 Karten der Familie</h2><p class="lead">Karten, die andere im Portal gebaut und geteilt haben. „Hinzufügen“ legt sie bei deinen eigenen Karten ab.</p><div id="mlist"><p class="note">Lade …</p></div><div class="row"><button class="btn" id="o-back2">Zurück</button></div></div>`;
+    o.innerHTML = `<div class="card box"><h2>🌍 Karten der anderen</h2><p class="lead">Karten, die andere im Portal gebaut und geteilt haben. „Hinzufügen“ legt sie bei deinen eigenen Karten ab.</p><div id="mlist"><p class="note">Lade …</p></div><div class="row"><button class="btn" id="o-back2">Zurück</button></div></div>`;
     $('o-back2').onclick = () => showOverlay('menu');
     try {
       const s = await N.db.collection('ballon_maps').orderBy('at', 'desc').limit(50).get(), have = new Set(Object.values(M.custom).map(c => c.remote).filter(Boolean));
