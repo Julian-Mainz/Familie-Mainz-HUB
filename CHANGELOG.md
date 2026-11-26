@@ -2,6 +2,17 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 26.11.2026 (4)
+OS – Paket A: schnellerer Start, „Empfohlen“ im Startmenü, Systemklänge
+- Schnellerer Start: Writer, Tabellen und Präsentation (samt .docx/.xlsx/.pptx-Code) werden nicht mehr beim Start ausgeführt, sondern erst beim ersten Öffnen nachgeladen. Der Browser lädt sie im Leerlauf vor, das Öffnen bleibt also schnell.
+- Startmenü „Empfohlen“: zuletzt geöffnete Dateien und Apps gemischt, nach Zeit sortiert, mit „vor 3 Min.“ / „Heute, 14:20“; „Mehr“ klappt weitere Einträge auf. Dateien aus Writer/Tabellen/Präsentation werden beim Speichern mit aufgenommen.
+- Systemklänge: dezente Töne beim Start, Sperren/Entsperren, Mitteilungen, Hinweisen/Fehlern, Papierkorb und Bildschirmfoto. Einstellungen → System → Ton: an/aus und Lautstärke mit „Probe“.
+- Tabellen-Symbol wurde nicht angezeigt – behoben.
+
+Geänderte Dateien: OS/index.html, OS/office.js (neu), OS/sound.js (neu), OS/writer.js, OS/calc.js, OS/slides.js, OS/explorer.js, OS/shell.js, OS/os.js, OS/extras.js, OS/tools.js, OS/setwin.js, OS/os.css, OS/os-icons.css, CHANGELOG.md
+
+Firestore-Regeln: keine Änderung
+
 ## 26.11.2026 (3)
 
 ### Desktop-Modus: Präsentation – eigenes Präsentationsprogramm (wie PowerPoint)

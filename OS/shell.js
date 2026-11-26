@@ -85,7 +85,7 @@
     // ---------- Sperrbildschirm ----------
     let locked = false, last = Date.now();
     function lockNow() {
-        if (locked) return; locked = true; API.closePops();
+        if (locked) return; locked = true; API.closePops(); if (window.JMOS_SOUND) JMOS_SOUND.play('lock');
         const el = document.createElement('div'); el.id = 'lock'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Gesperrt');
         const name = [U.firstName, U.lastName].filter(Boolean).join(' ') || U.email;
         el.innerHTML = `<div class="lk-bg"></div><div class="lk-time"><b></b><span></span></div>
@@ -96,7 +96,7 @@
         const bgEl = el.querySelector('.lk-bg'), wall = document.querySelector('.wall-img'); if (wall && getComputedStyle(wall).backgroundImage !== 'none') bgEl.style.backgroundImage = getComputedStyle(wall).backgroundImage;
         const tick = () => { const d = new Date(); el.querySelector('.lk-time b').textContent = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }); el.querySelector('.lk-time span').textContent = d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }); };
         tick(); const id = setInterval(tick, 1000);
-        const open = () => { clearInterval(id); el.classList.add('out'); document.documentElement.classList.remove('locked'); setTimeout(() => el.remove(), 350); locked = false; last = Date.now(); };
+        const open = () => { if (window.JMOS_SOUND) JMOS_SOUND.play('unlock'); clearInterval(id); el.classList.add('out'); document.documentElement.classList.remove('locked'); setTimeout(() => el.remove(), 350); locked = false; last = Date.now(); };
         if (S.lockPin) {
             const f = el.querySelector('.lk-pin'), inp = f.querySelector('input'); setTimeout(() => inp.focus(), 50);
             f.addEventListener('submit', async ev => { ev.preventDefault(); if (await hash(inp.value) === S.lockPin) open(); else { inp.value = ''; el.querySelector('.lk-err').textContent = 'Falsche PIN'; f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake'); } });
@@ -164,13 +164,24 @@
     }
 
     // ---------- Zuletzt geöffnet (Startmenü ohne Suchbegriff) ----------
+    // ---------- Empfohlen (Startmenü ohne Suchbegriff): zuletzt benutzte Dateien und Apps, wie bei Windows 11 ----------
+    let recMore = false;
+    const ago = t => { if (!t) return ''; const m = Math.round((Date.now() - t) / 60000), d = new Date(t), td = new Date(); if (m < 1) return 'Gerade eben'; if (m < 60) return `vor ${m} Min.`;
+        const hm = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }); if (d.toDateString() === td.toDateString()) return 'Heute, ' + hm; const y = new Date(td); y.setDate(td.getDate() - 1); if (d.toDateString() === y.toDateString()) return 'Gestern, ' + hm;
+        return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: d.getFullYear() === td.getFullYear() ? undefined : 'numeric' }); };
+    const FT = n => /\.docx?$/i.test(n) ? ['fa-file-word', '#4f8ff7'] : /\.(xlsx?|csv)$/i.test(n) ? ['fa-file-excel', '#2fbf6c'] : /\.pptx?$/i.test(n) ? ['fa-file-powerpoint', '#f2784b'] : /\.pdf$/i.test(n) ? ['fa-file-pdf', '#f87171'] : /\.(png|jpe?g|webp|gif)$/i.test(n) ? ['fa-file-image', '#38bdf8'] : /\.zip$/i.test(n) ? ['fa-file-zipper', '#fbbf24'] : /\.(txt|md|json|log)$/i.test(n) ? ['fa-file-lines', '#94a3b8'] : ['fa-file', '#38bdf8'];
     function recent() {
-        const A = API.apps(), apps = (S.recent || []).filter(id => A[id]).slice(0, 6), X = (window.JMOS_EXT || []).find(x => x.items), files = (S.recentFiles || []).slice(0, 4);
-        const out = [...apps.map(id => ({ icon: A[id].folder ? 'fa-folder' : A[id].icon, c: A[id].c || '#f59e0b', title: A[id].name, sub: 'App', run: () => API.openApp(id) })),
-            ...files.map(f => ({ icon: 'fa-file', c: '#38bdf8', title: f.name, sub: 'Datei', run: () => { const its = X ? X.items() : [], it = its.find(x => x.key === f.key); if (it) X.openViewer(it, its); else uiAlert('Diese Datei gibt es nicht mehr.'); } }))];
+        const A = API.apps(), X = (window.JMOS_EXT || []).find(x => x.items), at = S.recentAt || {};
+        const files = (S.recentFiles || []).map(f => { const [icon, c] = FT(f.name); return { icon, c, title: f.name, sub: ago(f.t) || 'Datei', t: f.t || 0, run: () => { const its = X ? X.items() : [], it = its.find(x => x.key === f.key); if (it) X.openViewer(it, its); else uiAlert('Diese Datei gibt es nicht mehr.'); } }; });
+        const apps = (S.recent || []).filter(id => A[id]).map((id, i) => ({ icon: A[id].folder ? 'fa-folder' : A[id].icon, c: A[id].c || '#f59e0b', title: A[id].name, sub: at[id] ? 'App · ' + ago(at[id]) : 'App', t: at[id] || 1 - i, run: () => API.openApp(id) }));
+        const all = [...files.filter(f => f.t), ...apps].sort((a, b) => b.t - a.t), oldFiles = files.filter(f => !f.t);
+        const out = [...all, ...oldFiles].slice(0, recMore ? 16 : 6);
         window.JMOS_RECENT_LIST = out;
-        return out.length ? `<div class="st-head"><span>Zuletzt geöffnet</span></div><div class="st-rec">${out.map((r, i) => `<button type="button" class="st-r" data-recent="${i}"><span class="ic" style="--c:${r.c}"><i class="fa-solid ${r.icon}"></i></span><span class="tx"><b>${e(r.title)}</b><small>${r.sub}</small></span></button>`).join('')}</div>` : '';
+        const more = all.length + oldFiles.length > 6 ? `<button type="button" class="st-more" data-recmore>${recMore ? 'Weniger' : 'Mehr'} <i class="fa-solid fa-chevron-${recMore ? 'up' : 'right'}"></i></button>` : '';
+        return out.length ? `<div class="st-head"><span>Empfohlen</span>${more}</div><div class="st-rec">${out.map((r, i) => `<button type="button" class="st-r" data-recent="${i}"><span class="ic" style="--c:${r.c}"><i class="fa-solid ${r.icon}"></i></span><span class="tx"><b>${e(r.title)}</b><small>${e(r.sub)}</small></span></button>`).join('')}</div>`
+            : '<div class="st-head"><span>Empfohlen</span></div><p class="st-recnone">Hier erscheinen die Dateien und Apps, die du zuletzt benutzt hast.</p>';
     }
+    document.addEventListener('click', ev => { const b = ev.target.closest('[data-recmore]'); if (!b) return; ev.stopPropagation(); recMore = !recMore; API.renderStart(); }, true);
 
     (window.JMOS_EXT = window.JMOS_EXT || []).push({
         init(api, user) {

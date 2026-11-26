@@ -450,12 +450,12 @@
                 const r = await askSave(doc.key ? doc.name : firstLine.slice(0, 50).replace(/[\\/:*?"<>|]+/g, '') + '.docx', doc.folder); if (!r) return;
                 doc.saving = true; status();
                 restoreSel();
-                try { const b = await bytes(); const key = await JMOS_FILES.createText(r.name, b, r.folder); try { localStorage.removeItem(DKEY()); } catch (x) {} doc.key = key; doc.name = r.name; doc.folder = r.folder; doc.saved = sig(); }
+                try { const b = await bytes(); const key = await JMOS_FILES.createText(r.name, b, r.folder); try { localStorage.removeItem(DKEY()); } catch (x) {} doc.key = key; doc.name = r.name; doc.folder = r.folder; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); }
                 catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
                 doc.saving = false; title(); return;
             }
             doc.saving = true; status();
-            try { const b = await bytes(); await JMOS_FILES.saveText(doc.key, b); doc.saved = sig(); try { localStorage.removeItem(DKEY()); } catch (x) {} }
+            try { const b = await bytes(); await JMOS_FILES.saveText(doc.key, b); doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); try { localStorage.removeItem(DKEY()); } catch (x) {} }
             catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
             doc.saving = false; title();
         }
@@ -523,7 +523,7 @@
             const b = ev.target.closest('[data-bs]'), t = ev.target.closest('[data-tpl]'), o = ev.target.closest('[data-open]');
             if (t) { if (dirty() && page.innerText.trim() && !(await uiConfirm('Das aktuelle Dokument hat ungespeicherte Änderungen. Trotzdem eine neue Vorlage laden?', { danger: true, ok: 'Verwerfen' }))) return;
                 const tp = TPL[t.dataset.tpl]; if (doc.key || page.innerText.trim()) { backstageClose(); return create(doc.folder, t.dataset.tpl); }
-                loadDoc(tp.html(), tp.st || {}); doc.name = tp.n === 'Leeres Dokument' ? 'Dokument1.docx' : tp.n + '.docx'; doc.saved = sig(); title(); return backstageClose(); }
+                loadDoc(tp.html(), tp.st || {}); doc.name = tp.n === 'Leeres Dokument' ? 'Dokument1.docx' : tp.n + '.docx'; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); title(); return backstageClose(); }
             if (o) { backstageClose(); if (o.dataset.open === doc.key) return; if (!doc.key && !page.innerText.trim()) { doc.key = o.dataset.open; return loadFile(); } return open(o.dataset.open); }
             if (!b) return; const k = b.dataset.bs;
             if (k === 'back') return backstageClose();
@@ -539,11 +539,11 @@
             try {
                 const { blob, name } = await JMOS_FILES.blobOf(doc.key); doc.name = name; doc.folder = it ? it.folder || '' : '';
                 const r = await JMDOCX.read(await blob.arrayBuffer());
-                page.contentEditable = 'true'; loadDoc(r.html, r.settings); doc.saved = sig();
+                page.contentEditable = 'true'; loadDoc(r.html, r.settings); doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name);
                 let d = null; try { d = JSON.parse(localStorage.getItem(DKEY()) || 'null'); } catch (x) {}
                 if (d && d.html && d.html !== page.innerHTML && await uiConfirm(`Für „${name}“ gibt es ungespeicherte Änderungen vom ${new Date(d.t).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })}. Wiederherstellen?`, { ok: 'Wiederherstellen', title: 'Writer' })) { loadDoc(d.html, d.st); }
                 else if (d) { try { localStorage.removeItem(DKEY()); } catch (x) {} }
-            } catch (x) { page.contentEditable = 'true'; page.innerHTML = `<p><b>Das Dokument lässt sich nicht öffnen.</b></p><p>${e(x.message)}</p>`; doc.key = null; doc.saved = sig(); }
+            } catch (x) { page.contentEditable = 'true'; page.innerHTML = `<p><b>Das Dokument lässt sich nicht öffnen.</b></p><p>${e(x.message)}</p>`; doc.key = null; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); }
             title();
         }
         win.beforeClose = () => dirty() && (doc.key || page.innerText.trim()) ? `„${doc.name}“ hat ungespeicherte Änderungen. Trotzdem schließen?` : '';
@@ -564,7 +564,7 @@
         setZoom(win.el.offsetWidth < 900 ? 80 : 100);
         if (doc.key) loadFile();
         else {
-            const tp = TPL[P.tpl] || TPL.leer; loadDoc(tp.html(), tp.st || {}); doc.name = P.tpl && P.tpl !== 'leer' ? tp.n + '.docx' : 'Dokument1.docx'; doc.saved = sig();
+            const tp = TPL[P.tpl] || TPL.leer; loadDoc(tp.html(), tp.st || {}); doc.name = P.tpl && P.tpl !== 'leer' ? tp.n + '.docx' : 'Dokument1.docx'; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name);
             let d = null; try { d = JSON.parse(localStorage.getItem(DKEY()) || 'null'); } catch (x) {}
             if (!P.tpl) backstage('home');
             title();
@@ -572,10 +572,8 @@
         setTimeout(() => { if (back.hidden) { page.focus(); const r = document.createRange(); r.setStart(page.firstChild || page, 0); r.collapse(true); getSelection().removeAllRanges(); getSelection().addRange(r); } }, 80);
     }
 
-    window.JMOS_WRITER = { open, create };
-    (window.JMOS_EXT = window.JMOS_EXT || []).push({
-        apps: [{ id: 'writer', name: 'Writer', icon: 'fa-file-word', c: '#2b6cdf', native: 'writer', w: 1120, h: 760 }],
-        ui: { writer: ui },
-        init(api, user) { API = api; U = user; e = api.esc; },
-    });
+    // wird von OS/office.js erst beim ersten Öffnen nachgeladen (schnellerer Start)
+    const mod = { ui, init(api, user) { API = api; U = user; e = api.esc; } };
+    if (window.JMOS_LAZY) JMOS_LAZY.register('writer', mod);
+    else { window.JMOS_WRITER = { open, create }; (window.JMOS_EXT = window.JMOS_EXT || []).push({ apps: [{ id: 'writer', name: 'Writer', icon: 'fa-file-word', c: '#2b6cdf', native: 'writer', w: 1120, h: 760 }], ui: { writer: ui }, init: mod.init }); }
 })();

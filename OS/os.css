@@ -1182,3 +1182,6 @@ html.bar-c .pv-bar { justify-content: center; }
 .px-end { position: absolute; inset: 0; display: grid; place-items: center; color: #9ca3af; font: 18px "Segoe UI", sans-serif; }
 .px-sbar { position: absolute; left: 16px; bottom: 16px; z-index: 5; display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 10px; background: rgba(0, 0, 0, .55); opacity: 0; transition: opacity .2s; }
 .px-show:hover .px-sbar { opacity: 1; } .px-sbar button { width: 32px; height: 32px; border: 0; border-radius: 8px; background: none; color: #fff; } .px-sbar button:hover { background: rgba(255, 255, 255, .15); } .px-sn { color: #e5e7eb; font: 12px "Segoe UI", sans-serif; min-width: 48px; text-align: center; }
+.lz-load { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--mut); font-size: 13.5px; background: #1b2236; } .lz-load i { font-size: 24px; }
+.st-more { border: 0; background: rgba(148, 163, 184, .12); color: var(--txt); font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 8px; } .st-more:hover { background: rgba(148, 163, 184, .2); } .st-more i { font-size: 9px; margin-left: 4px; }
+.st-recnone { margin: 0 6px 10px; color: var(--mut); font-size: 12.5px; }

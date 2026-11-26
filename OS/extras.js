@@ -51,6 +51,7 @@
     function act(n) { if (!n) return; const N = nc(); N.read = keep([...new Set([...N.read, n.id])]); API.save(); paint(); API.closePops(); if (n.run) n.run(); else if (n.app) API.openApp(n.app, n.url ? { url: n.url } : {}); }
     function gone(id) { const N = nc(); N.gone = keep([...new Set([...N.gone, id])]); API.save(); paint(); }
     function toast(n) {
+        if (window.JMOS_SOUND && !nc().dnd) JMOS_SOUND.play('notify');
         const box = $('toasts'), el = document.createElement('div'); el.className = 'tst';
         el.innerHTML = row(n, 'tst-i'); box.appendChild(el);
         const kill = () => { el.classList.add('out'); setTimeout(() => el.remove(), 250); };

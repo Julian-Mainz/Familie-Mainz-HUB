@@ -223,7 +223,7 @@
             <div class="wt-btns">${a.url ? '<button type="button" class="wt-b" data-a="pop" title="Als eigenes Fenster herauslösen" aria-label="Als eigenes Fenster herauslösen"><i class="fa-solid fa-window-restore"></i></button>' : ''}${a.url ? '<button type="button" class="wt-b" data-a="tab" title="In neuem Browser-Tab öffnen" aria-label="In neuem Tab öffnen"><i class="fa-solid fa-up-right-from-square"></i></button>' : ''}<button type="button" class="wt-b" data-a="min" title="Minimieren" aria-label="Minimieren"><i class="fa-regular fa-window-minimize"></i></button>${a.noMax ? '' : '<button type="button" class="wt-b" data-a="max" title="Maximieren" aria-label="Maximieren"><i class="fa-regular fa-window-maximize"></i></button>'}<button type="button" class="wt-b x" data-a="close" title="Schließen" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button></div></div>
             <div class="wb"></div>${['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'].map(d => `<div class="rz ${d}" data-d="${d}"></div>`).join('')}`;
         win.el = el; $('wins').appendChild(el); WINS.push(win);
-        if (!a.hidden && !o.restore) S.recent = [id, ...(S.recent || []).filter(x => x !== id)].slice(0, 8);
+        if (!a.hidden && !o.restore) { S.recent = [id, ...(S.recent || []).filter(x => x !== id)].slice(0, 8); S.recentAt = Object.assign({}, S.recentAt, { [id]: Date.now() }); }
         fill(win); place(win); focus(win); wireWin(win); renderTasks(); save();
         return win;
     }

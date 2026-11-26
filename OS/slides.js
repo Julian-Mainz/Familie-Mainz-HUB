@@ -468,11 +468,11 @@
                 const first = (() => { for (const s of deck.slides) for (const x of s.shapes) if (x.type === 'text' && !empty(x)) return x.paras.map(p => p.runs.map(r => r.t).join('')).join(' ').trim(); return ''; })();
                 const r = await askSave(doc.key ? doc.name : (first ? first.slice(0, 50).replace(/[\\/:*?"<>|]+/g, '') + '.pptx' : doc.name), doc.folder); if (!r) return;
                 doc.saving = true; title();
-                try { const key = await JMOS_FILES.createText(r.name, await bytes(), r.folder); try { localStorage.removeItem(DKEY()); } catch (x) {} doc.key = key; doc.name = r.name; doc.folder = r.folder; doc.saved = sig(); } catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
+                try { const key = await JMOS_FILES.createText(r.name, await bytes(), r.folder); try { localStorage.removeItem(DKEY()); } catch (x) {} doc.key = key; doc.name = r.name; doc.folder = r.folder; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); } catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
                 doc.saving = false; title(); stage.focus(); return;
             }
             doc.saving = true; title();
-            try { await JMOS_FILES.saveText(doc.key, await bytes()); doc.saved = sig(); try { localStorage.removeItem(DKEY()); } catch (x) {} } catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
+            try { await JMOS_FILES.saveText(doc.key, await bytes()); doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); try { localStorage.removeItem(DKEY()); } catch (x) {} } catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
             doc.saving = false; title();
         }
         function askSave(name, folder) {
@@ -505,7 +505,7 @@
         const isEmpty = () => !deck.slides.some(s => s.shapes.some(x => x.type === 'image' || (x.type !== 'shape' && !empty(x)))) && deck.slides.length === 1;
         back.addEventListener('click', ev => {
             const b = ev.target.closest('[data-bs]'), t = ev.target.closest('[data-tpl]'), o = ev.target.closest('[data-open]');
-            if (t) { if (doc.key || !isEmpty()) { back.hidden = true; return create(doc.folder, t.dataset.tpl); } loadDeck(newDeck(t.dataset.tpl)); doc.name = t.dataset.tpl === 'leer' ? 'Präsentation1.pptx' : TPL[t.dataset.tpl].n + '.pptx'; doc.saved = sig(); title(); back.hidden = true; return; }
+            if (t) { if (doc.key || !isEmpty()) { back.hidden = true; return create(doc.folder, t.dataset.tpl); } loadDeck(newDeck(t.dataset.tpl)); doc.name = t.dataset.tpl === 'leer' ? 'Präsentation1.pptx' : TPL[t.dataset.tpl].n + '.pptx'; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); title(); back.hidden = true; return; }
             if (o) { back.hidden = true; if (o.dataset.open === doc.key) return; if (!doc.key && isEmpty()) { doc.key = o.dataset.open; return loadFile(); } return open(o.dataset.open); }
             if (!b) return; const k = b.dataset.bs; if (k === 'back') { back.hidden = true; return; } if (k === 'home' || k === 'new' || k === 'open') return backstage(k); if (k === 'pc') return $('.px-fopen').click();
             back.hidden = true; if (C[k]) C[k]();
@@ -514,7 +514,7 @@
         async function loadFile() {
             slideEl.innerHTML = '<div class="px-load"><i class="fa-solid fa-spinner fa-spin"></i> Präsentation wird geladen …</div>';
             try { const { blob, name } = await JMOS_FILES.blobOf(doc.key); const it = JMOS_FILES.item(doc.key); doc.name = name; doc.folder = it ? it.folder || '' : '';
-                loadDeck(await JMPPTX.read(await blob.arrayBuffer())); doc.saved = sig();
+                loadDeck(await JMPPTX.read(await blob.arrayBuffer())); doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name);
                 let d = null; try { d = JSON.parse(localStorage.getItem(DKEY()) || 'null'); } catch (x) {}
                 if (d && d.deck && await uiConfirm(`Für „${name}“ gibt es ungespeicherte Änderungen vom ${new Date(d.t).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })}. Wiederherstellen?`, { ok: 'Wiederherstellen', title: 'Präsentation' })) loadDeck(d.deck); else if (d) { try { localStorage.removeItem(DKEY()); } catch (x) {} }
             } catch (x) { uiAlert('Die Präsentation lässt sich nicht öffnen: ' + x.message); doc.key = null; loadDeck(newDeck('leer')); }
@@ -526,14 +526,12 @@
         new ResizeObserver(() => fit()).observe(stage);
 
         if (doc.key) { renderAll(); loadFile(); }
-        else { loadDeck(deck); doc.name = P.tpl && P.tpl !== 'leer' ? TPL[P.tpl].n + '.pptx' : 'Präsentation1.pptx'; doc.saved = sig(); if (!P.tpl) backstage('home'); title(); }
+        else { loadDeck(deck); doc.name = P.tpl && P.tpl !== 'leer' ? TPL[P.tpl].n + '.pptx' : 'Präsentation1.pptx'; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); if (!P.tpl) backstage('home'); title(); }
         setTimeout(() => stage.focus({ preventScroll: true }), 80);
     }
 
-    window.JMOS_SLIDES = { open, create };
-    (window.JMOS_EXT = window.JMOS_EXT || []).push({
-        apps: [{ id: 'praesentation', name: 'Präsentation', icon: 'fa-person-chalkboard', c: '#d24726', native: 'praesentation', w: 1180, h: 780 }],
-        ui: { praesentation: ui },
-        init(api, user) { API = api; U = user; e = api.esc; },
-    });
+    // wird von OS/office.js erst beim ersten Öffnen nachgeladen (schnellerer Start)
+    const mod = { ui, init(api, user) { API = api; U = user; e = api.esc; } };
+    if (window.JMOS_LAZY) JMOS_LAZY.register('praesentation', mod);
+    else { window.JMOS_SLIDES = { open, create }; (window.JMOS_EXT = window.JMOS_EXT || []).push({ apps: [{ id: 'praesentation', name: 'Präsentation', icon: 'fa-person-chalkboard', c: '#d24726', native: 'praesentation', w: 1180, h: 780 }], ui: { praesentation: ui }, init: mod.init }); }
 })();

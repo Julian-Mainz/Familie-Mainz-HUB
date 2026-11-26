@@ -94,6 +94,7 @@
     }
     function stamp() { const d = new Date(); return `Bildschirmfoto_${localDate(d)}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`; }
     function result(c) {
+        if (window.JMOS_SOUND) JMOS_SOUND.play('shot');
         const name = stamp(), toBlob = (t, q) => new Promise(r => c.toBlob(r, t, q));
         const el = document.createElement('div'); el.className = 'shot-res'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Bildschirmfoto');
         el.innerHTML = `<img src="${c.toDataURL('image/png')}" alt="Bildschirmfoto"><div class="shot-info"><b>Bildschirmfoto</b><small>${c.width} × ${c.height} Pixel</small></div>

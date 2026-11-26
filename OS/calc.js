@@ -547,11 +547,11 @@
             if (!doc.key || as) {
                 const r = await askSave(doc.name.replace(/\.csv$/i, '.xlsx'), doc.folder); if (!r) return;
                 doc.saving = true; title();
-                try { const key = await JMOS_FILES.createText(r.name, await bytes(), r.folder); try { localStorage.removeItem(DKEY()); } catch (x) {} doc.key = key; doc.name = r.name; doc.folder = r.folder; doc.saved = sig(); } catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
+                try { const key = await JMOS_FILES.createText(r.name, await bytes(), r.folder); try { localStorage.removeItem(DKEY()); } catch (x) {} doc.key = key; doc.name = r.name; doc.folder = r.folder; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); } catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
                 doc.saving = false; title(); kb.focus(); return;
             }
             doc.saving = true; title();
-            try { await JMOS_FILES.saveText(doc.key, await bytes()); doc.saved = sig(); try { localStorage.removeItem(DKEY()); } catch (x) {} } catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
+            try { await JMOS_FILES.saveText(doc.key, await bytes()); doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); try { localStorage.removeItem(DKEY()); } catch (x) {} } catch (x) { uiAlert('Speichern fehlgeschlagen: ' + x.message); }
             doc.saving = false; title();
         }
         function askSave(name, folder) {
@@ -593,7 +593,7 @@
         const isEmpty = () => book.sheets.length === 1 && !book.sheets[0].cells.size;
         back.addEventListener('click', ev => {
             const b = ev.target.closest('[data-bs]'), t = ev.target.closest('[data-tpl]'), o = ev.target.closest('[data-open]');
-            if (t) { if (doc.key || !isEmpty()) { backClose(); return create(doc.folder, t.dataset.tpl); } loadBook(TPL[t.dataset.tpl].make()); doc.name = t.dataset.tpl === 'leer' ? 'Mappe1.xlsx' : TPL[t.dataset.tpl].n + '.xlsx'; doc.saved = sig(); title(); return backClose(); }
+            if (t) { if (doc.key || !isEmpty()) { backClose(); return create(doc.folder, t.dataset.tpl); } loadBook(TPL[t.dataset.tpl].make()); doc.name = t.dataset.tpl === 'leer' ? 'Mappe1.xlsx' : TPL[t.dataset.tpl].n + '.xlsx'; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); title(); return backClose(); }
             if (o) { backClose(); if (o.dataset.open === doc.key) return; if (!doc.key && isEmpty()) { doc.key = o.dataset.open; return loadFile(); } return open(o.dataset.open); }
             if (!b) return; const k = b.dataset.bs; if (k === 'back') return backClose(); if (k === 'home' || k === 'new' || k === 'open') return backstage(k); if (k === 'pc') return $('.cx-fopen').click();
             backClose(); if (CMD[k]) CMD[k]();
@@ -621,14 +621,12 @@
         new ResizeObserver(paint).observe(grid);
 
         if (doc.key) { measure(); tabs(); paint(); loadFile(); }
-        else { const t = TPL[P.tpl] || TPL.leer; loadBook(t.make()); doc.name = P.tpl && P.tpl !== 'leer' ? t.n + '.xlsx' : 'Mappe1.xlsx'; doc.saved = sig(); if (!P.tpl) backstage('home'); title(); }
+        else { const t = TPL[P.tpl] || TPL.leer; loadBook(t.make()); doc.name = P.tpl && P.tpl !== 'leer' ? t.n + '.xlsx' : 'Mappe1.xlsx'; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name); if (!P.tpl) backstage('home'); title(); }
         setTimeout(() => { if (back.hidden) kb.focus({ preventScroll: true }); }, 80);
     }
 
-    window.JMOS_CALC = { open, create };
-    (window.JMOS_EXT = window.JMOS_EXT || []).push({
-        apps: [{ id: 'tabellen', name: 'Tabellen', icon: 'fa-table-cells', c: '#1e8e4e', native: 'tabellen', w: 1160, h: 760 }],
-        ui: { tabellen: ui },
-        init(api, user) { API = api; U = user; e = api.esc; },
-    });
+    // wird von OS/office.js erst beim ersten Öffnen nachgeladen (schnellerer Start)
+    const mod = { ui, init(api, user) { API = api; U = user; e = api.esc; } };
+    if (window.JMOS_LAZY) JMOS_LAZY.register('tabellen', mod);
+    else { window.JMOS_CALC = { open, create }; (window.JMOS_EXT = window.JMOS_EXT || []).push({ apps: [{ id: 'tabellen', name: 'Tabellen', icon: 'fa-table-cells', c: '#1e8e4e', native: 'tabellen', w: 1160, h: 760 }], ui: { tabellen: ui }, init: mod.init }); }
 })();

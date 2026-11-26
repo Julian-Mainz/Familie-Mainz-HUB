@@ -34,7 +34,7 @@
     const used = () => D.docs.reduce((s, d) => s + (d.size || 0), 0);
     // Papierkorb: gelöschte eigene Dateien (deletedAt), nach 30 Tagen endgültig weg
     const trash = () => D.docs.filter(d => d.status === 'ready' && d.deletedAt).map(d => ({ key: 'up:' + d.id, src: 'up', id: d.id, name: d.name || 'Datei', mime: d.mime || '', size: d.size || 0, date: d.deletedAt, folder: d.folder || '', thumb: PHOTO.test(d.thumb || '') ? d.thumb : '', own: true, trash: true, k: kind(d.name, d.mime) }));
-    const toTrash = it => db.collection('documents').doc(it.id).update({ deletedAt: Date.now() });
+    const toTrash = it => { if (window.JMOS_SOUND) JMOS_SOUND.play('trash'); return db.collection('documents').doc(it.id).update({ deletedAt: Date.now() }); };
     const restore = it => db.collection('documents').doc(it.id).update({ deletedAt: firebase.firestore.FieldValue.delete() });
     let purged = false;
     function purgeOld() { if (purged) return; purged = true; const lim = Date.now() - 30 * 864e5; D.docs.filter(d => d.deletedAt && d.deletedAt < lim).forEach(d => removeDoc(d.id).catch(() => {})); }
@@ -313,7 +313,7 @@
             const m = ev.target.closest('[data-m]'); if (m) { mode = m.dataset.m; API.state().xpMode = mode; API.save(); return render(); }
             const a = ev.target.closest('[data-a]'); if (a) return ({ up: () => go('root'), upload: () => $q('.xp-file').click(), newfolder: newFolder, open: openSel, dl: () => { if (picks.size > 1) return doZip(false); const it = cur(); if (it) download(it); }, zip: () => doZip(false), ren: rename, del,
                 restore: () => { const it = cur(); if (it) restore(it).catch(x => uiAlert(x.message)); },
-                empty: async () => { const t = trash(); if (!t.length || !(await uiConfirm(`Papierkorb leeren? ${t.length} Datei(en) werden endgültig gelöscht.`, { danger: true, ok: 'Leeren' }))) return; for (const it of t) await removeDoc(it.id).catch(() => {}); } })[a.dataset.a]();
+                empty: async () => { const t = trash(); if (!t.length || !(await uiConfirm(`Papierkorb leeren? ${t.length} Datei(en) werden endgültig gelöscht.`, { danger: true, ok: 'Leeren' }))) return; if (window.JMOS_SOUND) JMOS_SOUND.play('trash'); for (const it of t) await removeDoc(it.id).catch(() => {}); } })[a.dataset.a]();
             if (!ev.target.closest('.xp-files')) return;
             const i = ev.target.closest('[data-key]'), k = i ? i.dataset.key : null;
             if (k && (ev.ctrlKey || ev.metaKey)) { if (picks.has(k)) { picks.delete(k); sel = picks.size ? [...picks].pop() : null; } else { picks.add(k); sel = k; } anchor = k; return selUI(); }
@@ -407,13 +407,15 @@
     }
 
     // ---------- Vorschau / Bildbetrachter ----------
+    // zuletzt geöffnete Dateien (für „Empfohlen“ im Startmenü)
+    function touch(key, name) { if (!key || !API) return; const S = API.state(); S.recentFiles = [{ key, name, t: Date.now() }, ...(S.recentFiles || []).filter(f => f.key !== key)].slice(0, 16); API.save(); }
     function openViewer(it, list) {
-        if (/\.pptx$/i.test(it.name) && it.own && window.JMOS_SLIDES) { const S0 = API.state(); S0.recentFiles = [{ key: it.key, name: it.name }, ...(S0.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save(); return JMOS_SLIDES.open(it.key); }
-        if (/\.xlsx$/i.test(it.name) && it.own && window.JMOS_CALC) { const S0 = API.state(); S0.recentFiles = [{ key: it.key, name: it.name }, ...(S0.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save(); return JMOS_CALC.open(it.key); }
-        if (/\.docx$/i.test(it.name) && it.own && window.JMOS_WRITER) { const S0 = API.state(); S0.recentFiles = [{ key: it.key, name: it.name }, ...(S0.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save(); return JMOS_WRITER.open(it.key); }
-        if (it.k === 'txt' && it.own && window.JMOS_EDITOR) { const S0 = API.state(); S0.recentFiles = [{ key: it.key, name: it.name }, ...(S0.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save(); return JMOS_EDITOR.open(it.key); }
+        if (/\.pptx$/i.test(it.name) && it.own && window.JMOS_SLIDES) { touch(it.key, it.name); return JMOS_SLIDES.open(it.key); }
+        if (/\.xlsx$/i.test(it.name) && it.own && window.JMOS_CALC) { touch(it.key, it.name); return JMOS_CALC.open(it.key); }
+        if (/\.docx$/i.test(it.name) && it.own && window.JMOS_WRITER) { touch(it.key, it.name); return JMOS_WRITER.open(it.key); }
+        if (it.k === 'txt' && it.own && window.JMOS_EDITOR) { touch(it.key, it.name); return JMOS_EDITOR.open(it.key); }
         const imgs = (list || []).filter(x => x.k === 'img');
-        const S = API.state(); S.recentFiles = [{ key: it.key, name: it.name }, ...(S.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save();
+        touch(it.key, it.name);
         API.openApp('vorschau', { key: it.key, title: it.name, params: { it, imgs }, w: it.k === 'img' ? 900 : 860, h: 680 });
     }
     function viewer(body, win) {
@@ -477,7 +479,7 @@
         toDesk: key => toDesk(key),
         unDesk: key => unDesk(key),
         newDeskFolder: () => newFolderNamed(true),
-        saveText, createText, newText,
+        saveText, createText, newText, touch,
         all: () => items(),
         textFiles: () => items().filter(x => x.own && (x.k === 'txt' || /\.csv$/i.test(x.name))),
         wordFiles: () => items().filter(x => x.own && /\.docx$/i.test(x.name)),
