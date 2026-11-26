@@ -2,6 +2,23 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 26.11.2026 (1)
+
+### Desktop-Modus: Writer – eigene Textverarbeitung (wie Word)
+- Neue App „Writer“ im Startmenü: schreibt und speichert echte Word-Dateien (.docx) in den Dokumenten. Die Dateien lassen sich auch mit Microsoft Word oder LibreOffice öffnen, und vorhandene .docx-Dateien lassen sich im Writer bearbeiten (Doppelklick im Explorer).
+- Menüband wie bei Word:
+  - Start: Einfügen/Ausschneiden/Kopieren, Rückgängig/Wiederholen, Schriftart und -größe, fett, kursiv, unterstrichen, durchgestrichen, hoch-/tiefgestellt, Schriftfarbe, Hervorheben, Formatierung löschen, Aufzählung, Nummerierung, Einzug, Ausrichtung, Zeilenabstand, Formatvorlagen (Standard, Titel, Untertitel, Überschrift 1–3, Zitat), Suchen und Ersetzen.
+  - Einfügen: Seitenumbruch, Tabelle (Raster zum Aufziehen), Bild vom Computer oder aus den Dokumenten, Link, Linie, Datum, Sonderzeichen, Kopf- und Fußzeile, Seitenzahlen.
+  - Layout: Seitenränder (Normal, Schmal, Mittel, Breit, DIN 5008), Hoch- und Querformat, Kopf- und Fußzeile, Zeilenabstand, Einzug.
+  - Ansicht: Zoom, Seitenbreite, Fokusmodus, Formatierungszeichen, Wörter zählen.
+- Datei-Menü: Startseite mit Vorlagen (Leeres Dokument, Brief, Protokoll, Einladung, Lebenslauf) und zuletzt bearbeiteten Dokumenten, Öffnen (auch vom Computer), Speichern, Speichern unter (mit Ordnerwahl), Herunterladen als .docx, Drucken bzw. als PDF speichern.
+- A4-Blatt mit Seitenrändern und Seitenlinien, Kopf- und Fußzeile direkt auf dem Blatt bearbeitbar, Seitenanzeige und Wortzahl in der Statusleiste.
+- Tabellen per Rechtsklick bearbeiten (Zeilen/Spalten einfügen und löschen, Kopfzeile, Zellen einfärben), mit Tab von Zelle zu Zelle. Bilder anklicken: Größe 25–100 %, Ausrichtung, löschen oder an der Ecke größer ziehen. Bilder werden beim Einfügen verkleinert, damit Dokumente unter 3 MB bleiben.
+- Eingefügter Text aus Webseiten oder Word wird bereinigt. Ungespeicherte Änderungen werden im Browser zwischengespeichert und beim nächsten Öffnen angeboten; beim Schließen fragt der Writer nach.
+- „Neues Word-Dokument“ per Rechtsklick auf den Desktop oder im Explorer.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/os-icons.css, OS/explorer.js, OS/docx.js (neu), OS/writer.js (neu)
+- Firestore-Regeln: keine Änderung.
+
 ## 25.11.2026 (21)
 
 ### Desktop-Modus: Symbole entfernen, Ordner auf dem Desktop

@@ -94,10 +94,11 @@
         m.onclick = async ev => { const b = ev.target.closest('[data-ze]'); if (b) { try { const x = ents[+b.dataset.ze]; saveBlob(new Blob([await JMZIP.extract(buf, x)], { type: mimeOf(x.name) }), x.name.split('/').pop()); } catch (er) { uiAlert(er.message); } } if (ev.target.closest('[data-zu]')) unzipTo(it); };
     }
     // Textdateien für den Texteditor
-    const B64 = s => { const b = new TextEncoder().encode(s); let o = ''; for (let i = 0; i < b.length; i += 0x8000) o += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return { b64: btoa(o), size: b.length }; };
+    const B64b = b => { let o = ''; for (let i = 0; i < b.length; i += 0x8000) o += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return { b64: btoa(o), size: b.length }; };
+    const B64 = s => B64b(typeof s === 'string' ? new TextEncoder().encode(s) : s);
     async function saveText(key, text) {
         const it = items().find(x => x.key === key); if (!it || !it.own) throw new Error('Die Datei gibt es nicht mehr oder sie gehört dir nicht.');
-        const { b64, size: sz } = B64(text); if (sz > MAX) throw new Error('Die Datei ist größer als 3 MB.');
+        const { b64, size: sz } = B64(text); if (sz > MAX) throw new Error(`Die Datei ist ${size(sz)} groß – gespeichert werden können höchstens 3 MB. Tipp: Bilder verkleinern.`);
         if (used() - it.size + sz > QUOTA) throw new Error('Dein Speicher (100 MB) ist voll.');
         const ref = db.collection('documents').doc(it.id), n = Math.max(1, Math.ceil(b64.length / CH)), old = (D.docs.find(d => d.id === it.id) || {}).chunks || 0;
         for (let i = 0; i < n; i++) await ref.collection('chunks').doc(String(i).padStart(3, '0')).set({ i, data: b64.slice(i * CH, (i + 1) * CH) });
@@ -106,7 +107,7 @@
         blobs.delete(key);
     }
     async function createText(name, text, folder) {
-        const { b64, size: sz } = B64(text); if (sz > MAX) throw new Error('Die Datei ist größer als 3 MB.');
+        const { b64, size: sz } = B64(text); if (sz > MAX) throw new Error(`Die Datei ist ${size(sz)} groß – gespeichert werden können höchstens 3 MB. Tipp: Bilder verkleinern.`);
         if (used() + sz > QUOTA) throw new Error('Dein Speicher (100 MB) ist voll.');
         const n = Math.max(1, Math.ceil(b64.length / CH)), ref = db.collection('documents').doc();
         await ref.set({ owner: U.email, name: name.slice(0, 120), mime: mimeOf(name) || 'text/plain', size: sz, folder: folder || '', chunks: n, status: 'uploading', thumb: '', createdAt: TS() });
@@ -342,11 +343,11 @@
                     ...(own.length ? [null, ...[['', 'Eigene Dateien'], ...folders.map(f => [f.id, f.name])].map(([id, n]) => ['fa-folder', 'Verschieben nach „' + n + '“', () => move(own[0].key, id)]), null, ['fa-trash-can', `In den Papierkorb (${own.length})`, del]] : [])]); }
             if (i && dir) return API.ctx(ev.clientX, ev.clientY, [['fa-folder-open', 'Öffnen', openSel], ['fa-display', onDesk('dir:' + sel.slice(2)) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => { const k = 'dir:' + sel.slice(2); onDesk(k) ? unDesk(k) : toDesk(k); }], ['fa-file-zipper', 'Als ZIP herunterladen', () => doZip(false)], ['fa-pen', 'Umbenennen', rename], null, ['fa-trash-can', 'Ordner löschen', del]]);
             if (i && it && it.trash) return API.ctx(ev.clientX, ev.clientY, [['fa-rotate-left', 'Wiederherstellen', () => restore(it).catch(x => uiAlert(x.message))], null, ['fa-trash-can', 'Endgültig löschen', del]]);
-            if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], it.k === 'txt' && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Im Texteditor bearbeiten', () => JMOS_EDITOR.open(it.key)], it.k !== 'txt' && /\.csv$/i.test(it.name) && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Als Text bearbeiten', () => JMOS_EDITOR.open(it.key)],
+            if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], /\.docx$/i.test(it.name) && it.own && window.JMOS_WRITER && ['fa-file-word', 'Im Writer bearbeiten', () => JMOS_WRITER.open(it.key)], it.k === 'txt' && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Im Texteditor bearbeiten', () => JMOS_EDITOR.open(it.key)], it.k !== 'txt' && /\.csv$/i.test(it.name) && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Als Text bearbeiten', () => JMOS_EDITOR.open(it.key)],
                 it.k === 'zip' && can(U, 'dokumente') && ['fa-box-open', 'Entpacken …', () => unzipTo(it)], ['fa-download', 'Herunterladen', () => download(it)], it.k !== 'zip' && ['fa-file-zipper', 'Als ZIP herunterladen', () => doZip(false)], window.JMOS_CHAT && ['fa-paper-plane', 'Per Chat senden …', () => JMOS_CHAT.sendVia({ key: it.key })], ['fa-display', onDesk(it.key) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => (onDesk(it.key) ? unDesk(it.key) : toDesk(it.key))],
                 it.own && ['fa-pen', 'Umbenennen', rename], ...(it.own ? [null, ...[['', 'Eigene Dateien'], ...folders.map(f => [f.id, f.name])].filter(([id]) => id !== it.folder).map(([id, n]) => ['fa-folder', 'Verschieben nach „' + n + '“', () => move(it.key, id)])] : []),
                 it.own && null, it.own && ['fa-trash-can', 'In den Papierkorb', del]]);
-            API.ctx(ev.clientX, ev.clientY, [canUpload() && ['fa-upload', 'Dateien hochladen', () => $q('.xp-file').click()], view === 'root' && ['fa-folder-plus', 'Neuer Ordner', newFolder], canUpload() && window.JMOS_EDITOR && ['fa-file-lines', 'Neues Textdokument', () => newText(view === 'root' ? '' : view)], null,
+            API.ctx(ev.clientX, ev.clientY, [canUpload() && ['fa-upload', 'Dateien hochladen', () => $q('.xp-file').click()], view === 'root' && ['fa-folder-plus', 'Neuer Ordner', newFolder], canUpload() && window.JMOS_WRITER && ['fa-file-word', 'Neues Word-Dokument', () => JMOS_WRITER.create(view === 'root' || !isFolderView() ? '' : view)], canUpload() && window.JMOS_EDITOR && ['fa-file-lines', 'Neues Textdokument', () => newText(view === 'root' ? '' : view)], null,
                 ['fa-grip', 'Ansicht: Symbole', () => { mode = 'grid'; API.state().xpMode = mode; API.save(); render(); }], ['fa-list', 'Ansicht: Liste', () => { mode = 'list'; API.state().xpMode = mode; API.save(); render(); }]]);
         });
         // Drag & Drop: Dateien vom Computer hochladen, eigene Dateien in Ordner ziehen
@@ -407,6 +408,7 @@
 
     // ---------- Vorschau / Bildbetrachter ----------
     function openViewer(it, list) {
+        if (/\.docx$/i.test(it.name) && it.own && window.JMOS_WRITER) { const S0 = API.state(); S0.recentFiles = [{ key: it.key, name: it.name }, ...(S0.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save(); return JMOS_WRITER.open(it.key); }
         if (it.k === 'txt' && it.own && window.JMOS_EDITOR) { const S0 = API.state(); S0.recentFiles = [{ key: it.key, name: it.name }, ...(S0.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save(); return JMOS_EDITOR.open(it.key); }
         const imgs = (list || []).filter(x => x.k === 'img');
         const S = API.state(); S.recentFiles = [{ key: it.key, name: it.name }, ...(S.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save();
@@ -476,6 +478,7 @@
         saveText, createText, newText,
         all: () => items(),
         textFiles: () => items().filter(x => x.own && (x.k === 'txt' || /\.csv$/i.test(x.name))),
+        wordFiles: () => items().filter(x => x.own && /\.docx$/i.test(x.name)),
         item: key => items().find(x => x.key === key) || null,
         folders: () => folders.slice(),
         onChange: fn => { const v = { render: fn }; VIEWS.add(v); return () => VIEWS.delete(v); },
