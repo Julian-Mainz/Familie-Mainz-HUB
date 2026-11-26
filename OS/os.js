@@ -187,7 +187,7 @@
                 ['fa-rotate-right', 'Aktualisieren', () => { renderIcons(); }], null,
                 ['fa-image', 'Hintergrund ändern', () => openApp('einstellungen')],
                 window.JMOS_FILES && JMOS_FILES.newDeskFolder && can(USER, 'dokumente') && ['fa-folder-plus', 'Neuer Ordner', () => JMOS_FILES.newDeskFolder()],
-                ['fa-note-sticky', 'Neue Notiz', () => openApp('notizen')], window.JMOS_WRITER && can(USER, 'dokumente') && ['fa-file-word', 'Neues Word-Dokument', () => JMOS_WRITER.create('')], window.JMOS_EDITOR && JMOS_EDITOR.ok() && ['fa-file-lines', 'Neues Textdokument', () => JMOS_EDITOR.newOnDesk()], null,
+                ['fa-note-sticky', 'Neue Notiz', () => openApp('notizen')], window.JMOS_WRITER && can(USER, 'dokumente') && ['fa-file-word', 'Neues Word-Dokument', () => JMOS_WRITER.create('')], window.JMOS_CALC && can(USER, 'dokumente') && ['fa-file-excel', 'Neue Tabelle', () => JMOS_CALC.create('')], window.JMOS_EDITOR && JMOS_EDITOR.ok() && ['fa-file-lines', 'Neues Textdokument', () => JMOS_EDITOR.newOnDesk()], null,
                 ['fa-circle-info', 'Über J.Mainz OS', () => openApp('info')],
             ]);
         });

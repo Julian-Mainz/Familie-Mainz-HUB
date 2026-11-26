@@ -343,11 +343,11 @@
                     ...(own.length ? [null, ...[['', 'Eigene Dateien'], ...folders.map(f => [f.id, f.name])].map(([id, n]) => ['fa-folder', 'Verschieben nach „' + n + '“', () => move(own[0].key, id)]), null, ['fa-trash-can', `In den Papierkorb (${own.length})`, del]] : [])]); }
             if (i && dir) return API.ctx(ev.clientX, ev.clientY, [['fa-folder-open', 'Öffnen', openSel], ['fa-display', onDesk('dir:' + sel.slice(2)) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => { const k = 'dir:' + sel.slice(2); onDesk(k) ? unDesk(k) : toDesk(k); }], ['fa-file-zipper', 'Als ZIP herunterladen', () => doZip(false)], ['fa-pen', 'Umbenennen', rename], null, ['fa-trash-can', 'Ordner löschen', del]]);
             if (i && it && it.trash) return API.ctx(ev.clientX, ev.clientY, [['fa-rotate-left', 'Wiederherstellen', () => restore(it).catch(x => uiAlert(x.message))], null, ['fa-trash-can', 'Endgültig löschen', del]]);
-            if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], /\.docx$/i.test(it.name) && it.own && window.JMOS_WRITER && ['fa-file-word', 'Im Writer bearbeiten', () => JMOS_WRITER.open(it.key)], it.k === 'txt' && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Im Texteditor bearbeiten', () => JMOS_EDITOR.open(it.key)], it.k !== 'txt' && /\.csv$/i.test(it.name) && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Als Text bearbeiten', () => JMOS_EDITOR.open(it.key)],
+            if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], /\.docx$/i.test(it.name) && it.own && window.JMOS_WRITER && ['fa-file-word', 'Im Writer bearbeiten', () => JMOS_WRITER.open(it.key)], /\.(xlsx|csv)$/i.test(it.name) && it.own && window.JMOS_CALC && ['fa-file-excel', 'In Tabellen öffnen', () => JMOS_CALC.open(it.key)], it.k === 'txt' && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Im Texteditor bearbeiten', () => JMOS_EDITOR.open(it.key)], it.k !== 'txt' && /\.csv$/i.test(it.name) && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Als Text bearbeiten', () => JMOS_EDITOR.open(it.key)],
                 it.k === 'zip' && can(U, 'dokumente') && ['fa-box-open', 'Entpacken …', () => unzipTo(it)], ['fa-download', 'Herunterladen', () => download(it)], it.k !== 'zip' && ['fa-file-zipper', 'Als ZIP herunterladen', () => doZip(false)], window.JMOS_CHAT && ['fa-paper-plane', 'Per Chat senden …', () => JMOS_CHAT.sendVia({ key: it.key })], ['fa-display', onDesk(it.key) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => (onDesk(it.key) ? unDesk(it.key) : toDesk(it.key))],
                 it.own && ['fa-pen', 'Umbenennen', rename], ...(it.own ? [null, ...[['', 'Eigene Dateien'], ...folders.map(f => [f.id, f.name])].filter(([id]) => id !== it.folder).map(([id, n]) => ['fa-folder', 'Verschieben nach „' + n + '“', () => move(it.key, id)])] : []),
                 it.own && null, it.own && ['fa-trash-can', 'In den Papierkorb', del]]);
-            API.ctx(ev.clientX, ev.clientY, [canUpload() && ['fa-upload', 'Dateien hochladen', () => $q('.xp-file').click()], view === 'root' && ['fa-folder-plus', 'Neuer Ordner', newFolder], canUpload() && window.JMOS_WRITER && ['fa-file-word', 'Neues Word-Dokument', () => JMOS_WRITER.create(view === 'root' || !isFolderView() ? '' : view)], canUpload() && window.JMOS_EDITOR && ['fa-file-lines', 'Neues Textdokument', () => newText(view === 'root' ? '' : view)], null,
+            API.ctx(ev.clientX, ev.clientY, [canUpload() && ['fa-upload', 'Dateien hochladen', () => $q('.xp-file').click()], view === 'root' && ['fa-folder-plus', 'Neuer Ordner', newFolder], canUpload() && window.JMOS_CALC && ['fa-file-excel', 'Neue Tabelle (.xlsx)', () => JMOS_CALC.create(view === 'root' || !isFolderView() ? '' : view)], canUpload() && window.JMOS_WRITER && ['fa-file-word', 'Neues Word-Dokument', () => JMOS_WRITER.create(view === 'root' || !isFolderView() ? '' : view)], canUpload() && window.JMOS_EDITOR && ['fa-file-lines', 'Neues Textdokument', () => newText(view === 'root' ? '' : view)], null,
                 ['fa-grip', 'Ansicht: Symbole', () => { mode = 'grid'; API.state().xpMode = mode; API.save(); render(); }], ['fa-list', 'Ansicht: Liste', () => { mode = 'list'; API.state().xpMode = mode; API.save(); render(); }]]);
         });
         // Drag & Drop: Dateien vom Computer hochladen, eigene Dateien in Ordner ziehen
@@ -408,6 +408,7 @@
 
     // ---------- Vorschau / Bildbetrachter ----------
     function openViewer(it, list) {
+        if (/\.xlsx$/i.test(it.name) && it.own && window.JMOS_CALC) { const S0 = API.state(); S0.recentFiles = [{ key: it.key, name: it.name }, ...(S0.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save(); return JMOS_CALC.open(it.key); }
         if (/\.docx$/i.test(it.name) && it.own && window.JMOS_WRITER) { const S0 = API.state(); S0.recentFiles = [{ key: it.key, name: it.name }, ...(S0.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save(); return JMOS_WRITER.open(it.key); }
         if (it.k === 'txt' && it.own && window.JMOS_EDITOR) { const S0 = API.state(); S0.recentFiles = [{ key: it.key, name: it.name }, ...(S0.recentFiles || []).filter(f => f.key !== it.key)].slice(0, 6); API.save(); return JMOS_EDITOR.open(it.key); }
         const imgs = (list || []).filter(x => x.k === 'img');
@@ -479,6 +480,7 @@
         all: () => items(),
         textFiles: () => items().filter(x => x.own && (x.k === 'txt' || /\.csv$/i.test(x.name))),
         wordFiles: () => items().filter(x => x.own && /\.docx$/i.test(x.name)),
+        sheetFiles: () => items().filter(x => x.own && /\.(xlsx|csv)$/i.test(x.name)),
         item: key => items().find(x => x.key === key) || null,
         folders: () => folders.slice(),
         onChange: fn => { const v = { render: fn }; VIEWS.add(v); return () => VIEWS.delete(v); },

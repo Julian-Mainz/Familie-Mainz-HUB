@@ -2,6 +2,19 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 26.11.2026 (2)
+
+### Desktop-Modus: Tabellen – eigene Tabellenkalkulation (wie Excel)
+- Neue App „Tabellen“ im Startmenü: speichert echte Excel-Dateien (.xlsx) in den Dokumenten, die sich auch mit Excel oder LibreOffice öffnen lassen. Vorhandene .xlsx- und .csv-Dateien lassen sich öffnen und bearbeiten (Doppelklick im Explorer); Formate wie Datum, Uhrzeit, Währung und eigene Formate (z. B. „Do, 01“) bleiben erhalten.
+- Formeln auf Deutsch wie in Excel: =SUMME(A1:A5), =WENN(A1>5;"ja";"nein"), =SVERWEIS(…), Bezüge auf andere Blätter (=Tabelle2!B3). Über 80 Funktionen (Summe, Mittelwert, Anzahl, Min/Max, Runden, Wenn, Und/Oder, SummeWenn, ZählenWenn, SVerweis, Index/Vergleich, Datum, Heute, Text, Links/Rechts/Teil …). Beim Tippen erscheinen Vorschläge mit Erklärung; Zellen per Klick in die Formel übernehmen; Fehler wie #DIV/0! und Zirkelbezüge werden angezeigt.
+- Menüband: Start (Zwischenablage, fett/kursiv/unterstrichen, Schriftgröße, Rahmen, Füll- und Schriftfarbe, Ausrichtung, Umbruch, Zahlenformate Standard/Zahl/Währung/Prozent/Datum/Uhrzeit, Dezimalstellen, Zeilen/Spalten einfügen und löschen, AutoSumme, Sortieren, Ausfüllen, Suchen), Einfügen, Formeln (Funktion einfügen, Summe/Mittelwert/Anzahl/Max/Min, Formeln anzeigen), Daten (Sortieren, CSV öffnen/herunterladen, erste Zeile fixieren, Duplikate entfernen), Ansicht (Zoom, Gitternetzlinien).
+- Bedienung wie Excel: Pfeiltasten, Enter/Tab, Umschalt zum Markieren, Strg+Pfeil springt an Datenränder, F2 oder Doppelklick zum Bearbeiten, Strg+C/X/V (auch mit Excel), Strg+Z/Y, Strg+D, Alt+= für AutoSumme, Ausfüllkästchen zum Ziehen (Formeln und Zahlenreihen), Spaltenbreite ziehen oder per Doppelklick anpassen, Rechtsklick-Menü.
+- Mehrere Blätter (hinzufügen, umbenennen, kopieren, verschieben, löschen); Statusleiste mit Summe, Mittelwert und Anzahl der Auswahl.
+- Datei-Menü mit Vorlagen (Leere Mappe, Haushaltsbuch, Einkaufsliste, Kosten teilen), Öffnen, Speichern, Speichern unter, Herunterladen (.xlsx/.csv) und Drucken/PDF. Ungespeicherte Änderungen werden zwischengespeichert und beim Schließen abgefragt.
+- „Neue Tabelle“ per Rechtsklick auf den Desktop oder im Explorer.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/os-icons.css, OS/explorer.js, OS/sheetcore.js (neu), OS/calc.js (neu)
+- Firestore-Regeln: keine Änderung.
+
 ## 26.11.2026 (1)
 
 ### Desktop-Modus: Writer – eigene Textverarbeitung (wie Word)
