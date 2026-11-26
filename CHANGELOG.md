@@ -2,6 +2,19 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 26.11.2026 (3)
+
+### Desktop-Modus: Präsentation – eigenes Präsentationsprogramm (wie PowerPoint)
+- Neue App „Präsentation“ im Startmenü: speichert echte PowerPoint-Dateien (.pptx) in den Dokumenten, die sich auch mit PowerPoint oder LibreOffice öffnen lassen. Vorhandene .pptx-Dateien lassen sich öffnen und bearbeiten (Doppelklick im Explorer) – auch solche mit Platzhaltern aus Folienmastern, Gruppen und 4:3-Format.
+- Folienleiste links mit Vorschaubildern: Folien anklicken, per Ziehen umsortieren, Rechtsklick für Neu/Duplizieren/Löschen.
+- Bearbeiten wie in PowerPoint: Objekte anklicken, verschieben (mit Hilfslinien zum Ausrichten), an den Griffen größer ziehen (Umschalt hält das Seitenverhältnis), drehen; Doppelklick zum Schreiben; Entf löscht, Pfeiltasten verschieben, Strg+C/V/D kopieren und duplizieren, Strg+Z/Y.
+- Menüband: Start (Neue Folie mit 7 Layouts, Layout ändern, Schriftart, Größe, fett/kursiv/unterstrichen, Farbe, Aufzählung, Nummerierung, Ebenen, Ausrichtung, Textfeld, Formen, Füllung, Kontur, Vorder-/Hintergrund, an der Folie ausrichten), Einfügen (Bilder vom Computer oder aus den Dokumenten, Formen, Textfeld, Datum, Foliennummern), Entwurf (8 Designs, Hintergrundfarbe oder -bild, für alle übernehmen), Übergänge (Verblassen, Schieben, Wischen, Aufdecken, Zoom), Bildschirmpräsentation.
+- Bildschirmpräsentation im Vollbild (F5 oder Umschalt+F5 ab aktueller Folie), weiter mit Klick, Leertaste oder Pfeiltasten, Esc zum Beenden.
+- Datei-Menü mit Vorlagen (Leere Präsentation, Referat, Urlaubsrückblick, Geburtstag, Familien-Info, Weltall), Öffnen, Speichern, Speichern unter, Herunterladen (.pptx) und Als PDF/Drucken. Ungespeicherte Änderungen werden zwischengespeichert und beim Schließen abgefragt.
+- „Neue Präsentation“ per Rechtsklick auf den Desktop oder im Explorer.
+- Geänderte Dateien: OS/index.html, OS/os.js, OS/os.css, OS/os-icons.css, OS/explorer.js, OS/pptx.js (neu), OS/slides.js (neu)
+- Firestore-Regeln: keine Änderung.
+
 ## 26.11.2026 (2)
 
 ### Desktop-Modus: Tabellen – eigene Tabellenkalkulation (wie Excel)
