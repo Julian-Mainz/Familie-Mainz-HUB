@@ -25,7 +25,7 @@
         const N = nc(), fresh = list.filter(n => !N.gone.includes(n.id) && !N.toasted.includes(n.id));
         if (fresh.length) {
             N.toasted = keep([...N.toasted, ...fresh.map(n => n.id)]);
-            if (toastOK && !N.dnd) { fresh.slice(0, 3).forEach(toast); if (window.JMOS_SOUND) JMOS_SOUND('note'); }
+            if (toastOK && !N.dnd) { fresh.slice(0, 3).forEach(toast); }
             API.save();
         }
         paint();

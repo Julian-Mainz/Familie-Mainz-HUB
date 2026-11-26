@@ -17,13 +17,15 @@
     const dataSize = u => { const m = /^data:[^;,]*;base64,(.*)$/.exec(u || ''); return m ? Math.floor(m[1].length * 0.75) : 0; };
     const b64Bytes = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
     const bufToB64 = buf => { const b = new Uint8Array(buf); let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return btoa(s); };
-    let API, U, e, D = { docs: [], inv: [], pays: [] }, folders = [];
+    let API, U, e, D = { docs: [], inv: [], pays: [], shared: [] }, folders = [];
     const blobs = new Map(), VIEWS = new Set();
 
     // ---------- Alle Dateien als eine Liste ----------
     function items() {
         const out = [];
-        D.docs.filter(d => d.status === 'ready' && !d.deletedAt).forEach(d => out.push({ key: 'up:' + d.id, src: 'up', id: d.id, name: d.name || 'Datei', mime: d.mime || '', size: d.size || 0, date: tms(d.updatedAt) || tms(d.createdAt), folder: d.folder || '', thumb: PHOTO.test(d.thumb || '') ? d.thumb : '', own: true }));
+        D.docs.filter(d => d.status === 'ready' && !d.deletedAt).forEach(d => out.push({ key: 'up:' + d.id, src: 'up', id: d.id, name: d.name || 'Datei', mime: d.mime || '', size: d.size || 0, date: tms(d.updatedAt) || tms(d.createdAt), folder: d.folder || '', thumb: PHOTO.test(d.thumb || '') ? d.thumb : '', own: true, shared: (d.sharedWith || []).length, sharedWith: d.sharedWith || [], sharedNames: d.sharedNames || {} }));
+        const hideSh = (API && API.state().shHide) || [];
+        D.shared.filter(d => d.status === 'ready' && !d.deletedAt && d.owner !== U.email && !hideSh.includes(d.id)).forEach(d => out.push({ key: 'sh:' + d.id, src: 'sh', id: d.id, name: d.name || 'Datei', mime: d.mime || '', size: d.size || 0, date: tms(d.updatedAt) || tms(d.createdAt), folder: '', thumb: PHOTO.test(d.thumb || '') ? d.thumb : '', own: false, from: d.ownerName || d.owner || '' }));
         D.inv.filter(v => v.fileName && v.fileChunks).forEach(v => { const ext = /pdf/.test(v.fileMime || '') ? 'pdf' : /png/.test(v.fileMime || '') ? 'png' : /webp/.test(v.fileMime || '') ? 'webp' : 'jpg';
             out.push({ key: 'rech:' + v.id, src: 'rech', id: v.id, name: `Rechnung_${String(v.vendor || 'Anbieter').replace(/[^\wäöüÄÖÜß-]+/g, '_').slice(0, 40)}_${v.date || v.due || ''}.${ext}`, mime: v.fileMime || '', size: v.fileSize || 0, date: Date.parse((v.date || v.due || '2000-01-01') + 'T12:00:00') || 0, folder: '', thumb: '' }); });
         D.pays.filter(p => p.fileData).forEach(p => { const mime = dataMime(p.fileData), ext = (p.fileName || '').split('.').pop().toLowerCase();
@@ -41,7 +43,7 @@
     async function getBlob(it) {
         if (blobs.has(it.key)) return blobs.get(it.key);
         let blob;
-        if (it.src === 'up' || it.src === 'rech') {
+        if (it.src === 'up' || it.src === 'rech' || it.src === 'sh') {
             const sn = await db.collection(it.src === 'rech' ? 'invoices' : 'documents').doc(it.id).collection('chunks').orderBy('i').get();
             if (!sn.size) throw new Error('Dateiinhalt fehlt.');
             blob = new Blob(sn.docs.map(d => b64Bytes(d.data().data)), { type: it.mime || 'application/octet-stream' });
@@ -92,6 +94,39 @@
             <div class="zv-l">${ents.slice(0, 500).map((x, i) => { const k = kind(x.name, ''); return `<div class="zv-r"><i class="fa-solid ${KIND[k][0]}" style="color:${KIND[k][1]}"></i><span class="zv-n" title="${e(x.name)}">${e(x.name)}</span><small>${size(x.size)}</small>${big ? `<button type="button" data-ze="${i}" title="Diese Datei herunterladen"><i class="fa-solid fa-download"></i></button>` : ''}</div>`; }).join('')}${ents.length > 500 ? `<div class="zv-r"><span class="zv-n">… und ${ents.length - 500} weitere</span></div>` : ''}</div></div>`;
         if (!big) return;
         m.onclick = async ev => { const b = ev.target.closest('[data-ze]'); if (b) { try { const x = ents[+b.dataset.ze]; saveBlob(new Blob([await JMZIP.extract(buf, x)], { type: mimeOf(x.name) }), x.name.split('/').pop()); } catch (er) { uiAlert(er.message); } } if (ev.target.closest('[data-zu]')) unzipTo(it); };
+    }
+    // ---------- Dateien mit Familienmitgliedern teilen (nur lesen; sie können eine Kopie speichern) ----------
+    let dir = null;
+    async function members() { if (dir) return dir; const sn = await db.collection('directory').get(); dir = sn.docs.map(d => ({ uid: d.id, name: (d.data().name || '').trim(), color: d.data().color || '#8b5cf6' })).filter(m => m.uid !== U.uid && m.name).sort((a, b) => a.name.localeCompare(b.name, 'de')); return dir; }
+    async function shareDlg(list) {
+        let ms; try { ms = await members(); } catch (x) { return uiAlert('Die Familienmitglieder konnten nicht geladen werden. Zum Teilen brauchst du den Messenger (dort steht, wer zur Familie gehört).'); }
+        if (!ms.length) return uiAlert('Es gibt noch keine anderen Familienmitglieder im Messenger-Verzeichnis.');
+        const cur = new Set(list.length === 1 ? list[0].sharedWith : list.flatMap(x => x.sharedWith).filter((u, i, a) => list.every(x => x.sharedWith.includes(u))));
+        const bg = document.createElement('div'); bg.className = 'uidlg-bg';
+        bg.innerHTML = `<form class="uidlg" style="max-width:440px"><div class="uidlg-h"><span class="uidlg-i"><i class="fa-solid fa-share-nodes"></i></span><span>${list.length === 1 ? `„${e(list[0].name)}“ teilen` : `${list.length} Dateien teilen`}</span></div>
+            <p class="uidlg-m">Wer soll ${list.length === 1 ? 'die Datei' : 'die Dateien'} sehen? Sie erscheinen dort im Explorer unter „Mit mir geteilt“. Ändern kannst nur du – die anderen können sie öffnen, herunterladen oder eine eigene Kopie speichern.</p>
+            <div class="xp-shl">${ms.map(m => `<label class="xp-shm"><input type="checkbox" value="${e(m.uid)}"${cur.has(m.uid) ? ' checked' : ''}><span class="xp-sha" style="background:${e(/^#[0-9a-f]{3,8}$/i.test(m.color) ? m.color : '#8b5cf6')}">${e(m.name.split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase())}</span><b>${e(m.name)}</b></label>`).join('')}</div>
+            <div class="uidlg-a"><button type="button" data-r="0">Abbrechen</button><button type="submit" class="ok">Übernehmen</button></div></form>`;
+        const done = () => bg.remove();
+        bg.addEventListener('click', ev => { if (ev.target === bg || ev.target.closest('[data-r="0"]')) done(); });
+        bg.addEventListener('keydown', ev => { if (ev.key === 'Escape') { ev.stopPropagation(); done(); } });
+        bg.querySelector('form').addEventListener('submit', async ev => { ev.preventDefault();
+            const pick = [...bg.querySelectorAll('input:checked')].map(i => i.value), names = Object.fromEntries(ms.filter(m => pick.includes(m.uid)).map(m => [m.uid, m.name]));
+            const b = bg.querySelector('.ok'); b.disabled = true;
+            try { for (const it of list) { const keep = list.length > 1 ? it.sharedWith.filter(u => !cur.has(u) && !pick.includes(u)) : []; const sw = [...new Set([...keep, ...pick])];
+                    await db.collection('documents').doc(it.id).update({ sharedWith: sw, sharedNames: Object.assign({}, it.sharedNames, names), ownerName: U.name || U.email }); }
+                done(); } catch (x) { b.disabled = false; uiAlert('Teilen fehlgeschlagen: ' + (/permission/i.test(x.message) ? 'Die Firestore-Regeln fürs Teilen fehlen noch.' : x.message)); } });
+        document.body.appendChild(bg); bg.querySelector('input').focus();
+    }
+    async function copyShared(it) {
+        if (!can(U, 'dokumente')) return uiAlert('Zum Speichern brauchst du die Berechtigung „Dokumente“.');
+        try { const b = await getBlob(it); await createText(it.name, new Uint8Array(await b.arrayBuffer()), ''); uiAlert(`„${it.name}“ liegt jetzt auch in deinen eigenen Dateien.`); } catch (x) { uiAlert('Kopieren fehlgeschlagen: ' + x.message); }
+    }
+    function hideShared(it) { const S = API.state(); S.shHide = [...(S.shHide || []), it.id].slice(-300); API.save(); VIEWS.forEach(v => v.render()); }
+    let shFirst = true;
+    function shareNotes() {
+        if (!window.JMOS_NOTIFY) return; const lim = Date.now() - 14 * 864e5;
+        JMOS_NOTIFY('share', items().filter(it => it.src === 'sh' && (it.date || 0) > lim).map(it => ({ id: 'share:' + it.id, icon: 'fa-share-nodes', c: '#f472b6', prio: 2, time: it.date, title: 'Geteilte Datei', text: `${it.from} hat „${it.name}“ mit dir geteilt`, appName: 'Explorer', run: () => API.openApp('explorer', { params: { view: 'shared' } }) })));
     }
     // ---------- Volltextsuche: Inhalte von Word-, Excel-, PowerPoint- und Textdateien (Text wird im Browser zwischengespeichert) ----------
     const fts = (() => {
@@ -270,10 +305,10 @@
             <input type="file" multiple hidden class="xp-file" accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.json,.log,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.zip">
             <div class="xp-drop"><i class="fa-solid fa-upload"></i><b>Loslassen zum Hochladen</b><span class="xp-drop-t"></span></div></div>`;
         const $q = s => body.querySelector(s), files = $q('.xp-files');
-        const VIEW_NAMES = () => ({ all: ['Alle Dateien', 'fa-layer-group', '#a78bfa'], root: ['Eigene Dateien', 'fa-house', '#818cf8'], rech: ['Rechnungen', 'fa-file-invoice', '#fbbf24'], lohn: ['Lohnabrechnungen', 'fa-file-pdf', '#f87171'], trash: ['Papierkorb', 'fa-trash-can', '#94a3b8'], ...Object.fromEntries(folders.map(f => [f.id, [f.name, 'fa-folder', '#f59e0b']])) });
-        const isFolderView = () => !['all', 'rech', 'lohn', 'trash'].includes(view);
+        const VIEW_NAMES = () => ({ all: ['Alle Dateien', 'fa-layer-group', '#a78bfa'], root: ['Eigene Dateien', 'fa-house', '#818cf8'], shared: ['Mit mir geteilt', 'fa-share-nodes', '#f472b6'], rech: ['Rechnungen', 'fa-file-invoice', '#fbbf24'], lohn: ['Lohnabrechnungen', 'fa-file-pdf', '#f87171'], trash: ['Papierkorb', 'fa-trash-can', '#94a3b8'], ...Object.fromEntries(folders.map(f => [f.id, [f.name, 'fa-folder', '#f59e0b']])) });
+        const isFolderView = () => !['all', 'rech', 'lohn', 'trash', 'shared'].includes(view);
         const canUpload = () => view === 'root' || folders.some(f => f.id === view);
-        const inView = it => view === 'all' || (view === 'root' ? it.src === 'up' && !it.folder : view === 'rech' || view === 'lohn' ? it.src === view : it.src === 'up' && it.folder === view);
+        const inView = it => view === 'all' || (view === 'shared' ? it.src === 'sh' : view === 'root' ? it.src === 'up' && !it.folder : view === 'rech' || view === 'lohn' ? it.src === view : it.src === 'up' && it.folder === view);
         const list = () => {
             const all = view === 'trash' ? trash() : items(), nq = q.toLowerCase();
             let out = all.filter(it => (q || view === 'trash' ? true : inView(it)) && (!q || it.name.toLowerCase().includes(nq) || (view !== 'trash' && nq.length >= 2 && fts.hit(it, nq))));
@@ -283,10 +318,10 @@
         const subFolders = () => (view === 'root' && !q) ? folders : [];
         const render = () => {
             const names = VIEW_NAMES(); if (!names[view]) view = 'root';
-            const all = items(), cnt = v => all.filter(it => v === 'all' ? true : v === 'root' ? it.src === 'up' && !it.folder : v === 'rech' || v === 'lohn' ? it.src === v : it.src === 'up' && it.folder === v).length;
+            const all = items(), cnt = v => all.filter(it => v === 'all' ? true : v === 'shared' ? it.src === 'sh' : v === 'root' ? it.src === 'up' && !it.folder : v === 'rech' || v === 'lohn' ? it.src === v : it.src === 'up' && it.folder === v).length;
             const side = (v, sub) => { const [n, ic, c] = names[v]; return `<button type="button" class="xp-s${view === v ? ' on' : ''}${sub ? ' sub' : ''}" data-view="${e(v)}" data-drop="${v === 'root' || sub ? e(v) : ''}"><i class="fa-solid ${ic}" style="color:${c}"></i><span>${e(n)}</span><em>${cnt(v)}</em></button>`; };
             const tcount = trash().length;
-            $q('.xp-side').innerHTML = `<div class="xp-g">Schnellzugriff</div>${side('all')}${side('root')}${folders.map(f => side(f.id, true)).join('')}${canFin ? `<div class="xp-g">Finanzen</div>${side('rech')}${side('lohn')}` : ''}<div class="xp-g">System</div><button type="button" class="xp-s${view === 'trash' ? ' on' : ''}" data-view="trash" data-drop="trash"><i class="fa-solid fa-trash-can" style="color:#94a3b8"></i><span>Papierkorb</span><em>${tcount}</em></button>`;
+            $q('.xp-side').innerHTML = `<div class="xp-g">Schnellzugriff</div>${side('all')}${side('root')}${folders.map(f => side(f.id, true)).join('')}${side('shared')}${canFin ? `<div class="xp-g">Finanzen</div>${side('rech')}${side('lohn')}` : ''}<div class="xp-g">System</div><button type="button" class="xp-s${view === 'trash' ? ' on' : ''}" data-view="trash" data-drop="trash"><i class="fa-solid fa-trash-can" style="color:#94a3b8"></i><span>Papierkorb</span><em>${tcount}</em></button>`;
             $q('.xp-path').innerHTML = `<i class="fa-solid fa-hard-drive"></i><button type="button" data-view="root">Dieser Desktop</button>${view !== 'root' ? `<i class="fa-solid fa-chevron-right sep"></i><span>${e(names[view][0])}</span>` : ''}${q ? `<i class="fa-solid fa-chevron-right sep"></i><span>Suche „${e(q)}“</span>` : ''}`;
             const L = list(), F = subFolders();
             if (sel && !L.some(it => it.key === sel) && !F.some(f => 'f:' + f.id === sel)) sel = null;
@@ -297,10 +332,10 @@
             const thumb = it => it.thumb ? `<img src="${it.thumb}" alt="" loading="lazy">` : `<i class="fa-solid ${KIND[it.k][0]}" style="color:${KIND[it.k][1]}"></i>`;
             const dt = t => t ? new Date(t).toLocaleDateString('de-DE') : '–';
             if (mode === 'grid') files.innerHTML = (F.map(f => `<button type="button" class="xp-i dir${sel === 'f:' + f.id ? ' sel' : ''}" data-key="f:${e(f.id)}" data-drop="${e(f.id)}"><span class="th"><i class="fa-solid fa-folder"></i></span><span class="nm">${e(f.name)}</span></button>`).join('') +
-                L.map(it => `<button type="button" class="xp-i${sel === it.key ? ' sel' : ''}" data-key="${e(it.key)}" draggable="${it.own ? 'true' : 'false'}" title="${e(it.name)} · ${size(it.size)}"><span class="th">${thumb(it)}</span><span class="nm">${e(it.name)}</span>${snip(it) ? `<span class="xp-hit">${hl(snip(it))}</span>` : ''}</button>`).join('')) || empty();
+                L.map(it => `<button type="button" class="xp-i${sel === it.key ? ' sel' : ''}" data-key="${e(it.key)}" draggable="${it.own ? 'true' : 'false'}" title="${e(it.name)} · ${size(it.size)}"><span class="th">${thumb(it)}${it.shared || it.src === 'sh' ? `<i class="fa-solid fa-share-nodes xp-shb" title="${it.src === 'sh' ? 'Geteilt von ' + e(it.from) : 'Geteilt mit ' + it.shared}"></i>` : ''}</span><span class="nm">${e(it.name)}</span>${snip(it) ? `<span class="xp-hit">${hl(snip(it))}</span>` : ''}</button>`).join('')) || empty();
             else files.innerHTML = (F.length + L.length) ? `<div class="xp-lh"><span>Name</span><span>Geändert</span><span>Typ</span><span>Größe</span></div>` +
                 F.map(f => `<button type="button" class="xp-r dir${sel === 'f:' + f.id ? ' sel' : ''}" data-key="f:${e(f.id)}" data-drop="${e(f.id)}"><span class="nm"><i class="fa-solid fa-folder" style="color:#f59e0b"></i>${e(f.name)}</span><span></span><span>Ordner</span><span></span></button>`).join('') +
-                L.map(it => `<button type="button" class="xp-r${sel === it.key ? ' sel' : ''}" data-key="${e(it.key)}" draggable="${it.own ? 'true' : 'false'}"><span class="nm"><i class="fa-solid ${KIND[it.k][0]}" style="color:${KIND[it.k][1]}"></i>${e(it.name)}${snip(it) ? `<small class="xp-hit">${hl(snip(it))}</small>` : ''}</span><span>${dt(it.date)}</span><span>${KIND[it.k][2]}</span><span>${size(it.size)}</span></button>`).join('') : empty();
+                L.map(it => `<button type="button" class="xp-r${sel === it.key ? ' sel' : ''}" data-key="${e(it.key)}" draggable="${it.own ? 'true' : 'false'}"><span class="nm"><i class="fa-solid ${KIND[it.k][0]}" style="color:${KIND[it.k][1]}"></i>${e(it.name)}${it.src === 'sh' ? `<small class="xp-from"><i class="fa-solid fa-share-nodes"></i>von ${e(it.from)}</small>` : it.shared ? `<small class="xp-from"><i class="fa-solid fa-share-nodes"></i>geteilt</small>` : ''}${snip(it) ? `<small class="xp-hit">${hl(snip(it))}</small>` : ''}</span><span>${dt(it.date)}</span><span>${KIND[it.k][2]}</span><span>${size(it.size)}</span></button>`).join('') : empty();
             $q('.xp-used').textContent = `${size(used())} von 100 MB belegt`;
             $q('.xp-sort').value = sort; body.querySelectorAll('[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === mode));
             $q('[data-a="upload"]').disabled = !canUpload(); $q('[data-a="newfolder"]').hidden = view !== 'root';
@@ -398,13 +433,15 @@
             const it = cur(), dir = sel && sel.startsWith('f:');
             if (i && picks.size > 1) { const pk = picked(), own = pk.filter(x => x.own);
                 if (view === 'trash') return API.ctx(ev.clientX, ev.clientY, [['fa-rotate-left', `${pk.length} wiederherstellen`, () => pk.forEach(x => restore(x).catch(() => {}))], null, ['fa-trash-can', `${pk.length} endgültig löschen`, del]]);
-                return API.ctx(ev.clientX, ev.clientY, [['fa-file-zipper', `Als ZIP herunterladen (${picks.size})`, () => doZip(false)], canUpload() && ['fa-file-zipper', 'ZIP-Datei hier erstellen', () => doZip(true)],
+                return API.ctx(ev.clientX, ev.clientY, [pk.some(x => x.own && x.src === 'up') && ['fa-share-nodes', `${pk.filter(x => x.own && x.src === 'up').length} mit Familie teilen …`, () => shareDlg(pk.filter(x => x.own && x.src === 'up'))], ['fa-file-zipper', `Als ZIP herunterladen (${picks.size})`, () => doZip(false)], canUpload() && ['fa-file-zipper', 'ZIP-Datei hier erstellen', () => doZip(true)],
                     ...(own.length ? [null, ...[['', 'Eigene Dateien'], ...folders.map(f => [f.id, f.name])].map(([id, n]) => ['fa-folder', 'Verschieben nach „' + n + '“', () => move(own[0].key, id)]), null, ['fa-trash-can', `In den Papierkorb (${own.length})`, del]] : [])]); }
             if (i && dir) return API.ctx(ev.clientX, ev.clientY, [['fa-folder-open', 'Öffnen', openSel], ['fa-display', onDesk('dir:' + sel.slice(2)) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => { const k = 'dir:' + sel.slice(2); onDesk(k) ? unDesk(k) : toDesk(k); }], ['fa-file-zipper', 'Als ZIP herunterladen', () => doZip(false)], ['fa-pen', 'Umbenennen', rename], null, ['fa-trash-can', 'Ordner löschen', del]]);
             if (i && it && it.trash) return API.ctx(ev.clientX, ev.clientY, [['fa-rotate-left', 'Wiederherstellen', () => restore(it).catch(x => uiAlert(x.message))], null, ['fa-trash-can', 'Endgültig löschen', del]]);
-            if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], /\.docx$/i.test(it.name) && it.own && window.JMOS_WRITER && ['fa-file-word', 'Im Writer bearbeiten', () => JMOS_WRITER.open(it.key)], /\.(xlsx|csv)$/i.test(it.name) && it.own && window.JMOS_CALC && ['fa-file-excel', 'In Tabellen öffnen', () => JMOS_CALC.open(it.key)], /\.pptx$/i.test(it.name) && it.own && window.JMOS_SLIDES && ['fa-file-powerpoint', 'In Präsentation öffnen', () => JMOS_SLIDES.open(it.key)], it.k === 'txt' && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Im Texteditor bearbeiten', () => JMOS_EDITOR.open(it.key)], it.k !== 'txt' && /\.csv$/i.test(it.name) && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Als Text bearbeiten', () => JMOS_EDITOR.open(it.key)],
+            if (i && it) return API.ctx(ev.clientX, ev.clientY, [['fa-up-right-from-square', 'Öffnen', openSel], /\.docx$/i.test(it.name) && (it.own || it.src === 'sh') && window.JMOS_WRITER && ['fa-file-word', 'Im Writer bearbeiten', () => JMOS_WRITER.open(it.key)], /\.(xlsx|csv)$/i.test(it.name) && (it.own || it.src === 'sh') && window.JMOS_CALC && ['fa-file-excel', 'In Tabellen öffnen', () => JMOS_CALC.open(it.key)], /\.pptx$/i.test(it.name) && (it.own || it.src === 'sh') && window.JMOS_SLIDES && ['fa-file-powerpoint', 'In Präsentation öffnen', () => JMOS_SLIDES.open(it.key)], it.k === 'txt' && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Im Texteditor bearbeiten', () => JMOS_EDITOR.open(it.key)], it.k !== 'txt' && /\.csv$/i.test(it.name) && it.own && window.JMOS_EDITOR && ['fa-file-pen', 'Als Text bearbeiten', () => JMOS_EDITOR.open(it.key)],
                 it.k === 'zip' && can(U, 'dokumente') && ['fa-box-open', 'Entpacken …', () => unzipTo(it)], ['fa-download', 'Herunterladen', () => download(it)], it.k !== 'zip' && ['fa-file-zipper', 'Als ZIP herunterladen', () => doZip(false)], window.JMOS_CHAT && ['fa-paper-plane', 'Per Chat senden …', () => JMOS_CHAT.sendVia({ key: it.key })], ['fa-display', onDesk(it.key) ? 'Vom Desktop entfernen' : 'Auf den Desktop legen', () => (onDesk(it.key) ? unDesk(it.key) : toDesk(it.key))],
                 it.own && ['fa-pen', 'Umbenennen', rename], ...(it.own ? [null, ...[['', 'Eigene Dateien'], ...folders.map(f => [f.id, f.name])].filter(([id]) => id !== it.folder).map(([id, n]) => ['fa-folder', 'Verschieben nach „' + n + '“', () => move(it.key, id)])] : []),
+                it.own && it.src === 'up' && null, it.own && it.src === 'up' && ['fa-share-nodes', it.shared ? `Geteilt mit ${it.shared} – ändern …` : 'Mit Familie teilen …', () => shareDlg([it])],
+                it.src === 'sh' && null, it.src === 'sh' && ['fa-copy', 'In meine Dateien kopieren', () => copyShared(it)], it.src === 'sh' && ['fa-eye-slash', 'Aus „Mit mir geteilt“ ausblenden', () => hideShared(it)],
                 it.own && null, it.own && ['fa-trash-can', 'In den Papierkorb', del]]);
             API.ctx(ev.clientX, ev.clientY, [canUpload() && ['fa-upload', 'Dateien hochladen', () => $q('.xp-file').click()], view === 'root' && ['fa-folder-plus', 'Neuer Ordner', newFolder], canUpload() && window.JMOS_SLIDES && ['fa-file-powerpoint', 'Neue Präsentation (.pptx)', () => JMOS_SLIDES.create(view === 'root' || !isFolderView() ? '' : view)], canUpload() && window.JMOS_CALC && ['fa-file-excel', 'Neue Tabelle (.xlsx)', () => JMOS_CALC.create(view === 'root' || !isFolderView() ? '' : view)], canUpload() && window.JMOS_WRITER && ['fa-file-word', 'Neues Word-Dokument', () => JMOS_WRITER.create(view === 'root' || !isFolderView() ? '' : view)], canUpload() && window.JMOS_EDITOR && ['fa-file-lines', 'Neues Textdokument', () => newText(view === 'root' ? '' : view)], null,
                 ['fa-grip', 'Ansicht: Symbole', () => { mode = 'grid'; API.state().xpMode = mode; API.save(); render(); }], ['fa-list', 'Ansicht: Liste', () => { mode = 'list'; API.state().xpMode = mode; API.save(); render(); }]]);
@@ -598,8 +635,9 @@
         init(api, user) {
             API = api; U = user; e = api.esc;
             folders = Array.isArray(user.userPrefs?.docFolders) ? user.userPrefs.docFolders.filter(f => f && f.id && f.name) : [];
-            if (!can(user, 'dokumente')) return;
             const re = () => { VIEWS.forEach(v => v.render()); syncDesk(); };
+            db.collection('documents').where('sharedWith', 'array-contains', user.uid).onSnapshot(sn => { D.shared = sn.docs.map(d => ({ id: d.id, ...d.data() })); re(); if (!shFirst || D.shared.length) shareNotes(); shFirst = false; }, () => { D.shared = []; });
+            if (!can(user, 'dokumente')) return;
             JMOS_WIDGETS.use('docs', d => { D.docs = d; re(); purgeOld(); });
             wireDeskDrop();
             if (can(user, 'finanzen')) { JMOS_WIDGETS.use('fin', d => { D.inv = d.inv; re(); }); JMOS_WIDGETS.use('pays', d => { D.pays = d; re(); }); }

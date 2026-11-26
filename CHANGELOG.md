@@ -2,6 +2,18 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 26.11.2026 (6)
+OS – Paket C: Kontakte und Dateien teilen
+- Neue App „Kontakte“ (Adressbuch): Kategorien Familie, Freunde, Ärzte, Handwerker, Behörden & Ämter, Arbeit, Sonstiges; Suche, Anrufen, E-Mail, Geburtstag mit „wird 36 in 2 Tagen“, Notizen, vCard-Import (z. B. vom Handy) und -Export.
+- „Für die ganze Familie sichtbar“: solche Kontakte (z. B. Kinderarzt, Klempner) sehen alle freigeschalteten Mitglieder; ändern kann nur, wer sie angelegt hat.
+- Kontakte in Writer: „Brief schreiben“ öffnet einen Brief mit fertiger Anschrift und passender Anrede; Einfügen → „Adresse aus Kontakten“; im Serienbrief lassen sich alle Kontakte oder eine Kategorie als Empfänger wählen (mit Feldern wie «Briefanrede» und «Adresse»).
+- Dateien teilen: Rechtsklick auf eine eigene Datei → „Mit Familie teilen …“. Die anderen finden sie im Explorer unter „Mit mir geteilt“ und bekommen eine Mitteilung. Sie können öffnen, herunterladen oder „In meine Dateien kopieren“; geteilte Word-/Excel-/PowerPoint-Dateien öffnen sich in den Office-Apps, Änderungen werden als eigene Kopie gespeichert.
+- Behoben: Bei neuen Mitteilungen konnte seit dem Update mit den Systemklängen ein Fehler auftreten.
+
+Geänderte Dateien: OS/contacts.js (neu), OS/index.html, OS/explorer.js, OS/writer.js, OS/calc.js, OS/slides.js, OS/officekit.js, OS/extras.js, OS/os.css, OS/os-icons.css, CHANGELOG.md
+
+Firestore-Regeln: Änderung nötig – Block „documents“ ersetzt (Lesen für geteilte Dateien) und neuer Block „contacts“ (siehe firestore-regeln.txt / teilen-kontakte-regel.txt)
+
 ## 26.11.2026 (5)
 OS – Paket B: Office-Ausbau
 - Automatisch speichern: Schalter oben rechts in Writer, Tabellen und Präsentation. Gespeicherte Dateien werden kurz nach jeder Änderung von selbst gesichert (neue, noch nie gespeicherte Dokumente fragen wie bisher nach dem Namen).

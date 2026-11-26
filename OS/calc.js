@@ -666,6 +666,7 @@
             $('.cx-mode').textContent = 'Wird geladen …';
             try { const { blob, name } = await JMOS_FILES.blobOf(doc.key); const it = JMOS_FILES.item(doc.key); doc.name = name; doc.folder = it ? it.folder || '' : '';
                 const b = /\.csv$/i.test(name) ? J.readCsv(await blob.text()) : await J.readXlsx(await blob.arrayBuffer()); loadBook(b); doc.saved = /\.csv$/i.test(name) ? '' : sig();
+                if (it && it.src === 'sh') { doc.key = null; doc.folder = ''; JMOFFICE.flash(`Von ${it.from} geteilt – Änderungen speicherst du als eigene Kopie`); } 
                 if (/\.csv$/i.test(name)) { doc.key = null; doc.name = name.replace(/\.csv$/i, '.xlsx'); }
                 let d = null; try { d = JSON.parse(localStorage.getItem(DKEY()) || 'null'); } catch (x) {}
                 if (d && d.b && await uiConfirm(`Für „${name}“ gibt es ungespeicherte Änderungen vom ${new Date(d.t).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })}. Wiederherstellen?`, { ok: 'Wiederherstellen', title: 'Tabellen' })) loadBook(deser(d.b)); else if (d) { try { localStorage.removeItem(DKEY()); } catch (x) {} }

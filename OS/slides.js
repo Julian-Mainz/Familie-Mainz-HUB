@@ -523,6 +523,7 @@
             slideEl.innerHTML = '<div class="px-load"><i class="fa-solid fa-spinner fa-spin"></i> Präsentation wird geladen …</div>';
             try { const { blob, name } = await JMOS_FILES.blobOf(doc.key); const it = JMOS_FILES.item(doc.key); doc.name = name; doc.folder = it ? it.folder || '' : '';
                 loadDeck(await JMPPTX.read(await blob.arrayBuffer())); doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name);
+                if (it && it.src === 'sh') { doc.key = null; doc.folder = ''; JMOFFICE.flash(`Von ${it.from} geteilt – Änderungen speicherst du als eigene Kopie`); } 
                 let d = null; try { d = JSON.parse(localStorage.getItem(DKEY()) || 'null'); } catch (x) {}
                 if (d && d.deck && await uiConfirm(`Für „${name}“ gibt es ungespeicherte Änderungen vom ${new Date(d.t).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })}. Wiederherstellen?`, { ok: 'Wiederherstellen', title: 'Präsentation' })) loadDeck(d.deck); else if (d) { try { localStorage.removeItem(DKEY()); } catch (x) {} }
             } catch (x) { uiAlert('Die Präsentation lässt sich nicht öffnen: ' + x.message); doc.key = null; loadDeck(newDeck('leer')); }

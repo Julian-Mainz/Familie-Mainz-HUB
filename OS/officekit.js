@@ -130,13 +130,14 @@
     // ---------- Datenquellen für den Serienbrief: Tabellen (.xlsx/.csv) und – falls vorhanden – die Kontakte ----------
     function sources() {
         const out = [];
-        if (window.JMOS_CONTACTS && JMOS_CONTACTS.records) out.push({ id: 'contacts', name: 'Kontakte (Adressbuch)', icon: 'fa-address-book', c: '#a78bfa' });
+        if (window.JMOS_CONTACTS && JMOS_CONTACTS.records) { const a = JMOS_CONTACTS.all(); if (a.length) { out.push({ id: 'contacts', name: `Alle Kontakte (${a.length})`, icon: 'fa-address-book', c: '#a78bfa' });
+            JMOS_CONTACTS.cats().forEach(k => { const n = a.filter(c => c.kat === k).length; if (n) out.push({ id: 'contacts:' + k, name: `Kontakte – ${k} (${n})`, icon: 'fa-address-book', c: '#a78bfa' }); }); } }
         (window.JMOS_FILES ? JMOS_FILES.sheetFiles() : []).sort((a, b) => (b.date || 0) - (a.date || 0)).forEach(f => out.push({ id: f.key, name: f.name, icon: /\.csv$/i.test(f.name) ? 'fa-file-csv' : 'fa-file-excel', c: '#34d399' }));
         return out;
     }
     // → { fields: [...], rows: [{Feld: Wert}] }
     async function records(id) {
-        if (id === 'contacts') return JMOS_CONTACTS.records();
+        if (id === 'contacts' || id.startsWith('contacts:')) return JMOS_CONTACTS.records(id.slice(9));
         await JMOS_LAZY.script('sheetcore.js');
         const { blob, name } = await JMOS_FILES.blobOf(id), J = JMSHEET;
         const b = /\.csv$/i.test(name) ? J.readCsv(await blob.text()) : await J.readXlsx(await blob.arrayBuffer()), sh = b.sheets[0];

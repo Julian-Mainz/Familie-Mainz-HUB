@@ -107,6 +107,7 @@
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="pb" title="Seitenumbruch (Strg+Enter)"><i class="fa-solid fa-file-circle-plus"></i><span>Seiten&shy;umbruch</span></button></div><small>Seiten</small></div>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-dd="tbl"><i class="fa-solid fa-table"></i><span>Tabelle <i class="fa-solid fa-chevron-down wr-chev"></i></span></button></div><small>Tabellen</small></div>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="imgpc"><i class="fa-solid fa-image"></i><span>Bild vom Computer</span></button><button type="button" class="wr-big" data-c="imgdoc"><i class="fa-solid fa-folder-open"></i><span>Bild aus Dokumenten</span></button><button type="button" class="wr-big" data-c="chart"><i class="fa-solid fa-chart-column"></i><span>Diagramm aus Tabelle</span></button></div><small>Illustrationen</small></div>
+                    <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-dd="addr"><i class="fa-solid fa-address-book"></i><span>Adresse aus Kontakten <i class="fa-solid fa-chevron-down wr-chev"></i></span></button></div><small>Kontakte</small></div>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="link" title="Link (Strg+K)"><i class="fa-solid fa-link"></i><span>Link</span></button></div><small>Links</small></div>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="hr"><i class="fa-solid fa-grip-lines"></i><span>Linie</span></button><button type="button" class="wr-big" data-c="date"><i class="fa-solid fa-calendar-day"></i><span>Datum</span></button><button type="button" class="wr-big" data-dd="sym"><i class="fa-solid fa-paragraph"></i><span>Symbol <i class="fa-solid fa-chevron-down wr-chev"></i></span></button></div><small>Text &amp; Symbole</small></div>
                     <div class="wr-g"><div class="wr-gb"><button type="button" class="wr-big" data-c="hdr"><i class="fa-solid fa-heading"></i><span>Kopf&shy;zeile</span></button><button type="button" class="wr-big" data-c="ftr"><i class="fa-solid fa-shoe-prints"></i><span>Fuß&shy;zeile</span></button><button type="button" class="wr-big wr-tg" data-c="pnum"><i class="fa-solid fa-hashtag"></i><span>Seiten&shy;zahlen</span></button></div><small>Kopf- und Fußzeile</small></div>
@@ -267,7 +268,8 @@
         function mmMerge(html, row) {
             const box = document.createElement('div'); box.innerHTML = html;
             const w = document.createTreeWalker(box, NodeFilter.SHOW_TEXT), list = []; let n; while ((n = w.nextNode())) if (n.nodeValue.includes('«')) list.push(n);
-            list.forEach(t => { t.nodeValue = t.nodeValue.replace(FIELD, (m, f) => mmValue(row, f)); });
+            list.forEach(t => { const v = t.nodeValue.replace(FIELD, (m, f) => mmValue(row, f)); if (!v.includes('\n')) { t.nodeValue = v; return; }
+                const fr = document.createDocumentFragment(); v.split('\n').forEach((x, i) => { if (i) fr.appendChild(document.createElement('br')); fr.appendChild(document.createTextNode(x)); }); t.replaceWith(fr); });
             return box.innerHTML;
         }
         function mmAll() {
@@ -301,6 +303,10 @@
         }
         const swatches = (list, none) => `<div class="wr-sw">${list.map(c => c ? `<button type="button" data-v="${c}" style="background:#${c}" title="#${c}"></button>` : '').join('')}</div>${none ? `<button type="button" class="wr-pi" data-v="">${none}</button>` : ''}`;
         const DD = {
+            addr: b => { const list = window.JMOS_CONTACTS ? JMOS_CONTACTS.all().filter(c => c.str || c.ort) : []; if (!list.length) return uiAlert('In deinen Kontakten gibt es noch niemanden mit Adresse. Öffne die App „Kontakte“ und lege einen an.');
+                showPop(b, `<b class="wr-ph">Adresse einfügen</b><input class="wr-pq" placeholder="Suchen …" aria-label="Kontakt suchen"><div class="wr-pl">${list.map(c => `<button type="button" class="wr-pi" data-v="${e(c.id)}" data-s="${e([JMOS_CONTACTS.nameOf(c), c.ort, c.firma].join(' ').toLowerCase())}"><i class="fa-solid fa-address-card"></i>${e(JMOS_CONTACTS.nameOf(c))}<small>${e(c.ort || '')}</small></button>`).join('')}</div>`,
+                    id => { const c = JMOS_CONTACTS.get(id); if (c) act(() => insertHTML(JMOS_CONTACTS.addressLines(c).map(l => e(l)).join('<br>'))); });
+                const qi = pop.querySelector('.wr-pq'); qi.focus(); qi.addEventListener('input', () => { const v = qi.value.toLowerCase(); pop.querySelectorAll('[data-s]').forEach(x => { x.hidden = !x.dataset.s.includes(v); }); }); },
             mmsrc: b => { const list = JMOFFICE.sources(); if (!list.length) return uiAlert('Lege zuerst in „Tabellen“ eine Liste an: erste Zeile Überschriften (z. B. Vorname, Nachname, Straße, PLZ, Ort), darunter je Empfänger eine Zeile. Speichern – dann hier auswählen.');
                 showPop(b, `<b class="wr-ph">Empfänger aus …</b><div class="wr-pl">${list.map(x => `<button type="button" class="wr-pi" data-v="${e(x.id)}"><i class="fa-solid ${x.icon}" style="color:${x.c}"></i>${e(x.name)}</button>`).join('')}</div>`, v => mmLoad(v)); },
             mmfield: b => { if (!mm.fields.length) return uiAlert('Wähle zuerst die Empfänger – dann stehen hier die Spalten (z. B. Vorname, Straße) als Felder bereit.'); if (mm.preview) mmPreview(false);
@@ -601,6 +607,7 @@
                 const { blob, name } = await JMOS_FILES.blobOf(doc.key); doc.name = name; doc.folder = it ? it.folder || '' : '';
                 const r = await JMDOCX.read(await blob.arrayBuffer());
                 page.contentEditable = 'true'; loadDoc(r.html, r.settings); doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name);
+                if (it && it.src === 'sh') { doc.key = null; doc.folder = ''; JMOFFICE.flash(`Von ${it.from} geteilt – Änderungen speicherst du als eigene Kopie`); } 
                 let d = null; try { d = JSON.parse(localStorage.getItem(DKEY()) || 'null'); } catch (x) {}
                 if (d && d.html && d.html !== page.innerHTML && await uiConfirm(`Für „${name}“ gibt es ungespeicherte Änderungen vom ${new Date(d.t).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })}. Wiederherstellen?`, { ok: 'Wiederherstellen', title: 'Writer' })) { loadDoc(d.html, d.st); }
                 else if (d) { try { localStorage.removeItem(DKEY()); } catch (x) {} }
@@ -628,7 +635,10 @@
         else if (P.hand && HAND[P.hand]) { const h = HAND[P.hand]; delete HAND[P.hand]; loadDoc(h.html, h.st); doc.name = h.name; doc.saved = ''; title(); }
         else if (P.utpl) { const t = window.JMOS_FILES && JMOS_FILES.templates('docx').find(x => x.id === P.utpl); loadDoc('<p><br></p>', {}); doc.saved = sig(); title(); fromTemplate(P.utpl, t && t.name).catch(x => uiAlert('Vorlage nicht lesbar: ' + x.message)); }
         else {
-            const tp = TPL[P.tpl] || TPL.leer; loadDoc(tp.html(), tp.st || {}); doc.name = P.tpl && P.tpl !== 'leer' ? tp.n + '.docx' : 'Dokument1.docx'; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name);
+            const tp = TPL[P.tpl] || TPL.leer; loadDoc(tp.html(), tp.st || {});
+            const to = P.to && window.JMOS_CONTACTS && JMOS_CONTACTS.get(P.to);
+            if (to) { const ps = [...page.querySelectorAll('p')], ad = ps.find(x => /Frau \/ Herrn/.test(x.textContent)), sa = ps.find(x => /Sehr geehrte Damen und Herren/.test(x.textContent));
+                if (ad) ad.innerHTML = JMOS_CONTACTS.addressLines(to).map(l => e(l)).join('<br>'); if (sa) sa.textContent = JMOS_CONTACTS.salutation(to); H.st = []; H.i = -1; snap(); } doc.name = P.tpl && P.tpl !== 'leer' ? tp.n + '.docx' : 'Dokument1.docx'; doc.saved = sig(); if (doc.key && window.JMOS_FILES && JMOS_FILES.touch) JMOS_FILES.touch(doc.key, doc.name);
             let d = null; try { d = JSON.parse(localStorage.getItem(DKEY()) || 'null'); } catch (x) {}
             if (!P.tpl) backstage('home');
             title();
