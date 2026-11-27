@@ -125,6 +125,7 @@ body.dragging, body.dragging * { user-select: none !important; }
 .wall-o i.prev { position: absolute; inset: 0; }
 .set-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255, 255, 255, .03); }
 .set-row + .set-row { margin-top: 8px; }
+.set-sel { margin-left: auto; flex: none; height: 34px; padding: 0 10px; border-radius: 9px; border: 1px solid var(--line); background: rgba(0, 0, 0, .3); font-size: 13px; color-scheme: dark; cursor: pointer; }
 .set-row b { display: block; font-size: 13.5px; } .set-row small { display: block; color: var(--mut); font-size: 12px; }
 .set-row > div { flex: 1; }
 .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 11px; border: 1px solid var(--line-2); background: rgba(255, 255, 255, .05); font-size: 13px; font-weight: 600; }

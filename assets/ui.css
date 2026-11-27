@@ -196,6 +196,7 @@ a.sb-user:hover .sb-edit { opacity: 1; transform: none; color: #fff; }
 .gs-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: rgba(2, 6, 16, .5); border: 1px solid rgba(148, 163, 184, .16); border-radius: 16px; font-size: 13px; color: #e2e8f0; }
 label.gs-row { cursor: pointer; } .gs-row small { display: block; color: #94a3b8; font-size: 11px; margin-top: 2px; } .gs-row b { font-weight: 600; }
 .gs-row input[type=checkbox] { width: 18px; height: 18px; accent-color: #6366f1; cursor: pointer; flex: none; }
+.gs-sel { flex: none; height: 34px; padding: 0 30px 0 10px; border-radius: 9px; border: 1px solid rgba(148, 163, 184, .3); background: rgba(2, 6, 16, .6); color: inherit; font: inherit; font-size: 13px; cursor: pointer; color-scheme: dark; }
 .gs-box.dlg a.gs-row, .gs-box.dlg button.gs-row { width: 100%; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
 .gs-stats { padding: 12px 14px; background: rgba(2, 6, 16, .35); border: 1px solid rgba(148, 163, 184, .14); border-radius: 16px; font-size: 12px; display: flex; flex-direction: column; gap: 6px; } .gs-stats > div { display: flex; justify-content: space-between; gap: 10px; } .gs-stats span:first-child { color: #94a3b8; }
 .gs-ok { color: #34d399; } .gs-no { color: #fb7185; } .gs-mu { color: #94a3b8; }

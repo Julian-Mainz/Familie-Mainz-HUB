@@ -2,6 +2,17 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 27.11.2026 (1)
+Dashboard und OS getrennt: Auswahl nach der Anmeldung
+- Neue Seite nach der Anmeldung (am PC): „Wo möchtest du weitermachen?“ mit den Kacheln Dashboard und J.Mainz OS (auch per Taste 1 / 2), dazu „Auswahl merken“.
+- Am Handy und Tablet geht es wie bisher direkt ins Dashboard.
+- Einstellungen (Dashboard und OS): „Nach der Anmeldung“ mit Jedes Mal fragen / Dashboard / J.Mainz OS (ersetzt „Desktop-Modus als Start“; wer das eingeschaltet hatte, startet weiter direkt im OS).
+- Grundlage dafür, dass OS und Dashboard sich ab jetzt unabhängig weiterentwickeln können.
+
+Geänderte Dateien: start.html (neu), js/pages/start.js (neu), js/firebase-init.js, js/pages/login.js, js/settings.js, assets/ui.css, assets/light.css, OS/os.js, OS/setwin.js, OS/os.css, CHANGELOG.md (+ Versionsstempel in allen Seiten)
+
+Firestore-Regeln: keine Änderung
+
 ## 26.11.2026 (7)
 Texte: kein Familien-Dashboard mehr, sondern für mich und meine Freunde
 - Teilen im Explorer heißt jetzt einfach „Teilen …“ (statt „Mit Familie teilen …“), Hinweise sprechen von „Mitgliedern“.

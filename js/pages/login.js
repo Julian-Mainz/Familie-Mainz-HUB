@@ -35,11 +35,11 @@ auth.onAuthStateChanged(async user => {
     }
     window.location.href = await startPage(user);
 });
-// Startansicht aus den Einstellungen: Desktop-Modus (J.Mainz OS) nur auf großen Bildschirmen mit Maus
+// Nach der Anmeldung: am PC Auswahl Dashboard / OS (oder direkt dorthin, wenn gemerkt), am Handy immer das Dashboard
 async function startPage(user) {
-    if (window.innerWidth < 1024 || !matchMedia('(pointer: fine)').matches) return '/menu.html';
-    try { const d = await db.collection('users').doc(user.uid).get(); if (d.exists && (d.data().userPrefs || {}).startView === 'os') return '/OS/'; } catch (e) {}
-    return '/menu.html';
+    if (!bigScreen()) return '/menu.html';
+    try { const d = await db.collection('users').doc(user.uid).get(); if (d.exists) return entryUrl(d.data().userPrefs); } catch (e) {}
+    return '/start.html';
 }
 
 function setNet() {

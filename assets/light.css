@@ -606,3 +606,4 @@ html.hell .cnt { background: #f1f5f9; color: #334155; } html.hell .wg .hd .td-b 
 html.hell .pn > div { background: #fef3c7; border-color: #f59e0b; color: #422006; box-shadow: 0 1px 2px rgba(120, 53, 15, .12); }
 html.hell .pn small, html.hell .pn .xd { color: #92400e; }
 html.hell .pn .xd:hover { color: #7c2d12; background: rgba(146, 64, 14, .12); }
+html.hell .gs-sel { background: #fff; color: #0f172a; color-scheme: light; }

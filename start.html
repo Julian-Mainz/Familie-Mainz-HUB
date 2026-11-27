@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.Mainz – Wohin?</title>
+    <meta name="theme-color" content="#05080f">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="stylesheet" href="/assets/icons.css?v=f020f76b">
+    <link rel="stylesheet" href="/assets/ui.css?v=e86af0ba">
+    <script src="/js/theme.js?v=6ca2a557"></script>
+    <script src="/js/vendor/firebase-app-compat.js?v=c066068f" defer></script>
+    <script src="/js/vendor/firebase-auth-compat.js?v=4d9f6e50" defer></script>
+    <script src="/js/vendor/firebase-firestore-compat.js?v=53cdabb9" defer></script>
+    <script src="/js/firebase-init.js?v=e5e469f1" defer></script>
+    <style>
+        /* Auswahl nach der Anmeldung: Dashboard oder J.Mainz OS */
+        :root { --ink: #f8fafc; --mut: #94a3b8; --line: rgba(148, 163, 184, .18); }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; min-height: 100%; }
+        body { min-height: 100vh; display: flex; flex-direction: column; background: #05080f; color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+        button { font-family: inherit; cursor: pointer; }
+        .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .bg i { position: absolute; border-radius: 50%; filter: blur(10px); }
+        .bg .a { width: 60vmax; height: 60vmax; left: -20vmax; top: -28vmax; background: radial-gradient(circle, rgba(99, 102, 241, .40), transparent 62%); }
+        .bg .b { width: 52vmax; height: 52vmax; right: -18vmax; bottom: -24vmax; background: radial-gradient(circle, rgba(139, 92, 246, .32), transparent 62%); }
+        .bg .g { position: absolute; inset: 0; background-image: linear-gradient(rgba(148, 163, 184, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, .06) 1px, transparent 1px); background-size: 46px 46px; -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 15%, transparent 72%); mask-image: radial-gradient(ellipse at 50% 40%, #000 15%, transparent 72%); }
+        header, footer { position: relative; z-index: 1; width: 100%; max-width: 1100px; margin: 0 auto; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; } .brand img { width: 38px; height: 38px; border-radius: 12px; }
+        .brand small { display: block; font-size: 10.5px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--mut); }
+        .out { display: inline-flex; align-items: center; gap: 8px; padding: 9px 15px; border-radius: 99px; border: 1px solid var(--line); background: rgba(15, 23, 42, .6); color: #cbd5e1; font-size: 13px; }
+        .out:hover { color: #fff; border-color: rgba(248, 113, 113, .5); }
+        main { position: relative; z-index: 1; flex: 1; width: 100%; max-width: 1000px; margin: 0 auto; padding: 10px 28px 30px; display: flex; flex-direction: column; justify-content: center; }
+        h1 { margin: 0 0 6px; font-size: clamp(26px, 3.4vw, 38px); letter-spacing: -.01em; } .lead { margin: 0 0 30px; color: var(--mut); font-size: 15px; }
+        .picks { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+        .pick { position: relative; display: flex; flex-direction: column; gap: 16px; padding: 20px 20px 22px; border-radius: 22px; border: 1px solid var(--line); background: rgba(13, 19, 36, .78); color: inherit; text-align: left; transition: transform .18s, border-color .18s, background .18s; }
+        .pick:hover, .pick:focus-visible { transform: translateY(-3px); border-color: var(--c); background: rgba(19, 26, 48, .9); outline: 0; }
+        .pick:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 45%, transparent); }
+        .pick .k { margin-left: auto; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--mut); border: 1px solid var(--line); }
+        .pick h2 { margin: 0; font-size: 21px; display: flex; align-items: center; gap: 10px; } .pick h2 i { color: var(--c); }
+        .pick p { margin: 0; color: var(--mut); font-size: 14px; line-height: 1.5; }
+        .pick ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; } .pick li { padding: 4px 10px; border-radius: 99px; font-size: 12px; color: #cbd5e1; background: rgba(255, 255, 255, .05); }
+        .pick .go { margin-top: auto; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--c); }
+        /* kleine Vorschau-Zeichnungen */
+        .pv { height: 150px; border-radius: 14px; overflow: hidden; position: relative; border: 1px solid rgba(148, 163, 184, .12); }
+        .pv.dash { background: #0b1222; padding: 14px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; align-content: start; }
+        .pv.dash span { height: 54px; border-radius: 12px; background: rgba(255, 255, 255, .05); position: relative; }
+        .pv.dash span::before { content: ""; position: absolute; left: 10px; top: 10px; width: 18px; height: 18px; border-radius: 6px; background: var(--t); opacity: .9; }
+        .pv.dash span::after { content: ""; position: absolute; left: 10px; bottom: 10px; width: 55%; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .14); }
+        .pv.os { background: radial-gradient(circle at 30% 20%, #312e81, #0b1020 70%); }
+        .pv.os .w { position: absolute; left: 16%; top: 14%; width: 56%; height: 58%; border-radius: 8px; background: rgba(15, 23, 42, .92); border: 1px solid rgba(148, 163, 184, .2); }
+        .pv.os .w::before { content: ""; display: block; height: 14px; border-bottom: 1px solid rgba(148, 163, 184, .15); background: rgba(255, 255, 255, .04); }
+        .pv.os .w.two { left: 46%; top: 30%; width: 44%; height: 46%; }
+        .pv.os .w i { display: block; margin: 8px 10px 0; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .12); } .pv.os .w i:nth-child(2) { width: 60%; }
+        .pv.os .ic { position: absolute; left: 4%; width: 16px; height: 16px; border-radius: 5px; } .pv.os .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 18px; background: rgba(5, 8, 15, .85); border-top: 1px solid rgba(148, 163, 184, .15); }
+        .pv.os .bar::before { content: ""; position: absolute; left: 8px; top: 4px; width: 10px; height: 10px; border-radius: 3px; background: #818cf8; }
+        .rem { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 26px; font-size: 14px; color: #cbd5e1; cursor: pointer; }
+        .rem input { width: 18px; height: 18px; accent-color: #818cf8; } .rem small { color: var(--mut); }
+        .hint { margin: 8px 0 0; text-align: center; font-size: 12px; color: #64748b; }
+        footer { border-top: 1px solid rgba(148, 163, 184, .1); font-size: 12px; color: #64748b; } footer a { color: inherit; }
+        .wait { position: fixed; inset: 0; z-index: 5; display: grid; place-items: center; background: #05080f; color: var(--mut); font-size: 14px; } .wait i { margin-right: 10px; }
+        html.hell body { background: #f1f5f9; color: #0f172a; } html.hell .pick { background: rgba(255, 255, 255, .9); } html.hell .pick li { background: #eef2ff; color: #334155; }
+        html.hell .out { background: #fff; color: #334155; } html.hell .rem { color: #334155; } html.hell .wait { background: #f1f5f9; }
+        @media (max-width: 760px) { .picks { grid-template-columns: 1fr; } .pv { height: 110px; } }
+        @media (prefers-reduced-motion: reduce) { .pick { transition: none; } }
+    </style>
+</head>
+<body>
+    <div class="bg" aria-hidden="true"><i class="a"></i><i class="b"></i><div class="g"></div></div>
+    <div class="wait" id="wait"><span><i class="fa-solid fa-spinner fa-spin"></i>Einen Moment …</span></div>
+    <header>
+        <div class="brand"><img src="/icons/icon-192.png" alt=""><div><span>J.Mainz</span><small>Willkommen</small></div></div>
+        <button type="button" class="out" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i>Abmelden</button>
+    </header>
+    <main>
+        <h1 id="hi">Hallo!</h1>
+        <p class="lead">Wo möchtest du weitermachen?</p>
+        <div class="picks">
+            <button type="button" class="pick" data-go="dash" style="--c:#38bdf8">
+                <div class="pv dash" aria-hidden="true"><span style="--t:#38bdf8"></span><span style="--t:#f472b6"></span><span style="--t:#34d399"></span><span style="--t:#fbbf24"></span><span style="--t:#a78bfa"></span><span style="--t:#fb7185"></span><span style="--t:#60a5fa"></span><span style="--t:#4ade80"></span></div>
+                <h2><i class="fa-solid fa-border-all"></i>Dashboard<span class="k" aria-hidden="true" title="Taste 1">1</span></h2>
+                <p>Die gewohnte Übersicht mit allen Bereichen als Kacheln, schnell und einfach, auch am Handy.</p>
+                <ul><li>Messenger</li><li>Kalender</li><li>Finanzen</li><li>Zeiterfassung</li><li>Spiele</li></ul>
+                <span class="go">Zum Dashboard <i class="fa-solid fa-arrow-right"></i></span>
+            </button>
+            <button type="button" class="pick" data-go="os" style="--c:#a78bfa">
+                <div class="pv os" aria-hidden="true"><span class="ic" style="top:12%;background:#38bdf8"></span><span class="ic" style="top:32%;background:#f59e0b"></span><span class="ic" style="top:52%;background:#34d399"></span><div class="w"><i></i><i></i></div><div class="w two"><i></i><i></i></div><div class="bar"></div></div>
+                <h2><i class="fa-solid fa-desktop"></i>J.Mainz OS<span class="k" aria-hidden="true" title="Taste 2">2</span></h2>
+                <p>Dein Arbeitsplatz am PC: Fenster, Taskleiste, Explorer und eigene Office-Apps.</p>
+                <ul><li>Writer</li><li>Tabellen</li><li>Präsentation</li><li>Explorer</li><li>Kontakte</li></ul>
+                <span class="go">Ins OS <i class="fa-solid fa-arrow-right"></i></span>
+            </button>
+        </div>
+        <label class="rem"><input type="checkbox" id="remember"><span>Auswahl merken <small>– nächstes Mal direkt dorthin</small></span></label>
+        <p class="hint">Ändern kannst du das jederzeit in den Einstellungen unter „Nach der Anmeldung“. Tasten 1 und 2 gehen auch.</p>
+    </main>
+    <footer><span>© J.Mainz</span><span><a href="/impressum.html">Impressum</a> · <a href="/datenschutz.html">Datenschutz</a></span></footer>
+    <script src="/js/pages/start.js?v=4c9b4301" defer></script>
+</body>
+</html>

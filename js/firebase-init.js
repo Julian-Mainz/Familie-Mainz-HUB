@@ -362,6 +362,15 @@ function loadCalRemind() {
     (window.CAL ? Promise.resolve() : add('/js/calendar-core.js')).then(() => add('/js/cal-remind.js'));
 }
 
+// Wohin nach der Anmeldung? 'ask' = Auswahlseite (/start.html), 'dash' = Dashboard, 'os' = J.Mainz OS. Das OS gibt es nur am PC (großer Bildschirm, Maus).
+function entryPref(p) { p = p || {}; return ['ask', 'dash', 'os'].includes(p.entry) ? p.entry : p.startView === 'os' ? 'os' : 'ask'; }
+const bigScreen = () => window.innerWidth >= 1024 && matchMedia('(pointer: fine)').matches;
+function entryUrl(prefs) { if (!bigScreen()) return '/menu.html'; const v = entryPref(prefs); return v === 'os' ? '/OS/' : v === 'dash' ? '/menu.html' : '/start.html'; }
+async function saveEntryPref(v) {
+    if (!currentUser) return; currentUser.userPrefs = currentUser.userPrefs || {}; currentUser.userPrefs.entry = v;
+    await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.entry': v });
+}
+
 async function handleLogout() {
     await logSystemEvent('auth', 'Benutzer abgemeldet', { email: currentUser ? currentUser.email : '' });
     safeStore(() => sessionStorage.clear());

@@ -576,7 +576,7 @@
             body.innerHTML = `<div class="app-set">
                 <section><h3>Hintergrund</h3><div class="walls">${walls.map(w => `<button type="button" class="wall-o${S.wall === w[0] ? ' on' : ''}" data-w="${w[0]}"><i class="prev" style="background:${w[2]}"></i><span>${w[1]}</span></button>`).join('')}</div></section>
                 <section><h3>Start &amp; Widgets</h3>
-                    <label class="set-row"><div><b>Desktop-Modus als Start</b><small>Nach der Anmeldung am PC direkt hier starten statt im normalen Dashboard. Am Handy startet immer das Dashboard.</small></div><input type="checkbox" class="tgl" id="set-sv" ${USER.userPrefs?.startView === 'os' ? 'checked' : ''}></label>
+                    <label class="set-row"><div><b>Nach der Anmeldung</b><small>Am PC jedes Mal wählen oder direkt ins OS bzw. ins Dashboard. Am Handy startet immer das Dashboard.</small></div><select class="set-sel" id="set-sv">${[['ask', 'Jedes Mal fragen'], ['os', 'J.Mainz OS'], ['dash', 'Dashboard']].map(([v, t]) => `<option value="${v}"${entryPref(USER.userPrefs) === v ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
                     <div class="set-row"><div><b>Widgets</b><small>Uhr, Wetter, Stempeluhr, Termine, Aufgaben, Finanzen, Pinnwand, Notiz und Kalender auf dem Desktop.</small></div><button type="button" class="btn" data-b="wg"><i class="fa-solid fa-plus"></i>Hinzufügen</button></div>
                 </section>
                 <section><h3>Fenster</h3>
@@ -600,8 +600,8 @@
             paintDh();
             body.querySelector('#set-lw').addEventListener('change', ev => { S.linkWin = ev.target.checked; save(); });
             body.querySelector('#set-sv').addEventListener('change', async ev => {
-                const v = ev.target.checked ? 'os' : 'dash'; USER.userPrefs = USER.userPrefs || {}; USER.userPrefs.startView = v;
-                try { await db.collection('users').doc(USER.uid).update({ 'userPrefs.startView': v }); } catch (x) { ev.target.checked = !ev.target.checked; uiAlert('Speichern fehlgeschlagen: ' + x.message); }
+                const v = ev.target.value, was = entryPref(USER.userPrefs); USER.userPrefs = USER.userPrefs || {}; USER.userPrefs.entry = v;
+                try { await db.collection('users').doc(USER.uid).update({ 'userPrefs.entry': v }); } catch (x) { ev.target.value = was; USER.userPrefs.entry = was; uiAlert('Speichern fehlgeschlagen: ' + x.message); }
             });
         },
         about(body) {

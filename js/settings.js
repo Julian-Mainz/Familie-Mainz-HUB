@@ -45,7 +45,7 @@
                     </div>
                     <button onclick="toggleTheme()" class="gs-row"><span><i data-theme-icon class="fa-solid fa-moon" style="color:#94a3b8;margin-right:8px"></i>Design</span><span data-theme-text class="gs-mu">Dunkel</span></button>
                     <label class="gs-row" id="row-space"><span><b><i class="fa-solid fa-star" style="color:#a78bfa;margin-right:8px"></i>Weltall-Hintergrund</b><small>Sternenhimmel und Planeten im Hintergrund, hell und dunkel (auf diesem Gerät)</small></span><input type="checkbox" id="pref-space" onchange="window.Space && Space.set(this.checked)"></label>
-                    <label class="gs-row"><span><b><i class="fa-solid fa-desktop" style="color:#8b5cf6;margin-right:8px"></i>Desktop-Modus als Start</b><small>Nach der Anmeldung am PC direkt im Desktop (J.Mainz OS) starten. Am Handy startet immer das normale Dashboard.</small></span><input type="checkbox" id="pref-start-os" onchange="saveStartView(this.checked)"></label>
+                    <label class="gs-row"><span><b><i class="fa-solid fa-desktop" style="color:#8b5cf6;margin-right:8px"></i>Nach der Anmeldung</b><small>Am PC: jedes Mal wählen oder direkt ins Dashboard bzw. ins J.Mainz OS. Am Handy startet immer das Dashboard.</small></span><select id="pref-entry" class="gs-sel" onchange="saveStartView(this.value)"><option value="ask">Jedes Mal fragen</option><option value="dash">Dashboard</option><option value="os">J.Mainz OS</option></select></label>
                     <div class="gs-row" style="flex-direction:column;align-items:stretch;gap:10px">
                         <b><i class="fa-solid fa-user-shield" style="color:#818cf8;margin-right:8px"></i>Meine Daten &amp; Konto</b>
                         <button id="btn-export" onclick="exportMyData()" class="gs-btn full"><i class="fa-solid fa-download" style="color:#34d399;margin-right:8px"></i>Alle meine Daten herunterladen (JSON)</button>
@@ -94,7 +94,7 @@
         buildModal();
         refreshPushUI();
         if (typeof updateThemeButtons === 'function') updateThemeButtons();
-        const so = document.getElementById('pref-start-os'); if (so) so.checked = (currentUser.userPrefs || {}).startView === 'os';
+        const so = document.getElementById('pref-entry'); if (so) so.value = entryPref(currentUser.userPrefs);
         const sp = document.getElementById('pref-space'); if (sp) { sp.checked = !!(window.Space && Space.on()); document.getElementById('row-space').classList.toggle('hidden', !window.Space); }
         document.getElementById('modal-settings').classList.remove('hidden');
     };
@@ -138,11 +138,10 @@
         } catch (err) { alert('Speichern fehlgeschlagen: ' + err.message); }
     };
 
-    // Startansicht nach der Anmeldung: 'os' = Desktop (J.Mainz OS, nur am PC), sonst normales Dashboard
-    window.saveStartView = async function (on) {
+    // Wohin nach der Anmeldung (am PC): 'ask' = Auswahlseite, 'dash' = Dashboard, 'os' = J.Mainz OS
+    window.saveStartView = async function (v) {
         if (!currentUser) return;
-        currentUser.userPrefs = currentUser.userPrefs || {}; currentUser.userPrefs.startView = on ? 'os' : 'dash';
-        try { await db.collection('users').doc(currentUser.uid).update({ 'userPrefs.startView': on ? 'os' : 'dash' }); if (window.UX) UX.toast(on ? 'Am PC startest du ab jetzt im Desktop-Modus' : 'Du startest wieder im normalen Dashboard'); }
+        try { await saveEntryPref(v); if (window.UX) UX.toast(v === 'os' ? 'Am PC startest du ab jetzt im J.Mainz OS' : v === 'dash' ? 'Am PC startest du ab jetzt im Dashboard' : 'Nach der Anmeldung kannst du ab jetzt jedes Mal wählen'); }
         catch (err) { alert('Speichern fehlgeschlagen: ' + err.message); }
     };
 
