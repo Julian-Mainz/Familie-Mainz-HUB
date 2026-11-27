@@ -2,6 +2,16 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 27.11.2026 (4)
+
+**OS-Admin: Wartung zeigt wieder alle Schalter**
+
+- Im Tab „Wartung“ der Admin-App waren die Schalter für das ganze System und die einzelnen Seiten leer. Jetzt erscheinen sie wieder, die Symbole stehen sauber neben dem Namen.
+
+Geänderte Dateien: OS/app-admin.js, OS/os.css, CHANGELOG.md
+
+Firestore-Regeln: keine Änderung
+
 ## 27.11.2026 (3)
 
 **OS: alle Apps jetzt als eigene OS-Apps**
