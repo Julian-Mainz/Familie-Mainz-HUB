@@ -8,7 +8,7 @@ const AREAS = [
     ['Sonstiges', /./, '#94a3b8', '148,163,184', 'fa-wand-magic-sparkles']];
 const areaOf = t => AREAS.find(a => a[1].test(t));
 // Nur für Admins: technische Abschnitte
-const ADMIN_SEC = /^(geänderte dateien|firestore-regeln)/i, ADMIN_LINE = /^firestore-regeln:/i;
+const ADMIN_SEC = /^(geänderte dateien|firestore-regeln)/i, ADMIN_LINE = /^(firestore-regeln|geänderte dateien):/i;
 let days = [], admin = false, area = '', seen = '';
 const ls = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 const dIso = s => { const m = s.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/); return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : ''; };

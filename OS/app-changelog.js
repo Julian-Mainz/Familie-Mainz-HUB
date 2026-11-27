@@ -12,8 +12,9 @@
         const out = []; let day = null;
         for (const raw of md.split(/\r?\n/)) {
             const l = raw.trimEnd(); if (/^## /.test(l)) { day = { title: l.slice(3).trim(), iso: dIso(l), head: '', text: [], items: [], meta: [] }; out.push(day); continue; }
-            if (!day || !l.trim() || /^### /.test(l)) { if (day && /^### /.test(l)) day.text.push(l.slice(4)); continue; }
-            if (/^\s*[-*] /.test(l)) day.items.push(l.replace(/^\s*[-*] /, '')); else if (day.items.length && /^\s{2,}/.test(raw)) day.items[day.items.length - 1] += ' ' + l.trim();
+            if (!day || !l.trim()) continue;
+            if (/^### /.test(l)) { const h = l.slice(4).trim(); if (!day.head) day.head = h; else day.items.push('**' + h + '**'); continue; }      // Überschrift des Eintrags
+            if (/^\s*[-*] /.test(l)) { const x = l.replace(/^\s*[-*] /, ''); if (ADMIN.test(x)) day.meta.push(x); else day.items.push(x); } else if (day.items.length && /^\s{2,}/.test(raw)) day.items[day.items.length - 1] += ' ' + l.trim();
             else if (ADMIN.test(l.trim())) day.meta.push(l.trim()); else if (!day.head) day.head = l.trim(); else day.text.push(l.trim());
         }
         return out;
@@ -24,7 +25,7 @@
         const admin = typeof isAdmin === 'function' && isAdmin(U); let days = [], area = '', seen = ''; try { seen = localStorage.getItem('cl_seen') || ''; } catch (x) {}
         body.innerHTML = `<div class="oa oa-cl" style="--m:#a78bfa;--mr:167,139,250"><div class="oa-h"><span class="oa-ico"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h2>Changelog</h2><small class="cl-sub">Was ist neu</small></div><span class="oa-sp"></span><input class="oa-in" type="search" placeholder="Suchen, z. B. Messenger" aria-label="Changelog durchsuchen" style="width:240px"></div>
             <div class="oa-cols"><aside class="cl-nav"></aside><div class="oa-b"><div class="oa-chips cl-chips"></div><div class="cl-list"><p class="oa-empty"><i class="fa-solid fa-spinner fa-spin"></i>Lade Änderungen …</p></div></div></div></div>`;
-        const $ = s => body.querySelector(s), areaOf = d => AREAS.find(a => a[1].test(d.head + ' ' + d.items.slice(0, 2).join(' ')));
+        const $ = s => body.querySelector(s), areaOf = d => (d.head && AREAS.slice(0, -1).find(a => a[1].test(d.head))) || AREAS.find(a => a[1].test(d.head + ' ' + d.items.slice(0, 2).join(' ')));
         function render() {
             const q = $('.oa-h input').value.trim(), ql = q.toLowerCase();
             const vis = days.filter(d => (!area || areaOf(d)[0] === area) && (!ql || [d.title, d.head, ...d.text, ...d.items].join(' ').toLowerCase().includes(ql)));

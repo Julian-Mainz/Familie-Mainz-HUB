@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="/assets/space.css?v=6a03cf86">
     <script src="/js/space.js?v=6b19e834"></script>
     <link rel="stylesheet" href="/assets/ux.css?v=5dadaea8">
-    <script src="/js/theme.js?v=6ca2a557"></script>
+    <script src="/js/theme.js?v=1e711f6c"></script>
     <script src="/js/vendor/firebase-app-compat.js?v=c066068f" defer></script>
     <script src="/js/vendor/firebase-auth-compat.js?v=4d9f6e50" defer></script>
     <script src="/js/vendor/firebase-firestore-compat.js?v=53cdabb9" defer></script>
@@ -27,12 +27,12 @@
     <script src="/js/ux.js?v=34deac13" defer></script>
     <script src="/js/drawer.js?v=f6f08069" defer></script>
     <style>
-    .cl{display:grid;grid-template-columns:240px minmax(0,1fr);gap:18px;align-items:start}@media(max-width:900px){.cl{grid-template-columns:1fr}.cl-nav{display:none}}
+    .cl{display:grid;grid-template-columns:240px minmax(0,1fr);gap:18px;align-items:start}@media(max-width:900px){.cl{grid-template-columns:minmax(0,1fr)}.cl-nav{display:none}}
     .cl-nav{position:sticky;top:18px;padding:14px;max-height:calc(100vh - 36px);overflow:auto}
     .cl-nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:#cbd5e1;text-decoration:none;font-size:13.5px}.cl-nav a:hover,.cl-nav a.on{background:rgba(var(--mr),.12);color:#fff}
     .cl-nav a small{margin-left:auto;font-size:11px;color:#94a3b8}.cl-nav .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18);flex:none}.cl-nav a.new .dot{background:var(--m);box-shadow:0 0 8px var(--m)}
-    .cl-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}.cl-tools .ux-in{max-width:280px}
-    .cl-day{margin-bottom:22px;scroll-margin-top:16px}.cl-dh{display:flex;align-items:center;gap:12px;margin:0 4px 10px}.cl-dh h2{margin:0;font-size:19px;font-weight:800;color:#f8fafc}.cl-dh small{color:#94a3b8;font-size:13px}
+    .cl-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}.cl-tools .ux-in{max-width:280px}#cl-chips{flex:1 1 100%;min-width:0}
+    .cl-day{margin-bottom:22px;scroll-margin-top:16px}.cl-dh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:0 4px 10px}.cl-dh h2{margin:0;font-size:19px;font-weight:800;color:#f8fafc}.cl-dh small{color:#94a3b8;font-size:13px}
     .cl-new{font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:3px 8px;border-radius:7px;background:rgba(var(--mr),.18);color:var(--m)}
     .cl-sec{display:flex;gap:16px;padding:18px 20px;margin-bottom:10px}.cl-ic{width:42px;height:42px;min-width:42px;border-radius:13px;display:grid;place-items:center;font-size:17px;background:rgba(var(--cr),.14);color:var(--c)}
     .cl-b{min-width:0;flex:1}.cl-b h3{margin:2px 0 8px;font-size:16px;font-weight:700;color:#f1f5f9}.cl-b ul{margin:0;padding-left:1.15rem}.cl-b li{font-size:14px;line-height:1.65;color:#cbd5e1;margin:2px 0}.cl-b p{font-size:14px;color:#cbd5e1;margin:0 0 6px;line-height:1.6}
@@ -55,6 +55,6 @@
         </div>
     </div>
 </main>
-<script src="/js/pages/changelog.js?v=55bbc080" defer></script>
+<script src="/js/pages/changelog.js?v=5d68bdcb" defer></script>
 </body>
 </html>

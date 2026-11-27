@@ -219,6 +219,9 @@
         const ar = area(), n = WINS.length % 8;
         const w = Math.min(a.w || 1180, ar.w - 120), h = Math.min(a.h || 760, ar.h - 70);
         const win = { id: 'w' + (++seq), app: a, key, desk: o.desk || curDesk(), params: o.params, url: o.url || a.url, x: o.x ?? Math.max(10, Math.round((ar.w - w) / 2) - 120 + n * 34), y: o.y ?? Math.max(8, Math.round((ar.h - h) / 2) - 50 + n * 30), w: o.w || w, h: o.h || h, max: !!o.max, min: false, grp: o.grp || null, tabAway: !!o.tabAway };
+        // Neue Fenster versetzt öffnen, aber nie unter die Taskleiste oder über den rechten Rand hinaus: der Versatz beginnt dann wieder oben links
+        if (o.y == null) { const sy = Math.max(1, ar.h - win.h - 8); if (win.y + win.h > ar.h) win.y = 8 + (win.y - 8) % sy; }
+        if (o.x == null) { const sx = Math.max(1, ar.w - win.w - 10); if (win.x + win.w > ar.w) win.x = 10 + (win.x - 10) % sx; }
         win.x = Math.min(Math.max(-win.w + 120, win.x), ar.w - 120); win.y = Math.min(Math.max(0, win.y), ar.h - 40);
         const el = document.createElement('div'); el.className = 'win'; el.id = win.id; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', a.name);
         el.innerHTML = `<div class="wt"><span class="wt-ico${a.folder ? ' folder' : ''}" style="--c:${a.c || '#818cf8'}"><i class="fa-solid ${a.folder ? 'fa-folder' : a.icon}"></i></span><span class="wt-title">${e(o.title || a.name)}</span>
@@ -392,13 +395,15 @@
     const pins = () => (S.pinned || []).filter(id => APPS[id]);
     const isPinned = id => pins().includes(id);
     function togglePin(id) { S.pinned = isPinned(id) ? pins().filter(x => x !== id) : [...pins(), id]; renderTasks(); save(); }
+    function fitTasks() { const T = $('tasks'); if (!T) return; T.classList.remove('tight'); if (T.scrollWidth > T.clientWidth + 1) T.classList.add('tight'); }
+    addEventListener('resize', () => fitTasks());
     function renderTasks() {
         const t = topWin(), open = WINS.filter(w => !w.closing && onDesk(w)), used = new Set();
         const winBtn = w => { used.add(w); const ttl = w.el.querySelector('.wt-title').textContent;
             return `<button type="button" class="task${w === t && !w.min && w.el.classList.contains('focus') ? ' on' : ''}${w.min ? ' mini' : ''}${isPinned(w.app.id) ? ' pinned' : ''}" data-w="${w.id}" title="${e(ttl)}"><span class="wt-ico${w.app.folder ? ' folder' : ''}" style="--c:${w.app.c || '#818cf8'}"><i class="fa-solid ${w.app.folder ? 'fa-folder' : w.app.icon}"></i></span><span>${e(ttl)}</span></button>`; };
         const pinBtn = id => { const a = APPS[id]; return `<button type="button" class="task pin" data-pin="${id}" title="${e(a.name)} öffnen"><span class="wt-ico${a.folder ? ' folder' : ''}" style="--c:${a.c || '#818cf8'}"><i class="fa-solid ${a.folder ? 'fa-folder' : a.icon}"></i></span><span>${e(a.name)}</span></button>`; };
         const html = pins().map(id => { const ws = open.filter(w => w.app.id === id); return ws.length ? ws.map(winBtn).join('') : pinBtn(id); }).join('') + open.filter(w => !used.has(w)).map(winBtn).join('');
-        $('tasks').innerHTML = html;
+        $('tasks').innerHTML = html; fitTasks();
     }
     function wireBar() {
         $('tasks').addEventListener('click', ev => {

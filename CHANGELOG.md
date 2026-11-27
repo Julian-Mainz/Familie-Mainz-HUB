@@ -2,20 +2,27 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 27.11.2026 (5)
+
+### OS: Feinschliff nach dem System-Check
+- Neue Fenster öffnen auf kleinen Bildschirmen (z. B. Laptop mit 1366 × 768) nicht mehr halb unter der Taskleiste, sondern rutschen zurück nach oben.
+- Taskleiste: Wenn viele Fenster offen sind, zeigen nur noch das aktive Fenster seinen Namen und die anderen ihr Symbol. Vorher verschwanden Fenster unsichtbar hinter dem Spotify-Feld.
+- Die neuen OS-Apps passen sich jetzt an die Fenstergröße an statt an den Bildschirm. Die Zeiterfassung zeigt ihre vier Kacheln in schmalen Fenstern als 2 × 2.
+- Changelog im OS: Einträge werden nach ihrer Überschrift einem Bereich zugeordnet, technische Zeilen sehen nur Admins.
+- Changelog im Dashboard: Am Handy war die Seite breiter als der Bildschirm und ließ sich seitlich verschieben, das ist behoben. „Geänderte Dateien“ sehen jetzt nur noch Admins. Acht Einträge vom 26. und 27.11. hatten ein falsches Format und werden jetzt richtig angezeigt.
+- Geänderte Dateien: OS/os.js, OS/os.css, OS/app-changelog.js, changelog.html, js/pages/changelog.js, CHANGELOG.md
+- Firestore-Regeln: keine Änderung
+
 ## 27.11.2026 (4)
 
-**OS-Admin: Wartung zeigt wieder alle Schalter**
-
+### OS-Admin: Wartung zeigt wieder alle Schalter
 - Im Tab „Wartung“ der Admin-App waren die Schalter für das ganze System und die einzelnen Seiten leer. Jetzt erscheinen sie wieder, die Symbole stehen sauber neben dem Namen.
-
-Geänderte Dateien: OS/app-admin.js, OS/os.css, CHANGELOG.md
-
-Firestore-Regeln: keine Änderung
+- Geänderte Dateien: OS/app-admin.js, OS/os.css, CHANGELOG.md
+- Firestore-Regeln: keine Änderung
 
 ## 27.11.2026 (3)
 
-**OS: alle Apps jetzt als eigene OS-Apps**
-
+### OS: alle Apps jetzt als eigene OS-Apps
 - Kalender, Zeiterfassung, Finanzen, Passwort-Safe, Spotify, Changelog und Admin laufen im OS jetzt als eigene Apps statt als Dashboard-Seite im Fenster. Daten bleiben dieselben wie im Dashboard und am Handy.
 - Kalender: Monat, Woche und Liste, Seitenleiste mit Einladungen, Tagesansicht, Kalender ein-/ausblenden; Termin-Editor mit Wiederholung, Teilen, Farbe, Erinnerung und Zusagen; Doppelklick auf einen Tag legt einen Termin an, Rechtsklick-Menüs, Tasten ←/→/T/N.
 - Zeiterfassung: Stempeluhr, Monatszahlen, Überstundenkonto mit Abschluss und Startstand, Kalender mit Abwesenheiten per Rechtsklick, Einträge, Urlaubsübersicht, Stundenzettel und CSV.
@@ -25,61 +32,56 @@ Firestore-Regeln: keine Änderung
 - Admin: Benutzer, Rechte, Freigaben, Einladungen, Nachrichten, Wartung und Protokoll.
 - „Dokumente“ öffnet im OS den Explorer, die Startseite des Dashboards taucht im OS nicht mehr auf.
 - Noch nicht übernommen: Dateianhänge an Terminen, Wiedergabe direkt im Browser bei Spotify, System-Zahlen im Admin – dafür gibt es weiter die Dashboard-Seiten.
-
-Geänderte Dateien: OS/app-kit.js, OS/app-kalender.js, OS/app-zeit.js, OS/app-finanzen.js, OS/app-tresor.js, OS/app-spotify.js, OS/app-changelog.js, OS/app-admin.js (alle neu), OS/office.js, OS/os.js, OS/index.html, OS/os.css, OS/os-icons.css, CHANGELOG.md
-
-Firestore-Regeln: keine Änderung
+- Geänderte Dateien: OS/app-kit.js, OS/app-kalender.js, OS/app-zeit.js, OS/app-finanzen.js, OS/app-tresor.js, OS/app-spotify.js, OS/app-changelog.js, OS/app-admin.js (alle neu), OS/office.js, OS/os.js, OS/index.html, OS/os.css, OS/os-icons.css, CHANGELOG.md
+- Firestore-Regeln: keine Änderung
 
 ## 27.11.2026 (2)
-OS: Messenger als eigene OS-App
+
+### OS: Messenger als eigene OS-App
 - Der Messenger im OS ist jetzt eine eigene App statt der Dashboard-Seite im Fenster. Daten, Gelesen-Stand und Einstellungen bleiben dieselben wie im Dashboard und am Handy.
 - Chatliste mit Suche, Ungelesen-Zählern und Rechtsklick (als gelesen markieren, stummschalten, Gruppe verlassen); Fenstertitel zeigt den offenen Chat und ungelesene Nachrichten.
 - Nachrichten: Rechtsklick-Menü (antworten, reagieren, kopieren, bearbeiten, löschen, Bild/Datei herunterladen oder „In Dokumente speichern“), Doppelklick zum Antworten, Pfeil hoch bearbeitet die letzte eigene Nachricht.
 - Anhänge: Bild oder Datei vom PC, „Aus meinen Dokumenten …“, Einfügen mit Strg+V und Drag & Drop – auch direkt aus dem Explorer.
 - Suche im Chat (Strg+F), neuer Chat (Strg+N), Alt+Pfeil wechselt den Chat, Gruppen anlegen/verwalten, Messenger-Einstellungen.
 - Mitteilungen, Widget und Links aus anderen Apps öffnen den passenden Chat direkt in der neuen App.
-
-Geänderte Dateien: OS/messenger.js (neu), OS/os.js, OS/index.html, OS/os.css, OS/os-icons.css, CHANGELOG.md
-
-Firestore-Regeln: keine Änderung
+- Geänderte Dateien: OS/messenger.js (neu), OS/os.js, OS/index.html, OS/os.css, OS/os-icons.css, CHANGELOG.md
+- Firestore-Regeln: keine Änderung
 
 ## 27.11.2026 (1)
-Dashboard und OS getrennt: Auswahl nach der Anmeldung
+
+### Dashboard und OS getrennt: Auswahl nach der Anmeldung
 - Neue Seite nach der Anmeldung (am PC): „Wo möchtest du weitermachen?“ mit den Kacheln Dashboard und J.Mainz OS (auch per Taste 1 / 2), dazu „Auswahl merken“.
 - Am Handy und Tablet geht es wie bisher direkt ins Dashboard.
 - Einstellungen (Dashboard und OS): „Nach der Anmeldung“ mit Jedes Mal fragen / Dashboard / J.Mainz OS (ersetzt „Desktop-Modus als Start“; wer das eingeschaltet hatte, startet weiter direkt im OS).
 - Grundlage dafür, dass OS und Dashboard sich ab jetzt unabhängig weiterentwickeln können.
-
-Geänderte Dateien: start.html (neu), js/pages/start.js (neu), js/firebase-init.js, js/pages/login.js, js/settings.js, assets/ui.css, assets/light.css, OS/os.js, OS/setwin.js, OS/os.css, CHANGELOG.md (+ Versionsstempel in allen Seiten)
-
-Firestore-Regeln: keine Änderung
+- Geänderte Dateien: start.html (neu), js/pages/start.js (neu), js/firebase-init.js, js/pages/login.js, js/settings.js, assets/ui.css, assets/light.css, OS/os.js, OS/setwin.js, OS/os.css, CHANGELOG.md (+ Versionsstempel in allen Seiten)
+- Firestore-Regeln: keine Änderung
 
 ## 26.11.2026 (7)
-Texte: kein Familien-Dashboard mehr, sondern für mich und meine Freunde
+
+### Texte: kein Familien-Dashboard mehr, sondern für mich und meine Freunde
 - Teilen im Explorer heißt jetzt einfach „Teilen …“ (statt „Mit Familie teilen …“), Hinweise sprechen von „Mitgliedern“.
 - Kontakte: „Für alle sichtbar“ statt „Für die Familie sichtbar“ (die Kategorie „Familie“ für eigene Verwandte bleibt).
 - Widget „Familien-Zettel“ heißt jetzt „Gemeinsamer Zettel“, Pinnwand-Beschreibung angepasst, Konto zeigt „Mitglied“ statt „Familienmitglied“.
 - Präsentationsvorlage „Familien-Info“ wird zu „Gruppen-Info“; Writer-Beispiel in der Kopfzeile neutral.
 - Kalender-Beispiel „Freunde“ statt „Familie“; Ballon-Spiel: „Karten der anderen“, Bestenliste „Alle“.
-
-Geänderte Dateien: OS/explorer.js, OS/contacts.js, OS/social.js, OS/widgets.js, OS/writer.js, OS/slides.js, OS/setwin.js, OS/os-icons.css, menu.html, Ballon/index.html, Ballon/online.js, CHANGELOG.md
-
-Firestore-Regeln: keine Änderung
+- Geänderte Dateien: OS/explorer.js, OS/contacts.js, OS/social.js, OS/widgets.js, OS/writer.js, OS/slides.js, OS/setwin.js, OS/os-icons.css, menu.html, Ballon/index.html, Ballon/online.js, CHANGELOG.md
+- Firestore-Regeln: keine Änderung
 
 ## 26.11.2026 (6)
-OS – Paket C: Kontakte und Dateien teilen
+
+### OS – Paket C: Kontakte und Dateien teilen
 - Neue App „Kontakte“ (Adressbuch): Kategorien Familie, Freunde, Ärzte, Handwerker, Behörden & Ämter, Arbeit, Sonstiges; Suche, Anrufen, E-Mail, Geburtstag mit „wird 36 in 2 Tagen“, Notizen, vCard-Import (z. B. vom Handy) und -Export.
 - „Für die ganze Familie sichtbar“: solche Kontakte (z. B. Kinderarzt, Klempner) sehen alle freigeschalteten Mitglieder; ändern kann nur, wer sie angelegt hat.
 - Kontakte in Writer: „Brief schreiben“ öffnet einen Brief mit fertiger Anschrift und passender Anrede; Einfügen → „Adresse aus Kontakten“; im Serienbrief lassen sich alle Kontakte oder eine Kategorie als Empfänger wählen (mit Feldern wie «Briefanrede» und «Adresse»).
 - Dateien teilen: Rechtsklick auf eine eigene Datei → „Mit Familie teilen …“. Die anderen finden sie im Explorer unter „Mit mir geteilt“ und bekommen eine Mitteilung. Sie können öffnen, herunterladen oder „In meine Dateien kopieren“; geteilte Word-/Excel-/PowerPoint-Dateien öffnen sich in den Office-Apps, Änderungen werden als eigene Kopie gespeichert.
 - Behoben: Bei neuen Mitteilungen konnte seit dem Update mit den Systemklängen ein Fehler auftreten.
-
-Geänderte Dateien: OS/contacts.js (neu), OS/index.html, OS/explorer.js, OS/writer.js, OS/calc.js, OS/slides.js, OS/officekit.js, OS/extras.js, OS/os.css, OS/os-icons.css, CHANGELOG.md
-
-Firestore-Regeln: Änderung nötig – Block „documents“ ersetzt (Lesen für geteilte Dateien) und neuer Block „contacts“ (siehe firestore-regeln.txt / teilen-kontakte-regel.txt)
+- Geänderte Dateien: OS/contacts.js (neu), OS/index.html, OS/explorer.js, OS/writer.js, OS/calc.js, OS/slides.js, OS/officekit.js, OS/extras.js, OS/os.css, OS/os-icons.css, CHANGELOG.md
+- Firestore-Regeln: Änderung nötig – Block „documents“ ersetzt (Lesen für geteilte Dateien) und neuer Block „contacts“ (siehe firestore-regeln.txt / teilen-kontakte-regel.txt)
 
 ## 26.11.2026 (5)
-OS – Paket B: Office-Ausbau
+
+### OS – Paket B: Office-Ausbau
 - Automatisch speichern: Schalter oben rechts in Writer, Tabellen und Präsentation. Gespeicherte Dateien werden kurz nach jeder Änderung von selbst gesichert (neue, noch nie gespeicherte Dokumente fragen wie bisher nach dem Namen).
 - Versionsverlauf: Datei → Versionsverlauf zeigt die letzten 5 Stände (höchstens alle 10 Minuten einer) mit „Wiederherstellen“ und „Herunterladen“. Wiederherstellen hebt den jetzigen Stand vorher auf. Lässt sich im selben Fenster abschalten.
 - Eigene Vorlagen: Datei → „Als Vorlage speichern“; die Vorlagen stehen danach unter Datei → Neu (mit Löschen-Knopf).
@@ -87,21 +89,18 @@ OS – Paket B: Office-Ausbau
 - Diagramm übernehmen: In Writer und Präsentation unter Einfügen → „Diagramm aus Tabelle“ (oder in Tabellen „Als Bild kopieren“ und mit Strg+V einfügen).
 - Serienbrief in Writer: neuer Reiter „Sendungen“ – Empfänger aus einer Tabelle wählen, Felder wie «Vorname» einfügen, Vorschau je Empfänger, alle Briefe als ein Dokument oder direkt drucken.
 - Volltextsuche im Explorer: Die Suche findet jetzt auch Wörter in Word-, Excel-, PowerPoint- und Textdateien und zeigt die Fundstelle an.
-
-Geänderte Dateien: OS/officekit.js (neu), OS/chart.js (neu), OS/office.js, OS/index.html, OS/writer.js, OS/calc.js, OS/slides.js, OS/sheetcore.js, OS/explorer.js, OS/os.css, OS/os-icons.css, CHANGELOG.md
-
-Firestore-Regeln: keine Änderung (Versionen und Vorlagen liegen als versteckte Einträge in deinen Dokumenten und zählen zum 100-MB-Speicher)
+- Geänderte Dateien: OS/officekit.js (neu), OS/chart.js (neu), OS/office.js, OS/index.html, OS/writer.js, OS/calc.js, OS/slides.js, OS/sheetcore.js, OS/explorer.js, OS/os.css, OS/os-icons.css, CHANGELOG.md
+- Firestore-Regeln: keine Änderung (Versionen und Vorlagen liegen als versteckte Einträge in deinen Dokumenten und zählen zum 100-MB-Speicher)
 
 ## 26.11.2026 (4)
-OS – Paket A: schnellerer Start, „Empfohlen“ im Startmenü, Systemklänge
+
+### OS – Paket A: schnellerer Start, „Empfohlen“ im Startmenü, Systemklänge
 - Schnellerer Start: Writer, Tabellen und Präsentation (samt .docx/.xlsx/.pptx-Code) werden nicht mehr beim Start ausgeführt, sondern erst beim ersten Öffnen nachgeladen. Der Browser lädt sie im Leerlauf vor, das Öffnen bleibt also schnell.
 - Startmenü „Empfohlen“: zuletzt geöffnete Dateien und Apps gemischt, nach Zeit sortiert, mit „vor 3 Min.“ / „Heute, 14:20“; „Mehr“ klappt weitere Einträge auf. Dateien aus Writer/Tabellen/Präsentation werden beim Speichern mit aufgenommen.
 - Systemklänge: dezente Töne beim Start, Sperren/Entsperren, Mitteilungen, Hinweisen/Fehlern, Papierkorb und Bildschirmfoto. Einstellungen → System → Ton: an/aus und Lautstärke mit „Probe“.
 - Tabellen-Symbol wurde nicht angezeigt – behoben.
-
-Geänderte Dateien: OS/index.html, OS/office.js (neu), OS/sound.js (neu), OS/writer.js, OS/calc.js, OS/slides.js, OS/explorer.js, OS/shell.js, OS/os.js, OS/extras.js, OS/tools.js, OS/setwin.js, OS/os.css, OS/os-icons.css, CHANGELOG.md
-
-Firestore-Regeln: keine Änderung
+- Geänderte Dateien: OS/index.html, OS/office.js (neu), OS/sound.js (neu), OS/writer.js, OS/calc.js, OS/slides.js, OS/explorer.js, OS/shell.js, OS/os.js, OS/extras.js, OS/tools.js, OS/setwin.js, OS/os.css, OS/os-icons.css, CHANGELOG.md
+- Firestore-Regeln: keine Änderung
 
 ## 26.11.2026 (3)
 
