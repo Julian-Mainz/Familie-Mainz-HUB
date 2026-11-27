@@ -2,6 +2,24 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 27.11.2026 (3)
+
+**OS: alle Apps jetzt als eigene OS-Apps**
+
+- Kalender, Zeiterfassung, Finanzen, Passwort-Safe, Spotify, Changelog und Admin laufen im OS jetzt als eigene Apps statt als Dashboard-Seite im Fenster. Daten bleiben dieselben wie im Dashboard und am Handy.
+- Kalender: Monat, Woche und Liste, Seitenleiste mit Einladungen, Tagesansicht, Kalender ein-/ausblenden; Termin-Editor mit Wiederholung, Teilen, Farbe, Erinnerung und Zusagen; Doppelklick auf einen Tag legt einen Termin an, Rechtsklick-Menüs, Tasten ←/→/T/N.
+- Zeiterfassung: Stempeluhr, Monatszahlen, Überstundenkonto mit Abschluss und Startstand, Kalender mit Abwesenheiten per Rechtsklick, Einträge, Urlaubsübersicht, Stundenzettel und CSV.
+- Finanzen: Übersicht mit Budgets, 6-Monats-Verlauf und Sparzielen, Buchungen, Fixkosten (offene direkt buchen), Sparen & Schulden, Rechnungen mit Datei, Lohnzettel, Sparkassen-CSV-Import und CSV-Export.
+- Passwort-Safe: gleiche Verschlüsselung wie im Dashboard, dazu Bearbeiten, Webseite/Notiz, Passwort-Generator, Stärkeanzeige, Suche und automatische Sperre nach 5 Minuten.
+- Spotify: Start, Suche, Playlists, Lieblingssongs, Zuletzt gehört, Player-Leiste mit Geräten; Anmeldung über ein kleines Fenster.
+- Admin: Benutzer, Rechte, Freigaben, Einladungen, Nachrichten, Wartung und Protokoll.
+- „Dokumente“ öffnet im OS den Explorer, die Startseite des Dashboards taucht im OS nicht mehr auf.
+- Noch nicht übernommen: Dateianhänge an Terminen, Wiedergabe direkt im Browser bei Spotify, System-Zahlen im Admin – dafür gibt es weiter die Dashboard-Seiten.
+
+Geänderte Dateien: OS/app-kit.js, OS/app-kalender.js, OS/app-zeit.js, OS/app-finanzen.js, OS/app-tresor.js, OS/app-spotify.js, OS/app-changelog.js, OS/app-admin.js (alle neu), OS/office.js, OS/os.js, OS/index.html, OS/os.css, OS/os-icons.css, CHANGELOG.md
+
+Firestore-Regeln: keine Änderung
+
 ## 27.11.2026 (2)
 OS: Messenger als eigene OS-App
 - Der Messenger im OS ist jetzt eine eigene App statt der Dashboard-Seite im Fenster. Daten, Gelesen-Stand und Einstellungen bleiben dieselben wie im Dashboard und am Handy.

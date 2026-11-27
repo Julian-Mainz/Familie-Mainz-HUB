@@ -27,7 +27,7 @@
         APPS = {}; ORDER = []; WEBSET = [];
         const add = (a, list) => { APPS[a.id] = a; if (list && !list.includes(a.id)) list.push(a.id); };          // eigene OS-Apps ersetzen die Dashboard-Seite gleichen Namens
         (typeof DRAWER_LINKS !== 'undefined' ? DRAWER_LINKS : []).forEach(l => {
-            if (l.href.startsWith('/OS')) return;
+            if (l.href.startsWith('/OS') || l.href === '/menu.html' || l.href === '/dokumente.html') return;          // Startseite = Desktop, Dokumente = Explorer
             if (l.perm && !can(user, l.perm)) return;
             if (l.admin && !isAdmin(user)) return;
             add({ id: slug(l.href), name: l.label, icon: l.icon, c: l.c, url: l.href }, ORDER);
@@ -202,6 +202,7 @@
     const area = () => ({ w: innerWidth, h: deskH() });
 
     function openApp(id, o = {}) {
+        if (id === 'dokumente') id = 'explorer'; else if (id === 'menu') return null;          // frühere Dashboard-Seiten
         const a = APPS[id]; if (!a) return;
         if (a.run) { closePops(); return a.run(o); }
         closePops();
