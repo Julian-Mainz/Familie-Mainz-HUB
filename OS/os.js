@@ -25,7 +25,7 @@
 
     function buildApps(user) {
         APPS = {}; ORDER = []; WEBSET = [];
-        const add = (a, list) => { APPS[a.id] = a; if (list) list.push(a.id); };
+        const add = (a, list) => { APPS[a.id] = a; if (list && !list.includes(a.id)) list.push(a.id); };          // eigene OS-Apps ersetzen die Dashboard-Seite gleichen Namens
         (typeof DRAWER_LINKS !== 'undefined' ? DRAWER_LINKS : []).forEach(l => {
             if (l.href.startsWith('/OS')) return;
             if (l.perm && !can(user, l.perm)) return;
@@ -43,7 +43,7 @@
     }
     const appByPath = path => {
         const p = path.replace(/index\.html$/, '');
-        return Object.values(APPS).find(a => a.url && (a.url === p || a.url === path || (a.url.endsWith('/') && p.startsWith(a.url))));
+        return Object.values(APPS).find(a => (a.path && (a.path === p || a.path === path)) || (a.url && (a.url === p || a.url === path || (a.url.endsWith('/') && p.startsWith(a.url)))));
     };
 
     // ---------- Gespeicherter Zustand: im Profil (users/{uid}.userPrefs.os), damit er auf allen Geräten gleich ist ----------
@@ -210,7 +210,8 @@
         if (ex && !o.restore) {
             if (ex.tabAway && window.JMOS_TABACT) JMOS_TABACT(ex); else if (!onDesk(ex)) switchDesk(ex.desk);
             if (ex.min) toggleMin(ex, false); focus(ex);
-            if (o.url && ex.frame && ex.url !== o.url) { ex.url = o.url; ex.frame.src = o.url; }          // z. B. Finanzen direkt auf "Rechnungen"
+            if (o.url && ex.frame && ex.url !== o.url) { ex.url = o.url; ex.frame.src = o.url; }
+            if (o.url && !ex.frame && ex.onUrl) ex.onUrl(o.url);          // eigene OS-App (z. B. Messenger: #chat=…)          // z. B. Finanzen direkt auf "Rechnungen"
             if (o.params && ex.onParams) ex.onParams(o.params);
             return ex;
         }
@@ -263,7 +264,7 @@
             let u; try { u = new URL(ln.href, win.frame.contentWindow.location.href); } catch (x) { return; }
             if (u.origin !== location.origin || u.pathname.startsWith('/OS')) return;
             const tgt = appByPath(u.pathname);
-            if (tgt && tgt.id !== win.app.id) { ev.preventDefault(); const w2 = openApp(tgt.id); if (w2 && w2.frame && (u.hash || u.search) && w2.url !== u.pathname + u.search + u.hash) { w2.url = u.pathname + u.search + u.hash; w2.frame.src = w2.url; } }
+            if (tgt && tgt.id !== win.app.id) { ev.preventDefault(); const w2 = openApp(tgt.id, tgt.url ? {} : { url: u.pathname + u.search + u.hash }); if (w2 && w2.frame && (u.hash || u.search) && w2.url !== u.pathname + u.search + u.hash) { w2.url = u.pathname + u.search + u.hash; w2.frame.src = w2.url; } }
         }, true);
     }
     function place(win) {

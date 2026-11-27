@@ -2,6 +2,19 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 27.11.2026 (2)
+OS: Messenger als eigene OS-App
+- Der Messenger im OS ist jetzt eine eigene App statt der Dashboard-Seite im Fenster. Daten, Gelesen-Stand und Einstellungen bleiben dieselben wie im Dashboard und am Handy.
+- Chatliste mit Suche, Ungelesen-Zählern und Rechtsklick (als gelesen markieren, stummschalten, Gruppe verlassen); Fenstertitel zeigt den offenen Chat und ungelesene Nachrichten.
+- Nachrichten: Rechtsklick-Menü (antworten, reagieren, kopieren, bearbeiten, löschen, Bild/Datei herunterladen oder „In Dokumente speichern“), Doppelklick zum Antworten, Pfeil hoch bearbeitet die letzte eigene Nachricht.
+- Anhänge: Bild oder Datei vom PC, „Aus meinen Dokumenten …“, Einfügen mit Strg+V und Drag & Drop – auch direkt aus dem Explorer.
+- Suche im Chat (Strg+F), neuer Chat (Strg+N), Alt+Pfeil wechselt den Chat, Gruppen anlegen/verwalten, Messenger-Einstellungen.
+- Mitteilungen, Widget und Links aus anderen Apps öffnen den passenden Chat direkt in der neuen App.
+
+Geänderte Dateien: OS/messenger.js (neu), OS/os.js, OS/index.html, OS/os.css, OS/os-icons.css, CHANGELOG.md
+
+Firestore-Regeln: keine Änderung
+
 ## 27.11.2026 (1)
 Dashboard und OS getrennt: Auswahl nach der Anmeldung
 - Neue Seite nach der Anmeldung (am PC): „Wo möchtest du weitermachen?“ mit den Kacheln Dashboard und J.Mainz OS (auch per Taste 1 / 2), dazu „Auswahl merken“.
