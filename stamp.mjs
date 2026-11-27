@@ -14,7 +14,7 @@ const isAsset = f => /\.(js|css)$/.test(f);
 
 // 1) Versionstabelle für nachgeladene Skripte in js/theme.js eintragen (ohne theme.js selbst)
 const table = {};
-for (const f of all) if ((f.startsWith('js/') || f.startsWith('assets/')) && isAsset(f) && f !== 'js/theme.js') table['/' + f] = hash(f);
+for (const f of all) if ((f.startsWith('js/') || f.startsWith('assets/') || f.startsWith('OS/')) && isAsset(f) && f !== 'js/theme.js') table['/' + f] = hash(f);
 const themeFile = 'js/theme.js', theme = fs.readFileSync(themeFile, 'utf8');
 const sorted = Object.fromEntries(Object.keys(table).sort().map(k => [k, table[k]]));
 const nextTheme = theme.replace(/window\.ASSET_V = \{.*?\}; \/\*ASSET_V\*\//, `window.ASSET_V = ${JSON.stringify(sorted)}; /*ASSET_V*/`);

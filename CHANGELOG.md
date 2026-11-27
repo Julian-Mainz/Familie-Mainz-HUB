@@ -2,6 +2,16 @@
 
 Alle Änderungen am J.Mainz Dashboard, die neuesten oben.
 
+## 27.11.2026 (6)
+
+### Zeiterfassung: Stundenzettel direkt als PDF
+- Im Fenster „Stundenzettel“ gibt es jetzt „PDF herunterladen“ (Dashboard und OS). Die PDF sieht aus wie die Firmenvorlage: Druckbereich, Spaltenbreiten, Rahmen, Farben, Schrift, Logo sowie Kopf- und Fußzeile werden übernommen, Formeln wie Dauer und Summe ausgerechnet.
+- Datum und Wochentage erscheinen deutsch (z. B. „Mo, 02“ und „2. Nov. 26“).
+- Die ausgefüllte Excel-Datei gibt es weiter über „Excel“.
+- Das Symbol bei „Felder ändern“ fehlte im Dashboard und wird jetzt angezeigt.
+- Geänderte Dateien: js/timesheet-pdf.js (neu), js/timesheet.js, OS/index.html, stamp.mjs, CHANGELOG.md
+- Firestore-Regeln: keine Änderung
+
 ## 27.11.2026 (5)
 
 ### OS: Feinschliff nach dem System-Check

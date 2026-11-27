@@ -251,30 +251,35 @@
         map.codes = {}; document.querySelectorAll('[data-code]').forEach(i => { map.codes[i.dataset.code] = i.value.trim(); });
     }
     function keepAndRepaint() { readForm(); const sc = document.querySelector('.ts-gwrap'), t = sc ? sc.scrollTop : 0, l = sc ? sc.scrollLeft : 0; viewMap(); const s2 = document.querySelector('.ts-gwrap'); if (s2) { s2.scrollTop = t; s2.scrollLeft = l; } }
+    // PDF: Rechenkern (OS/sheetcore.js) und PDF-Modul erst beim ersten Klick laden, mit Versionsnummer aus der Seite, falls vorhanden
+    const urlOf = p => { const f = p.split('/').pop(), l = document.querySelector(`link[href*="${f}?"],script[src*="${f}?"]`); return l ? (l.getAttribute('href') || l.getAttribute('src')) : window.assetUrl ? assetUrl(p) : p; };
+    const need = src => new Promise((ok, no) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => no(new Error('Ein Programmteil konnte nicht geladen werden. Bitte Internet prüfen.')); document.head.appendChild(s); });
+    async function pdfDeps() { if (!window.JMSHEET) await need(urlOf('/OS/sheetcore.js')); if (!window.TimesheetPDF) await need(urlOf('/js/timesheet-pdf.js')); }
     function viewReady(fresh) {
         tpl.saved = true; map = JSON.parse(JSON.stringify(tpl.map));
         const now = new Date(), opts = []; for (let i = 0; i < 13; i++) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1), ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; opts.push(`<option value="${ym}">${d.toLocaleString('de-DE', { month: 'long', year: 'numeric' })}</option>`); }
         $('ts-body').innerHTML = `${fresh ? '<div class="ts-ok"><i class="fa-solid fa-circle-check"></i>Vorlage gespeichert. Ab jetzt reicht ein Klick pro Monat.</div>' : ''}
             <div class="ts-ready"><span class="ts-ic"><i class="fa-solid fa-file-excel"></i></span><span><b>${esc(tpl.name || 'Vorlage')}</b><small>Beginn ${where('start') || '–'} · Pause ${where('pause') || '–'} · Ende ${where('end') || '–'}${where('code') ? ' · Kürzel ' + where('code') : ''}</small></span></div>
             <label class="ux-f"><span>Monat</span><select id="ts-month" class="ux-in">${opts.join('')}</select></label>
-            <div class="ux-acts"><button type="button" class="ux-btn" data-act="remap"><i class="fa-solid fa-table-cells"></i>Felder ändern</button><button type="button" class="ux-btn" data-act="new"><i class="fa-solid fa-upload"></i>Neue Vorlage</button><button type="button" class="ux-btn" data-act="del" title="Vorlage löschen"><i class="fa-solid fa-trash-can"></i></button><div style="flex:1"></div>
-                <button type="button" class="ux-btn pri" data-act="make"><i class="fa-solid fa-download"></i>Stundenzettel erstellen</button></div>`;
+            <div class="ux-acts"><button type="button" class="ux-btn" data-act="remap"><i class="fa-solid fa-table-cells-large"></i>Felder ändern</button><button type="button" class="ux-btn" data-act="new"><i class="fa-solid fa-upload"></i>Neue Vorlage</button><button type="button" class="ux-btn" data-act="del" title="Vorlage löschen"><i class="fa-solid fa-trash-can"></i></button><div style="flex:1"></div>
+                <button type="button" class="ux-btn" data-act="make" title="Ausgefüllte Excel-Datei herunterladen"><i class="fa-solid fa-file-excel"></i>Excel</button><button type="button" class="ux-btn pri" data-act="pdf" title="Fertigen Stundenzettel als PDF herunterladen"><i class="fa-solid fa-file-pdf"></i>PDF herunterladen</button></div>`;
         $('ts-body').onclick = async e => {
             const a = e.target.closest('[data-act]'); if (!a) return;
             if (a.dataset.act === 'remap') { await ensureBook(); viewMap(); }
             if (a.dataset.act === 'new') { book = null; tpl.saved = false; viewUpload(); }
             if (a.dataset.act === 'del') { if (!(await uiConfirm('Vorlage und Zuordnung löschen?', { danger: true, ok: 'Löschen' }))) return; await docRef().delete(); tpl = null; book = null; viewUpload(); }
-            if (a.dataset.act === 'make') {
-                const ym = $('ts-month').value; a.disabled = true; a.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Wird erstellt …';
+            if (a.dataset.act === 'make' || a.dataset.act === 'pdf') {
+                const pdf = a.dataset.act === 'pdf', ym = $('ts-month').value, label = a.innerHTML; a.disabled = true; a.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Wird erstellt …';
                 try {
-                    const blob = await fill(tpl.b64, tpl.map, ym, ctx.entries(), ctx.user, { holiday: ctx.holiday, isWorkday: ctx.isWorkday });
+                    let blob = await fill(tpl.b64, tpl.map, ym, ctx.entries(), ctx.user, { holiday: ctx.holiday, isWorkday: ctx.isWorkday });
                     const base = (tpl.name || 'Stundenzettel').replace(/\.xlsx$/i, '').replace(/[_\s-]*(blanko|leer|vorlage)[_\s-]*\d*$/i, '') || 'Stundenzettel';
-                    const url = URL.createObjectURL(blob), l = document.createElement('a'); l.href = url; l.download = `${base}_${ym}.xlsx`; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
-                    if (ctx.log) ctx.log(ym);
+                    if (pdf) { await pdfDeps(); blob = await TimesheetPDF.render(new Uint8Array(await blob.arrayBuffer()), { title: `${base} ${ym}` }); }
+                    const url = URL.createObjectURL(blob), l = document.createElement('a'); l.href = url; l.download = `${base}_${ym}.${pdf ? 'pdf' : 'xlsx'}`; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+                    if (ctx.log) ctx.log(ym + (pdf ? ' (PDF)' : ''));
                 } catch (x) { alert('Der Stundenzettel konnte nicht erstellt werden: ' + x.message); }
-                a.disabled = false; a.innerHTML = '<i class="fa-solid fa-download"></i>Stundenzettel erstellen';
+                a.disabled = false; a.innerHTML = label;
             }
         };
     }
-    window.Timesheet = { open, _test: { unzip, zip, openBook, guess, fill, cellsOf, daysOf } };
+    window.Timesheet = { open, _test: { unzip, zip, openBook, guess, fill, cellsOf, daysOf, pdfDeps } };
 })();
